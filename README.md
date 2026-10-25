@@ -38,6 +38,11 @@ The notes and scripts use the original absolute paths. To translate:
 Many scripts expect an executable that was built from the `.cpp`/`.rs` file next to them; build it yourself.
 Some also need data files that are listed in `DATA_MANIFEST.tsv` but not included.
 
+## License
+
+Code (`.py`, `.cpp`, `.c`, `.h`, `.rs`, `.js`, `.ps1`) is under the [MIT License](LICENSE-CODE). Notes, lessons,
+indexes and data are under [CC BY 4.0](LICENSE-DOCS). See [`LICENSE`](LICENSE).
+
 ## Credits
 
 The search was run by the repository owner (Jeff Ketchersid) with Claude models (Anthropic) as lead and investigator

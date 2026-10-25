@@ -1,0 +1,16 @@
+This repository uses two licences.
+
+Code: MIT (see LICENSE-CODE)
+  Source files: *.py, *.cpp, *.c, *.h, *.rs, *.js, *.ps1
+
+Everything else: Creative Commons Attribution 4.0 International, CC BY 4.0 (see LICENSE-DOCS)
+  Notes, reports, lessons, indexes and data files: *.md, *.txt, *.tsv, *.csv, *.json, *.jsonl
+  https://creativecommons.org/licenses/by/4.0/
+
+Copyright (c) 2026 Jeff Ketchersid.
+
+Attribution for the notes: "busy-beaver-notebook by Jeff Ketchersid
+(https://github.com/jeff87654/busy-beaver-notebook), CC BY 4.0".
+
+Third-party material quoted or referenced in the notes (for example the busycoq licence text in
+workspace/bb8_list/proofs/selfcontained/gen_selfcontained.py) stays under its own licence.
