@@ -1,0 +1,11 @@
+2026-10-24 ctl_f68: CONTROL run of the F5 method on F68 = 1RB1RE_0LC0LD_1RF0LD_1LE1LB_1RA1RG_1RE---_0RC0RF (audit: CONFIRMED never-halts).
+- K event: D on left, kl2 lead 'D00' (head + 1 zero; F5 used 'D000').  Found by trying leads on trace pairs.
+- engine f68eng.py (same grammar as f5eng, c never appears).  Rules measured with probe.py/kl2.
+- lock68.py lit3e8.txt: 15448 pairs, 0 miss (D 15432, Bj 14, T1 1, T0 1); 2 non-template lines (blank, '26 #' = T0 intermediate).
+- thr68.py: B_j and T_j fail literally exactly for A <= j-2 (valid iff A >= j-1); B1, T0, T1 never fail (A 0..13).
+- grid68.py 600/seed1 + 3000/seed7: every failure has A < j-1, every A >= j-1 case passes.
+- symf68.py: symf5 adapted (lead 1 zero, digit-1 runs 'R1' (100)^n, two parser fixes: far-end zeros merged in string; A=1 inside a 1-run).
+  symsim needs strict sign margin: hlb=j+4 symbolic, concrete A in [j-1, j+3] cover the rest.
+- safety lemma: every event of depth d>=2 has A >= 2d+7 (proof by nested induction G(m,v), see REPORT); safety_check.py tight at d=2 (A=11).
+- symsuite partA (j=1..7 full, j=8 partial) 1805/1805 OK (stopped for time, PID 167568 killed by me); partB reduced j=10..31 224/224 OK.
+- hs68: 3400 small configs, 24 literal halts == exactly the engine-unsafe ones.  REPORT.txt written. DONE.

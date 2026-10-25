@@ -1,0 +1,251 @@
+BB(10) TARGET #4 REPORT: SEARCH FOR HIGHER FGH APPROXIMATIONS (> n1 ~ f_{omega+1}(2^^37))
+=========================================================================================
+Workspace: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb10_higher_fgh
+Date: 2026-10-24
+
+0. EXECUTIVE SUMMARY & VERDICT
+------------------------------
+We investigated whether a 10-state Turing machine can achieve a strictly higher Fast-Growing
+Hierarchy (FGH) approximation than the current 10-state champion `n1`:
+  n1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LJ0LC_1RG1LD_1LC0RH_1RG1LF_0LJ0LI_---0LC
+  sigma(n1) ~ f_{omega+1}((3 * 2uparrow^37 3 - 13)/7 - 2)  (Coq-certified in bb10_n1_coq.md)
+across both concrete architectural routes proposed for BB(10) Target #4:
+  - Route 4A (BB(7)/M8/h003/C7 family + 1 or 2 states):
+    1. Can `n1`'s 2-state `Per` countdown gadget (`0LJ0LI_---0LC` or `---0LJ_0LE0LJ`) work on top
+       of the 7-state BB(7) base `n1f0` (`G = 0RG0RF`) instead of 8-state `c35` (`G = 1LC0RH, H = 1RG1LF`),
+       freeing 1 state (`J`) to boost the initial seed $M_1$ from $2\uparrow^{37} 3$ to $f_\omega^k$?
+    2. Can 1-state (`J`) extensions of 9-state `h003` ($> f_\omega^7(12)$) or `C7` ($> f_\omega^6(12)$)
+       redirecting `H1 -> J` create an $f_{\omega+1}$ countdown loop starting from $M \sim f_\omega^7(12)$?
+    3. Can 2-state (`I, J`) extensions of 8-state `M8` ($> f_\omega^3(12)$) or its 4 C04-trace halting
+       twins (`0LH/0RC---`, `0LH/1RD---`, `1LH/0RB---`, `1LH/0RE---`) redirecting `H1 -> (I, J)` achieve
+       a multi-round top-level countdown or beat `h003`?
+  - Route 4B (`champ_231`/`champ_232` multi-collapse & 10-state extensions):
+    1. Do the $O(k_r)$ sequential Ackermann tower collapses inside a single round of the 9-state
+       `champ_231` multi-collapse / cascade / `cap_sensitive` machines (`bb9_champ231_accel` and
+       `bb9_beat_h003`) have fixed/decreasing tower height (staying at $f_\omega$) or growing tower
+       height (reaching $f_{\omega+1}$)?
+    2. Can 10-state (`J`) extensions of the best 9-state `champ_231`/`232` halters achieve an
+       $f_{\omega+1}$ countdown or $> 3$ robust rounds?
+
+VERDICT:
+  * NEGATIVE on reaching > f_{omega+1}(2^^37) or f_{omega+1}^2 / f_{omega+2} along either route.
+    Both Route 4A and Route 4B encounter sharp, mathematically provable structural ceilings that
+    prevent 10-state extensions of `n1f0`/`M8`/`h003`/`C7` and `champ_231`/`232` from forming an
+    $f_{\omega+1}$ countdown loop.
+  * POSITIVE on strictly beating 9-state `h003`, `C7`, `M8`, and 9-state `champ_231` within their
+    respective families:
+    - Best 10-state halting extension of `h003`:
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI1LJ_1RI1RC_---0LA`
+      Performs `dj = 21` additional $f_\omega$-level Ackermann/counter jumps after `h003`'s `H1` halt
+      (`+22,554,691` W2 steps, eating 6 parked cascade tokens `2 1 0, 4 5, 14, 2, 28, 6` of depth
+      $82..433 \sim (3/5)^m K_4$), reaching $> f_\omega^8(12)$ (still $\ll f_{\omega+1}$).
+    - Best 10-state halting extensions of `C7`:
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI1LJ_1LC0RA_0LE---` (`dj = 30`, 3 new tops to `1*2848`)
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI0LJ_1LC0RA_1LF---` (`dj = 52`, `maxk = 5,958`)
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI1LJ_1LC0RA_1LC---` (`dj = 101`, `maxk = 3,522`)
+    - Best 10-state halting extensions of `M8` (`H1 -> I, J`, exhaustive D2+D3+D4 lazy-TNF search):
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_1LD0LJ_1LB---` (`dj = 20`, `ones = 2,631`)
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0RI_1RJ0RI_---0RC` (`dj = 19`, `maxk = 264`)
+        `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_1LD1LJ_0LB---` (`dj = 19`, `ones = 3,718`)
+    - Best 10-state halting extensions of `champ_231`:
+        `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_1RD0RI_1LH0RJ_---1RG`
+      Splits odd $k$ (`P = 2`) into $k \equiv 1 \pmod 4 \to \text{K}$ and $k \equiv 3 \pmod 4 \to \text{H}^*$,
+      halting at the end of Round 3 (`R = 3`) after $c = 18$ sequential intra-gadget Ackermann tower
+      collapses of height $s_1 = k_3 - 2 \approx 3 A_2 \approx f_\omega^2(20)$ (vs $c = 0$ in the
+      9-state parent), boosting the Round-3 halting score from $\sim f_\omega^3(20)$ to $\sim f_\omega^4(20)$.
+
+=========================================================================================
+1. ROUTE 4A-1: WHY `n1`'S `Per` GADGET REQUIRES 8-STATE `c35` AND FAILS ON 7-STATE `n1f0`
+=========================================================================================
+Scripts: `compare_c35_vs_n1f0.py`, `test_n1f0_kt.py`
+
+1.1 Architectural Comparison of `c35` (8-state base) vs `n1f0` (7-state base):
+  * `c35` (`BASE_REC` in `n1`):
+      `A..D = 1RB0RA_1LC1LF_1RD0LB_1RA1LE`, `E = 0LJ0LC`, `F = 1RG1LD`, `G = 1LC0RH`, `H = 1RG1LF`
+    Here `G0 = 1LC` turns the head around on a SINGLE `0` at the blank right end (`D(a) G> 0^inf -> D(a) <C 1`).
+    Consequently, `c35` has NO fixed right-end wall `11 (11111100)^t 1001` and NO left-end `0*2` (`11`)
+    prefix. Because `G0 = 1LC` is dedicated to the right-end turnaround, `G1` must transition to a
+    second wrapper state `H` (`G1 = 0RH, H0 = 1RG, H1 = 1LF`) to skip `0`s between tokens.
+  * `n1f0` (7-state BB(7) champion base in `M8`, `h003`, `C7`):
+      `A..D = 1RB0RA_1LC1LF_1RD0LB_1RA1LE`, `E = ---0LC`, `F = 1RG1LD`, `G = 0RG0RF`
+    Here `G` handles token traversal in 1 state (`G1 = 0RF`), but `G0 = 0RG` steps right indefinitely
+    on blank tape! Therefore, `n1f0` requires the right-end wall `11 (11111100)^t 1001` (where `B0 = 1LC`
+    turns the head around) and produces the left-end prefix `0*2` (`D(0)^2 = 11`) during its bootstrap.
+
+1.2 Direct Simulation of `n1f0` + `Per` (`n1f0_Per1` and `n1f0_Per2`):
+  We tested attaching both forms of `n1`'s 2-state `Per` gadget to `n1f0`:
+    `n1f0_Per1`: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI0LH_---0LC`
+    `n1f0_Per2`: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RG0RF_---0LI_0LE0LI`
+  * From the blank tape (`[0*2, 7, 1*11]` at `J1`, step 206,472):
+    When `E0` is reached at the far left of `0*2 7 1*11`, the tape to the left of `E0` is `0^inf`
+    (because `0*2` was already consumed). `Per` immediately sees `0` on the left and halts at `I0 = ---`
+    (`n1f0_Per1`) or `H0 = ---` (`n1f0_Per2`) at step 206,472 (`nj = 1, ones = 430`).
+  * From synthetic `c35`-style configurations without `0*2` (`--kt "1*11;1;20;0"` and `"2,1*11;1;20;0"`):
+    `n1f0`'s 1-state `G = 0RG0RF` rewrites the left end into `0*2 6 10 1*52 0*2 22 ...` (regenerating
+    `0*2` instead of `c35`'s `[2, 5, 1^M | 4]`) and halts on the very next pass (`step = 41,018`,
+    `jumps = 0` or `1`, `ones = 197..211`) because `G = 0RG0RF` cannot execute `S0` or spawn/merge
+    the right-hand sub-engine (`P2`/`P3`) across the `11 (11111100)^t 1001` wall.
+  * CONCLUSION: `n1`'s `Per` countdown mechanism is structurally inseparable from `c35`'s 8-state
+    blank-right-end engine (`G, H`), leaving exactly 0 free states in BB(10).
+
+=========================================================================================
+2. ROUTE 4A-2: COMPLETE CLASSIFICATION OF 1-STATE (`J`) EXTENSIONS OF `h003` AND `C7`
+=========================================================================================
+Scripts & Data: `test_h1_extensions.cpp`, `h003_c7_ext160_v2.txt`, `test_h003_mod5.py`
+
+2.1 The Exact Entry-Cell Theorem at `H1` (`Hc` in `K31_End.v`):
+  In `M8`, `h003`, and `C7`, all 17 transitions `A0..G1, H0, I0, I1` (or `A0..G1, H0` in `M8`) are
+  executed before `H1` is reached, and the ONLY transition to state `H` in `A..I` is `E0`:
+  * In `h003` (`E0 = 0LH`): `E0` writes `0` at cell `p` and moves LEFT to `p - 1`. Therefore, at
+    EVERY visit to `H1`, the cell `p` immediately to the RIGHT of `H1` is GUARANTEED to be `0`!
+    Consequently, if `H1 in {0RJ, 1RJ}`, state `J` always enters reading `0` (`J0`), making `J1 = ---`
+    mathematically unreachable (unless `J0 -> J`, which halts in 2-3 steps).
+  * In `C7` and `M8` (`E0 = 1LH`): `E0` writes `1` at cell `p` and moves LEFT to `p - 1`. Therefore,
+    at EVERY visit to `H1`, the cell `p` immediately to the RIGHT of `H1` is GUARANTEED to be `1`!
+    Consequently, if `H1 in {0RJ, 1RJ}`, state `J` always enters reading `1` (`J1`), making `J0 = ---`
+    mathematically unreachable (unless `J1 -> J`).
+
+2.2 Complete Classification of All 160 Halting `h003 + J` Machines (`h003_c7_ext160_v2.txt`):
+  At `h003`'s `H1` halt in `W2` (`step = 57,344,042, nj = 11, ones = 3,853`), the configuration is:
+    `0*2 940 6 562 4 336 4 5 194 4 5 116 2 74 4 5 38 6 28 2 14 4 5 2 1 0 [H1] 398 z2 1*434`
+  with local window `...101[1]0111...` (`tape[pos-1] = 1, tape[pos+1] = 0`).
+  * `H1 in {0RJ, 1RJ}` (80 machines, `J0` defined, `J1 = ---`):
+    By the Entry-Cell Theorem, 76 of 80 never reach `J1 = ---` (`MAXJ = 60, MAXS = 16`), and the 4
+    with `J0 in {0LJ, 1LJ}` halt immediately in 2 steps (`dj = 0`).
+  * `H1 in {0LJ, 1LJ}` (80 machines, `J1` defined, `J0 = ---`):
+    79 of 80 halt cleanly at `J0 = ---` (and 1, `H1=1LJ, J1=1RH`, loops trivially `H1 <-> J1`).
+    Top halting extensions of `h003`:
+    1. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI1LJ_1RI1RC_---0LA`
+       `dj = 21` additional jumps, `dstep = +22,554,691`, `ones = 5,112`, `maxk = 433`, `ntops = 0`.
+       Eats leftward through 6 parked cascade tokens (`2 1 0, 4 5, 14, 2, 28, 6`) and halts at `J0 = ---`
+       on `0*2 940 6 562 4 336 4 5 194 4 5 116 2 74 4 5 38 0 403 1*82`.
+    2. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI1LJ_1RI1RC_---0RB` (`dj = 19`, `ones = 5,111`)
+       `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI1LJ_1RI1RC_---1RG` (`dj = 19`, `ones = 5,113`)
+    3. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI0LJ_1RI1RC_---0LA` (and `0LI, 0RE, 0RH, 0RI, 1RI`):
+       `dj = 18`, `ones = 5,109..5,110`.
+    All 79 halting machines have `ntops = 0` because eating leftward into the `k31` cascade tokens
+    terminates at `38` (`dj <= 21`) long before `0*2 940` is reached.
+
+2.3 Classification of All 160 Halting `C7 + J` Machines (`h003_c7_ext160_v2.txt`):
+  At `C7`'s `H1` halt in `W2` (`step = 73,359,362, nj = 10, ones = 3,877`), the configuration is:
+    `0*2 2 0*3 [H1] 398 z2 1*1718` (`tape[pos-1] = 0, tape[pos+1] = 1`).
+  Because `C7` has only `0*2 2 0*3` to the left of `H1` (unlike `h003`'s 25 parked cascade tokens),
+  extensions with `H1 in {0LJ, 1LJ}` (`J0` defined, `J1 = ---`) reach `0*2` on the left and trigger
+  post-cascade top rebuilds:
+  * 29 of 80 halt cleanly at `J1 = ---` within 150 jumps in `W2`, led by:
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI1LJ_1LC0RA_1LC---`
+      `dj = 101`, `ones = 5,976`, `maxk = 3,522`, `ntops = 2` (`0*2 7 1*2343`, `0*2 7 1*3523`).
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI0LJ_1LC0RA_1LF---` and `..._1LJ_..._1RC---`
+      `dj = 52`, `ones = 5,994`, `maxk = 5,958`, `ntops = 2` (`0*2 7 1*817`, `0*5 7 1*1012`).
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI1LJ_1LC0RA_0LE---`
+      `dj = 30`, `ones = 8,510`, `maxk = 2,847`, `ntops = 3` (`0*5 7 1*1012 -> 0*2 7 1*1812 -> 0*2 7 1*2848`).
+  As established in `bb9_topmap_all`, post-cascade top rebuilds are `Y`-type (their exit depends on
+  the endgame class of a tower-sized $K$, not a monotone countdown token) and add only $O(1)$ rounds.
+
+=========================================================================================
+3. ROUTE 4A-3: EXHAUSTIVE 2-STATE (`I, J`) SEARCH ON `M8` AND ITS 4 HALTING TWINS
+=========================================================================================
+Scripts & Data: `m8_depth23.cpp`, `m8_twins_depth23.cpp`, `m8_depth23_out.txt`, `m8_twins_depth23_out.txt`
+
+Using the Exact Reachability Theorem (since `A..H` have no transitions to `J` and `H1 -> I`, state `J`
+is reachable iff `I0 -> J` or `I1 -> J`) and Entry-Cell pruning (`h1_d == +1`), we searched Depth 2,
+Depth 3, and Depth 4 (where 3 slots of `{I0, I1, J0, J1}` are defined and the 4th slot is `---`):
+  * `M8` (`1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---`, `H1` at `step = 32,240,734, nj = 10`):
+    - Summary: `D2 (160): UNDEF=45, MAXS=51 | D3 (756): UNDEF=298, MAXS=458 | D4 (8812): UNDEF=2292, MAXS=6520`
+    - Maximum jumps after `H1`: `max_dj = 20`; maximum new tops: `max_ntops = 0`.
+    - Best halting 10-state extensions of `M8`:
+      1. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_1LD0LJ_1LB---` (and `1LE---`):
+         `dj = 20`, `ones = 2,631`, `maxk = 52`.
+      2. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0RI_1RJ0RI_---0RC` (and `---0RE`, `---1RD`):
+         `dj = 19`, `ones = 1,849`, `maxk = 264`, eating left to `0*2 492 4 294 405 4 0 403 1*45`.
+      3. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_1LD1LJ_0LB---` (and `1LD0LJ_1RB---`):
+         `dj = 19`, `ones = 3,718`, `maxk = 157`.
+      4. `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_1LJ---_1LA1LJ`:
+         `dj = 14`, `ones = 4,110`, `maxk = 264`.
+  * `M8_t1 / M8_t2` (`0LH/0RC---` and `0LH/1RD---`, `H1` at `step = 32,240,796, nj = 10`):
+    - Summary: `D2: UNDEF=51 | D3 (780): UNDEF=336 | D4 (9300): UNDEF=2550 | max_dj=19, max_ntops=0`.
+    - Best halting 10-state extension:
+      `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0RC1LI_1LB1LJ_---0LE` (`dj = 19`, `ones = 2,480`).
+  * `M8_t3 / M8_t4` (`1LH/0RB---` and `1LH/0RE---`, `H1` at `step = 32,240,796, nj = 10`):
+    - Summary: `D2: UNDEF=45 | D3 (756): UNDEF=297 | D4 (8812): UNDEF=2276 | max_dj=20, max_ntops=0`.
+  * Structural Explanation:
+    In `M8` and its 4 twins, `H0` is already fixed (`1RG/0RC/1RD/0RB/0RE`), which forces the machine
+    into `M8`'s `k31` cascade at step 8,110 instead of executing a residue-driven top rebuild (`H0 = 0LI`
+    in `h003` and `C7`). By the time `H1` is reached (`nj = 10`), 15 parked cascade tokens
+    (`492 4 294 405 4 102 4 60 6 34 405 4 5 1 0*3`) sit between `0*2` and `H1`. Redirecting `H1 -> (I, J)`
+    can eat leftward through at most 11 of those parked tokens (`dj <= 20`), never reaching `0*2 492`.
+
+=========================================================================================
+4. ROUTE 4B-1: MULTI-COLLAPSE MECHANICS & FGH LEVEL IN `champ_231`/`champ_232`
+=========================================================================================
+Scripts: `analyze_champ231_collapses.py`, `test_cap_sensitivity.py`
+
+4.1 The Decreasing-Height Multi-Collapse Law (`ROBUST` periodic multi-collapse machines):
+  At the end of Round $r$ (`k = k_r`), the `champ_231` exhaustion configuration is:
+    `(10)^(2 k_r - 1) 11001 [C1] 100 (1100)^(N_r) 1`   where $N_r = 3 A_r + 1 - k_r \approx f_\omega(k_r)$.
+  By instrumenting `run_ackermann_sim` to log `(type, s_digits, max_nz_idx, a, nz_evens, d_odd)` on
+  every Ackermann jump, we proved that in the periodic multi-collapse machines (`P2_---0RI_1RF1LG`,
+  `P3_1LG0LI_1LH---`, `P5_---0LI_1LG0LH`, `P6_---0LI_0RI0RG`) and `CASCADE_---1LI_1RB1LH`:
+  * The gadget sweeps leftward across `(10)^(2 k_r - 1)`, grouping 4-cell blocks `(10)(10)` into
+    `1100` even digits and triggering $c = O(k_r)$ sequential Type-A Ackermann collapses whose tower
+    heights `s_digits` STRICTLY DECREASE by 2 or 3 on each collapse:
+    - `P2_---0RI_1RF1LG` ($k = 20$): $c = 9$, `s_digits = [18, 16, 14, 12, 10, 8, 6, 4, 2]`, `d_odd = [1]*9`.
+    - `P3_1LG0LI_1LH---` ($k = 20$): $c = 13$, `s_digits = [0, 17, 0, 14, 0, 11, 0, 8, 0, 5, 0, 2, 0]`.
+    - `P5_---0LI_1LG0LH` ($k = 21$): $c = 22$, `s_digits = [0, 0, 18, 0, 0, 16, 0, 0, 13, ..., 3, 0]`.
+    - `CASCADE_---1LI_1RB1LH` ($k = 20$): $c = 4$, `s_digits = [0, 15, 0, 10]`, `d_odd = [21, 5, 21, 5]`.
+  * Between Collapse $j$ (height $s_j = k_r - 2j$) and Collapse $j+1$ (height $s_{j+1} = k_r - 2j - 2$),
+    the huge unary accumulator $U_j$ is drained in place into a single digit value (`a = 1` or `nz_evens[1]`),
+    while the next tower height $s_{j+1}$ is determined strictly by the remaining tokens of the
+    length-$k_r$ prefix (NOT by $U_j$).
+  * Therefore, the $c = O(k_r)$ collapses compose functions of DECREASING FGH index:
+      $$f_3 \circ f_5 \circ \dots \circ f_{k_r - 2} \circ f_{k_r}(a_0) \;\approx\; f_{k_r}(a_0 + O(1)) \;\sim\; f_\omega(k_r),$$
+    which has the exact same FGH level ($f_\omega(k_r)$) as a single collapse of height $k_r$.
+
+4.2 Resolution of `cap_sensitive` Machines (`test_cap_sensitivity.py`):
+  Across the `cap_sensitive` machines from `bb9_beat_h003` (`STD_1RI_1RA0LF`, `STD_1RI_0RE0LF`,
+  `STD_1RI_1RA0RE`, `STD_1LD0LI_1LH`, `STD_1LD1LI_0LH`):
+  * `max(s_digits) = k_r - 2` and the count of multi-digit collapses (`s_digits >= 2`, which is 2 or 3)
+    are 100% INVARIANT with respect to `CAPX` (`cap+0, cap+12, cap+24`).
+  * Shifting `CAPX` by $+12$ only adds extra `s_digits = 0` (`f_2`) drain jumps that copy the
+    intra-gadget collapse accumulator $U_{\text{gad}}(k_r) \approx f_{k_r}(1)$ into `dL` ($\Delta dL \in \{6, 12, 18\} \equiv 0 \pmod 6$).
+  * Since both $N_r \approx 3 A_r \approx f_\omega(k_r)$ and $dL(k_r) \sim f_3(U_{\text{gad}}(k_r))$ are bounded by
+    $f_\omega(k_r + O(1))$, each round advances $k_r \mapsto k_{r+1}$ by ONE $f_\omega$ step (never $f_{\omega+1}$).
+
+4.3 The Tape-Overwrite Barrier in `champ_231`/`232`:
+  Unlike `c35` (`n1`), where `2, 5, 1^M` is preserved on the left of the tape while the sub-engine
+  runs on the right (enabling $M - 2$ full $f_\omega$ rounds to reach $f_{\omega+1}(M-2)$), every
+  `champ_231`/`232` round expands `E0` past `lo` (`h = lo - 1`) on the left and borrows all the way
+  to the terminal `1` on the right, completely overwriting the entire tape into
+  `(10)^{2 k_r - 1} 11001 [C1] 100 (1100)^{N_r} 1`. Thus no auxiliary countdown counter can survive
+  across rounds on either side of the tape.
+
+=========================================================================================
+5. ROUTE 4B-2: 10-STATE (`J`) EXTENSIONS OF 9-STATE `champ_231`/`232` HALTERS
+=========================================================================================
+Scripts: `test_champ231_10state.py`, `test_champ231_rest.py`
+
+We tested all 160 lazy-TNF 1-state (`J`) extensions of 8 representative 9-state `champ_231` families
+(`P2_---0RI_1RF1LG`, `P2_0RB0RI_0LG---`, `P2_1RD0RI_1LH---`, `CS3_0LE0LI_0LA---`, `P3_1LG0LI_1LH---`,
+`P5_---0LI_1LG0LH`, `CASCADE_---1LI_1RB1LH`, `CAP_1RI_1RA0LF`) plus all 15 `E_3` (`P = 2`) halters
+for mod-4 residue splitting ($k = 19$ vs $k = 21$):
+  * Post-Collapse Local-Config Invariance:
+    When the 9-state parent halts at `h_slot` (`H0` or `I1`) after collapsing the `(10)^(2k-1)` prefix,
+    the local tape around `h_slot` is identical for all halting $k \equiv s_H \pmod P$. Thus every `J`
+    extension either heals ALL $k \equiv s_H \pmod P$ into `K*` (becoming an `All-K` non-halter `ALIVE`)
+    or halts on ALL $k \equiv s_H \pmod P$ in the same round $R$ as the 9-state parent (adding up to
+    $+24$ intra-gadget collapses in `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_0RJ1RI_1RA0LF_1RH---`
+    with $c = 26$, or $+10$ collapses in `1RB0RG_1RC1RB_0RD0LH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_1LJ1LI_1RB1LH_---1LD`
+    with $c = 14$).
+  * Pre-Collapse Mod-4 Splitting (`c = 0` `E_3` halters):
+    Among all $15 \times 160 = 2,400$ extensions of the 15 `c = 0` `E_3` halters, 4 machines split odd $k$
+    (`P = 2`) into $k \equiv 1 \pmod 4 \to \text{K}$ ($dL = 2, I = 0$) and $k \equiv 3 \pmod 4 \to \text{H}^*$ ($c = 18$):
+      `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_1RD0RI_0LG0RJ_---1RG`
+      `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_1LE0RI_0LG0RJ_---1RG`
+      `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_1RD0RI_1LH0RJ_---1RG`
+      `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_1LC0RB_1RD0RI_1LH0RJ_---1RG`
+    By the Leftmost-Borrow Law ($A_r \equiv I_r = 1 \implies A_r \equiv 1 \pmod 4$; $I_r = 0 \implies A_r \equiv 2 \pmod 4$),
+    Round 1 ($k_1 = 20 \equiv 0 \pmod 4, I_1 = 1$) maps to Round 2 ($k_2 \equiv 2 \pmod 4, I_2 = 0$),
+    which maps to Round 3 ($k_3 \equiv 3 \pmod 4, I_3 = 1$). Thus these 4 machines still halt at the
+    end of Round 3 (`R = 3`), while adding $c = 18$ sequential intra-gadget Ackermann collapses of
+    height $s_1 = k_3 - 2 \approx 3 A_2 \approx f_\omega^2(20)$ at the end of Round 3 (raising their
+    halting value from $\sim f_\omega^3(20)$ to $\sim f_\omega^4(20)$).

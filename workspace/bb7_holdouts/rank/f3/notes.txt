@@ -1,0 +1,28 @@
+f3 notes (agent: settle A1/A2/B1/C1 BB(7) holdouts, F3-like) -- 2026-10-22, append-only
+- A1 literal K-trace (rk7 trace): inner loop (a,b)->(a-1,b+1); at a=0: D [..,d+1;0,B] -> [..,d;3B+5,0]. B1 seen: [3,0;0,47] -> [2,147;2,0] (3B+6, a:=2).
+  first E: [;0,3] (step 80) -> [3,2;2,1] (=[3,2;3] shifted). log: E(B) per 4 = HKKK (B%4==0 halts?), B=51 -> [3,2^37].
+- A1 natural rules (b=0 moments, digit d = run 1^(d+1)0): D [..,d+1;a]->[..,d;3a+5]; B1 [..,y+1,0;a]->[..,y,3a+6;2];
+  ABSORB [..,z,0,0;a] == [..;a+z+2] (z>=0; so 0,0,0 adds 2; explains period-3-in-k borrow data, which is why R3 refits failed);
+  E [;a]: 4m HALT, 4m+1 ->[3,2^3m,1;2], 4m+2 ->[3,2^(3m+1);2], 4m+3 ->[3,2^3m,1;14]. [0;a] behaves like E(a+2) with one fewer 2 (left end special).
+- A1 rules validated vs literal: rules.py A1 seed1 78 ok/2 budget, seed2 119 ok/1 budget (budget = literal out of steps but consistent prefix). 0 misses.
+- A1 structure: digits from the right alternate f-counter (D^d), g-counter (B1: g(b)=f^(3b+6)(2)), ABSORBED (+x+2): bounded depth 2.
+  => per rebuild A -> ~3^^(A/2) (f_3 level), rounds iterate -> at most ~2^^^K for K rounds: LEVEL ~3-4, NOT record class even if it halts.
+- B1 natural (b=0 moments, mirrored, run a+1 then trailing 0): D [..,d+1;a]->[..,d;3a+4]; B1 [..,y+1,0;a]->[..,y,3a+5;1]; ABSORB [..,z,0,0;a]==[..;a+z+2];
+  E [;a]: a even HALT, odd == [3;a] (-> [2;3a+4]); [0;a] even HALT / odd -> [2,3a+5;1]; [0,0;a] ALWAYS HALTS (a=0..13; [0,4;1]->[0,0;241] H 207069 steps 375 ones).
+  Real run (literal): [2,2;1]@49 -> [2,0;25] -> [1,80;1]@2578 -> D^80 -> [1,0;3^81-2] -> B1 [0,3^82-1;1] -> D^.. -> [0,0;3^(3^82)-2] -> HALT (if rules hold).
+- C1: dlscan coding wrong (needs zero-length runs). Natural = v-coding: tape 1^v1 0 ... 1^vn 0 1^r 0 1^6 0 (K-moment = tail run 6), leading zero digits invisible.
+  D [..,v+1;r]->[..,v;2r+2]; Bk [..,y+1,0^k;r]->[..,y,2r+2-6k,6^(k-1);6] (k=1..6 checked; small r with refill<=0 = garbage/halts, unreachable);
+  E [;r]: r=3m+1 HALT, 3m+2 ->[1,0,2,6^m;6], 3m+3 ->[4,6^m;6], r=0 ->[;4]. Full list counter (tails of 6s) => f_(omega+1) engine.
+  Invariant: f(r)=2r+2 maps {0,2} mod 3 to itself, borrows/rebuilds set r=6 => r never 1 mod 3 at E => NEVER HALTS (pending checks).
+  Blank: [1;0]@51 -> [;2] -> E(2) -> [1,0,2;6]@333 -> [1,0,0;30] -> B2 [50,6;6]@4828 -> [50,0;510] -> [49,1016;6]@731365 (literal).
+- A2: identical rules (rules.py A2 seed3 100/100; E/E1/E2 + borrows probed identical) and identical K-trace from blank (fewer steps).
+- B1 rules validated rules.py B1 seed4 100/100. [0,0;a] halts for all a (odd a<=2001 checked), ones=(3a+27)/2 (odd a), steps ~ (27/8)a^2.
+  B1 VERDICT: HALTS. [2,2;1]@49 -> [2,0;25] -> [1,80;1]@2578 -> D^80 -> [1,0;3^81-2] -> [0,3^82-1;1] -> D^(3^82-1) -> [0,0;3^(3^82)-2] -> HALT,
+  sigma=(3^(3^82+1)+21)/2 ~ 10^(6.35e38), steps ~ 3.4*3^(2*3^82) ~ 10^(1.27e39). scaled check [1,0;0]->[0,5;1]->[0,0;727] H 1816743 steps 1104 ones (formula ok).
+- C1 rules validated: 101 ok/19 skip(degenerate refill<=0) + 118 ok/2 skip (r 6..40). 0 misses. VERDICT NEVER HALTS (r mod 3 invariant).
+- A1 residue evaluator resA.py (mod 2^64, closed-form f^d; cross-checked vs independent mod-2^10 stepping 3000/3000).
+  mod 4: f^2=id, g(b)=2+(b mod 2), absorb +z+2 => output class depends only on (n mod 3, tail, parity). E(A>=0 mod 4) halts (A<=2000 checked, ones 9A/4+6).
+  Real run: [;3] -> E(3) -> [3,1;14] -> [3,0;47] -> g^3 -> [0,0;X3], X3=g^3(47) = 3 mod 4 -> E2: [3,2^(3m+1),1;14], m=(X3-3)/4
+  -> 14 ->f 47 (odd) -> parity odd kept through all groups (f^2,g^2,+4) -> last [3,2,2]: g^2 odd = 3 mod 4, absorb 3 (+5) -> E(A), A = 0 mod 4 -> HALT.
+  A1/A2 VERDICT: HALT at 3rd exhaustion, sigma = 9A/4+6 with A ~ 3^^(X3/2), X3 ~ 3^3^3^150: between 3^^^3 and 3^^^4 (level ~3, champion 13). Not record.
+  NOTE rank7 round-2 'never halts' for A1/A2/B1 was wrong (wrong R3 + dlscan coding).

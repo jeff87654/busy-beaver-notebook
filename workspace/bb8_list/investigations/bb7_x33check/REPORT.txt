@@ -1,0 +1,94 @@
+INDEPENDENT CHECK: X33 (7-state BB record claim)                                         bb7_x33check, 2026-10-22
+=====================================================================================================
+X  = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE      (G0 undefined = the only halt)
+i  = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA0LG_---0LE      (sibling, F1 = 0LG; dl3: never halts)
+
+VERDICT: CLAIM REFUTED. X NEVER HALTS: strong evidence plus a complete paper proof at the rule level. There is no Coq yet.
+  The parity invariant that kills i applies to X unchanged. X is not a BB(7) record and is no threat to champ_231 or the
+  champion. No score: it does not halt.
+  The halting claim (rank7 / chain.py) comes from a wrong borrow rule in the rank model: borrow tails were taken as digits
+  of value 1 (dlscan2 "R3 ... tail=1"), but literally they are 2s. This flips the bookkeeping parity and produced the
+  spurious "F3 preserves parity, K_j odd for j>=4, b1/b2/b3 odd".
+
+1. ENCODING AND START (own tools: sim.py, ktrace.py, lit.cpp/lit.exe)
+  K(d1..dn; b) := 0^inf 1^d1 0 1^d2 0 ... 1^dn 0 1^b [A] 0^inf    (head in A on the 0 right of the rightmost 1).
+  Leading zero digits are blank. This is the "P-inclusive" coding; the rank agent's coding at step 180940 agrees with mine.
+  The blank tape is K(;0). Literal K-trace: 32 K(2,1;1) | 44 K(2,0;4) | 80 K(1,6;1) | 338 K(21;1) | 1850 K(;64) |
+  4442 K(2,1,2^32;1) | 7946 K(2,1,2^30,0,0;91) | 8518 K(2,1,2^29,1,91,2;1) ... (these steps match the claim).
+
+2. RULES (exact; preconditions exact; steps exact)
+  D : K(P,d+1; b)       -> K(P,d; b+3)                                     2b+10 steps
+  Bk: K(P,y+1,0^k; b)   -> K(P,y, b-2k+4, 2^(k-1); 1)   k>=1, iff b>=2k-2   2(k+1)b - 2k^2 + 12k + 10 steps
+      b <= 2k-3: odd b HALTS, even b leaves the family. The boundary is exact on a grid k<=13 with 6 different prefixes,
+      and it does not depend on the prefix. The rank agent's "top-digit-2 / top-digit-1 exhaustion rules" are this
+      same Bk, with n = k-1.
+  E : K(;B), B even     -> K(2,1,2^(B/2); 1)                               B^2/2+8B+32 steps
+      K(;B), B odd      -> HALT (G0) with B+3 ones                         B^2/2+6.5B+17 steps (+1 if the halting step is counted)
+  Tests: 800 random literal configs (up to 36 digits, digits up to 5000, b up to 20000), 0 misses inside the
+  preconditions; E for B=0..1200, all exact; literal lockstep from blank: 90000+ consecutive K-steps (1.1e10 steps) exact
+  (lockstep_long.log).
+  Micro lemmas: S, LOOP, HALT, FIN, EVEN (notes.txt, COQ-READY SPEC). Their step sums reproduce every macro step formula
+  exactly. The LOOP lemma passed 300/300 random contexts.
+
+3. WHY X NEVER HALTS
+  Invariant: Phi = b + sum(ds) mod 2.
+  - D adds -1+3 = 2.
+  - Bk adds -1 + (b-2k+4) + 2(k-1) + 1 - b = 2.
+  - E-even gives Phi = 2+1+B+1 = B+4, which is even.
+  - The blank tape has Phi = 0.
+  So every true exhaustion K(;B) has B even and rebuilds, and the odd-B halt is never reached.
+  The other halt (Bk with odd b <= 2k-3) is excluded by size:
+  - unit_j(b) (decrement position j, re-clear 1..j-1) is defined for b >= 2j-4, with u_1(b) = b+3 and
+    u_j(b) = clear([b-2j+6, 2^(j-2)]) from b=1, which is >= 3b+7.
+  - Clearing a list whose digits are all >= 1 enters position i with b >= 1+3(i-1) >= 2i-4.
+  - Mutual induction on j gives every precondition.
+  - Every segment starts at K(2,1,2^n;1) with all digits >= 1.
+  Run: K(;0) -> K(2,1;1) -> K(;64) -> K(2,1,2^32;1) -> K(;B2) with B2 even -> K(2,1,2^(B2/2);1) -> ... and it never
+  reaches G0.
+  Difference from i: in i, F1 = 0LG erases one cell of b's block, so i's borrow returns b=0 with refill b-2k+5
+  (randtest2 on i: all misses are exactly this shift). i keeps the same Phi. The single changed transition alters
+  values, but not the parity of the conserved quantity.
+  Where the claim went wrong: rank7.py line 142 builds borrow outputs with tail = [R['tail']]*(k-1), R['tail'] = 1
+  from dlscan2 (measured where the tail is empty or hidden). Literal: K(1,0,0,0,0;50) -> K(46,2,2,2;1) in 526 steps.
+  The rank refill "b+0+0k" also omits -2k+4 (in their k), which is harmless for parity. Their exhaustion rules
+  (ends.py) are right. Only the F_j iterate inside chain.py is wrong, and its 3-moduli agreement shares that wrong model.
+  CAUTION for other rank7 results: any row whose R3 tail value came from dlscan2 at small k may carry the same error.
+
+4. SCORE: none (non-halting). The comparison with champ_231 (> 3↑^20 3) and the champion is moot.
+
+5. PRIOR ART (web, 2026-10-22, read-only): no search hits for the machine string; bbchallenge wiki page 404.
+
+6. COQ: spec in notes.txt ("COQ-READY SPEC"): micro lemmas, macro rules, Phi lemma, unit/clear induction, main loop.
+  This is now a NON-HALTING proof: closed set {K(;B) : B even}, with K(;B) ->+ K(;B') and B' even.
+
+7. OPEN_CANDIDATES.txt: "update (x33-check)" inserted under the X33 entry (LF kept). Suggest moving X33 to SETTLED.
+
+FILES: sim.py, ktrace.py, look.py, micro.py, lit.cpp/lit.exe, rules.py, randtest.py, randtest2.py, grid.py,
+  etest.py, stepfit.py, looptest.py, lockstep.py, lockstep_long.log, notes.txt, opencand_update.txt.
+
+=====================================================================================================
+ADDENDUM 2026-10-22: Z (Z16) and Y19
+=====================================================================================================
+Z   = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE   VERDICT: NEVER HALTS. The rank claim "halts, ~2↑^16" is refuted
+      (the rank agent later refuted it too; this is an independent confirmation).
+  Z differs from X only in F0 (1LA vs 0LA), and F0 is used only in the end-game of the even exhaustion. So Z's D and Bk are
+  X's transitions exactly:
+    D  : K(..,d+1;b) -> K(..,d;b+3)
+    Bk : K(..,y+1,0^k;b) -> K(..,y,b-2k+4,2^(k-1);1)   iff b>=2k-2
+  The borrow tail digits are 2: K(1,0^4;50) -> K(46,2,2,2;1). dlscan2's "tail 1" is wrong here exactly as for X.
+  E: B even -> K(1,2^(B/2+1);1); B odd -> HALT with B+3 ones. Blank -> K(1,2;1) at step 26; K(;28) at 428;
+  K(1,2^15;1) at 1070.
+  Phi = b+sum(ds) mod 2 is invariant (rebuild Phi = B+4), Phi=0 from blank, so B is always even and always rebuilds.
+  The small-b halt is excluded by the same unit-growth induction as for X.
+  Checks: 700 random configs plus a grid (0 misses inside the precondition); lockstep from blank 8000 K-steps (7.3e7
+  steps) exact, Phi even throughout.
+Y19 = 1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG   VERDICT: NEVER HALTS (agrees with the rank agent).
+  Rules:
+    D  : b -> b+3
+    Bk : K(..,y+1,0^k;b) -> K(..,y,b-2k+1,2^(k-1);4)   iff b>=2k+1   (below that, odd b halts)
+    E  : B odd HALT; B even -> K(1;1) (B=0), K(1;5) (B=2), K(1,3,2^(B/2-2);4) (B>=4)
+  Phi = b+sum(ds) is invariant mod 2 and the rebuilds are even, so the machine always rebuilds. The precondition holds by
+  unit growth: entry b >= 3i+1 >= 2i-1.
+  Checks: 800 random configs, 0 misses; lockstep 6000 K-steps exact.
+  (Y19 has transient K-moments with an empty last run; lit2.exe skips them.)
+FILES (added): ztest.py, lockstepZ.py, lit2.cpp/lit2.exe, ytest.py, opencand_update_z.txt.

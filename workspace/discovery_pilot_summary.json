@@ -1,0 +1,60 @@
+{
+  "source_urls": {
+    "mxdys": "https://github.com/ccz181078/TM",
+    "ligocki": "https://github.com/sligocki/busy-beaver"
+  },
+  "ligocki_commit": "1b31c66aece9d820fb937dcd51f82b02add581e8",
+  "sha256": {
+    "mxdys_main.cpp": "22294ab2153a47e1031758b07549a3d48499a9b0ef1199b19f6e73379291746f",
+    "mxdys_pilot.cpp": "cf26a8387b825eed6134505e319df55bcc2d8e7ab9909813904e9b6fc6f89511",
+    "mxdys_pilot7.exe": "6eda1f1bf49dce2de21d4db7767945e63910daf09fb23719fd9426ccd41bcf60",
+    "mxdys_pilot8.exe": "095f076bd1c41d6f6b53627ebe4e529f2b1fefc704f073f21ae5feb2e0ca2b6e"
+  },
+  "runs": [
+    {
+      "states": 7,
+      "seconds_limit": 175,
+      "elapsed_seconds": 175.338,
+      "nodes_started": 3662039,
+      "frontier_nodes": 86475,
+      "halting_hits": 866831,
+      "terminal_halters": 724908,
+      "stopped": true,
+      "directory": "pilot7_control",
+      "shard": 243308,
+      "holdouts": 15,
+      "complete": false,
+      "frontier_all_final_dfs": true
+    },
+    {
+      "states": 8,
+      "seconds_limit": 175,
+      "elapsed_seconds": 175.786,
+      "nodes_started": 4275667,
+      "frontier_nodes": 156119,
+      "halting_hits": 754559,
+      "terminal_halters": 607384,
+      "stopped": true,
+      "directory": "pilot8_243308",
+      "shard": 243308,
+      "holdouts": 6,
+      "complete": false,
+      "frontier_all_final_dfs": true
+    },
+    {
+      "states": 8,
+      "seconds_limit": 175,
+      "elapsed_seconds": 175.446,
+      "nodes_started": 2514045,
+      "frontier_nodes": 92936,
+      "halting_hits": 533135,
+      "terminal_halters": 444720,
+      "stopped": true,
+      "directory": "pilot8_202609",
+      "shard": 202609,
+      "holdouts": 15,
+      "complete": false,
+      "frontier_all_final_dfs": true
+    }
+  ]
+}

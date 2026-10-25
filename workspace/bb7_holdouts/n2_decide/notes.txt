@@ -1,0 +1,13 @@
+2026-10-23 N2 decide (agent n2-decide)
+- generic CTLs fail (ngcps2 up to 12/12, tctl, my bctl/sctl block/segment CTLs: spurious paths via count abstraction / left end).
+- K-config = 0^inf S1 11 S2 ... 11 (01)^x (10)^y A>01 0^inf, S=(01)^p(10)^q. Invariant (tested 12000 K-steps, 0 violations, 0 halts):
+  phase O: all (p,q) odd/odd; phase E: k>=2, S1=(even,odd), middle odd/odd, last (even,odd).
+- K-level rules (all parities, grid-verified rulecheck.py): R1 (x+2,y)->(x,y+4); R2 (p,q+2)(1,1)^j(1,y)->(p,q)(y+4,1)(1,1)^j;
+  R3 (p+2,1)(1,1)^j(1,y)->(p,y+4)(1,1)^(j+1); R4 (1,1)^j(1,2m+1) [blank left] -> (0,1)(1,1)^(j+m+1)(0,3);
+  R6a (p,q+2)(1,1)^(j+1)(0,y)->(p,q)(y+2,1)(1,1)^j(0,3); R6b (p,q+2)(0,y)->(p,q)(y+1,3); R7 (p+2,1)(1,1)^j(0,y)->(p,y+2)(1,1)^j(0,3);
+  R8a (0,1)(1,1)^(j+1)(0,y)->(y+3,1)(1,1)^j(0,3); R8b (0,1)(0,y)->(y+2,3). Invariant closed under them; parity only needed to exclude gaps.
+- Coq: autoproof engine (bb8_list/autoproof) proves cell-level pieces (coq/rules_def.py, gen_n2.py -> N2Rules.v compiles 22s);
+  hand part: K/seg/sep defs, loop iterations L1it/L2it/L3it compile (coq/hand1.v.in). Next: K-rule compositions + invariant.
+2026-10-23 DONE: N2 NEVER HALTS, Coq. coq/BB7_N2_1RB0RC.v (1239 lines, 28s) + relabel coq/BB7_N2m_1RB1RE.v (flip+perm);
+  both copied to bb8_list/proofs, check.py PASS (no axioms). OPEN_CANDIDATES SETTLED update appended (after a truncation
+  incident on the first try, restored byte-identical from backup). REPORT.txt written.

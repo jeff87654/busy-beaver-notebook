@@ -1,0 +1,2 @@
+machine	halted_step	n_keys	full	partial
+#summary	machines=123	halted=5	with_keys=123	full=0	partial=0

@@ -1,0 +1,30 @@
+"""bat2.py: per machine: Q candidates (sim2 CNT), validated coding (cfit), battery signature -> bat2.jsonl (resumable)"""
+import sys, json, subprocess, os
+sys.path.insert(0, '.')
+import idle  # noqa
+from cfit import fit
+from battery import signature
+HERE = os.path.dirname(os.path.abspath(__file__)); SIM2 = os.path.join(HERE, 'sim2.exe')
+ms = [l.split()[0] for l in open('roots1043.txt')]
+done = set()
+if os.path.exists('bat2.jsonl'):
+    for l in open('bat2.jsonl'): done.add(json.loads(l)['M'])
+out = open('bat2.jsonl', 'a')
+for m in ms:
+    if m in done: continue
+    r = subprocess.run([SIM2, m, '1', 'A', '-', '0', '3000000', '*', '1'], capture_output=True, text=True).stdout
+    cnt = [int(x) for x in r.split('CNT')[1].split('\n')[0].split()] if 'CNT' in r else []
+    rec = dict(M=m, cnt=cnt)
+    if not cnt or max(cnt) < 50:
+        rec['status'] = 'UNFIT'; rec['why'] = 'few right-end events %s %s' % (cnt, r.strip().split('\n')[-1][:40])
+    else:
+        qs = sorted([chr(65 + i) for i, c in enumerate(cnt) if c >= 0.3 * max(cnt)], key=lambda q: -cnt[ord(q) - 65])
+        C = None
+        for q in qs:
+            C, e = fit(m, q)
+            if C: break
+        if C is None:
+            rec['status'] = 'UNFIT'; rec['why'] = 'no 1-run digit coding passes R2 sanity (Q tried %s)' % ''.join(qs)
+        else:
+            rec['C'] = C; rec['e2'] = e; rec['sig'] = signature(C); rec['status'] = 'BAT'
+    out.write(json.dumps(rec) + '\n'); out.flush()

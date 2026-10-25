@@ -1,0 +1,1 @@
+{"i": 541, "m": "1RB1RD_0LC0RF_1LE1LD_1LC0LB_0RA1RD_1RE1RG_0RB---", "tmpl": "R,A,P=1,u=01,s=0,d=1d+0,b=1b+0,S=0", "cls": [187], "M": 60, "runs": [{"X": "A1", "s": 0, "c": 7, "v": "g0", "snap": {"step": 6, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "541_A1_c7_g0.txt"}], "time": 1.1}

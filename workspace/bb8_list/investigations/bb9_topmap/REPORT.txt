@@ -1,0 +1,82 @@
+bb9_topmap REPORT: top-map search on h003's 9-state family (agent topmap, Opus; started 10-22 10:21, restarted 10:38 after
+the reboot, resumed 14:17 after the session limit, finished 10-22 15:30)
+=====================================================================================================================
+Family: M8's engine 1RB0RA_1LC1LF_1RD0LB_1RA1LE_<E0>0LC_1RG1LD_0RG0RF_<H0><H1>_<I0><I1>, E0 in {0LH,1LH}, H0 in {0LI,1LI},
+slots H1, I0, I1 free ("H1 = halt, or the halt in I").
+Bars: BB(8) M8 ~ f_w^2(12B); BB(9) C7 (Coq N > f_w^4(12B+27), published as > f_w^6(12)).
+
+0. VERDICT
+  * NEGATIVE: no sibling has a longer real chain of top-level rebuilds than h003.  The only machines in the family with
+    growing top-level rebuilds that halt are h003 (4 rounds + exit, real orbit [4,3,1,1,0]), C7 and its three twins, and
+    0RC1LB/0RC1RB (1 round + exit, ~f_w^3).  No f_(w+1)-shaped orbit was found: the only top loop with no exit
+    (0LA0RA/0LA1RI) has no exit class at all, so it almost certainly does not halt (sec. 3).
+  * h003 vs C7 (task 4): h003 is ONE omega level above C7, about f_w^6(12B) against f_w^5(~5B) (sec. 4).  This matches
+    the separate h003-check agent's result (OPEN entry C7-0LI-1RI1RC, bb9_h003check/REPORT.txt).
+  * Nothing new goes into OPEN_CANDIDATES.  I appended a family-search note at the bottom of OPEN.
+
+1. METHOD / COUNTS
+  tools/tree2.py: TNF tree over the slots H1, I0, I1.  The root has all three undefined.  A run that halts on an undefined
+  slot while another slot is still undefined is expanded over that slot's 36 values.  A backref depth-20 prefilter is
+  included but pruned nothing.  World W3 = --B 366 --cls 366 --mod 3600 --cnt, faithful mod 3600 and 125.  The first 3
+  top residues mod 5 are faithful, so an exit at tops 1-3 in W3 is the real exit.  Settings: jumps 20, maxt 1.2e9,
+  wall 30 s, 2 cores, Idle.
+     variant  nodes  HALT H1  HALT I1  HALT I0  STOP  KILLED  END
+     0LH_0LI   649     373       81       1      180     9      5
+     1LH_0LI   721     549       35       1      108    16     12
+     0LH_1LI   793     465      137       1      180     9      1
+     1LH_1LI   649     439       68       1      126    11      4
+     total    2812    1826      321       4      594    45     22
+  Pass 2 (tools/mk_p2.py + qrun.py): 129 STOP/KILLED/END rows, leaving out J1 stalls and periodic K += 12R+c rebuild loops.
+  Settings: W3, jumps 80, maxt 1.5e10, wall 200 s.  Outcome: 44 HALT, 69 STOP, 16 END (runs/P2, runs/p2_summary.txt).
+  Top views = J views "<= 5 prefix tokens 1*K", K >= 1000, grouped by prefix shape (tools/scan.py, p2scan.py).
+  Fits: tools/fittop.py (generic --kt Top(K) starts for any view shape, --R/--cls/--mod).  Orbits: tools/orbit.py
+  (generic real p-adic orbit with B = R = R_*, checked stable at 5^40/60/80).
+
+2. RANKED TABLE (real top rounds before exit; levels counted as clears whose depth is linear in the previous fresh accumulator)
+  #  machine (I row etc.)                               W3 tops              real orbit / structure              level
+  1  h003  0LH_0LI ..._0LI---_1RI1RC                    4419 7043 8621 19917  [4,3,1,1,0]: 4 rounds + M8 cascade   ~f_w^6(12B)
+  2  C7    1LH_0LI ..._0LI---_1LC0RA (+ twins 1LH_1LI    6381 10203 (J1-J6)   C7 chain J2-J6 + fixed-depth counter  ~f_w^5(5B)
+           ..._1LI---_0RC{0RF,1LG,1RA}, same W3 trace, ones 17593)
+  3  0RC1LB / 0RC1RB  0LH_0LI ..._0LI---_0RC1{L,R}B     4416 12345 -> HALT   fit: K=1: (9K+60R+21)/5; K=0,2 exit,    <= f_w^3
+           (ones 29586 / 27080)                                               halt within 3 jumps; K0 = 12B+24; real [1,0]
+  -  0LA0RA / 0LA1RI  0LH_0LI ..._0LI---_0LA{0RA,1RI}    8942 21480 (t 2207,   top loop K' = 24R + c(K), t' = t+6R+c;  non-halting
+                                                         7092)                every class mod 10 rebuilds, t-independent;   (likely)
+                                                                              W2 blank run: 10 tops, no halt in 6.5e10 steps
+  -  everything else: <= 1 top-level rebuild, then an M8-type 0.6x cascade, or a fixed-depth countdown (0LA0LB:
+     k 840 -> 0, one step per 3 jumps), or a count-up (0LH_1LI 1LC1LC), or a translated/periodic loop (t linear,
+     k fixed), or a non-K stall of more than 6e9 steps.  The W3 halters with the most ones (0LC0RA, 0LG1LC, 0RG1LC,
+     1LA1LC: 45248-45249) are counter phases at small depth (k = 12, 89, 464) with t growing 6R per phase: below one
+     omega level per phase.
+
+3. 0LA0RA (the only exit-free top loop)
+  Direct starts at Top(K) = "0*2 7 1*K", t = 2207: R=66 gives K' = 13718, t' = 4111; R=366 gives K' = 20918, t' = 5911.
+  So K' = 24R + 12134 and t' = t + 6R + 1508, i.e. one omega level per round.
+  K = 5000..5024 (W2 world, R = 66 mod 150) with t = 2207..2210: every class rebuilds a top, with period 10 in K and no
+  dependence on t.  K = 5 mod 10 resets to K' = 12R+4 after a depth-0 clear.  There is no exit class.
+  The blank-tape W2 run (runs/la0ra_W2_blank.txt) shows 1742 4200 6645 (reset) 796 3534 10110 13737 16491 41294 with no
+  halt.  A loop with no exit branch never reaches H1, so this is (very likely) non-halting.  It is not an f_(w+1)
+  candidate, because nothing in it counts down.
+
+4. h003 vs C7, ON THE SAME FOOTING
+  C7: five level-clears J2..J6 at depths 5.4B, 12R1, 5.4R2, 12R3, 5.4R4.  The counter runs 2R5+3 rounds at the FIXED
+      depth ~K6, so R10 ~ U_(K6-3)^(2R9)(U_(K6-1)^(2R5)(..)) < f_(K6+2)(K6+c) < f_w(K6+c) (an argument shift, not a level).
+      The post-counter cascade has fixed depths ~(3/5)^j K6 and halts with P = 12R10 still on the tape:
+      sigma = 24R10 + O(n).  So C7 ~ f_w^5(~5B): above f_w^5(5B) on paper, below ~24 f_w(K6+3).
+  h003: K0 = 12B+27, then rounds K0..K3 (each K' >= 12R with R from a depth-K clear, plus sub-level intermediate clears).
+      The exit at K4 enters M8's cascade, which is two levels: the K4 clear, then the parked P ~ 12R cleared (W3 zeros
+      ... 19917 192 6 4317 4317).  M8 itself is 0 rounds + these 2 levels = f_w^2(12B), as in its Coq bracket.
+      So h003 has 6 levels, ~f_w^6(12B) > f_w(C7's upper bound).
+  => h003 is one omega level above C7.  Its Coq proof is underway elsewhere (bb9_h003_coq per the lead's notes).
+
+5. RECOMMENDATION
+  * h003 stays the BB(9) target.  This family offers no sibling with more tops, and C7's twins add nothing.
+  * The next source of extra omega levels is outside this family: other E0/H0 choices, or a different relay than the
+    I-row dispatch at Top(K).  Another direction is a machine that uses 0LA0RA's exit-free t-growing loop (K' = 24R+c,
+    one level per round) together with an exit branch (an f_(w+1) shape if the exit were residue-uncomputable).  That
+    needs a 10th state or a different I row, so it is out of scope at 9 states in this family.
+  * Unresolved (not candidates by structure): the 69 pass-2 STOP rows with long non-K segments (>6e9 steps after
+    <= 1 top).  Their real continuation is unknown, but any later K-clears would start from <= 1 top-level level.
+
+FILES: notes.txt, pids.txt, tools/{tree2,scan,stopcls,mk_p2,qrun,p2scan,fittop,orbit,h003_orbit,towres,backref_s}.py,
+  runs/A_<E0>_<H0>/ (tree runs + tree.tsv), runs/P2 + p2_list.txt + p2_summary.txt, runs/fit_0RC1LB.tsv,
+  runs/fit_0LA0RA*.tsv, runs/la0ra_*.txt.

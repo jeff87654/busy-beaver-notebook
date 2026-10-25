@@ -1,0 +1,100 @@
+bb8_resid: 8-state residue-halt record search (agent started 2026-10-18, Opus)
+==============================================================================
+
+HANDOFF (keep current)
+- !!! FINDING (2026-10-18, first hour): the 9-state record C04 collapses to an 8-state machine by removing its 2-state gadget:
+      C04 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_0RG1LD_0LH1LH_1RI---_0RI0RF
+      M8  = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---
+  (M8 = BB(7) champion with E0 = 1LH and H = 1RG ---.)  Map: C04 A..F -> A..F, C04 I -> M8 G, C04 H -> M8 H; C04's
+  F0 (0RG) + G (0LH/1LH, cell unchanged) + H0 (1RI, rewrites the 0 F wrote as 1) = M8's F0 (1RG) in 3 steps.  C04's H is
+  entered from G only on the 0 just written by F, so the halt H1 is reached only via E0, which is a sync point; both machines
+  end on the same tape -> same sigma.  Literal lockstep (tools/lockstep.exe, 3e9 C04 steps = 2.0e9 M8 steps, full tape
+  compared every 2^20 syncs and at the end): OK.
+  => M8 halts with sigma(M8) = sigma(C04) > f_w(f_w(12B+24)), far above the BB(8) record (~f_38).  C04 is Coq-proved
+  (bb9_c04_coq Final.v). Coq for M8 not started (lead's call): simulation lemma C04 -> M8, or re-target the C04 proof.
+- M8 was in halt_redirect/c7/set8.txt row 189, graded TIME at b0=6 (mf8_s60.tsv), i.e. dismissed by the small-world screen.
+- Next: grade the other 255 set8 rows (same neighbourhood) and the wider plan.
+
+LOG
+2026-10-18
+- setup: symsim_v12.exe copied here; run mode on BB(7) champion -> HALT sigma 6*X0+34, X0=C(10,2,0) (correct).
+  BB(8) record in plain run mode -> BUDGET (needs the kgrade template; to do).
+- tools/lockstep.cpp: literal lockstep comparison of a 9-state machine with a gadget against its 8-state collapse.
+- 12:18 set8 screen (pkf6 world w1 = --B 126 --rk 1 --rc 20, maxs 3e9): runs/scr_w1/summary.tsv (104 non-trivial rows of set8;
+  the other 152 halt at the first H read).  10 rows have C04's exact trace 11 1537 546 6 18640 (M8 + 9 twins: E0/H-slot
+  0LH/0RC 0LH/1RD 0RH/x1LC 1LH/0RB 1LH/0RE 1LH/1RG(=M8) 1RH/x0LF 1RH/x1LB 1RH/x1LE 1RH/x1RF).  14 HALT (<=1 escalation),
+  rebuild loopers (12R+c per exhaustion), 8 bad_alloc runaways after J1, 5 rows with 4 escalations (0RH/x0LC group).
+- 12:20 champion singles (403, symsim ktgrid): only C0=0LC keeps R1-R3 (t=0 cases only) -> set8 is the whole
+  engine-preserving 8-state neighbourhood of the BB(7) champion.
+- lead 12:40: m8-coq agent proves M8 in coq_m8/ (don't touch).  Priorities: 1 collapse check, 2 M8+1 state, 3 rest.
+- collapse check: tools/collapse2.py (syntactic, sound) + tools/dyncollapse.exe (dynamic, observational, sets <= 3).
+  records (rec_list.txt, dyn/r*.txt): NO collapse except C04.  n1 by hand: I sweeper, J halting peek -> irreducible.
+  curated 9-state lists (cur9plus.txt, 88k): 840 syntactic collapses (collapse_cur.txt), all champion-engine copies.
+  cur10plus.txt (3.3M strings, 10+ states) NOT run.
+- 13:10 F1 = M8 with H1 -> I (list_f1.txt, 288) screened from context k18 (runs/scr_k18/).
+- Q5 group (set8 0RH/x{0LC,1LF,1RD}, 1RH/x{0RF,1RA}; 4 escalations in w1): NEVER HALTS, proved: E entered only by D1=1LE
+  (cell p+1 = 1), E0 = xRH -> H reads 1 always (backref_s depth 2 UNREACHABLE).  Applies to all set8 rows with E0 = xRH.
+  Literal: escalating looper (post-2nd-escalation scaled configs q5/p2_*.txt: new escalation 24R+26 every level).
+  LESSON: don't run bash wrapper chains for batches (killing the tree needed manual PID hunting); use python Popen drivers.
+- F1 small-context screen (runs/scr_k18s, rk 0.1 rc 30): 85 HALT I0, 110 HALT I1, 73 END, 20 STOP.  Halters with extra
+  jumps add counter-cascade levels at depth <= P (bigger than M8 but same omega level).  Order-faithful rescreen
+  runs/scr_k18f (rk 1 rc 30) running.  tools/tnfx.py = TNF branching driver for the E0 -> I family (F2), next.
+- set8 backref (br_s8.txt): 51/104 non-trivial rows have the halt UNREACHABLE (never halt).  F1 backref (br_f1_all.txt):
+  xRI/I0-halt rows UNREACHABLE (H entered from E0=1LH reads 1 -> H1=xRI lands on the 1 E wrote).
+- F1 faithful screen (runs/scr_k18f, P=300 ctx, R=30+k).  LEAD Y1 = ..._1RG0LI_0RA--- (twin 0LI/1LG---): after M8's halt
+  point it consumes the far cascade tokens as counters, reaches the top-level 0,0 marker, rebuilds 1^(12R) (3rd escalation),
+  counter mode at ~0.58*12R, HALT I1 (small world P=60 k=18: f1/small60_*).  Class-dependent: k=24 escalates again
+  (106 -> 1588 ...), k=12 halts early (no 3rd escalation).  Grid f1/ctx.py -> f1/ctx_0LI_0RA.tsv running.  Reported to lead.
+- lead: Q5 -> agent bb8-esc4 (bb8_esc4), Y1 -> agent y1-deep (bb9_y1).  Me: breadth (F1 halters/growers, F2).
+- Y2 = ..._1RG0LI_1RG--- (Y1 sibling, same "0x359 128 74x277 HALT" attractor) reported to lead.
+- 15:xx f1/run_halters.py: ctx grids (CTX_FARS=c04,sm) for M8 + 6 extra-level halters (f1/halters.txt) -> f1/ctx_<name>.tsv
+  f1/run_growers.py: 37 growers (f1/growers.txt) reduced grid -> f1/g_<name>.tsv
+  F2 tnfx (E0 -> I, blank start w1) -> f2/tree.tsv
+- F1 halters vs M8 (f1/cmp.py over ctx grids): every F1 machine reaches M8's halt config and peeks; in classes where the peek
+  halts, ones = M8 +-1 -> no F1 machine provably beats M8 (class uncomputable).  Halter grids stopped.
+- R9 = BB8-record engine (36-digit start, B' >> B) + I doing M8's trick: r9/list_r9L.txt (144, E0 in 0LI/1LI; xRI closed by
+  the D1->E invariant), zfg6 screen (tools/zscreen.py, template R,G,P=1,u=01,s=1,d=3d+1,b=3b+1,S=10101, z1 world) -> r9/z1.tsv
+- R9 result (r9/z1.tsv): 108 trivial halts at the first exhaustion, 33 J300/T (rebuild loops 35->1556x4->20477, count-up
+  +3/+10 families, counter modes), NO C04-like chain.  Reason: M8's step needs a state with X1=0RF (champion G); the record
+  has none.  R9 closed negative (screen level).
+- f1/run_growers.py running twice (forward + REV), f1/run_twins.py (4 xLH C04-trace twins vs M8), F2 tnfx running.
+- C04-trace twins vs M8 (15 contexts): 0LH/0RC---, 0LH/1RD--- = M8-1 ones everywhere; 1LH/0RB---, 1LH/0RE--- = M8 exactly. None larger.
+- rebuilder E0 variants (list_reb.txt 96: p2/p3/p3b x 32 E0): backref 25 UNREACHABLE (br_reb.txt); 71 screened in w1 -> runs/scr_w1r
+- reb screen paused at 15/71 (runs/scr_w1r/summary.tsv); resume with the unfinished rows of list_reb2.txt.
+- R9 residue-correct rescreen (tools/zfg7.cpp/.exe = zfg6 + --rmodc M C; world R0=366, R=20+k -> 366 mod 3600):
+  r9/z366.tsv.  Escalating rows = exact periodic rebuild loopers (12b+n+9 per round, far region constant); 1LI/0RA =
+  count-up then rebuild.  R9 closed negative; OPEN_CANDIDATES.txt updated.  B' residues = B's (symsim wtab C 34 2 0).
+- tools/pkf7.cpp/.exe = pkf6 + residue rounding (--rk/--rc with --cls C --mod M).  World r6 = --B 6 --rk 1 --rc 20 --cls 6
+  --mod 360 (R = 6 mod 360 = 366 mod 360; first list 12*6+25 = 97).  In r6 M8 runs exhaustion #2 as a chain (60 6 37 ..),
+  ESC on the parked list 4374, then a counter mode at 2617 (expensive).
+- 19:xx set8 reachable rows (list_s8r.txt, 53) re-screened in r6 -> runs/scr_r6; F2 restarted in r6 -> f2r6/tree.tsv
+  (old w1 F2 partial: f2/tree.tsv).  screen.py/tnfx.py take env SCR_EXE.
+- set8 r6 rescreen done (runs/scr_r6): halters all <= 1 escalation (ones <= ~8846 ~ 24B); rest rebuild loopers (11 -> ~86 -> ~4481), C04-trace twins, runaways.  No 8-state candidate beyond M8.
+- Z1/Z2 (p3b rebuilder with E0 = 1LF / 0LC): 8-state, lockstep = M8 for 3e9 steps (lockpair.exe), continue past M8's halt point; added to OPEN_CANDIDATES.txt; reported.
+- lead: Z1/Z2 -> y1-deep.  Me: breadth on "machines that run M8 exactly then continue".
+- tools/cover.cpp/.exe: enumerates all 8-state TNF machines whose blank-tape run writes/moves exactly like M8 for N steps
+  (state relation free: merges/splits).  N=1e7 and N=4e8: the same 100 covers (covers8_4e8.txt; pairs= = state relation).
+  63 have no undefined slot (cannot halt), 29 have one (= the halt), 8 have >= 2 -> 544 one-slot completions
+  (cov/list_cov1.txt) screened in the k=18 endgame context (P=60, rk1 rc10) -> runs/scr_cov18/summary.tsv.
+  Includes Z1's base (p3b: ---0LC_1RG1LD_0RH0RF_---0RF).
+- cover screen done: continuers = champion/p3b/c41/c52 x E0 in {0LC,1LF(1LG),1RD}; c41/c52 halts UNREACHABLE; Z3 = p3b E0=1RD added.  OPEN_CANDIDATES updated.
+- 9-state covers of M8: 2054 at N=1e7 (covers9_1e7.txt; free slots 0:1171 1:639 2:196 3:40 4:7 5:1); validating at 3e8 (covers9_3e8.txt)
+- 9-state covers stable at 3e8 (2054); 20259 completions (cov/list_cov9.txt) prefiltered in k18 ctx (maxt 8e6, runs/scr_cov9pre)
+- switched cov9 prefilter to exhaustion-slot completions only (cov/list_cov9e.txt, 4514 incl. 446 as-is)
+2026-10-19
+- overnight: cov9e prefilter crashed (WinError 1455 paging file during spawn, ~22:00); F2 job pkf7 17372 hung 13h (killed).
+  Restarted prefilter on remaining 2033 rows (cov/list_cov9e4.txt, SCR_WALL 8 s); watchdog on F2 (26728, 15 min).
+- 9-state continuers so far: 88 (cov/cont9_all.txt; backref cov/br9_all.txt): 48 all halts UNREACHABLE, 40 undecided,
+  all of the Z1 mechanism (G split chain, halt when G crosses 2-3 zeros).  Decided by the Z1 question (y1-deep).
+- F2 r6 (f2r6/tree.tsv, 1515 nodes): halters <= ~11k ones in r6 (<= 1 escalation); 34 rows with M8's trace, 27 never
+  halt, 5 set8 twins, 2 undecided relays (..._0RI0LC_.._1RG---_1LH1LI, ..._1LI0LC_.._1RG---_0RI1LH).  Status sent to lead.
+- F2 relays: relay1 (_0RI0LC_.._1LH1LI) = M8 exactly (same ones, 6 ctx); relay2 = Y3 (Y-type, class-dependent), logged in OPEN_CANDIDATES.
+- Q5+I (E0 -> I, I free, H0 halt kept) TNF screen in r6 -> q5i/tree.tsv (outer-counter queue item, Q5 base)
+- 9-state cover prefilter complete: 150 continuers, 49 halt-undecided, all Z1-mechanism (G crossing >=2 zeros). Hung covers (475) = rebuild loopers in r6.  OPEN_CANDIDATES updated.
+- L clone-split completions (bb9_outer/ffg/cs.lst, 162) re-screened with pkf7 in r6 (literal + jumps, handles the (01)->counter conversion that symsim can't) -> runs/scr_csr6
+- lead: f3_0RC (y1-fable) = M8 with H0 = 0LI, I = 0RC 1RF: exhaustion #1 re-enters a top rebuild, then M8's cascade/endgame.
+  Signature in cheap world w30 (= --B 6 --rk 0.1 --rc 10 --cls 6 --mod 30): f3_0RC "11 7 443 48 758 448x..." vs M8
+  "11 97 12 414 241x...".  r6 is too expensive past a rebuild (R >= 366), so Q5+I (q5i30/) and L clone-split
+  (runs/scr_csw30) restarted in w30.  G-chain list: cov/z_gchain_continuers9.txt (49).
+- world w150 = --B 66 --rk 0.1 --rc 10 --cls 66 --mod 150 (R = 366 mod 3600 reduced mod 150; faithful mod 2,3,25).  f3_0RC in w150: 11 7 803 282 30 12 2546 1521x3 HALT.  F2 dropped (redir9).  Q5+I -> q5i150/, L cs -> runs/scr_csw150.
+- w150 vs full faithful world (B6, R=366 mod 3600): Q5 and 2 L rows give identical skeletons; w150 kept for screening, candidates to be rechecked in the full world.

@@ -1,0 +1,19 @@
+Fri, Oct 23, 2026 11:35:43 AM
+start s0; built tv.exe
+2026-10-23: built tv.exe (literal sim, compressed record views). Ran all 30 rows to 3e9 (all3e9.txt):
+ HALT (on '---', cross-checked with blk.exe): F0.0 x10 of 11 (sigma 14331..40950, <=1.12e9 steps), F0.3 member1 (sigma 67383, 1.70e9), F0.5 (sigma 9218, 1.70e8).
+ The slice's 'span3e8 growing' column ignored halting.
+ F0.0 rep structure: 0 1^a 0 1^b, a'=2a+5, b-=2 per round (~4x steps); halts when b exhausted. Bounded: sigma ~ 2^(b0/2) scale.
+F0.0 member 1RB0LF..0LD1RH_---0RE: rule [F]0 1^a 0 1^b -> [F]0 1^(2a+8) 0 1^(b-1) (b>=3), halts at b=2; validated 156 configs (chk_f00b.py). blank run reaches (12,21) => halts with a~1e7, sigma~2e7. F0.0 all HALT small.
+tv.exe sets its own Idle priority (short foreground runs; no long-lived bg procs so far)
+F0.1 (4 members): [B]0 (01)^n -> [B]0 (01)^(3n+2) for odd n (even n: different, not reached); blank reaches n=5. Validated 120 odd n per member (chk_f01.py). NEVER-HALTS, single tripling block, no list.
+F0.2 (3 members, identical spans): prefix P (small left counter word) + (01)^x 0 (01)^y [F]: rule x-1,y+2 validated 117/member (chk_f02.py); x doubles per round, P changes per round (left records only 15 by 3e8). NOT-RECORD-CLASS (exp in rounds, rounds counted by tiny prefix counter).
+F0.3: member1 HALTS sigma 67383 @1.70e9. member2: [A]0 1^a 0 1^b W -> a+3,b-1 (validated 156, chk_f03.py), x triples per round, W small right counter word (13 R-records by 3e8). NOT-RECORD-CLASS.
+F0.4 (2 members, identical round seq to 16171): Collatz-like: (0011)^a (0)^4 (1100)^b transfer a+3,b-2; round n -> ~3n/2 with parity-dependent suffix (7,11,22,34,52,79,119,184,277,416,625,943,...). NOT-RECORD-CLASS (Collatz-like (3/2)^rounds; halting UNSETTLED).
+F0.6 & F0.9 (different families, same behaviour): whole tape at round start [C]0 1^m, 3|m -> [C]0 1^(18m+63); blank reaches m=15 (15,333,6057,109089). Validated m=3..300 step3 (100/member, chk_f06.py). NEVER-HALTS (single block x18 per round).
+F0.7: [C]0 (10)^3 1 (10)^n S, S cycles 110101,110101,1101,11,1 (period 5); inner a+4,b-2 validated 120; 5-round macro n(S=1) -> 32n+125 (S=1), odd n invariant, checked n=1..39 odd (20) (chk_f07.py); blank n=61 odd. NEVER-HALTS (strong evidence), doubling block.
+F0.8: whole tape [E]0 (01)^3 001 (10)^n 01; even n -> 4n+4 (validated 100 even n, chk_f08.py), odd n -> 4n+8; blank n=14. NEVER-HALTS.
+F0.10: bouncer P (1110)^k 0 (011101)^k 0 [E] -> k+1 (validated k=3..102, chk_f10.py; holds to 2e10 steps). NEVER-HALTS (linear growth).
+F0.11: R(c,x)=1^c 0 1^x 0 11 [B]0: R(c,x)->R(c-1,4x+4) (c>=1), R(0,x)->R(4x+5,0); validated 144 configs c,x in 0..11 (chk_f11.py); blank reaches R(22,84). NEVER-HALTS (rules total); tower-of-4 growth = counter reloaded from accumulator forever (f_3-type host, not list).
+F0.12: R(c,x)=(10)^c 1 (10)^x 1 (10)^2 [A]0: odd x: R(c,x)->R(c-1,2x+3), R(0,x)->R(4x+10,1); validated 144 (c 0..11, x odd 1..23; chk_f12.py). Even x branch differs (x=2 -> 510, x=4 -> 8190; not reached). Blank reaches R(9,125). NEVER-HALTS; tower-of-2 growth (counter reload forever, f_3-type host).
+Fri, Oct 23, 2026 12:29:13 PM RESULT.tsv written. No background processes left running (all runs foreground/short; one bg task stopped via TaskStop).

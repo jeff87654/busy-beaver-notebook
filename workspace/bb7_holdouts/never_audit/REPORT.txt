@@ -1,0 +1,151 @@
+never_audit REPORT: adversarial re-check of the largest BB(7) NEVER-HALTS verdicts (2026-10-23/24, Opus agent)
+===========================================================================================================
+BOTTOM LINE: NO VERDICT BROKEN. No audited row halts; nothing appended to OPEN_CANDIDATES.
+  - 173 rows audited with my own coding, symbolic (sound per residue class) rule measurement, my own exhaustion test and
+    my own invariant search: 160 CONFIRMED NEVER-HALTS, 9 UNDECIDED (tool limits, listed below), 4 NO-TEMPLATE.
+  - Of the 166 reb7 NEVER rows whose literal list reaches >= 20 digits (34 reb7 families), 53 were audited directly and
+    162 sit in a family with a directly CONFIRMED member.  Not confirmed: F5 (3 outer-counter rows, level ~26) and
+    F89 (1 multi-template row, level ~27): UNDECIDED, see below.
+  - Every rule I measured agrees with reb7's fitted rule up to the coding offset (no tail/refill disagreement of the
+    X33 kind).  The halting exhaustion classes agree with reb7's exhaustion maps in every deep row.
+  - Controls: X33 and i stay never-halting (my invariant); the BB(7) champion's exhaustion halts in every class
+    (positive control); M8 is NOT dismissed (its exhaustion leaves the template in every class) but my generic method
+    does not reproduce M8's real-class halt (only a tiny-world halt); N2 is outside my codings (not broken, not checked).
+
+TARGETS AND SIZES (size = digits of the largest literal K-list in the reb7 trace, i.e. the level of the next
+exhaustion; reb7 final_all_verdicts.tsv + run_*.jsonl, tab.py)
+  rank  size  machine                                              reb7 family / note
+   1    604   1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LG0LE_1RA---     F70 (X33 sibling, no halting class)
+   2-5  423   r, s, h, u (dl3 F1)                                  F168/F201 (parity invariant)
+   6    423   1RB0LA_0RC0RG_1RD---_0LE0LF_1LE0RF_1LF1RA_0RD0RG     F279
+   7-8  199   1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_{1LG0LE_0RA,0LG0LE_1RE}---   F44
+   9    140   1RB1RA_0LC0LF_0RD1LC_1RA1RE_1LF1RG_1LB1LF_---0RA     F236 (parity invariant)
+  10    92    1RB---_1RC1RB_0RD0RB_0LE1RD_0LF1LG_1LC1LF_1LA0LF     F86
+  11-14 64-65 F51 x2, F93 x2;  15: i (46, F177);  16-21: F7 x2, F50 x2, F197 x2 (44);  22: F69 (38);  23: X33 (33)
+  24-30 27-29 F71, F160, F15 x2, F68 x2, F239;  plus Y19, Z16, the 18 dl3 bases, 6 u=011/110 rows (size 9-20),
+        the 3 E-FAR-DIFF rows (F141, 22), N2 and the dl3 k/l/m rows.  Full list: deep.txt (49) + extra_list.txt (6).
+  Broad set: 2 rows of every other reb7 family that has a size >= 20 member or a flagged row (reps.txt, 200 rows),
+        light settings.  Merged table: final_verdicts.tsv (173 rows, size, template, rules, verdict, reb7 verdict).
+
+CONTROLS
+  X33 = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE: CONFIRMED.  Exhaustion [X] halts iff X even (all 48 tested
+    classes); my invariant Phi = 3*sum(digits) + 3*A = 3 (mod 6) on every literal K-config, kept by every measured rule
+    (k <= 30) and by the rebuild, so X is odd at every exhaustion.  i (..._0LA0LG_---0LE): same, CONFIRMED.
+    Y19 (..._0LE1LE_---1LF_1LA0LG_1LB1LG) and Z16 (..._1LA1LG_---0LE): CONFIRMED the same way.
+  BB(7) champion (coding C1: prefix 11, digits (10)^d, separator 1): symbolic exhaustion [0^11, X] HALTS in all 12
+    classes tested (and [0^1, X] too): the exhaustion test sees a real halting exhaustion.
+  M8 = ..._1LH0LC_1RG1LD_0RG0RF_1RG---: from the same exhaustion config it does not halt and does not return to the
+    template in any of 12 classes (tape gains a 100^(2X+10) block: the cascade) -> my pipeline says OPEN, i.e. M8 is
+    not dismissed.  Following the cascade symbolically fails (symsim steps it unit by unit, UNDECIDED at the lower
+    bound).  Literal tiny worlds (exact X = 1..25 at the 11-digit exhaustion, 40 s each): X = 2 HALTS after 8893
+    steps (sigma 60); all other X run out of time.  So the post-exhaustion path to the halt exists, but the REAL-class
+    halt after two escalations is NOT reproduced by my generic tools (that needs the 5-adic cascade model of
+    bb9_c04_deep).  Calibration verdict: "must not dismiss" met; "must find the halt" only in a tiny world.
+  N2 = 1RB0RC_1RC0RA_1LD0LB_1LE0LA_0LF---_1RC0LG_1LF1LA (Coq-proved): no v/U10/C1 template fits (u=01, s=1 coding):
+    NO-TEMPLATE.  My method neither breaks nor checks it.
+  NGramCPS (ngann.exe, 4/4..8/6) fails on r, F70 and X33 as expected (parity / counting arguments): not used further.
+
+METHOD (independent of reb7's code; reused only the simulators: symsim.cpp from bb8_resid with a --stopq patch)
+  1 Coding, found from literal tapes (lit.exe ends/kv), compared with reb7 only afterwards: tape -> v-list (1-runs
+    separated by single 0s, oriented so the K-event head is on the right).  Digit codings: V (1^d 0), U10 ((10)^d,
+    separator 0 or 00), U110 ((110)^d), C1 (champion).  K-config = [d_1..d_n, A] + fixed tail TF at a (state, end)
+    event with z zeros before the head.  detect2() picks (event, coding, TF, z) by the fraction of literal K-pairs that
+    are plain decrements.  This independently reproduces reb7's templates (up to coding offsets) for all fitted rows.
+  2 Rules MEASURED by sound symbolic execution: K-configs with symbolic digits/A (symbol = r mod 720, >= 1000) run in
+    symsim to the next K-moment: D_k: [.., y+c, 0^k, A] -> [.., y, R_k(A), tail, A'] for k = 0..12, 20, 30 (deep) /
+    0..6, 12, 20 (broad), then re-checked on 72-216 probes per row (left contexts [], [3], [X], small y, A classes).
+    Where a proved acceleration rule skipped a K-moment, the probe was re-measured by exact runs at A ~ 1200-1920 with an
+    affine fit per symbol and a 3rd verification point (marked exact_fallback).  0 mismatches on every CONFIRMED row.
+  3 Exhaustion: [X] + TF with X symbolic in each class r mod 720 (r < 48 deep, r < 24 broad, all 720 for the 6
+    largest rows): HALT / rebuilt K-config (shown symbolically, e.g. [4, 2^(X/2-1)]) / leaves template.  Sound for
+    every X >= 1000 in the class.  In the 6 largest rows the halting set over all 720 classes is exactly "all odd
+    classes" (r,s,h,u) or empty (F70, F279), so every halting condition met is a parity condition (tower-stable).
+  4 Invariants: all w_D*sum(digits) + w_A*A (mod 2,3,4,6) kept by every literal K-pair AND every symbolic rule, constant
+    on the literal run; then the exhaustion classes it allows, whether any halts, and whether the symbolic rebuild
+    restores it.  For the dl3 F3-type rows (no linear invariant): f3check.py, projected parity P = A + c*d_last
+    (c = decrement increment) with the "last multi-zero borrow" argument (below).
+  5 Literal: lockstep of my rule engine against the literal blank-tape K-trace (1e9 steps deep: 17k-48k K-pairs per
+    row; 1e8-2e8 broad): 0 misses on every CONFIRMED row.  Literal full exhaustions in the real class are inside these
+    runs (e.g. r: X = 848 at step 281429 -> 425-digit list; F70: X = 604 at step 139013 -> 606 digits; F279: X = 850;
+    i: X = 91; X33: X = 65).  Constructed literal exhaustions (F3 row n): [1,0,0,6] -> B2 -> exhaustion X = 1374 even,
+    rebuilds; single-digit configs with odd projected parity halt at once (the halting class is real).
+  6 Halting thresholds (thr.py, 51 deep rows): exact runs of [y, 0^k, A], k <= 8, A <= 2k+8: the only halts are borrows
+    with A <= ~2k (linear threshold); the literal run's smallest A at a borrow over k zeros is far above it (e.g. F70:
+    k=1 A>=4, k=2 A>=19; r: 8, 92; F86: k=3 A>=3069).  No row unsafe.
+
+PER-TARGET TABLE (deep set; all lockstep misses 0; halt = halting exhaustion classes r mod 720 among r < 48)
+  size machine                                           K tmpl         D     B1          halt       verdict / argument
+  604 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LG0LE_1RA---  B,R,-,0,V      A+3   [A+2;1]     none(720)  CONFIRMED no halting class
+  423 1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1LG0RB_1LC1LG  D,L,-,1,V      A+3   [A+1;2]     odd(720)   CONFIRMED Phi=sum+A=0 mod 2
+  423 1RB0LG_1RC1RB_0RD0RB_0LE1RD_0LE1LF_---1LA_1LC1LG  D,R,2,1,V      A+3   [A+1;2]     odd(720)   CONFIRMED Phi=0 (s)
+  423 1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1RA0LG_1LB1LG  C,R,1,1,V      A+3   [A+1;2]     odd(720)   CONFIRMED Phi=0 (h)
+  423 1RB0LG_1RC1RB_0RD0RB_0LE1RD_0LD1LF_---1LA_1LC1LG  D,R,2,1,V      A+3   [A+1;2]     odd(720)   CONFIRMED Phi=0 (r)
+  423 1RB0LA_0RC0RG_1RD---_0LE0LF_1LE0RF_1LF1RA_0RD0RG  A,L,-,2,V      A+3   [A-1;4]     none(720)  CONFIRMED no halting class
+  199 F44 x2 (..._1LG0LE_0RA---, ..._0LG0LE_1RE---)     B,R,-,0,V      A+3   [A+2;1]     none       CONFIRMED
+  140 1RB1RA_0LC0LF_0RD1LC_1RA1RE_1LF1RG_1LB1LF_---0RA  C,L,-,1,V      A+3   [A+1;2]     even       CONFIRMED Phi=1 mod 2
+   92 1RB---_1RC1RB_0RD0RB_0LE1RD_0LF1LG_1LC1LF_1LA0LF  D,R,-,1,V      A+2   [A+1;1]     none       CONFIRMED
+   65 F51 x2, 64 F93 x2, 38 F69, 29 F71                  V              A+3   [A+2;1]     none       CONFIRMED
+   46 i  (F177)                                          B,R,-,0,V      A+3   [A+2;1]     even       CONFIRMED Phi=1 mod 2
+   44 F7 x2, F197 x2 (U10), F50 x2 (V)                   various        A+2   [A+2;0]/[A+1;1] none   CONFIRMED
+   33 X33 (F199)                                         B,R,-,0,V      A+3   [A+1;2]     even       CONFIRMED Phi=1 mod 2
+   29 F160 (U10, TF 1,2), F15 x2 (U10s2)                 various        A+2   [A+2;0]     none       CONFIRMED
+   28 F68 x2, 27 F239 (U10)                              various        A+2   [A+3;0]     none       CONFIRMED
+   22 F141 x3 (E-FAR-DIFF; U10s2, TF 2)                  A/D/C,L        A+2   [A;2]       none       CONFIRMED; rebuild shape
+        depends on X mod 4 (4 forms, none halting): this is what reb7's E-FAR-DIFF flag saw, not a halting class
+   20 6 u=011/110 rows (U110)                            various        A+2   [A+1;1]     none       CONFIRMED
+   19 Y19, 15 Z16                                        V              A+3   [A+1;2]     odd/even   CONFIRMED Phi
+  dl3 F2 a,b,c,t,j (4-5)                                 V              A+3   [A+1;2]     parity     CONFIRMED Phi
+  dl3 F3 d,e,f,g,n,o,p,q (2-11)                          V              A+3/5 [A+1;3]     odd        CONFIRMED last-B2 (below)
+  dl3 k,l (POLY), m (fixed depth)                        -              -     -           -          NO-TEMPLATE (not record class)
+  (Rules: B1 = [y+1,0;A] -> [y, refill; A'] written [refill;A']; B_k refills A+c_k-(slope)k with tail 1^(k-1) or 2^(k-1)
+   etc., see logs/<machine>.txt; cmp_reb7.py prints mine next to reb7's fit.)
+
+ARGUMENT FOR THE dl3 F3 ROWS (f3check.py; the generic invariant search finds nothing, my "last-borrow" route alone
+  fails because D flips the parity of A): with D: A -> A+c (c = 3 or 5, odd), P = A + c*d_last mod 2 is the parity A
+  will have when the last digit has run down.  Measured: D and B1 keep P; B2 sets P = 0; B_k (k >= 3) sets P = 1 but
+  leaves the last three positions nonzero; nothing but a B2 decrements position n-2, so after any B_k (k >= 3) and
+  after any rebuild a B2 happens before the next exhaustion.  Hence X_E = 0 mod 2, and the exhaustion halts only for
+  odd X (all 48 classes measured).  Same conclusion as dl3's (their a and B1 are my P and B2).  One broad row with even
+  c (1RB1RA_0LC0LF_1RD1LC_1LG1RE_1LB0RG_1LE1LF_---0RA): D keeps A mod 2, every B_k (k >= 2) leaves its last two digits
+  nonzero, so the last borrow is a B1, which sets A = 3: X_E odd, halting class even: CONFIRMED.
+
+UNDECIDED / NOT AUDITED (none of these shows a halt; they are limits of my tools, not counter-evidence)
+  F5 / outer-counter siblings, size 26: 1RB1RG_0LC0LD_1RF0LD_0RE1LB_1LB0RF_0RA---_1RA1RD,
+    1RB1RE_1RC1RA_0LD0LE_1RF0LE_0RG1LC_0RB---_1LC0RF, 1RB0LD_0RC0RG_1LD0RG_0LE---_1LB1LF_1LE1LG_0LA1RB:
+    rules measured (D A+2, borrows take 2 units), even exhaustion classes rebuild in-template, odd classes rebuild into a
+    marked list (prefix 0^2 1 10^2 ...) my decoder cannot parse; no HALT within 400k macro steps in any class.
+    reb7's S4 subagent verdict stands but is not independently confirmed.
+  F89 1RB0RE_0RC---_1LD0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE (size 27, reb7 S2 multi-template, u=01/s=011): no coding fits.
+  1RB0LE_1RC0RG_1RD0RF_0LA1LF_0RE1LD_0LA1RA_0RA--- (size 3): exhaustion leaves template.  3 rows of size 2-3 with
+    unmeasured rules (1RB1RG_0RC1LF_..., 1RB1RA_0LC0LD_0LD1LD_..., 1RB1RD_0LC0LG_...); 2 translated-cycler rows (size 0)
+    with probe mismatches; about 30 further S4 cycler/prefilter representatives (size 0) had no template and were skipped.  None is record-relevant except F5/F89.
+  Residues: every halting condition I met is a parity condition fixed by an invariant or by the last-borrow argument,
+    so nothing depends on a non-tower-stable residue.  No row needed a residue engine.
+
+REB7 COMPARISON / RULE DISAGREEMENTS
+  None.  My (D, B_k, E) are reb7's rules shifted by its b-coding (e.g. r: mine D A+3, B_k refill A+3-2k, tail 2^(k-1),
+  E: odd X halts; reb7: D b->1b+3, Bk x=b+0-2k tail 2^*, E halts for one b parity).  reb7's RANDMISS1 rows (r,s,h,u
+  family): my 216-468 symbolic probes and 17k literal pairs show no miss.  E-FAR-DIFF (F141): explained above.  My own
+  tool bugs found and fixed during the run (affected rows rerun): U10 trailing zero digit lost in decode; symbolic
+  probes skipping K-moments through proved rules (-> exact fallback); borrows that take 2 units; K event with the head
+  on a unit's 0 (F141 siblings, -> other K event).  Each showed up as OPEN or DISAGREE, never as a false CONFIRMED.
+
+LIMITATIONS
+  Not proofs.  Rules are sound symbolic measurements for each probed class and k <= 30 (deep) / 20 (broad); larger k and
+  digits beyond the probed shapes are extrapolated by uniformity.  Exhaustion classes beyond r < 48 were scanned in full
+  (720) only for the 6 largest rows.  Family coverage assumes that rows sharing a reb7 family behave like the audited
+  member (not checked row by row).
+
+COST
+  CPU at Idle, mostly 2 cores (briefly 3 during reruns): audits 8250 s, template detection ~2 h, 720-class scan and
+  threshold scan ~1 h, misc ~0.5 h: about 6 CPU-hours (above the "few hours" budget because of two reruns after tool
+  fixes).  Tokens: about 0.55M.
+
+FILES (bb7_holdouts/never_audit/)
+  src/lit.cpp(.exe) literal simulator (ends/kv/kx/sig/run); src/symsim.cpp(.exe) bb8_resid symsim + --stopq/--stopn/
+  --stopall.  sym.py (symsim driver, tape <-> v-list with symbolic blocks), coding.py (V/U10/U110/C1), fam.py (lit_k,
+  detect2), audit2.py (the audit), deep.py / broad.py (drivers), f3check.py, thr.py, exh720.py, ctl_champ.py,
+  m8_small.py, cmp_reb7.py, summarize.py, tab.py, look.py, exh.py.  Results: final_verdicts.tsv, deep.jsonl,
+  deep_rerun.jsonl, broad.jsonl, broad_rerun.jsonl, f141*.jsonl, exh720.jsonl, thr.jsonl, m8_small.txt, logs/<machine>.txt,
+  detect2.tsv / det_*.tsv, targets0.tsv, deep.txt, reps.txt, notes.txt, pids.txt.  Older prototypes: audit_r.py,
+  audit_f1.py, out_f1_*.txt.

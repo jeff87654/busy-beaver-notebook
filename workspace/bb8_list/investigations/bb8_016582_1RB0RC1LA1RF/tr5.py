@@ -1,0 +1,23 @@
+from lit import *
+import sys
+t=parse(TM);tape={};p=0;q=0
+N0=int(sys.argv[1]);N=int(sys.argv[2])
+def gaps():
+    ones=sorted(tape)
+    return [ones[i+1]-ones[i]-1 for i in range(len(ones)-1)]
+def comp(g):
+    out=[];i=0
+    while i<len(g):
+        j=i
+        while j<len(g) and g[j]==g[i]: j+=1
+        out.append(f"{g[i]}^{j-i}" if j-i>1 else str(g[i]));i=j
+    return " ".join(out)
+for n in range(N):
+    if n>=N0 and tape and p<min(tape):
+        print(n,"ABCDEFGH"[q],min(tape)-p,comp(gaps()))
+    r=t[(q,tape.get(p,0))]
+    if r is None: print("halt",n);break
+    w,d,ns=r
+    if w: tape[p]=1
+    else: tape.pop(p,None)
+    p+=d;q=ns

@@ -1,0 +1,65 @@
+=== HANDOFF (keep current; read this first) ===================================================================
+AGENT: c04-fgh (lead = team-lead).  Folder bb9_c04_coq/fgh (logical path Fgh).  Started 2026-10-18 08:00.
+TASK: two-sided FGH bracket for C04's score (follow-up PR to BB9/, like BB43's upper-bound PR #23).
+STATUS 2026-10-18 09:40: PRIORITIES 1, 2, 3 DONE.  probe.v: one Print Assumptions on the conjunction = Closed.
+  EndU.c04_fgh_bracket : forall c N, c0 -->* c -> halted tm c -> ones c N ->
+                         f_omega (f_omega (12 * Bx + 26)) < N /\ N < f_omega (f_omega (12 * Bx + 27)).
+  EndU.c04_fgh_coarse  : forall c N, ... -> f_w1 3 < N /\ N < f_w1 4     (f_w1 n = iter n f_omega n).
+  EndU.c04_fgh_exists  : the bracket as an exists.
+  Exact.c04_score_exact : forall c N, c0 -->* c -> halted tm c -> ones c N -> N = sigma_c04.
+  Exact.c04_score_reached : exists c, c0 -->* c /\ halted tm c /\ ones c sigma_c04.
+  Exact.c04_sigma_bracket : f_omega (f_omega (12 Bx + 26)) < sigma_c04 < f_omega (f_omega (12 Bx + 27)).
+  FArith.Bx_knuth : 2 * Bx + 4 = arrow 13 2 3 ;  FArith.R2_knuth : 2 * R2 Bx + 4 = arrow (12 Bx + 26) 2 4.
+  sigma_c04 := sig_key (run L1 top): run = the cascade recursion on (t, L, P, s, y, m) (gnext = one g-step, until
+  L < 60), sig_key = the key's route formula (sig31 by (P-35) mod 5: 5 routes; sig37/43/49/55), all = HN d s g m R n t
+  = d + s + g + m + 6R + 2n + 4t + 15 (ones of the Hc tape).
+  NOTE coarse bracket: the lead's guess f_(w+1)(2) < sigma < f_(w+1)(3) is wrong (f_omega 3 <= U 1 3 <= Bx, so
+  sigma > f_(w+1)(3)); the proved one is (3),(4).
+BUILD: bash fgh/build.sh  (FArith Tower Uniq CascU EndU Exact probe; python coqc_fgh.py FILE.v [TIMEOUT] [MAXGB]:
+  Idle priority, memory cap (default 6 GB), PID -> fgh/pids.txt; one coqc at a time).
+  Times (Idle, machine shared with 4 other coqc): FArith 12 s, Tower 10 s, Uniq 10 s, CascU 131 s, EndU 24 s,
+  Exact 19 s, probe 333 s (Print Assumptions over the full dev graph ~260 s).
+  Load path: BusyCoq, BB8 = bb8_list/proofs, Dev = dev, K31 = k31, Score = score (all read-only), Fgh = fgh.
+  Frozen inputs used (no recompilation): dev Base Abs Lift Orbit Chain Cascade Step Fin CBtail Endgame ScoreEnd (+deps),
+  k31 K31_Abs K31_Mach K31_End, score Score.
+FILES:
+  FArith.v  pure arithmetic: f monotone (arg, level), f_le_U2 : f (k+2) n <= U k n (sharp), arrow_le_f (F1),
+            U_lt_f : U j x < f (j+2) (2x+4), U4/U64, fw26_le_R2, R2_lt_fw27, LB_chain, UB_chain, coarse_lower/upper.
+  Tower.v   T P m := iter m (U (S P)) 0, closed under +, *, U (S P), iter at levels <= P; T P m <= U (S (S P)) m.
+  Uniq.v    halted_unique (determinism), ones_unique, Hc_N / Hc_ones_exact / Hc_count (exact count of K31_End.Hc).
+  CascU.v   reachU L (cascade invariant with upper bounds: P <= Ptop = 12 R2 + 11, L <= L1,
+            mass t s y Ll = t+s+y+count1 Ll <= L1 + (L1-L)*Cst), casc_stepU, reach_topU, step_stopX (Step.step_stop
+            with the accumulator explicit, same proof).
+  EndU.v    D0f14_exact / D0f20_exact (class-b tails ending in an explicit Hc), key31U (k31_esc + route0..4),
+            key37U/43U/49U/55U, casc_keyU, c04_goalU (Cascade.cascade_from_start), bracket theorems.
+  Exact.v   cst / gnext / run / top / sig_key / sigma_c04; gnext_ok, run_ok, top_ok, key31E..key55E, exact theorems.
+  probe.v   tm table = machine string (eq_refl x18), Print of all definitions used, Check of the theorems,
+            c04_fgh_all_ok (conjunction) + Print Assumptions (Closed).  Output: probe.out.
+PROOF IDEA (upper bound): the halting configuration is unique; every quantity on its tape is bounded by the scale
+  T Ptop m (all clear depths <= Ptop = 12 R2 + 11; far side + t + s + y <= L1 + L1*Cst, Cst = 19 + L1 + 6 iter L1 (U L1) 0);
+  N <= T Ptop 13 <= U (Ptop + 2) 13 < f (Ptop + 4) 30 <= f_omega (Ptop + 34) and Ptop + 34 <= 64 R2 < f_omega (12 Bx + 27)
+  (64 R2 <= U (12Bx+25) 1 < f (12Bx+27) 6).  Lower: N > R_E = iter 2 (U K) 0 >= f_omega K with K >= R2 >= f_omega(12Bx+26).
+PITFALLS: (1) an unapplied `rewrite arrow_two` on a goal with a closed arrow term unified 2 with it and EVALUATED it
+  (40 GB; killed own PID 6204).  Always instantiate (arrow_two 13).  (2) `rewrite !f_0` stopped after one instance ->
+  rewrite each instance.  (3) TT (m+4) vs TT 13 are different atoms for lia -> state results with S-chains.
+  (4) Print Assumptions over the full dev graph costs ~260 s each -> one conjunction in probe.v.  (5) in files that
+  import Individual92, match patterns 1/2/... parse as Sym: write 1%nat.
+HEADLINE (2026-10-18 10:30, lead's 2nd task; existing fgh files untouched):
+  Headline.Bx_fw    : f_omega 12 < 12 Bx + 26 /\ 12 Bx + 27 <= f_omega 13          (f_omega 12 <= U 10 12 <= Bx;
+                      12Bx+27 <= 64 Bx <= U 11 1 < f 13 6 <= f_omega 13)
+  Headline.Bx_fw_tight2 : 6 (2Bx+4) < arrow 12 2 13 <= f_omega 13   (so a = 13 fails: (12,13) is the tightest pair)
+  Headline.c04_fgh3 : forall c N, c0 -->* c -> halted tm c -> ones c N -> f_w^3(12) < N < f_w^3(13)
+  Headline8.m8_fgh3 : the same for M8 (tm8, Tm8.ones), from coq_m8 Transfer.m8_fgh_bracket; compiled with coqc_h8.py
+                      (= coq_m8's load path).  Build: bash build_headline.sh (Headline 18 s, Headline8 13 s, probe_h 403 s).
+  probe_h.v: headline_all_ok (conjunction of the three) Print Assumptions = Closed.
+==================================================================================================================
+
+LOG
+2026-10-18 08:00 read dev/k31/score, upper.txt (+errata), K31_End routes.  Plan: no new machine lemmas; the frozen
+  abstract layer already gives explicit RHS for every step (AbsSUB2-5, AbsSTOP/AbsENTRY/CDPx, pk14/pk20,
+  ScoreEnd.classb_tailS, K31_End.route0-4) except step_stop's hidden R (re-proved with R explicit).
+2026-10-18 08:12 FArith runaway (Bx_knuth: unapplied arrow_two) -> 40 GB, killed own PID 6204.  Fixed.
+2026-10-18 08:57 EndU compiled, 3x Closed.  Bound slack: everything on the halting tape <= T Ptop 13.
+2026-10-18 09:25 Exact.v (exact score recursion) compiled first try after the %nat pattern fix.
+2026-10-18 09:35 probe.v exit 0 (333 s), Closed x3.
+2026-10-18 09:50 CLEAN REBUILD (bash build.sh, all .vo deleted first) PASS in 8m13s: FArith 12, Tower 10, Uniq 11, CascU 137, EndU 28, Exact 17, probe 274 s; probe Closed x3.

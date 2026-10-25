@@ -1,0 +1,15 @@
+2026-10-23 18:19 start slot_redirect: 7-state spare-slot redirects (first-reached '---' -> existing state, other '---' = halt).
+2026-10-23 18:30:00 census + dl2 pool rank7 (7 rows, levels <= 0.38) + natural halters (3 bases x 56 completions; all halters halt at the base halt +O(1) except one 1.08e11/163883 ones)
+2026-10-23 19:10 FR rows (nonlist tier 1/3, the only f_omega-flagged 2-undefined rows): fr1 = 1RB---_1LC1LF_0LD0LB_0RE0RG_1RB1RE_0LC0RE_1RD---
+   (A1 unreachable: no transition enters A; only G1 is live). dumprun.py from an nlp7v dump: the digit c (~670) is refilled
+   with a CONSTANT (~676) after each exhaustion, 2 list items are consumed per c-cycle -> exponential class, FR=671 is that
+   constant (false f_omega flag). Small instances (list cut to 0..4, c=2): no G1 within 2.7e12-3.4e12 steps (list re-grown or
+   left junk). Not record class; no live exhaustion found. fr2 (same FR 671, A1 unreachable, D1 live) treated as the same family.
+2026-10-23 18:39:15 ctl8 done (ctl8_summary.txt): M8 reproduced (r6 11 97 12 4374 2617; W2 HALT H1 3.23e8, top 817); H0=0RB/0RE identical. REPORT.txt written. VERDICT negative.
+2026-10-23 18:40:11 FOLLOW-UP: unused defined transitions (free slots) in record-relevant 1-undefined rows.
+2026-10-23 19:20:20 free-slot scan done: 3647/3647 pool rows use all 13 defined transitions within 3e8 steps (latest first use at step 7017). Pool with >=1 unused = 0. usage.exe PIDs 113964/110008 exited.
+2026-10-23 19:38:51 CONTINUATION task started (cont/). reach7.exe = nlp7 macro core + halting slot/ones. Corrected REPORT sec.3 slot names (C1/G1/G1).
+2026-10-23 21:06:13 stage A done: see REPORT; stage B (lg>=7 rows, 1e7 macro, to 1e11) started
+2026-10-23 22:33:51 stage B cut: 40062 rows done at 1e7 macro; remaining 120883 rows -> stage B2 at 3e6 macro (machine load: rate fell to ~3 rows/s)
+2026-10-24 00:56:22 slow-row sample: 500 rows (lg<7 at macro) literal 3e8 + 14 at 1e9: see REPORT
+2026-10-24 01:13:36 CONTINUATION done: 30 reachers (1e8-1e11 steps, <=294k ones), 840 children: 97 halt (max 172,858 ones), 15 loop, 728 run; FR>0 children = fixed-list towers. Verdict negative. REPORT section appended.

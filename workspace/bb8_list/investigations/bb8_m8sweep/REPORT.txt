@@ -1,0 +1,67 @@
+bb8_m8sweep REPORT (agent m8sweep, 2026-10-24) -- INTERIM, STOPPED EARLY AT THE USER'S REQUEST (token budget)
+==========================================================================================================
+STATUS: INCOMPLETE. No record candidate found so far, but this is NOT a negative result: the screen covered only
+92 of 716 bases at tier 1, and tiers 2/3 never ran on the main pool. Nothing was appended to OPEN_CANDIDATES.
+
+WHAT WORKS (tools in this folder; see NOTES.md for the log and all bug fixes)
+  wf.cpp -> wf8.exe  world follower derived from bb8_resid/tools/zfg7.cpp. It runs the TM literally. At each K-moment
+    of the base's dlscan template it clears the near token list in one jump and sets the accumulator to
+    R = rc + k, rounded up into the base's tower class mod 60, with the first R = the class representative.
+    Extras over zfg: O=L templates (by mirroring); tail forms S1 W^t S2 (M8's (11111100)^t); a counter for reads of
+    the redirected slot; an escalation counter (k > max k and k >= 0.5 * max previous R); slot and pair bookkeeping;
+    snapshots; batch mode; TNF-style lazy branching of H0/H1; a jump-level accelerator (periodic-run compression,
+    4 iterations with constant run deltas, needed for M8's counter modes); and round-signature LOOP detection.
+    Budgets are split into an exact phase and a world phase.
+  towercls.py  refits each base with reb7 fit7 and evaluates deep clearings with eng7 (mod 80640). It gives the
+    tower class mod 720 for all 716 bases: 655 have one class, 61 have two or three. The champion gives 366 mod 720,
+    which matches the known 366 mod 3600.
+  screen.py (tier 1), tier.py (tiers 2/3), collect.py (merge and rank), launch.py (Idle priority; PIDs go to
+    pids.txt).
+
+POSITIVE CONTROLS
+  PASSED  M8 from blank (cls 6 mod 60, rc 10, R0 6): HALT in H1 after exactly 3 escalations (k = 11, 97, 1494; then
+          two accelerated counter modes), 1.84e9 literal steps. Also passes in world r6 (cls 6 mod 360).
+  PASSED  Class sensitivity is real: an odd first accumulator makes M8 halt one escalation early. So the real tower
+          class is mandatory; towercls supplies it.
+  PARTIAL Champion E0 children (260, TNF trees), tier 1: M8 and the four C04-trace twins (1LH/0RB---,
+          1LH/0RE---, 0LH/0RC---, 0LH/1RD---) all show the identical tier-1 signature (T, E=2, zeros 11 97 12).
+          At tier 2 the twins reach E=3 like M8. Tier 3 (2.5e9), which should show the halt, never ran: STOPPED.
+  NOT RUN h003 at 9 states (job file jobs_h003.txt is ready). The follower supports 9 states. Following 7
+          order-faithful rounds is probably infeasible, because world R grows about 12x per round and the cost per
+          round grows as R^2.
+
+POOL / EXCLUSIONS
+  769 reb7 FOMEGA rows. Excluded 53:
+    18 dl3 bases (bb8_fw1_redirect)
+    32 hosts2 A/B/C bases and siblings (fam.py BASES)
+    N2 and its mirror
+    the champion (control only)
+    champ_231/232
+  That leaves 716 bases (pool.json).
+  X candidates (xcands.json, from slot and pair bookkeeping in slots2/):
+    231 bases have exhaustion-only slots (307 slots); 389 have guard pairs (615 pairs).
+    327 bases have neither. Their exhaustion uses exactly the engine's (slot, next symbol) pairs, so no
+    8-state redirect can change the exhaustion without changing the engine. This is a structural blind spot,
+    not screened.
+
+RESULTS SO FAR (main pool, tier 1 only, 92/716 bases; leaves counted by outcome and total escalations E)
+  HALT E=0 6274 | HALT E=1 30 | no halts with E >= 2.
+  LOOP (periodic rounds) is the large majority of the rest. 178 rows are "interesting": non-halting and non-LOOP
+  with E >= 4. Inspected samples are linear-growth rebuild loops whose rounds alternate (zeros 69 68 129 128 ...),
+  which the period-1 LOOP test misses. These rows were meant for tier 2; not followed.
+  Control tier 2 (partial): LOOP 4, T 273, WIDE 2, XMAX 3.
+
+BLIND SPOTS / TODO TO FINISH
+  1. Resume tier 1: python launch.py jobs_scr.txt 3 (resumable; done bases are skipped).
+     Then run tier 2 (python tier.py scr scrt2 2 SHARD 3 scr) and tier 3 (tier.py scrt2 scrt3 3 SHARD 3 scr).
+     Then rank with collect.py.
+  2. Finish the control: tier 3 on ctl/t2 (bash ctl_chain.sh). Required before any negative verdict.
+  3. The period-2 LOOP test is missing (alternating rounds), which inflates the tier-2 load.
+  4. Engine-modifying redirects for the 327 no-guard bases were not screened.
+  5. NOFIT growers (reb7 S4 M1-M8, N1) are outside the template follower.
+  6. More than about 3-4 order-faithful rounds is too expensive for champion-type engines. A run-length macro
+     simulator for the literal phases would be needed.
+  7. All verdicts are world-level heuristics, not residue-exact: representatives keep only the class mod 60.
+
+CPU: about 6 core-hours at Idle (slot detection about 1.5, towercls about 3, controls and screening about 1.5).
+Every process I launched was recorded in pids.txt and only those were killed.

@@ -1,0 +1,158 @@
+nonlist/ REPORT: BB(7) holdouts that passed pf7 but were never templated by dlscan2 (agent nonlist, 2026-10-23)
+====================================================================================================================
+
+VERDICT: NO record candidate.  No 7-state machine in the non-digit-list residue was found that halts above champ_231
+(3↑^20 3, rank7 level 21).  One class is record-RELEVANT but unsettled and was logged in OPEN_CANDIDATES.txt (OPEN,
+low): the "H1 class" (4 machines, 2 dynamic families) are genuine f_omega digit lists (H1: ~20 groups, first
+exhaustion ~ level 42; c01: 1533 groups) that REBUILD a list of length ~ACC at exhaustion (f_(w+1) loop, like N2).
+No halt was found in thousands of constructed exhaustion/borrow/rebuild configurations: probable never-halters.
+    H1  1RB1RE_1RC1RA_0LD1LE_1RE1LE_0RG0RF_---0LG_1LC1RA      H2  1RB1RF_0LC1LD_1RD1LD_0RE0RG_1LB1RF_1RA1RD_---0LE
+    c01 1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0LD0LB      c02 1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0RD0LB
+Side findings: 397 pool machines HALT at 1.2e9 .. 1.2e11 steps (max 420,675 ones; exact, halts_exact.tsv), i.e. small
+halters still on the holdout list; and several probable small halters found by hand (L1 ~3↑↑7000, M1 ~2↑↑55,
+M5 ~2↑↑↑15; hand/groupB.txt, notes.txt).  The 14 LEAVES-TEMPLATE rows of rank/ are small (levels <= ~5, see below).
+
+1. POOL
+-------
+pool = pf7 PASS (pf7_out/, 2,955,244) minus every dlscan2-graded row (hits_triage7.tsv, 1,828) = 2,953,416 machines
+(mkpool.py -> pool.txt, pool.tsv with the pf7 statistics).  dl2_out holds only graded rows, so no template count exists
+for the pool.  Plus the 14 LEAVES-TEMPLATE rows of rank/rank_all.tsv.
+Second filter (the pool is >> 500k): the suggested "geometric reset peaks" filter (ack7.cpp, G = consecutive resets
+with peak ratio >= 1.4) keeps ~65% of the pool (doublers are everywhere: peaks 16,32,64,...), so it was rejected.
+Used instead: stage P = growth under macro acceleration, P2 = log10 base steps reached in 300k macro steps at the best
+block size K (K = 1..6 chosen by a 6 x 30k pilot).  P2 is bimodal (slow ~6.2, fast 8.9-9.7).  Threshold P2 >= 8.0:
+563,521 machines (19.1%).
+
+2. CALIBRATION (controls; positives are graded digit-list machines, the probe itself is template-free)
+------------------------------------------------------------------------------------------------------
+  control (rank7 level)                    P2    FAST  D (list)  FR (refill)  small probe  HT (list hierarchy)
+  BB(7) champion (13) + twin              8.93     y      5         11          HALT       2 (1,6,199)
+  champ_231 / champ_232 (21)              9.62     y     18         22          HALT       4 (25,98,521,5332)
+  N2 (+relabel, never halts, f_(w+1))     9.24-9.42  y    0          0 (SC 2)    no halt    2-3
+  B1 (halts, level ~3)                    9.71     y      0          0          HALT       0
+  dl3 looper (halts at 2nd exhaustion)    6.26     n      0          0          no halt (miss)
+  X1 (sample machine, unary list)          -       y     27          0          no halt    0
+  rank rows NEVER-HALTS(invariant) 16..47  9.3-9.6  y   6-22       43-45        no halt    0-2
+  rank rows NEVER-HALTS level 424 (rebuild) 9.3-9.6 y    210        43-44        no halt    1
+  rank rows level 3.2-7 (17 rows)         9.2-9.7  y    0-2          0          some HALT  0-1
+  rank rows level <= 1.75 (33 rows)       6.2-6.4  n    0-8          0          -
+P2 >= 8.0 keeps every rank row of level >= 3 except the two K-choice twins of the 4.01 LEAVES family (P2 6.18).  On a
+2,000-machine pool sample it misses 2 of 330 FAST machines (late bloomers with a pilot ~5.2).
+FR > 0 is exactly the set of f_omega-class rows (champion 11, champ_231 22, levels 16..424: 43-45); 0 for all rows of
+level <= 7 and for unary lists (X1).  D (list length) tracks the rank7 level among them (5 -> 13, 18 -> 21, 22 -> 47).
+The forced small-instance probe halts for every true halter control except the rebuild-then-halt looper and for no
+never-halting control.
+
+3. PROBE DESIGN (nlp7.cpp; binaries nlp7.exe = stage P, nlp7f.exe = stage F, nlp7v.exe = post/hand tools)
+---------------------------------------------------------------------------------------------------------
+Macro simulator: K-cell blocks, run-length stacks, self-loop acceleration over runs of identical blocks (exact: BB(5)
+47,176,870 steps / 4098 ones at every K; a pool halter at 1,162,114,440 steps cross-checked by plain simulation).
+Snapshots at tape-end events, one series per (end, state); run patterns compressed coding-agnostically (any block, any
+period up to 4 runs).  Per machine (stage F, 1M macro at the pilot K + 0.5M at K=2):
+  FAST   natural base steps >= 1e9.8;
+  D      list length = count of the longest-LIVED repeated run pattern (pattern+count unchanged >= 50% of the run;
+         this rejects period-3/4 accumulators seen in misaligned blocks and translated trails);
+  FR     refilled frontier digit: a run within 8 runs of the list that decrements by 1 after >= 3 unchanged
+         snapshots, >= 2 times, value >= 6 and < half the largest run (the borrow/refill signature of f_omega);
+  small  forced small instance: list cut to 2-3 items, every counter (>= 3 falls, >= 24) cut to its residue mod 6
+         (min 2), 2M macro at K = 2, the list K and the pilot K -> HALT reachable (heuristic, residues distorted);
+  HT     same without the list cut: rounds spent per list item while the forced run consumes the list; growing
+         intervals = hierarchical list.
+Ranking by estimated size (never by grade): tier 1 = FR > 0 and D >= 4, ordered by HT, D, FR; tier 2 = FR > 0 and
+small HALT; tier 3 = other FR; tier 4/5 = no FR (unary lists, counters).  Then hand examination of tier 1 and of all
+FR families with >= 24 runs (lists of DIFFERENT digit values do not show in D).
+The hand step decides the key question the probe cannot: are list items CONSUMED (unary list: one exponentiation per
+item, a tower, ~3 arrows: lead L1) or REFILLED in place by accumulator-sized values (digit list: 1-2 arrows per item,
+champ_231 / H1)?  Method: --dumpat a natural tape, edit counts (msrun.py), run constructed exhaustions and borrows.
+
+4. RESULTS
+----------
+stage P 2,953,416 machines -> 563,521 with P2 >= 8.0 -> stage F: 467,062 FAST (199,056 behaviour families);
+367 FR families (634 machines) + 11,147 FAST families with D >= 10 and no FR.  Post (post.py, final.tsv): 11,514 families,
+tiers 1:110  2:66  3:191  4:932  5:10,215.
+Hand examination (Opus subagents, reports in hand/): all 110 tier-1 families (groups A-D) and 105 tier-2/3 families
+with >= 24 runs (groups E1/E2) = 215 families.
+Ranked top rows (D = list length, est. = arrows / rank7 level at the first exhaustion):
+  machine                                              D     FR   coding / dynamics                        est. size          verdict
+  H1 1RB1RE_1RC1RA_0LD1LE_1RE1LE_0RG0RF_---0LG_1LC1RA  20    34   groups 10^x01^y split by 00; borrow refills ~level 42      probable NEVER-HALTS (rebuild ~ACC)
+  H2 1RB1RF_0LC1LD_1RD1LD_0RE0RG_1LB1RF_1RA1RD_---0LE  19    34   = H1 (identical step counts)              ~level 42          probable NEVER-HALTS
+  c01/c02 1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0LD0LB/0RD0LB  1533  3058  H1 class, list built from ACC   ~level 1500+   probable NEVER-HALTS
+  H4 1RB0RE_1LC1RA_0LG1LD_0RB0RG_0RF---_1RC1LD_1LD0LB (+2) 8 226  digit list + tape-end digit creation      level ~10-20       probable NEVER-HALTS
+  L1 1RB---_1RC1RD_0LD1LC_1RF0LE_0LG1LC_0RB0RG_0RA1LD  2312  3457 unary (1100)^6936 list, F1 = x3            ~3↑↑7000 (3 arr.)  probable halter, small
+  M1 1RB---_1RC0LF_1RD0RD_1LE0RC_1LB0LD_0LG1RA_1LA0LC  54    53   unary lists, one exp. per item            ~2↑↑55             HALTS (residue-robust)
+  M5 1RB0LD_1LC1LE_1LD0LB_0RB0LG_1RF0RA_1LC0RE_0LC--- (+2) 26 672 pairs; only 2 pair levels active          ~2↑↑↑15            probable halter
+  M2 1RB1RG_1RC0RA_0LD---_0LF0LE_1RA1LF_1LE1LD_1RD0RG  54    29   binary eater + parity rebuilds            <= small towers    parity-dependent
+  162/671 cluster (~50 machines)                       162   671  unary, pentation-type rounds              level ~4-5         not record
+  M9 1RB0RD_1LC0RE_1LD0LD_1RA0LC_0RF1LG_1RG0RC_1LB---  123   51   unary list, tower rounds                  ~2↑↑123            open, small
+  H3, c03-c42, groups D/E1/E2 (~180 families)          4-319  -   unary lists, counters, binary counters, bouncers   level <= ~5   not record
+No machine outside the H1 class reached an estimated level >= 15; the H1 class is the only hierarchical (refilled)
+list found in the whole non-digit-list residue.
+LEAVES-TEMPLATE rows (rank/, 14): 8 rows level 1.75 and 2 rows 0.38 are slow small-tape machines (P2 ~6.2); the 4.01
+family 1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1LB0LE (+2) is a list [2,1,k,a,b] (01^d digits, doubling pair) =
+champion-like with ~4 digits, level ~4-5 as rank7 said (the exhaustion only leaves the template); 1RB0RD_0RC1RG_... (3.71)
+small.  None record class.
+
+4b. L1 (lead request): 1RB---_1RC1RD_0LD1LC_1RF0LE_0LG1LC_0RB0RG_0RA1LD
+--------------------------------------------------------------------------
+Rules (K=6, constructed tapes from a natural dump, exact macro simulation; l1/ and notes.txt):
+  level 1: transfer pair (010)^a/(100)^b, ACC x9 per cycle (the lead's independent (u,v,w)->(9u+52,v-3,w-1));
+  digits: d2 is reloaded with a CONSTANT (~3459, independent of ACC); d1 is refilled with ~36*ACC; d1 x d2 count the
+          cycles, so one list item = one exponentiation of ACC;
+  list item consumed when d1,d2 exhaust; LIST EXHAUSTED -> REBUILD: a new list of ~8a+19 pairs is written from the
+          accumulator a (a = 3, 9, 27, 60 -> 43, 91, 235, 499 pairs), d2 := 3458, d1 := ACC-sized; the far-end marker
+          goes 001010 010000 -> 100101 001000 -> 110010 100100 and then stays fixed: there is NO round counter.
+Branch at list exhaustion: REBUILD for every tested accumulator pair, (b,a) in 1..24 x 1..24 in the first two
+  phases and 1..12 x 1..12 in the stable phase (5M macro steps each); no halt anywhere.  The real first list
+  exhaustion (after ~3^^6936) has an accumulator whose residues were not computed: halting is UNDECIDED, all evidence
+  says rebuild.
+Size class: round map a_{r+1} ~ 9^^(c a_r) (c ~ 2..8; pentation per round, 3 arrows), rounds unbounded and uncounted.
+  If L1 never halts it is not a candidate; if it halts after round R, sigma ~ 9^^^R.  Beating champ_231 (20 arrows)
+  would need R >= ~3^^^...^3 (19 arrows) rounds, i.e. a halt gated on a residue condition that first opens at an
+  astronomically late round; nothing in the rules counts rounds.  Verdict: NOT RECORD CLASS (3 arrows per round),
+  halting UNDECIDED (probable never-halts by rebuild).
+
+4c. TIER-1 REAL-CLASS FOLLOW (lead request A; hand/tier1_real.tsv per machine, hand/tier1_real.txt)
+------------------------------------------------------------------------------------------------
+All 214 tier-1 machines (110 families) were followed on the REAL blank-tape run with the exact macro simulator:
+no halt; 192 reach 1e15 steps, all but 3 slow ones reach 1e12.  The first-exhaustion branch was decided per family
+in the real residue class where possible, otherwise marked UNDECIDED (never NO-HALT):
+  CLASS-INDEPENDENT REBUILD 9 (H1, H2, c01, c02 and the 5 H4-family machines: the first top exhaustion is a single
+    accumulator run N; every N tested rebuilds the natural start shape: H1/H2 N=1..2000 and 10000..10047, c01
+    N=2..1200 and 6000..6023, c02 N=1..600 and 3000..3015, H4 N=1..1000; borrows: 14-16 templates x ACC 1..300, no halt)
+  REBUILDS (literal, reached in the real run) 3 | CONTINUES (literal) 4 | CONTINUES (no exhaustion) 1
+  CLASS-INDEPENDENT CONTINUE (residue-sweep probe over moduli 2..36, all 4 K) 122 (incl. the 92-machine c671 cluster)
+  CLASS-INDEPENDENT HALT (narrow hand scan) 1 (M1, ~2^^55)
+  UNDECIDED 74 (all level <= ~6 or L1: none is record class under any outcome; missing = the real residues of the
+    digits at the first exhaustion, which need 2-adic propagation through x1.5/x2/x3 maps over tower-many steps)
+Unlike C04/h003/M8, no hidden halting class appeared; the record picture is unchanged (H1 class stays OPEN, now with
+class-independent rebuild evidence).
+
+5. WHY THE VERDICT IS NEGATIVE, AND THE GAPS
+--------------------------------------------
+- A record needs ~20 hierarchical levels; the probe's FR signature was present for every f_omega control, and every
+  FR family was either examined by hand (tier 1 all; tiers 2/3 with >= 24 runs) or has D < 4 and < 24 runs (no room for
+  a 20-level list).  The only hierarchical lists found rebuild instead of halting (H1 class: logged OPEN).
+- Gaps: (a) FAST machines with a slow start (2 of 330 in the sample, ~0.6%) (P2 < 8.0) and machines whose hierarchy needs more than 1M macro
+  steps to show; (b) tier 4/5 (no FR, 11,147 families) were not examined by hand: all unary lists seen so far had no
+  FR, and every f_omega control had FR; (c) rebuild-then-halt machines (dl3-looper type) are not detected by the small
+  probe; (d) the halting analyses of the H1 class are scans, not proofs; (e) the small probe is residue-distorting.
+- 397 natural halters were not checked against bbchallenge's list semantics; they halt with <= 420,675 ones.
+
+6. COST
+-------
+CPU: stage P+F 2 Idle workers 09:34-15:03 (~11 CPU-h); post-pass ~1 CPU-h; calibration/views/halts ~1 CPU-h; hand
+examination by 6 Opus subagents (1 core each, 2 at a time, 15:30-21:15) ~4-6 CPU-h.  Total ~17-19 CPU-h.
+Tokens: lead agent ~0.55M; subagents 1.47M (A 221k, B 301k, C 270k, D 302k, E1 211k, E2 166k).
+
+7. FILES (bb7_holdouts/nonlist/)
+---------------------------------
+notes.txt (timestamped log), pids.txt, REPORT.txt, TOOLS.txt (tool usage for hand analysis)
+mkpool.py -> pool.txt, pool.tsv;  pchunks/ (119 x 25k)
+ack7.cpp/.exe (rejected reset-peak filter), nlp7.cpp (all modes) -> nlp7.exe (stage P), nlp7f.exe (stage F),
+  nlp7s.exe, nlp7v.exe (--life, --small, --nolist, --show, --dumpat, --slowcut)
+run.py (resumable driver: split/pilot/full/run/stop/status), pil_out/, full_in/, full_out/
+collect.py -> cands.tsv, halts.tsv;  halts_exact.py -> halts_exact.tsv (397 natural halters, exact steps/ones)
+post.py -> post/, final.tsv (tiers, D, FR, small, HT);  analyze.py (earlier small-probe ranking, ranked.tsv)
+msrun.py, view.py, fixesc.py; controls.txt, c7.txt, c8.txt, rk63*.txt/tsv, ht_K*.tsv, ctl_*.tsv, samp*/s2k* (calibration)
+hand/groupA.txt .. groupE2.txt (+ group inputs and the subagents' scripts/dumps), L1_dump.txt
+OPEN_CANDIDATES.backup.20261023.txt (copy before adding the H1-class entry to bb8_list/investigations/OPEN_CANDIDATES.txt)

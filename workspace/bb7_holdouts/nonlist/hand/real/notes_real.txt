@@ -1,0 +1,34 @@
+tier1-real (agent tier1-real, 2026-10-23): real-class follow-up of the 110 tier-1 families (214 machines)
+Tools (this folder): members.py -> members.tsv (family -> machines, collect.py key); ms2.exe (= ms.exe + step limit
+  argv6=log10 steps, mode g0 = snapshot every 10^argv7 steps); ms3.exe (silent: mode sR = run until tape has >= R runs,
+  then argv6 more macro steps, print final tape); exscan3.py (template x variable-grid scanner on ms3.exe, HALT/CONT +
+  group view + skeleton); view.py (skeleton-change viewer); realrun.py (real blank-tape runs -> realrun_15.tsv).
+22:00 H1 real run (K=2) to 1e15: ACC | G1=(4,38) | (0,1) | (1,1)x19 | (1,0); G1.x falls ~1 per 3x steps; first L2 ~1e17.
+22:20 H1 FIRST (TOP) EXHAUSTION: last group (1,0) consumed by an L1 cycle -> exact config 'D 1 | [11] 01^N' (ACC alone,
+  N = ACC+1). Scan h1/exN_all.txt: N = 1..2000 and 10000..10047 -> REBUILD for every N >= 3 (N=2: no halt, no rebuild
+  in 3M macro), rebuilt tape = natural start shape ACC | (x,38 or 40) | (0,1) | (1,1)x~0.75N | (1,0)? (end form = N mod 4);
+  no halt in 3N^2+3e5 further macro steps.  => CLASS-INDEPENDENT REBUILD.
+22:55 H1 lower exhaustions (borrows): 16 templates h1/btemps.txt (G1=(1,0) or (0,y) under every upper-group shape) x
+  ACC A=1..300 (all residues mod <= 300), 6e5+ macro each: no halt, all resolve to normal shapes (h1/b_B*.txt).
+  H2 = H1 relabelled (A->F, B->A, C->B, D->C, E->D, F->G, G->E) started one step later: identical tapes at 1e9..1e12
+  (step counts differ by 193); every H1 scan applies verbatim.
+23:00 c01 coding (mirrored, head at right): 01 | (10 01)x1532 | 10 | G1=10^q 01^p | ACC 10^a 01^b [01] 01.
+  FIRST EXHAUSTION: ACC alone, exact config 'C 0 | 01^N [00]' -> builds (01 00 10)x~N/2 then the natural start
+  structure. Scan c01/exN.txt N=1..1200, 6000..6023: REBUILD for all N except N=1,4,5 (no halt, no rebuild in cap).
+  => CLASS-INDEPENDENT REBUILD.  Borrow templates c01/btemps.txt (14) x A=1..200 x B=1..3 (+ A,B grid to 120): no halt.
+NOTE: a killed scan's shell started its next command (';' chain) - two cores used ~22:23-22:51. Use '&&' chains.
+00:15 c02 (G0=0RD) differs from c01 in the build path: exhaustion config 'C 0 | 01^N [01]'; scan c01/exN_c02.txt
+  N=1..600, 3000..3015 -> REBUILD for all N except 3,4 (no halt in cap). Borrow templates (14) x A=1..200 x B=1..3 +
+  grid: no halt (c01/b_c02_*.txt). c01's own borrow-scan files were overwritten by the c02 pass (same suffix bug);
+  observed before overwrite: C01..C13 834/834 CONT, C14 387/834 CONT, no halt.
+  => H1 class (H1,H2,c01,c02): first exhaustion = CLASS-INDEPENDENT REBUILD into the natural start shape, so every later
+  exhaustion is the same event: all evidence says NEVER HALTS (no halt in any residue class tested).
+00:17 realrun resumed (timeout 30 s per machine, stop at 1e15 steps).
+00:55 realrun done (realrun_15.tsv): 214/214 machines, NO literal halt; 192 reach 1e15 steps, the rest >= 1e12 except
+  c08/M8 (rows 9,10: 1e11 in 40 s) and row 97 (#33: 1e10 in 40 s) - slow un-accelerated shufflers.
+01:10 H4 family (rows 61-63, 5 machines; NOT relabellings of each other but identical tapes at 1e12):
+  K=2 tape ACC | G1=(k,1) | G2=(220,1) | (0,1) | (1,1)x7 | (1,0) (H1 group language). Final exhaustion = G1 alone
+  exhausted -> exact config 'G 1 | [10] 01^N 00 10' (H4 naming) -> builds (10 01 00)x~N/2 = REBUILD of a hierarchical
+  list (f_(w+1)-type loop like H1). Scans h4/exN*.txt, exA*.txt: N=1..1000 (H4), 1..400 (others), pre-exhaustion
+  'ACC|(k=1,1)' A=1..400/200: all REBUILD -> CLASS-INDEPENDENT REBUILD. Borrow templates h4/btemps.txt (14) x
+  A=1..250 (H4) / 1..120 (others): no halt.

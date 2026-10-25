@@ -1,0 +1,27 @@
+2026-10-23 03:56:59 start bb8_fw1_hosts2 (8-state f_(w+1) halter search on reb7 counter families A/B/C)
+2026-10-23 04:18:28 scr.exe screen (engine battery 80 D/BOR events + rare battery) all bases mode 7/8 -> out/
+2026-10-23 04:23:43 NOTE: exes must be built with -static (libstdc++ DLL mismatch caused random access violations when PATH lacked ucrt64)
+2026-10-23 04:31:20 batteries extended (real residues y=-5/-7 mod 64, ABS c up to 62, NOTOP probes); rerun screen
+2026-10-23 04:42:12 ev.exe fixed: state letter >= #states is halt (H is a real state in 8-state machines)
+2026-10-23 05:04:07 launch bg: tclass (<=3 T tests/variant) all bases + bf_all.py B1..B4 -> bf.jsonl
+2026-10-23 05:10 FINDINGS so far:
+  family A machine = 1RB0LD_0RC0RG_1LD0RG_0LE---_1LB1LF_1LE1LG_0LA1RB (R,A, u=10, S='').
+  slot usage: every defined slot except the halt slot is used by D/BOR events (exceptions: A0 start-only in C2-C6, A0 TOP-only in C10).
+  slot->next-symbol pairs used only in rare events: A none; B: (e.g. B1 A1>0, B0>0) only in ODD ABSORB (+no-counter ABSORB);
+     C: 3 pairs per base, only in TOP.
+  family B ABSORB parity (exact 2-adic, c_new = c0 + 6168 - n(n+6), n=floor(c/2)+5, c0=+-1): B1/B3 c1=16, c = 0 mod 4 invariant (all ABSORBs even);
+     B2/B4 c1=6151 (literal at step 5.0e7), parity pattern 1,1,0 repeating.
+  screen (scr.exe; 60,984 8-state + 392 7-state variants per base): engine-intact ~4.7k-9.3k per base, rare-event-differing 0 (A1) .. 4353 (C10).
+  H-only variants: C halt at every TOP (first TOP = round 1, tiny); B halt at all ABS (round 1) or odd ABS (never in B1/B3, round 1 in B2/B4).
+  C M-only variants: ALL 'STD' = TOP/NOTOP output = fixed prefix P + 2^(b-2-K+d) + 3 + refill(B) (P in {[],1,3,5,7,9,11,[2,0],[2,0,0],[4,0],[1,4],...}, |d|<=2)
+     -> same form every round, never halts (b >> K). Except 3 C10 A0-variants (start transition changed; blank run: bouncers, sqrt growth, no halt by 2e8).
+  T outcomes: linear runaway / stuck (span constant) so far, no late halts.
+2026-10-23 05:17:15 bf_all restarted (B1/B3 odd-only variants skipped: c=0 mod 4 invariant; topacc cache)
+2026-10-23 06:15:39 bf2.jsonl (symbolic start for start-modified B variants); rlang_all: no halts beyond garbage double-| configs; launch runblk.py (blank 1e6 steps, report halts >=1e5)
+2026-10-23 07:23:01 blank screen done: 2 late halters (353054 steps sigma 1034; 646884 steps sigma 873); launch run9 (9-state guard: rare-only pair -> H copy, H rare branch -> I free)
+2026-10-23 07:45:03 9-state guard screen done (38 pairs x 5476); blank run of differing 9-state machines (blklist.exe 1e6/1e5)
+2026-10-23 07:56:18 m9 blank: 54702 early halts, 0 halts >=1e5, 146778 running; launch b9follow (206 groups B2/B4 9-state noH)
+2026-10-23 08:04:50 DONE: REPORT.txt written. Negative: no 8-state or 9-state guard variant halts after round 1; nothing to OPEN_CANDIDATES.
+2026-10-23 08:06:42 siblings (reb7 classify_d: Bs1-4, As1-2 S=1, Cs1-11 incl S-less) added; pairs: same hook structure (B odd-ABS, A garbage, C TOP); screening
+2026-10-23 08:17:13 N2 host: natural-trajectory engine battery (80 events), constructed exhaustion rare battery (32); rare-only slot F0 (+E0>0,G0>0)
+2026-10-23 09:46:03 ADDENDUM: siblings (17 rows) + N2 screened; negative; REPORT.txt updated

@@ -1,0 +1,17 @@
+2026-10-23 fam0LD investigation (Opus agent)
+Digit-list representation: tape read from head outward (orig orientation, head at blank left end, state G) = digits d0 d1 ... each (10)^d 1.
+(rk7's '-' hid trailing zero digits -> its R3/borrow refit failed.)
+Rules (all three machines; validated 400 random literal configs each, b<=900, zero runs k=2..8; 0 mismatches; val_v.py):
+ [b,a,X] a>=1 -> [b+2,a-1,X]  (cost 8b+14 steps)
+ [b,0] -> [b+2];  [b,0,d,X] d>=1 -> [1,b+2,d-1,X];  [b,0,0] -> [1,b+2] (M_c: [b+4]);
+ [b,0,0,0,X] -> [1,b+2,X];  [b,0,0,d,X] d>=1 -> [1,b+2+d,X]
+ [c]: c=1 mod 3 HALT (ones=(4c+14)/3); c=3k+2 -> [2,1^(2k+1),0,0];
+      c=3k -> a:[2,1^2k,0,0]  b:[0,1^(2k+1),0,0]  c:[0,0,1^2k,0,0]
+Single-digit map: M_a c=3k->(58*4^k-25)/3, 3k+2->(58*4^k-13)/3; M_b c=3k->(46*4^k-13)/3, 3k+2 same.
+Blank start -> [1,0] -> [3] (literal).
+M_a: 3 -> 69 -> 1360462387434829 (=1 mod 3) HALT, sigma=1813949849913110, steps~4.9e30.
+M_c: 3 -> 41 -> 1297438033 (=1 mod 3) HALT, sigma=1729917382, steps~4.5e18.
+M_b: 3 -> 57 -> 4214794573137 -> c3,c4,c5 (mod3: 0,2,0) -> c6 (=1 mod 3) HALT; residues mod 3^400 (resid_b.py).
+  c_{n+1} ~ 2^(2c_n/3): sigma ~ 2^2^2^2^41.9 (between 2^^6 and 2^^7). Not a record.
+Literal cross-checks: chains [5],[6],[9],[0] to halt match macro + sigma formula in all variants; blank-tape literal singles [3,69]/[3,57]/[3,41] match.
+No processes left running (one runaway python background task stopped via TaskStop).

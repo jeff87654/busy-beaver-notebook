@@ -1,0 +1,57 @@
+CONTROL: F5 method re-applied to F68 = 1RB1RE_0LC0LD_1RF0LD_1LE1LB_1RA1RG_1RE---_0RC0RF
+(never_audit/final_verdicts.tsv: CONFIRMED never-halting, K template D,L, U10, D A+2, B1 [A+3;0])
+VERDICT: the method RE-CONFIRMS never-halting for F68 (YES), see caveats.
+
+CODING (kl2.exe, U=10, K = state D entering a new cell on the LEFT)
+  state (A, L, c) exactly the F5 grammar: tape = (10)^A 0 [(10)^d 0]* (10)^e 1 ; second segment c NEVER occurs (c=-1).
+  K-config literal tape: head on the new cell, ONE blank, then content (kl2 lead 'D00'; F5 used 'D000').
+RULES (f68eng.py; j = first index >=1 with L[j]>0)
+  D   [A | d>0, ...]            -> [A+2 | d-1, ...]
+  Bj  [A | 0^j, s>=1, R]        -> [1 | 1^(j-1), A+3-j, s-1, R]     (s may be the last digit e; borrow takes ONE unit)
+  T0  [A | 0#]                  -> [1 | 1^(A+4)]   (via one non-template event "(A+1) #")
+  Tj  [A | 0^j, 0#]  (j>=1)     -> [1 | 1^(j-1), (A+2-j)#]          (list shrinks by one)
+  A is odd at every K-config of the run (reset to 1, +2 per D); parity is not needed for safety.
+LITERAL THRESHOLDS (thr68.py, thr_out.txt, A=0..j+12 both parities, 5 B-shapes, j=1..12,20)
+  Bj and Tj fail EXACTLY for A <= j-2 (valid iff A >= j-1); B1, T0, T1 never fail.  Failures include literal HALTs
+  (e.g. [0|0^2,1^3], [11|0^13,1], [1|0^4]) -> the halting branch is "deep borrow with too small A".
+LOCKSTEP (lock68.py on kl2 3e8-step trace lit3e8.txt): 15448 consecutive K pairs, 0 misses
+  (D 15432, Bj 14 (j<=2), T1 1, T0 1; 2 non-template lines = blank start and the T0 intermediate '26 #').
+  Run starts [1|1,1#] at step 51; last [14507 | 936 1 0 1^26].  Min A-(j-1) margin over real events: B 3, T1 11.
+GRID (grid68.py, random configs A 0..101, depth 0..25, zero runs, D prefixes): 600 (seed 1) + 3000 (seed 7):
+  444 + 2212 exact matches; all 156 + 788 mismatches have A < j-1 (max A-(j-1) among fails = -1); every
+  config with A >= j-1 matched.  Threshold is exact on random configs too.
+SYMBOLIC (symsim, mirrored machine, residue mod 2; symf68.py + symsuite68.py)
+  partA (symsuite68_partA.tsv): j=1..7 complete, j=8 partial: 1805 cases, 0 bad.  Per j: A symbolic (H0,H1, >= j+4)
+    AND every concrete A in [j-1, j+3]; source s in {H0,H1,1,2,3,4,5}; tails [H0,H1],[0,H1],[1],[0,0,1],[] ; T cases.
+  partB (symsuite68_partB.tsv): j=10,12,16,20,25,31 symbolic A (>= j+4) only, s in {H0,H1,1}, + T0/D cases
+    (A symbolic and A=0..5): 224 cases, 0 bad.   TOTAL symbolic: 2029 cases, 0 bad.
+  Each result checked against the engine for 3 random substitutions.
+SAFETY LEMMA (the invariant): every event of depth d>=2 (d = first nonzero index >=1, d = len for T) has A >= 2d+7
+  (>= d-1 needed).  Proof sketch (nested induction):
+   - After any non-D event A=1; next event A = 1+2*L0: so after B1 next A = 2A+5, after B2/T1 = 2A+3, else 3.
+   - G(m,v) := min A at the first event of depth >= m+1 started from a post-reset state (A=1, L0>=1, positions
+     1..m-1 >= 1, position m >= v).  G(1,v) >= 2^(v+3)-5 (v B1 events, A: 3, 11, 27, ...).
+     G(m,v): first depth-m event X1 has A >= G(m-1,1); each Bm (valid since A >= G(m-1,1) >= 2m+7 >= m-1) refills
+     position m-1 with A+3-m, so the next depth-m event has A >= G(m-1, A+3-m) >= A+3; after >= v of them the
+     next deeper event Y has A >= G(m-1, A_last+3-m).  Induction gives G(m,v) >= 3v+2m+6.
+     No T event can occur inside an instance (list longer than m), T0 only at len 1.
+   - Any event E of depth d: let R = last earlier event of depth >= d (or the initial K-config [1|1,1#]); after R
+     positions 1..d-1 are nonzero (Bk: 1s and A+3-k>=2; Tk: 1s and A+2-k>=1; T0: all 1s), so A_E >= G(d-1,1) >= 2d+7.
+   Hence every rule application in the real run is above its exact literal threshold; the only literal halting
+   branch (A <= j-2) is never reached; c never appears; the grammar is closed  =>  NEVER HALTS.
+   safety_check.py (20000 random post-reset starts, 630k engine events, D-accelerated, capped at 1e6): min A-(2d+7)=0
+   (tight at d=2, A=11); only depths <= 3 reachable under the cap.
+SMALL-CONFIG HALT SEARCH (hs68.py, hs68_out.txt): A 0..9, lists of length 1..4, digits 0..3 (3400 configs), 2e6 literal
+  steps each: 24 halt; ALL 24 have an engine path that applies a rule below threshold (A <= j-2, e.g. [0|0,0,1] B2 at A=0),
+  0 halts with a safe engine path, and 0 unsafe configs fail to halt -> literal halting == threshold violation exactly.
+  The real run's configs (A>=1 after resets, safety lemma) are never in that class.
+TOOL NOTES / PROBLEMS
+  - Lead gap differs from F5 (1 blank, not 2): symf5.build ('0^2') and to_config (z==2) had to be changed; with the
+    wrong gap kl2/symsim give wrong-looking but well-formed results (no error), so the gap must be measured per row.
+  - symf5.to_config bugs exposed by F68 (both only cause parse failures, not false OKs): (1) blank cells merged into the
+    far-end string were tokenized as content ('1010'->'2' instead of '10 1'); (2) A=1 swallowed by a leading (100)^n
+    block.  Fixed in symf68.py.  F5 never hit these (its far end starts with 1, A even).
+  - symsim decides a sign only when strictly positive: symbolic A needs hlb >= j+2..j+4 although the rule holds from
+    A >= j-1; the gap [j-1, j+3] is covered by concrete-A symbolic cases (partA) and literal grids.
+  - symsuite is slow at Idle for long lists (~0.3 s/case); partA stopped at j=8 for time, replaced by reduced partB.
+  - No Coq; the safety lemma is a paper proof, not machine-checked.

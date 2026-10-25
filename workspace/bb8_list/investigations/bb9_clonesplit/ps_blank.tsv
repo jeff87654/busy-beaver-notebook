@@ -1,0 +1,25 @@
+blank	A0	B	0	96295	0
+blank	A0	B	1	97481	10
+blank	A1	A	0	193775	9
+blank	A1	A	1	145741	14
+blank	B0	C	0	96301	3
+blank	B0	C	1	749586702	1
+blank	B1	F	0	48147	49
+blank	B1	F	1	145620	11
+blank	C0	D	0	9	7
+blank	C0	D	1	96301	4
+blank	C1	B	0	749586708	2
+blank	C1	B	1	96286	23
+blank	D0	A	1	193775	8
+blank	D1	E	1	96301	5
+blank	E0	G	1	48023	104
+blank	E1	C	0	9	6
+blank	E1	C	1	96292	22
+blank	F0	G	0	48023	101
+blank	F0	G	1	749495188	50
+blank	F1	D	0	193766	12
+blank	G0	H	1	48023	102
+blank	G1	F	0	749495065	51
+blank	G1	F	1	48146	55
+blank	H1	E	0	48023	103
+blank	#END	3000000000	RUN

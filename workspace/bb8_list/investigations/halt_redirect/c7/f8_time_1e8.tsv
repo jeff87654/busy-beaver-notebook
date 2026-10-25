@@ -1,0 +1,9 @@
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LD---	WIDE	2	0	J k=11 far=junk ev=left zeros=11 r=20 ; W
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RH0LC_1RG1LD_0RG0RF_---0RD	WIDE	2	0	J k=2 far=junk ev=left zeros=2 r=20 ; W
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RH0LC_1RG1LD_0RG0RF_---1LD	TIME	3	0	J k=13 far=clean ev=block zeros=12 r=20 ; J k=12 far=clean ev=left zeros=12 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RH0LC_1RG1LD_0RG0RF_---1RB	TIME	3	0	J k=13 far=clean ev=block zeros=12 r=20 ; J k=12 far=clean ev=left zeros=12 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---0LA	TIME	3	0	J k=13 far=clean ev=block zeros=12 r=20 ; J k=12 far=clean ev=left zeros=12 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---0RA	TIME	3	0	J k=13 far=clean ev=block zeros=12 r=20 ; J k=12 far=clean ev=left zeros=12 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---0RD	TIME	2	0	J k=5 far=junk ev=block zeros=3 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---1LG	TIME	3	0	J k=13 far=clean ev=block zeros=12 r=20 ; J k=12 far=clean ev=left zeros=12 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---1RE	TIME	5	0	J k=2 far=junk ev=block zeros=0 r=20 ; J k=2 far=junk ev=block zeros=0 r=20 ; J k=0 far=junk ev=a-block zeros=0 r=1268 ; J k=0 far=junk ev=a-block zeros=0 r= ; T

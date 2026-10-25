@@ -1,0 +1,287 @@
+{
+  "engine": "mxdys MitM_CTL using verifier-enabled exec mode",
+  "source": "https://github.com/ccz181078/TM",
+  "executable_sha256": "4f0479871a9db1cd5914011f9a528411d1c819ef03096e847b2e5de58c740958",
+  "upstream_source_sha256": "22294ab2153a47e1031758b07549a3d48499a9b0ef1199b19f6e73379291746f",
+  "capacity_change": "Word capacity increased from 128 to 256 bits to support requested 32/48-item state-annotated histories.",
+  "diagnostic_source_sha256": "57015792488ca247058db2f1104a52a54a73ad0e41fffad06e2394575c05a3b6",
+  "verification": "Each successful closure passes CTL_Fixedlen_verify::Verifier because exec does not set CTL_skip_verify. Successful commands are replayed in a fresh process.",
+  "portfolio": [
+    "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 16 mod 2 n 2 run",
+    "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 10 mod 3 n 2 run",
+    "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 10 mod 5 n 2 run",
+    "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 8 mod 3 n 3 run",
+    "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 8 mod 2 n 4 run",
+    "MitM_CTL CPS_LRU sim 1001 maxT 1000000 LRUH 24 H 2 tH 2 n 2 run",
+    "chr_LRUH 40 chr_H 32 MitM_CTL NG maxT 1000000 NG_n 4 n 2 run",
+    "chr_LRUH 52 chr_H 32 MitM_CTL NG maxT 1000000 NG_n 4 run"
+  ],
+  "results": [
+    {
+      "id": 1,
+      "machine": "1RB0RC_0LA0LD_1LA1RE_1RZ0LE_1RF0RH_0RG0LG_1LG1LH_1RC0LB",
+      "origin": {
+        "origin_file": "pilot8_243308/holdouts_243308.txt",
+        "origin_line": 3,
+        "original_partial_machine": "1RB0RC_0LA0LD_1LA1RE_---0LE_1RF0RH_0RG0LG_1LG1LH_1RC0LB"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 2,
+      "machine": "1RB0RC_0LA0LD_1LA0LC_1RE0LE_1RF1RZ_0RG0RF_1LG1LH_0RB0RC",
+      "origin": {
+        "origin_file": "pilot8_243308/holdouts_243308.txt",
+        "origin_line": 2,
+        "original_partial_machine": "1RB0RC_0LA0LD_1LA0LC_1RE0LE_1RF---_0RG0RF_1LG1LH_0RB0RC"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 3,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0RA0LD_0LC0RG_1RH1RZ_0RG0RE",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 2,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0RA0LD_0LC0RG_1RH---_0RG0RE"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 4,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1LC_1LF0LD_1RF0LG_1RZ1RH_0RH1RA",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 1,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE1LC_1LF0LD_1RF0LG_---1RH_0RH1RA"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 5,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_1LE0LE_1RH1RZ_1RH1RB",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 4,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_1LE0LE_1RH---_1RH1RB"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 6,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_0LC0LE_1RH1RZ_1RH1RB",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 3,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_0LC0LE_1RH---_1RH1RB"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 7,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RB_0LA1LF_1RG0LE_1RH1RF_1LC1RZ",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 6,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RB_0LA1LF_1RG0LE_1RH1RF_1LC---"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 8,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RF_0LA1LF_1RG0LE_1RH1RF_1LC1RZ",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 7,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RF_0LA1LF_1RG0LE_1RH1RF_1LC---"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 9,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_0RG0LE_1RH0RG_1RA0RF",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 8,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_1LC1LF_0RG0LE_1RH0RG_1RA0RF"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 10,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RG0LE_1LD1RH_0RE0RG",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 9,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_1LC1LF_1RG0LE_1LD1RH_0RE0RG"
+      },
+      "status": "unresolved",
+      "attempts": [
+        {
+          "portfolio_index": 0,
+          "command": "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 16 mod 2 n 2 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p00\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 0.5619999999762513
+        },
+        {
+          "portfolio_index": 1,
+          "command": "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 10 mod 3 n 2 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p01\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 0.43700000003445894
+        },
+        {
+          "portfolio_index": 2,
+          "command": "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 10 mod 5 n 2 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p02\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 0.5469999999622814
+        },
+        {
+          "portfolio_index": 3,
+          "command": "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 8 mod 3 n 3 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p03\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 0.5619999999762513
+        },
+        {
+          "portfolio_index": 4,
+          "command": "MitM_CTL RWL_mod sim 1001 maxT 1000000 H 8 mod 2 n 4 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p04\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 1.0939999999827705
+        },
+        {
+          "portfolio_index": 5,
+          "command": "MitM_CTL CPS_LRU sim 1001 maxT 1000000 LRUH 24 H 2 tH 2 n 2 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p05\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 0.7970000000204891
+        },
+        {
+          "portfolio_index": 6,
+          "command": "chr_LRUH 40 chr_H 32 MitM_CTL NG maxT 1000000 NG_n 4 n 2 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p06\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 1.1410000000032596
+        },
+        {
+          "portfolio_index": 7,
+          "command": "chr_LRUH 52 chr_H 32 MitM_CTL NG maxT 1000000 NG_n 4 run",
+          "input_file": "C:\\Users\\jeffr\\Downloads\\bb8\\candidate_deciders_targeted_runs\\c10_p07\\input.txt",
+          "replay": false,
+          "returncode": 0,
+          "log": "",
+          "verifier_diagnostics": null,
+          "status": "unresolved",
+          "elapsed_seconds": 1.2189999999827705
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1RH1LF_0LC1LG_1LA1LE_1RF0RH",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 10,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_1RH1LF_0LC1LG_1LA1LE_1RF0RH"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 12,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RH_1RZ1LF_1RD1LG_1LA0LG_0RD1RA",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 11,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RH_---1LF_1RD1LG_1LA0LG_0RD1RA"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 13,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0RC_0RE0RH",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 12,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_0LC1LF_1RH1LG_1LA0RC_0RE0RH"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 14,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0LE_0RE0RH",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 13,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_0LC1LF_1RH1LG_1LA0LE_0RE0RH"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 15,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RH1LG_1LA0RC_0RE0RH",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 14,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_1LC1LF_1RH1LG_1LA0RC_0RE0RH"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    },
+    {
+      "id": 16,
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RH1LG_1LA0LE_0RE0RH",
+      "origin": {
+        "origin_file": "pilot8_202609/holdouts_202609.txt",
+        "origin_line": 15,
+        "original_partial_machine": "1RB1LA_0LA0RC_1RA1LD_0LE---_1LC1LF_1RH1LG_1LA0LE_0RE0RH"
+      },
+      "status": "not_targeted",
+      "attempts": []
+    }
+  ],
+  "elapsed_seconds": 7.2810000000172295
+}

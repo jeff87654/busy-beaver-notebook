@@ -1,0 +1,22 @@
+[
+  {
+    "id": "C14",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0LE_0RE0RH",
+    "steps_simulated": 10000000,
+    "events": 1765,
+    "status": "cutoff",
+    "matches": [],
+    "elapsed_seconds": 92.48500000004424,
+    "ones": 1399
+  },
+  {
+    "id": "C16",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RH1LG_1LA0LE_0RE0RH",
+    "steps_simulated": 10000000,
+    "events": 1766,
+    "status": "cutoff",
+    "matches": [],
+    "elapsed_seconds": 60.31300000002375,
+    "ones": 1538
+  }
+]

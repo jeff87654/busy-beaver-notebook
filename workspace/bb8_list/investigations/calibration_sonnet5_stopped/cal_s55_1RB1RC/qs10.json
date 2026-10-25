@@ -1,0 +1,68 @@
+{
+  "configuration": {
+    "machine": [
+      "1RB1RC_0RC0LB_0RD1RF_1LE1LD_1RC1LG_1LD1RA_1LA0LH_---1LG"
+    ],
+    "input": null,
+    "output": "bb8_list/investigations/calibration_sonnet55/cal_s55_1RB1RC/qs10.json",
+    "workers": 1,
+    "timeout": 15,
+    "max_loops": 100000,
+    "block_size": 0,
+    "bf_loops": 1000,
+    "recursive": true,
+    "no_backsymbol": false,
+    "no_prover": false,
+    "sim_time": 10.0
+  },
+  "source_sha256": {
+    "Quick_Sim.py": "7e2d6e4bbda7149eca26b8e2c43af2e7cc9f078a33ee6e10c3cc9338732a9d48",
+    "Macro/Simulator.py": "ac90a7f5f0bb7e248ba765acbe874a71f4ad12e47134059d8e5801cce52f7048",
+    "Macro/Proof_System.py": "98c08aef68204a7936c0d19f0ab3f372fe508ac11c340d8eeb302699e4410cd3",
+    "Macro/Turing_Machine.py": "1ae7347da57a00d70038b5b35a3151a02bcb6f7be00e4f223b2736a8ca196fc7",
+    "Time_Limit.py": "6490c67cda130c2416de28ce2873d8cadce454e05235ca1115c625e9c80365a4"
+  },
+  "source_modified": false,
+  "results": [
+    {
+      "machine": "1RB1RC_0RC0LB_0RD1RF_1LE1LD_1RC1LG_1LD1RA_1LA0LH_---1LG",
+      "engine": "Ligocki Quick_Sim (unmodified)",
+      "options": {
+        "max_loops": 100000,
+        "block_size": 0,
+        "bf_loops": 1000,
+        "recursive": true,
+        "no_backsymbol": false,
+        "no_prover": false,
+        "sim_time": 10.0
+      },
+      "status": "cutoff",
+      "reason": "upstream_time_limit",
+      "upstream_state": "Time_Out",
+      "loops": 3060,
+      "steps": {
+        "kind": "large_integer",
+        "bit_length": 105122,
+        "approximate": "~ 10^^2.7",
+        "exact_value_omitted": true
+      },
+      "ones": {
+        "kind": "large_integer",
+        "bit_length": 52562,
+        "approximate": "~ 10^^2.6",
+        "exact_value_omitted": true
+      },
+      "rule_moves": 1129,
+      "chain_moves": 893,
+      "macro_moves": 1038,
+      "rules_proven": 13,
+      "failed_proofs": 0,
+      "elapsed_seconds": 10.438000000081956,
+      "setup_seconds": 0.40700000000651926,
+      "upstream_log_tail": "BF: Searching for optimal block size\nBF: Least compressed tape at step 78 : 1010101010101011111\nBF: Optimal tape compression block size 2 tape size 5\nBF: Searching for optimal mult for block size 2\nBF: * 1 0.7974335472043996\nBF: * 2 0.736556710347944\nBF: * 3 8.557908968003606\nBF: * 4 0.5883219358232509\nBF: * 5 0.5549016310744913\nBF: Block Finder finished\n\nbest_block_size: 6\nelapsed_time_us: 101951\nleast_compressed_loop: 68\nleast_compressed_tape_size_chain: 17\nleast_compressed_tape_size_raw: 19\nbest_compression_block_size: 2\nbest_compression_tape_size: 5\nbest_mult: 3\nbest_chain_factor: 8.55790901\n\n\n         Steps:                     Times Applied:\nTotal:   ~ 10^^2.7                            3060\nMacro:   13_614                               1038\nChain:   ~ 10^^2.1                             893\nRule:    ~ 10^^2.7                            1129\nRules proven: 13\n  Level 1 rules: 11\n  Level 2 rules: 2\nIterated rules proven: 2\nExponential rules proven: 0\nGeneral rules proven: 0\nCollatz rules: 2\nFailed proofs: 0\nProver num past configs: 0\nTape copies: 1203\nElapsed time: 9.906197309494019\n000000^inf 111111^(~ 10^^2.6) (111111) A> 111110^1 000000^1 001010^1 101010^109418989131512337102 111110^1 000000^inf\nNum Nonzeros: ~ 10^^2.6 (_15823 chars_)\n\n\nUnexpected sim exit condition: Time_Out ()\n",
+      "upstream_log_truncated": false,
+      "process_returncode": 0,
+      "wall_seconds": 10.968999999924563
+    }
+  ]
+}

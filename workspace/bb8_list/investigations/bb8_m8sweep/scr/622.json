@@ -1,0 +1,1 @@
+{"i": 622, "m": "1RB1RF_0LC0RC_0LA1LD_0RE0RG_1LC1RF_1RA0RD_---0LE", "tmpl": "L,C,P=1,u=10,s=0,d=1d+0,b=1b+0,S=1", "cls": [188], "M": 60, "runs": [{"X": "D0", "s": 0, "c": 8, "v": "g0", "snap": {"step": 3, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "622_D0_c8_g0.txt"}], "time": 0.6}

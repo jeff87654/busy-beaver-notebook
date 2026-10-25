@@ -1,0 +1,35 @@
+bb9_f1 -- family F1 (2026-10-17)
+1RB1RA_1LI1RC_0LD1LG_0RE1LD_---1RF_0LI0RA_1RA0LH_1LG1LH_X0LF, pairs (X,start) =
+ (1LA,B) (1LG,A) (1LG,B) (1LH,B) (1LH,G) (1RA,A)   [from symsim final6/hold_02.txt, BUDGET]
+
+VERDICT: all six NON-HALTING.  Status: PROVED (on paper, 3-line local invariant), mechanically checked.
+
+Proof. Halt = state E reading 0.  Entries into C, D, E in the table:
+  into C : only B1 -> 1RC        (writes 1, moves R)
+  into D : C0 -> 0LD,  D1 -> 1LD
+  into E : only D0 -> 0RE
+Invariant:  in state C the cell left of the head is 1;
+            in state D the head cell is 1 OR the cell right of the head is 1.
+ - C entered from B1: B wrote 1 at the cell it left, now left of head.  OK.
+ - D entered from C0: C wrote 0 at its own cell and moved L onto the cell left of it, which is 1 by Inv(C)
+   (untouched since B wrote it).  So head cell = 1.  OK.
+ - D entered from D1: wrote 1 and moved L, so the cell right of the head is 1.  OK.
+ - E entered from D0: head cell is 0, so by Inv(D) the cell right of it is 1; 0RE moves onto it, E reads 1.
+ Base: start states A/B/G are not C/D, invariant vacuous at step 0.  Hence E never reads 0.  QED.
+ (Any blank-tape start in {A,B,F,G,H,I} never halts; starts C, D, E halt within 2 steps.)
+The counter tail / engine dynamics are irrelevant: the halt slot is locally unreachable (depth 3 backward).
+
+Checks:
+ f1check.py         static check of the entry conditions + literal sim (3e6 steps each) asserting the
+                    invariant every step: all PASS, no halt.
+ backref_s.py       copy of bb9_n1f0_hand/fu/backref.py with a start-state argument + --list batch mode.
+                    F1: E0 UNREACHABLE (dies at depth 3) for all six.
+ attention_backref.txt  backref_s on all of bb9_symsim/attention.txt (depth 30), as a bonus sweep.
+
+Bonus sweep (backref_s.py depth 30 on all 183 rows of bb9_symsim/attention.txt):
+ 164 UNREACHABLE (halt slot dies within depth 1..7: 51@1, 71@2, 14@3, 18@4, 7@6, 3@7) -> attention_unreach.txt
+     (includes F1's 6 and the 1LB0RA..0RF0LI E0 triple; the rest are I0 rows, many with I never entered)
+     literal sanity: litsan.py 3e5 steps on all 164, none halts.
+  19 UNDECIDED at depth 30 -> attention_undecided.txt (all I0 rows; need a real invariant)
+ backref soundness: reviewed the predecessor step (prev head at -d holds w now, x before; constraints shifted;
+ dedupe across depths is sound). Process PID 23804 (Idle) finished.

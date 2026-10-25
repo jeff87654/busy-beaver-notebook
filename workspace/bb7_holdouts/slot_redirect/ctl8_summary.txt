@@ -1,0 +1,32 @@
+H0=0LA | r6: no halt (budget) jumps=3 maxk=4485 zeros=11 88 4485  | W2: no halt (budget) jumps=48 maxk=37470
+H0=0LB | r6: HALT H1 step=36250 ones=149 jumps=1 maxk=11 zeros=11  | W2: HALT H1 step=1788658 ones=1121 jumps=1 maxk=11
+H0=0LC | r6: HALT H1 step=13127 ones=87 jumps=1 maxk=11 zeros=11  | W2: HALT H1 step=232367 ones=447 jumps=1 maxk=11
+H0=0LD | r6: RUNAWAY (tape) jumps=1 maxk=11 | W2: RUNAWAY (tape) jumps=1 maxk=11
+H0=0LE | r6: RUNAWAY (tape) jumps=1 maxk=11 | W2: no halt (budget) jumps=1 maxk=11
+H0=0LF | r6: no halt (budget) jumps=4 maxk=4415 zeros=11 15 4411 4415  | W2: no halt (budget) jumps=69 maxk=27211
+H0=0LG | r6: HALT H1 step=111333335 ones=4460 jumps=15 maxk=12 zeros=11 12 12 12 12 12 12 12 12 12 12 12 12 1 | W2: HALT H1 step=30258575 ones=860 jumps=135 maxk=12
+H0=0LH | r6: no halt (budget) jumps=1 maxk=11 zeros=11  | W2: no halt (budget) jumps=1 maxk=11
+H0=0RA | r6: no halt (budget) jumps=3 maxk=4479 zeros=11 85 4479  | W2: no halt (budget) jumps=48 maxk=37329
+H0=0RB | r6: no halt (budget) jumps=6 maxk=4374 zeros=11 97 12 4374 2617 2617  | W2: HALT H1 step=323039328 ones=3284 jumps=158 maxk=817
+H0=0RC | r6: no halt (budget) jumps=16 maxk=4409 zeros=11 12 12 12 12 12 12 12 12 12 12 12 12 1 | W2: no halt (budget) jumps=614 maxk=3200
+H0=0RD | r6: no halt (budget) jumps=1 maxk=11 zeros=11  | W2: RUNAWAY (tape) jumps=1 maxk=11
+H0=0RE | r6: no halt (budget) jumps=6 maxk=4374 zeros=11 97 12 4374 2617 2617  | W2: HALT H1 step=323039266 ones=3284 jumps=158 maxk=817
+H0=0RF | r6: no halt (budget) jumps=3 maxk=4445 zeros=11 49 4445  | W2: no halt (budget) jumps=56 maxk=32647
+H0=0RG | r6: HALT H1 step=110905358 ones=4438 jumps=15 maxk=12 zeros=11 12 12 12 12 12 12 12 12 12 12 12 12 1 | W2: HALT H1 step=30176198 ones=838 jumps=135 maxk=12
+H0=0RH | r6: HALT H1 step=8112 ones=70 jumps=1 maxk=11 zeros=11  | W2: HALT H1 step=206472 ones=430 jumps=1 maxk=11
+H0=1LA | r6: no halt (budget) jumps=3 maxk=4483 zeros=11 87 4483  | W2: no halt (budget) jumps=48 maxk=37423
+H0=1LB | r6: HALT H1 step=41296 ones=202 jumps=1 maxk=11 zeros=11  | W2: HALT H1 step=1660936 ones=1642 jumps=1 maxk=11
+H0=1LC | r6: no halt (budget) jumps=3 maxk=4481 zeros=11 86 4481  | W2: no halt (budget) jumps=48 maxk=37376
+H0=1LD | r6: HALT H1 step=5226764 ones=2323 jumps=2 maxk=11 zeros=11 6  | W2: HALT H1 step=1825484 ones=1243 jumps=2 maxk=11
+H0=1LE | r6: RUNAWAY (tape) jumps=1 maxk=11 | W2: RUNAWAY (tape) jumps=1 maxk=11
+H0=1LF | r6: no halt (budget) jumps=3 maxk=11 zeros=11  | W2: HALT H1 step=10793107 ones=694 jumps=4 maxk=141
+H0=1LG | r6: no halt (budget) jumps=3 maxk=4445 zeros=11 49 4445  | W2: no halt (budget) jumps=56 maxk=32647
+H0=1LH | r6: RUNAWAY (tape) jumps=1 maxk=11 | W2: RUNAWAY (tape) jumps=1 maxk=11
+H0=1RA | r6: no halt (budget) jumps=3 maxk=4445 zeros=11 49 4445  | W2: no halt (budget) jumps=56 maxk=32647
+H0=1RB | r6: HALT H1 step=5226792 ones=2323 jumps=2 maxk=11 zeros=11 6  | W2: HALT H1 step=1825512 ones=1243 jumps=2 maxk=11
+H0=1RC | r6: HALT H1 step=44671068 ones=8839 jumps=2 maxk=11 zeros=11 11  | W2: HALT H1 step=1856268 ones=1639 jumps=2 maxk=11
+H0=1RD | r6: HALT H1 step=13131 ones=87 jumps=1 maxk=11 zeros=11  | W2: HALT H1 step=232371 ones=447 jumps=1 maxk=11
+H0=1RE | r6: HALT H1 step=49747850 ones=8824 jumps=3 maxk=11 zeros=11 11 10  | W2: HALT H1 step=2056850 ones=1624 jumps=3 maxk=11
+H0=1RF | r6: RUNAWAY (tape) jumps=1 maxk=11 | W2: RUNAWAY (tape) jumps=1 maxk=11
+H0=1RG | r6: no halt (budget) jumps=6 maxk=4374 zeros=11 97 12 4374 2617 2617  | W2: HALT H1 step=323039266 ones=3284 jumps=158 maxk=817
+H0=1RH | r6: HALT H1 step=8112 ones=71 jumps=1 maxk=11 zeros=11  | W2: HALT H1 step=206472 ones=431 jumps=1 maxk=11

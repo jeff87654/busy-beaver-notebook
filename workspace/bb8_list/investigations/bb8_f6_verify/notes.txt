@@ -1,0 +1,21 @@
+2026-10-23 11:20 start bb8_f6_verify: F6 = 1RB0RG_1RC1RB_0RD0RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---1RG
+2026-10-23 tools: lit.exe (literal, event modes e/h/x/s/f/t), kmo.exe (K-moment block vectors), xrun.sh/xk.sh (X(n,N) exhaustion tape),
+   mk.sh/mkl.sh (mid-stage tape S(n;J;u,r,B) = (10)^(2n-3) (1100)^J 110 [E0] 1^u 00 1^r 00 1^B 0000 1), tparse.py (tick moments -> left tokens + right vector).
+   Control: champ_231 from K(10;0^20) halts at 6297. OK.
+2026-10-23 Round 1 literal (n=2..5, N=0..150): X(n,N) -> [2]^(n-2) + RSA state; RSA countdown INIT [2,0,2,2] -2-> [3,9,0,2] -9-> [48,0,0,2] -2-> [3,2,53,0];
+   stage k: [3+5j, R_k-j, B_k, 0]; turnaround (2 tokens) [U,0,B,0] -> [3,U+7,B-2,0], R_{k+1}=5R_k+10, B_k=53-2k. Mid-turnaround output [3U+23,B-5,0]. X(2,0) halts (621 steps).
+2026-10-23 B=1 stage end [U,0,1,0] + token = CARRY (not a 2^M expansion for odd U): U -> (1100)^M on the right, M=(U+3)/2, 74-step transfer loop,
+   left stream becomes P^(M-1) Q Q P^(J-2) (Q = fat token, +6), RSA reset to INIT (fresh B_0=53 countdown). Even U gives a 2^M tail (other branch).
+   U at the stage-26 carry = 5R_26+3 is ODD (R_k even for all k). Section 3.7's Regime II (expansion into 2-blocks, mod-3 drain) is wrong for the real run.
+   Consequence: a restarted countdown carries again after T1 ~ 1.125*5^27 tokens < M-1 ~ 2.25*5^27 pushed tokens -> carries repeat forever -> NON-HALTING (to verify).
+2026-10-23 validation (literal, rcheck.py over every tick-moment transition):
+   Round 1 X(n,N), n in {2,3,7}, 18 N values up to 3500: all rules exact (deviations only at fuel end = prefix effects).
+   turnaround [U,0,B,0]+PP -> [3,U+7,B-2,0]: U in {1e4+3,1e5+3,99998,250001,1e6+3} x B in {3,5,7,25,53,55,57}: all OK.
+   carry for odd U in {3..11,33,101,1003,3003,5005,10003,20001,30003}: P^J -> P^(M-1) Q Q P^(J-2), INIT; Q-ticks +6. OK.
+   carry steps ([U,0,1,0] tick moment -> INIT moment) = U^2+78U+567 exactly for 8 odd U (101..7007).
+   rsim.py (exact rule-level sim) = literal at fuel end for 8 Round-1 N and 4 carry runs.
+2026-10-23 real scale (rsim.py round1 10**40): carry #1 after T1+1 = 8381903171539306638 tokens, U = 33527612686157226553 (odd),
+   M = 16763806343078613278 = 2*T1+4; carries #2..#5 identical (same U, same stream top P^(M-1) Q Q P^(T1+3) Q Q).
+   => Round 1 never ends; prefix never reached; H0 never read. NON-HALTING (rule-level). Not a record.
+   Side check: the 3.7 halting tape [E0]100 1^13 00 1 00 (1100)^K 1 does halt, but at 386K+3912 steps (not a constant 4684). Moot.
+   OPEN_CANDIDATES: entry F6-231_0RH_1RG appended at end of OPEN with status NON-HALTING (rule-level). REPORT.txt written.

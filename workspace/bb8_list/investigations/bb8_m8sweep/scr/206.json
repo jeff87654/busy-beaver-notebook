@@ -1,0 +1,1 @@
+{"i": 206, "m": "1RB0LF_1RC---_1RD1RG_1RE1RC_0LA0LF_1LC1LE_0RA0RB", "tmpl": "L,F,P=1,u=01,s=0,d=1d+0,b=1b+0,S=0", "cls": [123], "M": 60, "runs": [{"X": "G0", "s": 0, "c": 3, "v": "g0", "snap": {"step": 13, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "206_G0_c3_g0.txt"}], "time": 1.5}

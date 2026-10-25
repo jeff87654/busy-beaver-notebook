@@ -1,0 +1,43 @@
+2026-10-22 start: dl3_hits settle task (R4-SOME 8, REBUILD 13, MULTI? sample)
+- chain letters: F refill (same P', same count), r = only b+1 halts (parity), R rebuild, C counter creation, H, L loop (b reset to b1 each chain step, so real b not tracked)
+- machine a (1RB1RA_0LC0LF_0RD1LC_1RA1RE_0RF0RG_1LB1LF_---0RA) literal: P=110 then digits [2,2,0], a=29 at step 673: tiny list
+- kv_21.txt: kview K-traces of the 21 machines (3e8 steps). Initial real lists: most have 2-4 digits (value 2-3) -> f_3..f_5 class.
+  !! 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA0LG_---0LE: early exhaustion at step 40 rebuilt a 45-digit list of 2s (tripling): needs exhaustion analysis
+  !! 1RB1LA_1LC1RE_1RD1RC_0LA0LG_1LD0RF_---0RC_1LE1LG and 1RB1LA_1RC1RE_...: 10-digit list (+P=1110), x->~6x per level: compare with champion carefully
+  s=10 templates (1RB0LG_..., 1RB1RA_0RC0RA_0LD1RC_0LE1LE..., 1RB1RE_..._1LG0RB..) unparsed: long (11 0)^n lists, look at them
+- machine r (1RB0LG_1RC1RB_..._0LD1LF_...): empty-list rule K(;a;b): halts iff a+b odd, else rebuilds K(3,1^L;1;3), L=(3a+b)/2-1 (a,b<=40 grid, except a=b=0).
+  Real run: K(3;1;3)->K(2;8;3)->K(1;29;3)->K(0;92;3)->K(;281;3) (a->3a+5) -> 281+3 even -> rebuild L=422 (literal, step 646963). Now f_423-class engine.
+- machine r v-coded rules (all runs; K-moment = state E right end, last run B=6): D [..,v+1;A]->[..,v;3A+3]; Bk [..,y+1,0^k;A]->[..,y,3A+3-2k,2^(k-1);2];
+  E [0^k;A]: A odd HALT, A even -> [4,2^(3A/2-1);2]. Invariant Phi = A + sum(v) mod 2 preserved by D,B; rebuild gives Phi=0; at E Phi=A
+  => every exhaustion has A even => NEVER HALTS (blank start [4;2] Phi=0; first E A=282 matches literal). machine r = NON-HALTER (rule-level).
+- fam1.py: r,s,h,u share one v-coded rule set (D, Bk, E); random literal validation seed1: 159/160 OK, the 1 miss = Bk with 3A+3-2k<=0 (A=1,k=3 -> halts);
+  unreachable in real runs (A at a Bk with k>=3 is >= h_2 output, huge; k<=2 has A>=9). Same K-trace from blank for all four ([3;1]..[;281]->[3,1^422;1]).
+- fam1 seed2: r 100/100, s 99/100, h 100/100, u 98/100; all misses are the Bk edge 3A+3-2k<=1 (A<=2,k>=3), unreachable. => r,s,h,u NON-HALTING (parity invariant), rule-level evidence.
+- machine i (1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA0LG_---0LE): P=110 is just a leading digit 2. P-inclusive d-coding (R,C,P=-,u=1,s=0,b=3b+1,S=0, b=0):
+  D a->3a+3; Bk refill 3a+3-2k, tail 2, a0=2; E [;a]: a odd HALT, a even -> [2^(3a/2+1);2] (a=2->45+1 digits, a=4->72+1, literal).
+  Same family as r (shifted coding). Phi=a+sum(d) mod 2 invariant, blank start [2;2] Phi=0 -> every E has a even -> NEVER HALTS.
+- a,b,c,t share i's D/Bk (3a+3; refill 3a+3-2k; tail 2; a0 2), P-inclusive coding. E: a: odd H, even->[2^(3a/2+1)]; b: even H, odd->[2,1,2^((3a-1)/2)];
+  c: even H, odd->[1,2^((3a+1)/2)]; t: odd H, even->[2^(3a/2)]. Rebuild Phi: a 0, b 1, c 1, t 0 = exactly the non-halting parity; blank starts
+  a [;2]->[2^4] (Phi 0), b [2,1,2,2;2] (Phi 1), c [;1]->[1,2^2] (Phi 1), t [;2]->[2^3] (Phi 0). => all NEVER HALT (rule-level); validation fam_abct.txt
+- famcheck a,b,c,t: 50/50 each OK
+- d,f,o (1RB1RA_0LC0LF_1RD1LC_0RF1RE.., 1RB1RA_0LC0LF_1RD1LC_1LE1RE.., 1RB1LA_1LC1RC_..): same rules (d-coded, B=0): D a->3a+4 (keeps a mod 2);
+  B1 refill 3a, a:=15; B2 refill 3a-1 tail [2] a:=12; Bk(k>=3) refill 3a+3-2k tail [3,2^(k-3),1] a:=12; E: a even HALT, odd -> [3,2^((3a-3)/2),1;12].
+  The last borrow before any E is a B1 (every Bk k>=2 / rebuild leaves position 2 nonzero) -> a=15*... odd at E -> rebuild forever.
+  Blank start: K(;1;0) at step ~9, a=1 odd -> [3,1;12]. => NEVER HALT. famcheck d/f 50/50.
+- e,g,p,q: same rule set (P-inclusive, K-moments b=3): D a->5a+6 (keeps parity); B1 refill 5a+2 a:=25; B2 5a+1 tail[2] a:=20; Bk(k>=3) 5a+3-2k tail [3,2^(k-3),1] a:=20;
+  E: a even HALT, odd -> [3,2^((5a-1)/2),1;20]. Last borrow before E is B1 -> a odd -> rebuild forever. Blank: e,g K(;1;3)->rebuild; p,q engine [3,2^9,1;20] at step ~847
+  (10-digit list + P digit 3, factor ~5). => NEVER HALT (validation fam_egpq.txt).
+- e-group Bk refill corrected: k>=2 refill 5a+5-2k (k=1 5a+2); revalidated 40/40 x2 (parity argument unaffected)
+- n (1RB1LA_0RC1RD_...): d-family rules at b=1 moments (D 3a+4, B1 3a a:=15, ...), E even HALT / odd rebuild; engine [3,2,1;12] at step 295 => NEVER HALTS. famcheck 40/40.
+- j (1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RA1LG_---0LE): i-family D/B (b=1 moments), E even HALT, odd -> [3,2^((3a-1)/2);2] (Phi 1); blank K(;3;1)->[3,2^4;2] => NEVER HALTS. famcheck 40/40.
+- k,l (1RB1RA_0RC0RG_.., 1RB1RA_1RC0RA_0LD0LF_0RE1LD_0RB1RF..): additive rules (R2 a=1b+1); empty-list moments K(;n;0) with n=2,3,4,5,6 at steps 221,1189,5299,22483,94231 (x4/round): exponential counter -> not record class.
+- m (1RB1RA_1RC0RA_0LD0LF_0RE1LD_1RA1RF..): D 3a+5, B1 refill 3a+4 a:=9, B2 creates [..,3a+3,305]; E [;a] turns a into a unary outer counter 1^(3a+2), inner list fixed ~[2,~300,x] restarted per counter unit.
+  Fixed depth (no list length growth) -> at most ~f_5 per outer cycle -> not record class. Literal 2e9 steps: inner list [2,298,..] still running.
+- MULTI? reps (13, multi_reps.txt): blank traces in multi_blank.txt. Engines: doubling (R2 a=2b+2 / 1b+2 with R1 1b+2 / 1b+1), tripling (3b+3), lists of 1-2 digits
+  (often [0,9]/[3068] etc.), 5-8 digits, and 20 digits of 1 (1RB---_1RC0RC_.., 1RB---_1RC1RA_0LD0LE_1LE0LE..). Example M4 E-grid: E(k;b) halts only at b=k-1,
+  b=k -> rebuild [1^(k+1)], b>k -> long computation (outer part changes). ehalt.py grid k<=10,b<=24 running (PID 17896).
+- M4 (1RB---_1RC0RC_.., 20 digits of 1, doubling) in true coding P=1 (dlscan P=1010 = P'1' + digit 1): Bk [..,y+1,0^k;0;b] -> [..,y,b+1-k,1^(k-1);1;1];
+  halts only when refill b+1-k = 0 (b=k-1); empty list [;a;1] -> [1^(2a+3);1;1] ALWAYS (a=1..12, no halt) = f_(w+1) rebuild loop.
+  Real b at any Bk >= 2^(k-1)*4 > k (positions 1..k-1 cleared by doubling D steps) => halt unreachable => M4 NON-HALTING (rule level). Same blank trace as M13.
+- ehalt grid (k<=10,b<=24) done: all 13 MULTI? reps halt only with b<=k-1, except M10 (b-coding offset: b=k) and additive M12 (many cells incl. b=k). Real first-E b >= 1534..2^19 >> k.
+- REPORT.txt written; nothing appended to OPEN_CANDIDATES

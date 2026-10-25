@@ -1,0 +1,8 @@
+machine	halted_step	n_templates	grade	template	params
+1RB---_1RC0RB_0LC0LD_0LF1LE_1LF1LC_1RG---_1RA1LB	-1	169	NOBOUNDARY	L,F,P=110,u=1,s=0,d=3d+2,b=1b+0,S=-	R1 0b+2 | R2 a=0b+0 b=2 | R3 0b+0+0k tail=0 a=0 b=2 | R4 TTTTT | H -
+1RB---_1RC1LD_1RD---_1RE0RD_0LE0LF_0LA1LG_1LA1LE	-1	208	NOBOUNDARY	L,A,P=110,u=1,s=0,d=3d+2,b=1b+0,S=-	R1 0b+2 | R2 a=0b+0 b=2 | R3 0b+0+0k tail=0 a=0 b=2 | R4 TTTTT | H -
+1RB0RA_0LB0LC_0LD1LG_1RE---_1RF1LA_1RA---_1LD1LB	-1	206	NOBOUNDARY	L,D,P=110,u=1,s=0,d=3d+2,b=1b+0,S=-	R1 0b+2 | R2 a=0b+0 b=2 | R3 0b+0+0k tail=0 a=0 b=2 | R4 TTTTT | H -
+1RB0RA_0LC0LG_1RE1LD_1LB---_0RF1LA_---1RA_1LC1LG	-1	288	NOBOUNDARY	L,C,P=110,u=1,s=0,d=2d+1,b=1b+0,S=-	R1 0b+2 | R2 a=0b+1 b=2 | R3 0b+1+0k tail=1 a=1 b=2 | R4 KKKKK | H -
+1RB1LD_1RC0RG_0LA1RA_0RE0LD_1LF0RE_1LA---_---1RC	-1	338	NOBOUNDARY	L,D,P=100,u=1,s=0,d=1d+0,b=1b+0,S=-	R1 0b+3 | R2 a=0b+3 b=0 | R3 0b+3+0k tail=0 a=0 b=0 | R4 KKKKK | H -
+1RB1RA_1LC1RF_0LG1RD_1LE0LD_0RB0RA_1RE---_---1LD	-1	288	NOBOUNDARY	R,B,P=110,u=1,s=0,d=2d+1,b=1b+0,S=-	R1 0b+2 | R2 a=0b+1 b=2 | R3 0b+1+0k tail=1 a=1 b=2 | R4 KKKKK | H -
+1RB1RE_1LC---_1LG1RD_1LE0LD_0RE0RF_0RB1RA_1LD---	-1	157	NOBOUNDARY	R,B,P=110,u=1,s=0,d=3d+2,b=1b+0,S=-	R1 0b+2 | R2 a=0b+0 b=2 | R3 0b+0+0k tail=0 a=0 b=2 | R4 TTTTT | H -

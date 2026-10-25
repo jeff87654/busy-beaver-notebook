@@ -1,0 +1,4 @@
+machine	halted_step	n_templates	grade	template	params
+1RB1RC_0RC0LB_0LD0RG_1RE1LD_1LF1LB_0RC1LE_---1RA	-1	714	CHECK	R,D,P=-,u=110,s=0,d=1d+0,b=1b+0,S=11	R1 1b+2 | R2 a=1b+2 b=0 | R3 1b+2-1k tail=1 a=1 b=0 | R4 KKKKK | H 1b+1
+1RB1RC_0RC0LB_0LD0RG_1RE1LD_1LF1LB_0RE1LE_---1RA	-1	689	CHECK	R,D,P=-,u=110,s=0,d=1d+0,b=1b+0,S=11	R1 1b+2 | R2 a=1b+2 b=0 | R3 1b+2-1k tail=1 a=1 b=0 | R4 KKKKK | H 1b+1
+#summary	machines=9637	halted=0	CHAMPION=0	R4-SOME=0	HALT?=0	HALT-SOME=0	CHECK=2	NOBOUNDARY=0	SAFE=0	skipped_dl_templates=6972

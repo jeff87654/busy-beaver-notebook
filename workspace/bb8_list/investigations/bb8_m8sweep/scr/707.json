@@ -1,0 +1,1 @@
+{"i": 707, "m": "1RB1RG_1LC1LF_1RE0LD_1LB1RC_---0LB_0RA0RC_1RA1RF", "tmpl": "L,C,P=1,u=01,s=0,d=1d+0,b=1b+0,S=1", "cls": [189], "M": 60, "runs": [{"X": "F0", "s": 0, "c": 9, "v": "g0", "snap": {"step": 8, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "707_F0_c9_g0.txt"}], "time": 1.0}

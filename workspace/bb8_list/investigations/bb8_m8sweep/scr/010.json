@@ -1,0 +1,1 @@
+{"i": 10, "m": "1RB---_0RC0RA_1RD1RG_1LE1LF_0LB0LD_0LE0RC_1RD0RC", "tmpl": "R,G,P=1,u=01,s=0,d=1d+0,b=2b+1,S=-", "cls": [94], "M": 60, "runs": [{"X": "C0", "s": 0, "c": 34, "v": "g0", "snap": {"step": 2, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "010_C0_c34_g0.txt"}], "time": 2.7}

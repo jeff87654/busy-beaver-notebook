@@ -1,0 +1,54 @@
+{
+  "cap": 30000,
+  "counts": {
+    "cutoff": 378,
+    "halt": 117,
+    "B": 1
+  },
+  "candidates": [
+    {
+      "split": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "start": 0,
+      "tm": "1RB0RA_1LC1LF_1RH0LB_1RA1LE_1RZ0LC_1RG1LD_0RG0RF_0RF1LE",
+      "original_labels_tm": "1RB0RA_1LC1LF_1RH0LB_1RA1LE_1RZ0LC_1RG1LD_0RG0RF_0RF1LE",
+      "status": "B",
+      "steps": 2172,
+      "hits": [
+        {
+          "step": 2172,
+          "B": [
+            0,
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2
+            ]
+          ],
+          "Hreads": [
+            9,
+            85
+          ]
+        }
+      ],
+      "Hreads": [
+        9,
+        85
+      ]
+    }
+  ],
+  "elapsed": 14.607521533966064
+}

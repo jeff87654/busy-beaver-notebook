@@ -1,0 +1,2 @@
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_1LC0RH_1RG1LF_---1LB	c35	RESULT HALT stages=1 full_cycles=0 level=0 history=[('H', '20*b+69')] ones=20*b+69
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_1LC0RH_1RG1LF_---1RA	c35	RESULT HALT stages=2 full_cycles=0 level=0 history=[('J', 'block', False), ('H', '2*R1+24*b+101')] ones=2*R1+24*b+101

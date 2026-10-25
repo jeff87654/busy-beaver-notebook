@@ -1,0 +1,29 @@
+{
+  "source_certificate": "lastfive_decider_cps_certificates\\cal_runaway_00.json",
+  "independent_verification": {
+    "status": "independently_verified_nonhalting",
+    "configs": 3,
+    "edges": 4,
+    "closure_obligations": 10,
+    "literal_steps": 3,
+    "local_exact_cycles": 0
+  },
+  "negative_checks": [
+    {
+      "mutation": "missing initial configuration",
+      "status": "rejected",
+      "reason": ""
+    },
+    {
+      "mutation": "missing blank-tail edges",
+      "status": "rejected",
+      "reason": ""
+    },
+    {
+      "mutation": "machine changed to halt",
+      "status": "rejected",
+      "reason": "certificate includes a window that halts"
+    }
+  ],
+  "limitation": "Two earlier subprocess calibration attempts hit external 10-second timeouts. Direct execution exported this certificate. No BB2 or oscillator engine calibration is claimed."
+}

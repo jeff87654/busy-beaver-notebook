@@ -1,0 +1,62 @@
+{
+  "candidate_ids": [
+    "C13",
+    "C15"
+  ],
+  "attempts": 252,
+  "status_counts": {
+    "unresolved": 252
+  },
+  "elapsed_search_wall_seconds": 40.34500000003027,
+  "sum_process_wall_seconds": 69.49299999995856,
+  "workers": 2,
+  "parameters": {
+    "modulus": [
+      3,
+      5,
+      7,
+      9,
+      15,
+      31
+    ],
+    "suffix_bits": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "block_length": [
+      1,
+      2,
+      3
+    ],
+    "length_modulus": [
+      1
+    ],
+    "prefix_steps": 1001,
+    "abstract_work_limit": 300000
+  },
+  "result_files": [
+    "lastfive_modular_results.json",
+    "lastfive_modular_odd_results.json"
+  ],
+  "verifier_byte_identical_to_base": true,
+  "verifier_sha256": "102ec8502ddd680ca95ca0ae23ffe531177f65aafd2bf05800544f4f77473436",
+  "source_diff_opcodes": [
+    [
+      "insert",
+      0,
+      26
+    ],
+    [
+      "insert",
+      0,
+      12
+    ]
+  ],
+  "calibration": "lastfive_modular_calibration.json",
+  "conclusion": "All modular attempts inconclusive; no new classification. Encoding tests and positive/negative controls passed."
+}

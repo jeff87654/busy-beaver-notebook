@@ -1,0 +1,8 @@
+2026-10-22 20:26 PKG start: lead asks BB7/ entry (verify/ Defs+Statement layout, forall-form bounds, CI job bb7, README row, write-up vs Ligocki), PR, no merge.
+2026-10-22 20:30 v2/ sources generated (tools/gen_v2.py, gen_statement.py): Defs/Uniq/Statement/probe231/probe232 + adapted files, root BB7; compile_clean.sh written.
+2026-10-22 20:35 build1 (clean v2 build) running; worktree C:/Users/jeffr/Downloads/bb7_wt branch bb7-c231 from origin/main 0345a6c. Start-up insight: step 934 E>0 1^40 0^6 1 (even block) -> exhaustion sweep writes (1100)^20 -> Kc(1^20;1;2) at 3715.
+2026-10-22 20:55 build1 OK up to C232_main; Statement fixes (conjunction, c23x_halts from C23x_run); probes 6+6 Closed in build1. Starting final clean build2 for the repo logs.
+2026-10-22 20:56 build2 killed (own PID 7252 tree) to fix 3 comments; build3 = final.
+2026-10-22 21:23 PR #34 opened https://github.com/jeff87654/busy-beaver/pull/34 (commits 9d9a1a4 + README PR number).
+2026-10-22 21:28 CI PR #34: both runs success; only job bb7 ran (others skipped); probe231/232 6 of 6 closed in CI. Not merged (lead decides).
+2026-10-22 21:29 DONE: PR #34 merged by lead as ed1580b (bb7 CI green 3m25s). Lead removes bb7_wt worktree. Formalizer stops.

@@ -1,0 +1,80 @@
+F89 = 1RB0RE_0RC---_1LD0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE   (BB(7) holdout, reb7 NEVER-HALTS(residue,multi), audit UNDECIDED)
+2026-10-24, Opus agent, bb7_holdouts/f5_f89/f89/
+
+VERDICT: NEVER-HALTS.  Not residue-gated at all: after step 4679 the machine lives in a digit-list template whose rules map
+"all digits odd" to "all digits odd" unconditionally, and every rule (including the exhaustion/rebuild rules) is a
+non-halting transition for every parameter value.  No class map is needed (one class).  The 3 reb7 siblings are F89
+relabelled (two mirrored) and started in states C, F, D; they enter the same template ([3,3] at step 162 / [1] at 13)
+and never halt by the same argument.
+
+CODING (why the audit found nothing: separator BEFORE each digit, unterminated last digit)
+  K-config  [D on a never-visited cell] 0 0 [1 (01)^d1] [1 (01)^d2] ... [1 (01)^dn]   (blank to the right)
+  = a left-end event in state D whose tape starts 0 0 1 ("p1"); the alternating left-end D events that start with 1 1
+  ("p2") are intermediate and skipped.  Digit list [d1..dn], d1 = accumulator a, value 1 = "zero digit".
+  Odd template: all di odd (>= 1).
+
+RULES (odd template; R = arbitrary rest of the list, never visited by D/B rules)
+  D   [a, b, R]          b >= 3        -> [a+4, b-2, R]
+  B_k [a, 1^k, d, R]     k >= 1, d >= 3 -> [1^k, a+4, d-2, R]          (borrow over k zero digits)
+  T_k [a, 1^k]           k >= 1        -> [1^(k-1), a+4]               (top digit is zero: list shrinks by one)
+  S   [x]                              -> [1^(x+2)]                     (single digit: list rebuilt with x+2 zero digits)
+  Exactly one rule applies to every odd list; every output is odd and non-empty  =>  invariant "all digits odd" holds
+  forever and no rule halts  =>  NEVER-HALTS from any odd K-config.
+  Growth: D/B = counter where position i iterates position i-1 (level ~ position), T shrinks the list, S rebuilds it with
+  length x+2 (f_omega-type, consistent with reb7's "size ~27").  Conversion phase seen in the trace (1^28 5 3^k ...) is
+  just B_k with large k.
+
+REAL RUN
+  Steps 0..4679: an even-digit prelude ([2,0,1^2], [3,0,4], ..., [3,12,0] -> D... -> [27,0,0]) then at step 4679 the exact
+  K-config [1^30]  (lit.exe: [D0] 0^2 (1 0 1)^30, verified cell-exact).  From there the odd rules apply.
+  Lockstep (kl.exe, 3e8 steps, lit3e8.txt + lock.py): 7746 consecutive K-events after 4679, each = eng.step(previous):
+  0 misses (D 7705, B 40, T 1).
+
+VALIDATION OF THE RULES (all PASS; rerun: python verify_all.py -> VERIFY_ALL PASS, ~1 min)
+  1. Literal grids (kl2.exe): grid.py 300 random odd lists + grid2.py 600 targeted (B_k k<=16, T_k k<=20, S x<300): 0 miss.
+  2. symsim (never_audit, sound): symtest.py: D with 8 rests, B_k k=1..20 x 6 rests, T_k k=1..20, all with symbolic a,d
+     (odd, >=5/>=7): 148/148 pass;  symtest2.py: B and T with SYMBOLIC k for literal a=1..21 (110 tests): 0 fail.
+     (symsim cannot do symbolic a and k together, nor S -> covered by 3.)
+  3. msim.py, my own small sound symbolic simulator (shift rules: one copy of w crossed in the same state; carried-context
+     shifts w^n[ctx] -> [ctx]w'^n checked on the segment w+ctx; regrouping w^n=(w^p)^y w^r; peeling only when the lower
+     bound proves n>=1).  Symbols are naturals with lower bounds; a=2a'+1, d=2d'+3 cover ALL odd a>=1, d>=3.
+       msmall.py: D, B_k (k=1..20, rests [],[c],[1,c]), T_k (k=1..20) with symbolic a,d,c: 83/83 pass.
+       Loop lemmas for unbounded k / x (lemS.py, lemB.py, lemB0.py, lemT.py):
+         S1 [x] -> 11 00 (10)^x 1 [C]0 ;  S2 1^m 00 (10)^(n+1) 1 [C]0 -> 1^(m+3) 00 (10)^n 1 [C]0 ;  S3 1^(3x+2) 00 1 [C]0 -> K [1^(x+2)]
+         B1 [a,1^(k+5),d,R] -> 1 [A]11 (01)^(a+3) 11 (011)^(k+4) (01)^d R ;
+         B2 1^m [A]11 (01)^(p+4) 11 (011)^(n+3) (01)^d R -> 1^(m+3) ... (011)^(n+2) ... ; B2r2, B2r1 (2->1->0) ;
+         B3 1^(3k+10) [A]11 (01)^(a+3) 11 (01)^d R -> K [1^(k+4), a+4, d-2, R]
+         T1/T2/T2r2/T2r1/T3 the same with the list ending after the zero digits -> K [1^(k+3), a+4]
+       With rest R empty the head never moves past the last digit (rnew=0), so D/B lemmas hold for every R.
+       Composition: B_k for k>=5 = B1, B2^(k-3), B2r2, B2r1, B3 ; T_k likewise ; S = S1, S2^x, S3 ; small k by msmall.
+  4. Small-config search (hsearch.py): every list of length 1-4 with digits 0..7 (4680 lists, either parity): none halts
+     within 2e6 steps.  The machine is hard to halt at all; no halting K-config was found.
+
+CONTROLS
+  - msim positive control (ctl.py): three random families pre (w)^n post whose literal halting time grows 19n+6
+    (e.g. [F]0 (011)^n 11) -> msim with symbolic n>=4 reports HALT (state B) for all n.  msim does detect halts across
+    symbolic blocks.  A lemma with a wrong expectation returns False (canonical compare).
+  - Halting exhaustion of the BB(7) champion: not re-run (msim cannot do Ackermann-level champion steps); the audit's
+    ctl_champ.py (symsim) already shows that exhaustion halting is detected.  For F89 there is no exhaustion class to
+    test: T and S are proven non-halting for all parameter values.
+  - Sibling test (sib2.py): the 3 reb7 siblings = F89 under state maps CFABDEG(mirror), CEFBDAG(mirror), BCDAEFG, i.e. F89
+    from blank started in C, F, D.  lock.py on their 3e6-step traces: 839/839/844 rule applications, 0 miss; first odd
+    K-configs [3,3]@162 (C,F starts) and [1]@13 (D start), cell-exact.  Same verdict for all four rows.
+
+WHAT A COQ PROOF NEEDS
+  Define K(l) := 0^inf <D 0 0 (1 (01)^l1) ... (1 (01)^ln) 0^inf with all li odd.  Prove the four rules as
+  K(l) -->+ K(l') (D, B_k, T_k, S), each by the loop lemmas above (shift lemmas over (01)^n, (011)^n, 1^n, carried-context
+  shifts over (10)^n/(111)^n, and the induction over the k / x loops), then progress K(l) -->+ K(step l) with
+  step preserving oddness, and the concrete prefix: blank -->(4679 steps) K([1^30]).  Standard busycoq style
+  (like the T12a / C7 proofs); no arithmetic beyond parity, no residues, no huge numbers.
+
+GAPS
+  - msim.py is my own tool (sound by construction, cross-checked against literal grids, the 3e8 lockstep and symsim), not
+    a proof assistant.  Small-k cases rely on msim + symsim agreeing; S, B_k (k>=5), T_k (k>=5) for symbolic a rely on
+    msim loop lemmas only (symsim confirms them for literal a<=21).
+  - Not Coq-checked.
+
+COST: ~0.3 CPU-hours (3e8 literal run 6 min at Idle, hsearch 6 min, everything else seconds); ~0.25M tokens.
+FILES (f89/): eng.py (abstract rules), ev.py/run.py/lock.py/grid*.py (literal), kl2.cpp/.exe (kl with event limit NEV),
+  symchk.py/symtest*.py (symsim), msim.py/lemma.py/lemS.py/lemB.py/lemB0.py/lemT.py/msmall.py (sound symbolic lemmas),
+  verify_all.py, hsearch.py(+json), sib.py/sib2.py, ctl.py, lit3e8.txt, notes.txt.

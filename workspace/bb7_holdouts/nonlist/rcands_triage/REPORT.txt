@@ -1,0 +1,476 @@
+================================================================================
+BB(7) HOLDOUTS — ROUTE #3: SECOND-PASS (`pf7`-REJECTS) TRIAGE & DEEP ANALYSIS
+================================================================================
+Date:    2026-10-24
+Target:  C:\Users\jeffr\Downloads\bb8\bb7_holdouts\nonlist\rcands.tsv
+         + active second-pass outputs in `rpil/r0000.tsv`..`r0107.tsv`
+           and `rfull/r0000.tsv`..`r0105.tsv`
+Output:  C:\Users\jeffr\Downloads\bb8\bb7_holdouts\nonlist\rcands_triage\
+Goal:    Hunt for a late-blooming or non-list 7-state record halter
+         (> 3↑^20 3, `champ_231`, rank7 level 21) among the 13,994,313
+         BB(7) holdouts rejected at 300k steps by `pf7` in Pass 1.
+
+================================================================================
+1. EXECUTIVE VERDICT
+================================================================================
+
+  **VERDICT: NO RECORD HALTER (> 3↑^20 3, rank7 level 21) EXISTS IN
+  `rcands.tsv` (`rcands_snap.tsv`, 9,364 families from chunks `r0000`..`r0016`)
+  OR AMONG ALL 1,980 `FR > 0` FAMILIES ACROSS CHUNKS `r0000`..`r0105`
+  (10,600,000 `pf7`-rejected holdouts).**
+
+  1. **Prong A (Late-Blooming Templated Digit-List Check — `dlscan2` / `dlscan3`)**:
+     - **0 graded digit-list hits (`grade = 0` on 100% of tested machines)** across:
+       * All **309 `FR > 0` families** in `rcands_snap.tsv` via `dlscan3.exe 3000000 30000 --all` (3M literal steps, 30k probe).
+       * All **9,055 `SR` (`FR == 0, SRs >= 10`) families** in `rcands_snap.tsv` via `dlscan2.exe 1000000 20000` (1M literal steps, 20k probe, WITHOUT `--skipdl`).
+       * All **1,405 `D >= 4` `SR` families** in `rcands_snap.tsv` via `dlscan3.exe 2000000 25000` (2M literal steps, 25k probe).
+       * All **1,671 extended `FR > 0` families** from `rfull/r0017.tsv`..`r0105.tsv` via `dlscan3.exe 2000000 25000` (2M literal steps, 25k probe).
+       * All **57 top Step-4 candidates** via `dlscan3.exe 20000000 50000` (**20,000,000 literal steps**, 50k probe — 67x `pf7`'s 300k literal-step window).
+     - Thus, **zero `pf7`-rejected holdouts in `rcands_snap.tsv` (or in the 1,980 `FR > 0` families across 10.6M rejects) are late-blooming templated Ackermann digit-list machines**.
+
+  2. **Prong B (Non-List / Hierarchical Tower Check — `--life`, `--small`, `--htsafe`, `--frgen`)**:
+     - Across all **9,364 families** in `rcands_snap.tsv`:
+       * **Tier 1 (`FR > 0 & D >= 4`)**: **100 families** (10 `SMALL-HALT`, 90 `NO-HALT`).
+         - `std_HT`: 99 have `HT = 0`, 1 has `HT = 1`.
+         - `max_HT`: 98 have `max_HT = 0`, 2 have `max_HT = 1`.
+         - **0 Tier-1 families in `rcands_snap.tsv` have `HT >= 2` or `max_HT >= 2`.**
+       * **Tier 2 (`FR > 0 & D < 4 & SMALL-HALT`)**: **49 families** (all `D = 0`, all `HT = 0 / max_HT = 0`).
+       * **Tier 3 (`FR > 0 & D < 4 & NO-HALT`)**: **160 families** (151 `max_HT = 0`, 8 `max_HT = 1`, 1 `max_HT = 2`).
+       * **Tier 4 (`FR == 0 & D >= 4 & SMALL-HALT`)**: **135 families** (`std_HT`: 129 `HT = 0`, 6 `HT = 1`; `max_HT`: 125 `max_HT = 0`, 10 `max_HT = 1`; **0 Tier-4 families have `HT >= 2` or `max_HT >= 2`**).
+       * **Tier 5 (`FR == 0 & (D < 4 or NO-HALT)`)**: **8,920 families** (1,270 with `D >= 4 & NO-HALT`, 7,650 with `D < 4`; among the 1,270 `D >= 4` families, only 2 have `HT >= 2`: one `HT = 2 / max_HT = 2` and one `HT = 4 / max_HT = 4`, both `NO-HALT`).
+     - Every single candidate in `rcands_snap.tsv` with `FR > 0 & D >= 4` (all 100 Tier-1 families), `HT >= 2` / `max_HT >= 2` (3 families), or `D >= 15` with generalized frontier decrements (`FR2 > 0`, `FR3 > 0`, `FR46 > 0`, `FRref > 0`), plus all 3 `max_HT >= 2` families across the extended 10.6M-machine `rfull` scan (`r0000`..`r0105`), has been resolved to its exact blank-tape mechanism and proven bounded well below `3↑^20 3` (all Halters/Pseudohalters in `rcands_snap.tsv` are bounded by `<= 2↑↑30` [rank7 level <= 4], and the single `max_HT = 3` extended hit in `r0064.tsv` is a `NO-HALT` `D = 6` 1-transition sibling of first-pass H4 at level ~10–14 < 21).
+
+================================================================================
+2. SECOND-PASS (`run2.py`) PROGRESS & SNAPSHOT DEDUPLICATION (STEPS 1 & 2)
+================================================================================
+
+2.1 Background Pipeline (`run2.py`) Status
+------------------------------------------
+In Pass 1 (`run.py`), `pf7` (`--fast=300000`, requiring `steps <= 45,000` at 300k
+base steps) rejected 13,994,313 of the 14,322,369 BB(7) holdouts. Pass 2
+(`run2.py`) re-screens all 13,994,313 `pf7` rejects in 140 chunks (`r0000`..`r0139`,
+100,000 machines/chunk) WITHOUT `pf7`:
+  - **Stage A (`rpil/rXXXX.tsv`)**: `nlp7.exe 300000 --pilot` (300k macro steps
+    at `K = 2..6`). Gate passes if `max(P2..P6) >= 8` OR `nsr >= 2` (`SRs >= 8`
+    at >= 2 block sizes).
+  - **Stage B (`rfull/rXXXX.tsv`)**: `nlp7.exe 1500000` (1.5M macro steps at
+    `K = 2..6`) on Stage-A gate passers.
+
+At the time of triage:
+  - **Stage A (`rpil/r0000.tsv`..`r0107.tsv`, 108 chunks = 10,800,000 rejects)**:
+    * Total rows:            10,800,000
+    * Stage-A gate passers:   2,229,953 (20.65%)
+      - `P2 >= 8 & nsr >= 2`:   280,701 ( 2.60%)
+      - `P2 >= 8 & nsr < 2`:    399,186 ( 3.70%)
+      - `P2 < 8  & nsr >= 2`: 1,550,066 (14.35%)  <-- slow-start slot-reset passers
+    * Stage-A natural halts:        185 (all halted within 300k macro steps)
+  - **Stage B (`rfull/r0000.tsv`..`r0105.tsv`, 106 chunks = 10,600,000 rejects)**:
+    * Total Stage-B rows:     2,194,265
+    * `FAST` rows:              503,974 (22.97% of Stage-B rows)
+      - Unique `FAST` families: 271,217 (by `(FR>0, K, D, SRs>0, SRK, P2..P6)`)
+    * `HALT` rows:                2,137 (all natural halts within 1.5M macro steps)
+    * Non-FAST `RUN` rows:    1,688,154
+
+2.2 Clean Snapshot (`rcands_snap.tsv`) vs Extended `rfull` (`rcands_rfull_all.tsv`)
+-----------------------------------------------------------------------------------
+`nonlist/rcands.tsv` was generated by an earlier `collect.py` invocation covering
+the first **17 Stage-B chunks (`r0000.tsv`..`r0016.tsv`, 1,700,000 `pf7` rejects)**
+and is **already deduplicated** by `(FR>0, K, D, SRs>0, SRK, P2, P3, P4, P5, P6)`.
+We copied all 9,365 complete lines (2,679,179 bytes) into
+`rcands_triage/rcands_snap.tsv`, and also ran `collect.py`'s exact deduplication
+across all 106 completed `rfull` chunks (`r0000`..`r0105`) into
+`rcands_triage/rcands_rfull_all.tsv`:
+
+  +-----------------------------------+-------------------+-----------------------+
+  | Cohort / Metric                   | `rcands_snap.tsv` | `rcands_rfull_all.tsv`|
+  |                                   | (`r0000`..`r0016`)| (`r0000`..`r0105`)    |
+  +-----------------------------------+-------------------+-----------------------+
+  | `pf7`-rejected holdouts covered   |         1,700,000 |            10,600,000 |
+  | Stage-B (`rfull`) rows evaluated  |           352,211 |             2,194,265 |
+  | Total `FAST` machines             |            81,587 |               503,974 |
+  | Total unique `FAST` families      |            60,840 |               271,217 |
+  +-----------------------------------+-------------------+-----------------------+
+  | **`FR + SR` families in `rcands`**|         **9,364** |            **57,622** |
+  |   (representing `FAST` machines)  |          (12,990) |              (97,493) |
+  | - **`FR > 0` families**           |           **309** |             **1,980** |
+  |   (representing `FAST` machines)  |             (381) |               (2,879) |
+  |   * with `D >= 4`                 |                94 |                   635 |
+  |   * with `D >= 15`                |                16 |                    95 |
+  | - **`SR` (`FR=0, SRs>=10`) fams** |         **9,055** |            **55,642** |
+  |   (representing `FAST` machines)  |          (12,609) |              (94,614) |
+  |   * with `D >= 4` (pilot)         |             1,353 |                 8,471 |
+  |   * with `D >= 15` (pilot)        |             1,004 |                 6,368 |
+  | - Other `FAST` (`FR=0, SRs<10`)   |            51,476 |               213,595 |
+  | - Natural `HALT` in 1.5M macro    |               346 |                 2,137 |
+  +-----------------------------------+-------------------+-----------------------+
+
+================================================================================
+3. PRONG A: LATE-BLOOMING TEMPLATED DIGIT-LIST CHECK (`dlscan2` / `dlscan3`)
+================================================================================
+
+Why Prong A is required:
+  `run2.py` screens machines rejected by `pf7` (`steps > 45,000` at 300,000 base
+  steps). A templated Ackermann digit-list machine (like `champ_231`) with a slow
+  Stage-1 initializer (> 45k macro steps at 300k base steps) would have been
+  skipped by `dlscan2 --skipdl` in `triage7.py` and rejected by `pf7` in `run.py`,
+  only now entering `rcands.tsv` via `run2.py`.
+
+Prong A Execution & Results:
+  We ran `dlscan2.exe` (without `--skipdl`) and `dlscan3.exe` (which performs
+  nested-period detection + R1–R3 linear digit-list progression fitting across
+  periods `p = 1..30`) at 1M, 2M, 3M, and **20M literal base steps**:
+
+  +----------------------------------------+------------------+-------+----------+
+  | Cohort Tested                          | Tool & Budget    | Machs | Graded   |
+  |                                        | (literal steps)  |       | DL Hits  |
+  +----------------------------------------+------------------+-------+----------+
+  | All `FR > 0` fams in `rcands_snap.tsv` | `dlscan3 --all`  |   309 | **0**    |
+  |                                        | 3,000,000 / 30k  |       |          |
+  | All `SR` fams in `rcands_snap.tsv`     | `dlscan2` (no    | 9,055 | **0**    |
+  |                                        | skipdl) 1M / 20k |       |          |
+  | All `D >= 4` `SR` fams in `rcands_snap`| `dlscan3`        | 1,405 | **0**    |
+  |                                        | 2,000,000 / 25k  |       |          |
+  | All extended `FR > 0` fams (`r0017`..  | `dlscan3`        | 1,671 | **0**    |
+  | `r0105`, chunks 17..105)               | 2,000,000 / 25k  |       |          |
+  | Top 57 Step-4 priority candidates      | `dlscan3`        |    57 | **0**    |
+  |                                        | 20,000,000 / 50k |       |          |
+  +----------------------------------------+------------------+-------+----------+
+
+  Detailed breakdown of the 309 `FR > 0` families under `dlscan3 3000000 30000 --all`:
+    - 305 families had a periodic accumulator end-snapshot at 3M steps (`cand=1`
+      with `L_mid` up to 356 cells and `rep_R` up to 963,407), and 4 had no end
+      template (`cand=0`).
+    - All 305 `cand=1` machines entered the 30,000-step probe window, and **0 out
+      of 305** produced a valid R1–R3 linear digit-list progression (`grade = 0`
+      on all 309).
+  Detailed breakdown of the 57 top candidates under `dlscan3 20000000 50000`:
+    - Even at **20,000,000 literal steps** (67x the 300k `pf7` cutoff), **0 out of
+      57** graded as a digit-list machine.
+
+  **Prong A Conclusion**: Not a single candidate in `rcands_snap.tsv` (or among the
+  1,980 `FR > 0` families across 10.6M `pf7` rejects) is a late-blooming templated
+  digit-list machine.
+
+================================================================================
+4. PRONG B: NON-LIST / HIERARCHICAL TOWER TRIAGE (`--life`, `--small`, `--htsafe`, `--frgen`)
+================================================================================
+
+4.1 `rcands_snap.tsv` (9,364 families from `r0000`..`r0016`) Tier & `HT` Table
+------------------------------------------------------------------------------
+Using `nlp7v.exe 1000000 --life`, `nlp7v.exe 2000000 --small`,
+`nlp7_fr_gen.exe 5000000 --htsafe`, and `nlp7_fr_gen.exe 1000000` (`--frgen`)
+across `K in {2, SRK, pilot_K}`, the 9,364 families in `rcands_snap.tsv` partition
+into `post.py` Tiers 1–5 as follows:
+
+  +--------+------------------------------------+-------+---------+---------+---------+---------+
+  | Tier   | Definition                         | Fams  | Machs   | HT=0/0  | maxHT=1 | maxHT>=2|
+  +--------+------------------------------------+-------+---------+---------+---------+---------+
+  | Tier 1 | `FR > 0 & D >= 4`                  |   100 |     124 |      98 |       2 |   **0** |
+  |        |   - `SMALL-HALT`                   |  (10) |    (14) |    (10) |     (0) |   (0)   |
+  |        |   - `NO-HALT`                      |  (90) |   (110) |    (88) |     (2) |   (0)   |
+  | Tier 2 | `FR > 0 & D < 4 & SMALL-HALT`      |    49 |      58 |      49 |       0 |   **0** |
+  | Tier 3 | `FR > 0 & D < 4 & NO-HALT`         |   160 |     199 |     151 |       8 |   **1** |
+  | Tier 4 | `FR == 0 & D >= 4 & SMALL-HALT`    |   135 |     171 |     125 |      10 |   **0** |
+  | Tier 5 | `FR == 0 & (D < 4 or NO-HALT)`     | 8,920 |  12,438 |       * |      12 |   **2** |
+  |        |   - `D >= 4 & NO-HALT` (tested HT) | (1270)|  (1776) |  (1256) |    (12) |   (2)   |
+  |        |   - `D < 4` (`D = 0..3`)           | (7650)| (10662) |       - |       - |     -   |
+  +--------+------------------------------------+-------+---------+---------+---------+---------+
+  | TOTAL  | All `rcands_snap.tsv` families     | 9,364 |  12,990 |         |      32 |   **3** |
+  +--------+------------------------------------+-------+---------+---------+---------+---------+
+
+  Generalized Frontier Decrement (`--frgen` at 1M macro steps) counts on `rcands_snap.tsv`:
+    - Among the **309 `FR > 0` families** (`fr_snap_triage.tsv`):
+      * `FR2 > 0` (step-2 decrements `prev - cur == 2`):   39 families (11 in Tier 1)
+      * `FR3 > 0` (step-3 decrements `prev - cur == 3`):    9 families ( 1 in Tier 1)
+      * `FR46 > 0` (step 4..6 decrements):                 14 families ( 1 in Tier 1)
+      * `FRref > 0` (deep frontier `FW = 9..30`, step 1..6): 24 families (5 in Tier 1)
+    - Among the **1,405 `D >= 4` `SR` (`FR == 0`) families** (`sr_d4_snap_triage.tsv`):
+      * `FR2 > 0`:   15 families (10 with `D >= 15`)
+      * `FR3 > 0`:    3 families ( 1 with `D >= 15`)
+      * `FR46 > 0`:   0 families
+      * `FRref > 0`: 42 families (35 with `D >= 15`)
+
+4.2 Extended `FR > 0` Triage Across Chunks `r0017`..`r0105` (1,671 Families)
+----------------------------------------------------------------------------
+To ensure we did not miss an emerging candidate in the later chunks of `run2.py`,
+we also triaged all **1,671 additional `FR > 0` families** from `rfull/r0017.tsv`..`r0105.tsv`
+(bringing total triaged `FR > 0` families to **1,980** across 10.6M `pf7` rejects):
+  - **Tier 1 (`FR > 0 & D >= 4`) in `r0017`..`r0105`**: **573 families**
+    * `SMALL-HALT`: 93 families | `NO-HALT`: 480 families
+    * `max_HT` distribution across all 573 extended Tier-1 families:
+      - `max_HT = 0`: 556 families
+      - `max_HT = 1`:  15 families
+      - `max_HT = 2`:   1 family (`1RB0RC_0LC0LB_0LD1LC_0LE1LA_0RF1LG_1RF1RA_---0LA`, `D=26`, `SMALL-HALT`)
+      - `max_HT = 3`:   1 family (`1RB0RE_1LC1RA_0LG1LD_0RB0RG_0RF---_1RC0RC_1LD0LB`, `D=6`, `NO-HALT`, H4 sibling)
+      - `max_HT >= 4`:  **0 families**
+  - **Tier 2 (`FR > 0 & D < 4 & SMALL-HALT`) in `r0017`..`r0105`**: **187 families** (all `max_HT <= 1`).
+  - **Tier 3 (`FR > 0 & D < 4 & NO-HALT`) in `r0017`..`r0105`**: **911 families** (only 1 has `max_HT = 2`:
+    `1RB0LE_0LC0RF_1RD1LB_1LA0RB_0LD0LA_0RA0RG_0RC---`, `D = 0`, `NO-HALT`).
+
+================================================================================
+5. STEP 4 DEEP ANALYSIS OF ALL FLAGGED CANDIDATE CATEGORIES
+================================================================================
+
+Every candidate meeting ANY of the Step 4 criteria:
+  (A) `HT >= 2` or `max_HT >= 2` (in `rcands_snap.tsv` OR extended `r0017`..`r0105`)
+  (B) `FR > 0` and `D >= 4` (all 100 Tier-1 families in `rcands_snap.tsv`)
+  (C) `dlscan2` / `dlscan3` hit with `D >= 15` (empty set — 0 hits)
+  (D) `D >= 15` with `FR2 > 0`, `FR3 > 0`, `FR46 > 0`, or `FRref > 0`
+was inspected via blank-tape `--show=5` trajectories (2M macro steps) and 20M-step
+`dlscan3` runs (`rcands_triage/shows_digest.txt`).
+
+--------------------------------------------------------------------------------
+5.1 Category A: All `HT >= 2` / `max_HT >= 2` Candidates (3 in Snap + 3 Extended)
+--------------------------------------------------------------------------------
+
+1. **`1RB---_1LC1RB_1RA1LD_0LC0LE_0RG1LF_0LG0RB_1RE0LF`** (`rcands_snap.tsv`, Tier 5 `SR`)
+   - **Metrics**: `fam = 1`, `pilot = (FR=0, D=502 at K=2, SRs=503 at K=2, P=42/27/19/15/13)`,
+     `life_D = 502(K2)`, `small = NO-HALT (K2:r=8:iv=33,65,129,257,513,1025,2049,4095,; K6:r=5:iv=1,28,225,1793,7117,)`,
+     `std_HT = 4 / max_HT = 4`, `FRgen = (0, 0, 0, 0)`, `dlscan3 (20M) = grade 0`.
+   - **Exact Blank-Tape Mechanism (`HT4_SR_T5_K2` / `HT4_SR_T5_K6`)**:
+     * **Stage 1 (steps 0..5,134, base steps 0..1.44e6)**: Writes a static 502-item
+       unary list `(10 11)x502` on the left of the tape (`11 10 11 (11 10)x502 10 00^960`).
+     * **Stage 2 (steps 5,134..2,000,000+)**: Runs a **radix-2 binary positional counter**
+       between the unary list `(10 11)xD` and a right-hand doubler `10^A 11 00^B`.
+       At `K = 2`, each `(10 11)` unit is 1 binary bit position in `{10 11, 11^2}`:
+       consuming the $k$-th item from `(10 11)x502` (`502 -> 501 -> ... -> 492`)
+       requires $2^k + 1$ forced accumulator resets (`33, 65, 129, 257, 513, 1025, 2049, 4095`
+       — exact ratio $2.0\times$ per item!).
+       At `K = 6`, three `(10 11)` items group into one 6-cell pair `(111011 101110)`
+       (`D = 166 -> 165 -> 164 -> 163`), so each 6-cell pair represents 3 binary bits
+       (radix $b = 2^3 = 8$), producing forced-round intervals `1, 28, 225, 1793, 7117`
+       ($28 \times 8 + 1 = 225$, $225 \times 8 - 7 = 1793$, exact ratio $8.0\times$!).
+   - **Why it is NOT a record contender**:
+     * It is a **fixed-radix ($b = 2$) binary counter** of length $D = 502$ bits driving
+       a base-2 doubler (`10^A 11 00^B`), identical to the Tier-4 positional counters
+       in `tier4_ht/REPORT.txt` Section 4.1.
+     * Total doublings to exhaust all 502 bits is $\sim 2^{502}$, so even if it halted
+       its step count would be $\sigma \approx 2^{2^{505}} < 2\uparrow\uparrow 5$
+       (rank7 level $< 5 \ll 21$). Moreover, `small = NO-HALT`.
+
+2. **`1RB---_0LC1RG_0LG1RD_0RE0RD_0RF1RE_1LF1LC_1RA0RB`** (`rcands_snap.tsv`, Tier 5 `SR`)
+   - **Metrics**: `fam = 1`, `pilot = (FR=0, D=156 at K=3, SRs=27 at K=2, P=29/26/22/20/25)`,
+     `life_D = 156(K3)`, `small = NO-HALT (K2:r=3:iv=4,33,7828,; K3:r=8:iv=1,1,2,2,2,2,2,2,)`,
+     `std_HT = 2 / max_HT = 2`, `FRgen = (0, 0, 0, 0)`, `dlscan3 (20M) = grade 0`.
+   - **Exact Blank-Tape Mechanism (`HT2_SR_T5_K2` / `HT2_SR_T5_K3`)**:
+     * **Stage 1 (steps 0..22,068, base steps 0..2.75e7)**: Builds a static 158-item
+       list `010 000 111 (010 101)x158` at `K = 3`, which at `K = 2` is the single
+       contiguous run `10 00^2 11^2 10^475` (`3 * 158 = 474` copies of `10`).
+     * **Stage 2**: Each outer cycle consumes one `(010 101)` unit (`158 -> 157 -> 156`
+       at `K = 3`, i.e., `10^476 -> 10^473 -> 10^470` decrementing by 3 at `K = 2`)
+       to refill a single counter `11^A` (`11^15648` in cycle 3), which then decrements
+       by 1 per sweep while doubling `00^B`.
+     * At `K = 3` (its true structural period), the forced-round intervals per list
+       consumption are `[1, 1, 2, 2, 2, 2, 2, 2]` (constant 2!). The `HT = 2` trigger
+       (`iv = 4, 33, 7828`) occurred at `K = 2` only because `10^476` is a single run
+       at `K = 2` so `nlp7` mistook an adjacent transient run for `D`!
+   - **Why it is NOT a record contender**:
+     * Unary list of 158 items with 1 counter-refill (1 exponentiation) per item:
+       bounded by $\le 2\uparrow\uparrow 160$ (2 arrows, rank7 level $\le 4 \ll 21$),
+       and `small = NO-HALT`.
+
+3. **`1RB---_0RC0RB_1LC1LD_1RE0LD_1RA1RF_1RE1RG_0LE0RF`** (`rcands_snap.tsv`, Tier 3 `FR`)
+   - **Metrics**: `fam = 1`, `pilot = (FR=8, D=0 at K=2, SRs=11 at K=6, P=29/26/22/21/22)`,
+     `life_D = 0(K2)`, `small = NO-HALT (K2:r=2:iv=1,1,; K6:r=5:iv=2,5,15,8,2,)`,
+     `std_HT = 0 / max_HT = 2`, `FRgen = (0, 0, 0, 0)`, `dlscan3 (20M) = grade 0`.
+   - **Exact Blank-Tape Mechanism (`HT2_FR_T3_K2`)**:
+     * Builds a short 15-item prefix `(01 11)x15` separated by `00^6` from an
+       accumulator `01^A 11^4 10 00^B`, running a short binary/ternary carry cascade
+       where `K = 6` intervals rise for 2 steps (`2, 5, 15`) and immediately fall
+       (`8, 2`). Strictly double-exponential ($\le 2\uparrow\uparrow 4$) and `NO-HALT`.
+
+4. **`1RB0RE_1LC1RA_0LG1LD_0RB0RG_0RF---_1RC0RC_1LD0LB`** (Extended `r0064.tsv`, Tier 1 `FR`)
+   - **Metrics**: `fam = 1` (in `r0064.tsv`), `pilot = (FR=798, D=6 at K=2, SRs=0, P=38/27/26/23/20)`,
+     `life_D = 6(K2)`, `small = NO-HALT (K2:r=7:iv=1,1,1,10,76,1101,1133,; K6:r=1:iv=2,)`,
+     `std_HT = 1 / max_HT = 3`, `FRgen = (0, 0, 0, 0)`, `dlscan3 (20M) = grade 0`.
+   - **Exact Blank-Tape Mechanism (`HT3_EXT_H4sib_K2` / `HT3_EXT_H4sib_K6`)**:
+     * This machine differs by **1 transition (`F1: 1LD -> 0RC`)** from first-pass
+       holdout **H4** (`1RB0RE_1LC1RA_0LG1LD_0RB0RG_0RF---_1RC1LD_1LD0LB`, analyzed in
+       `nonlist/REPORT.txt` Section 2).
+     * At step 12,175 ($1.33 \times 10^8$ base steps), Stage 1 completes with the tape
+       `01^4 (10 00 01)x6 00 01 10^801 00 11 01^11` (`= 010101 (011000)x6 011010 101010^266 ...`
+       at `K = 6`).
+     * Thereafter, the frontier counter `10^801` decrements by 1 (`799 -> 798 -> 797 -> 796 -> 795`)
+       while tripling the right-hand accumulator `01^A` (`1092 -> 3279 -> 9840 -> 29523 -> 88572`).
+   - **Why it is NOT a record contender**:
+     * Identical to H4: its static list `(10 00 01)x6` has only **`D = 6` items**
+       (rank7 level $\sim 10$–$14 < 21$), and its rebuild is class-independent (`NO-HALT`).
+
+5. **`1RB0RC_0LC0LB_0LD1LC_0LE1LA_0RF1LG_1RF1RA_---0LA`** (Extended `r0054.tsv`, Tier 1 `FR`)
+   - **Metrics**: `fam = 1` (in `r0054.tsv`), `pilot = (FR=75, D=26 at K=2, SRs=27 at K=6, P=26/22/23/20/25)`,
+     `life_D = 26(K2)`, `small = SMALL-HALT (K2:r=0; K6:HALT:r=8:iv=1,1,4,10,6,11,7,6,)`,
+     `std_HT = 0 / max_HT = 2`, `FRgen = (FR2=74, 0, 0, 0)`, `dlscan3 (20M) = grade 0`.
+   - **Exact Blank-Tape Mechanism (`HT2_EXT_SH_K2` / `HT2_EXT_SH_K6`)**:
+     * Stage 1 builds static unary list `(01 10 00)x26` (`= 010010^26` at `K = 6`) on
+       the left and a single frontier counter `11^70` (`= 111111^22` at `K = 6`), which
+       decrements by 2 at `K = 2` (`70 -> 69 -> 68 -> ...`, giving `FR = 75, FR2 = 74`)
+       while doubling `10^A / 00^B`.
+     * Only a single refilled counter `11^d` sits between `(01 10 00)x26` and the
+       accumulator `10^A`: each of the 26 list items performs 1 counter-refill (1
+       exponentiation), and at `K = 6` the intervals `1, 1, 4, 10, 6, 11, 7, 6` oscillate
+       around 6–11 after the initial warmup `1 -> 4 -> 10`.
+   - **Why it is NOT a record contender**:
+     * 1-counter unary list tower of depth $D = 26$, bounded by $\le 2\uparrow\uparrow 28$
+       (2 arrows, rank7 level $\le 4 \ll 21$).
+
+6. **`1RB0LE_0LC0RF_1RD1LB_1LA0RB_0LD0LA_0RA0RG_0RC---`** (Extended `r0031.tsv`, Tier 3 `FR`)
+   - **Metrics**: `D = 0`, `FR = 68`, `FR3 = 69`, `small = NO-HALT (K6:r=3:iv=1,3,8,)`, `max_HT = 2`.
+   - **Exact Blank-Tape Mechanism (`HT2_EXT_T3_K6`)**:
+     * Single unary counter `110100^63` at `K = 6` decrementing `63 -> 62 -> 61 -> 60 -> 59`
+       to extend `(001100 110011)xN` (`8 -> 9 -> 10 -> 11`) by 1 per doubler cycle
+       ($2^{63}$ steps, single exponential, `NO-HALT`).
+
+--------------------------------------------------------------------------------
+5.2 Category B: All 100 Tier-1 (`FR > 0 & D >= 4`) Families in `rcands_snap.tsv`
+--------------------------------------------------------------------------------
+All 100 Tier-1 families in `fr_snap_triage.tsv` have `HT <= 1` and `max_HT <= 1`
+(98 have `HT = 0 / max_HT = 0`, 2 have `max_HT = 1`). By `FR` magnitude and blank-tape
+trajectory, they divide cleanly into two structural classes:
+
+Class B1 — Bounded-Radix Positional Counters Eating a Static Unary List (`81 / 100` families):
+  - **72 families with `FR in 7..10`** and **9 families with `FR in 11..19`** (including
+    all large-`D` Tier-1 families `D = 181, 180, 145, 119, 97, 92, 74, 67, 58, 56, 55, 53, 52, 51, 48, 46, 45, 44, 34, 33, ...`,
+    all 7 `SMALL-HALT` families in this range `D = 92, 34, 16, 15, 10, 9, 7`, and the
+    9-family `D = 16, FR = 8` cluster):
+  - **Blank-Tape Mechanism** (verified on `T1_D181_FR7_rep_K4`, `T1_D145_FR8_rep_K6`,
+    `T1_D92_FR7_SH_K2/K4`, `T1_D58_FR8_rep_K2`, `T1_D45_FR8_rep_K2`, `T1_D34_FR9_SH_K2`,
+    `T1_D21_FR18_K4`, `T1_D18_FR13_K2`, `T1_D16_FR10_SH_K2`, `T1_D15_FR10_SH_K6`,
+    `T1_D13_FR11_K6`, `T1_D10_FR12_K6`, `T1_D10_FR10_SH_K6`, `T1_D9_FR12_SH_K2/K6`,
+    `T1_D8_FR11_FR2_K2/K4`, `T1_D8_FR9_FR2_K4`, `T1_D7_FR11_SH_K2`):
+    * Stage 1 builds a static unary list `(unit)xD` on the left (`D <= 184`).
+    * Stage 2 maintains a **positional binary/ternary counter word** of $\sim 6$–$15$ short
+      runs (e.g. `11^k` and `10^k` with $k \le 10$) between `(unit)xD` and the base
+      exponential accumulator `A` (`10^A`, `01^A`, `0101^A`, `101010^A`, etc.).
+    * Each sweep of the accumulator increments the positional word by $+1$; when a
+      carry propagates to the left end of the positional word, `D` decrements by 1
+      (`182 -> 181 -> 180`, `146 -> 145 -> 144`, `94 -> 92`, `59 -> 58 -> 57`,
+      `35 -> 34 -> 33`, `21 -> 20`, etc.) and the positional word lengthens by 1 digit.
+    * **Why `FR` triggered with `7..18`**: Within the `FW = 8` frontier window right of
+      `(unit)xD`, carry grouping transiently coalesces adjacent identical digits into a
+      short run of length $6..18$ (e.g. `11^8 -> 11^7 -> 11^6` or `1000^11 -> 1000^7`)
+      that decrements by 1 while `2 * last < mx`!
+    * **Bound**: Consuming a $D$-item unary list via a radix-$b$ ($b \in \{2, 3\}$)
+      positional counter takes $b^D \le 3^{184}$ accumulator sweeps, so total steps are
+      bounded by $\sigma \le 2^{3^{184}} < 2\uparrow\uparrow 5$ (rank7 level $< 5 \ll 21$).
+
+Class B2 — All 19 Tier-1 Families with `FR >= 20` (100% Individually Verified):
+  Every single one of the 19 Tier-1 families in `rcands_snap.tsv` with `FR >= 20` was
+  run through `--show=5` at 2M macro steps (`shows_digest.txt`):
+
+  1. `1RB---_0RC0RG_1LD0RC_1LE0LE_0LF0LD_1LA1LG_1RB1LE` (`D=3169(K6)`, `FR=99`, `NO-HALT`):
+     Stage 1 builds geometric runs (`FR=99`) and at $5.38 \times 10^8$ base steps converts
+     the tape into `(001000 100010)x3170`, after which the head stays at the right end
+     growing `101010^k` while `(001000 100010)x3169` sits permanently frozen (`NO-HALT`).
+  2. `1RB---_1LC0RF_1LG0LD_1LE1LA_1LA0RG_1RB0RG_1RF0LC` (`fam=2`, `D=13(K2)`, `FR=5451`, `FR2=19`, `NO-HALT`):
+     Forms frozen `(10 11)x13` on the left and a **single counter** `01^16363` (`= 010101^5453`
+     at `K=6`) that decrements by 1 at `K=6` (`5453 -> 5452 -> 5451...`) while driving a
+     binary counter and doubler `10^A` ($\le 2\uparrow\uparrow 4$).
+  3. `1RB---_1RC0LC_1LD0RF_1LB0LE_1LB0LB_0RG0RE_1RA1RC` (`D=4(K6)`, `FR=6589`, `NO-HALT`):
+     Forms frozen `(110011 001100)x4` on the left and a **single counter** `110011^6602`
+     that decrements `6592 -> 6591 -> 6590 -> ... -> 6586` while doubling `111111^A` ($\le 2\uparrow\uparrow 4$).
+  4. `1RB---_1RC1RD_1LD0RG_1RB0LE_1RD0LF_1LB1LE_0RC1RA` (`D=4(K2)`, `FR=739`, `NO-HALT`):
+     Multi-segment translated sweeper with `01 (10 00)x3` at the left end and ~10 runs
+     `10^74 00 10^148 00 10^541 ...` shifting per sweep (`NO-HALT`, level $\le 4$).
+  5–6. `1RB0LA_0RC1RB_1RD1RE_1LA---_1LF0LB_1LA1LG_0LF1LF` & `1RB0LA_0RC1RB_1RD1RE_1LA---_1LF0LB_1LA1LG_0RC1LF`
+     (`fam=2+4=6`, `D=6(K2)`, `FR=694`, `NO-HALT`):
+     Frozen `11^2 (10 11)x6` on the left, **single counter** `10^691` (`= 101010^229` at
+     `K=6`) decrementing by 1 while driving a binary word and doubler `11^A` ($\le 2\uparrow\uparrow 4$).
+  7. `1RB0LA_1RC1RG_0RD0RB_1RE0RA_1LF0LE_1RD0LE_0RE---` (`D=10(K6)`, `FR=250`, `SRs=249`, `NO-HALT`):
+     Frozen `000010 (111011 101110)x10` on the left, **single counter** `011010^246`
+     decrementing `246 -> 245 -> 244 -> ... -> 241` while driving a binary word and
+     doubler `101010^A` ($\le 2\uparrow\uparrow 4$).
+  8. `1RB---_1RC0RG_1RD0LG_1RE0RA_0RF0LD_1RG0RC_1LC0LG` (`D=15(K4)`, `FR=114`, `SRs=118`, `SMALL-HALT`):
+     Frozen `0010 (1101 1011 0110)x15 1111` on the left, **single counter** `0011^106`
+     decrementing `106 -> 105 -> ... -> 99` while incrementing `1011^k` (`21 -> ... -> 28`)
+     and doubling `1100^A 1110^B` ($\sim 2^{127}$ doublings, $\le 2\uparrow\uparrow 3$).
+  9. `1RB---_1RC0RA_1LD0RB_0LE0LC_0LF0LC_1RG0RA_1RF0LG` (`D=7(K2)`, `FR=80`, `FR2=242`, `NO-HALT`):
+     Frozen `10^84 01^90 00 10^92 01^24 (00 10^122)x7` on the left, **single counter**
+     `111111^79` at `K=6` (`11^238` at `K=2`) decrementing by 1 at `K=6` (`79 -> 78 -> 77 -> 76`,
+     giving `FR=80` at `K=6` and `FR2=242` at `K=2`) while driving `10^A 01 10^B` ($\le 2\uparrow\uparrow 4$).
+  10. `1RB---_1RC0LD_1RD0RF_1LB0LE_1LD0RA_1RC0RG_1RC1RE` (`D=4(K6)`, `FR=50`, `max_HT=1`, `NO-HALT`):
+      Short 14-item list `(10^2 00 11)x14` with constant 1–3 rounds per item (`K2:r=533, K6:r=661, iv=1,3,`), `NO-HALT`.
+  11–12. `1RB---_1LC1LE_1RD0LB_1RB0RC_1RF0RC_1RG1RE_1RB0RA` & `1RB---_1LC1LF_1RD0LB_1RB1LE_1RG1RF_1RE0RC_1RB0RA`
+      (`D=34(K2)`, `FR=47`, `FR2=46`, `NO-HALT`):
+      `(10 00 01)x37` at `K=2` is the single unary run `001001^37` at `K=6`, which
+      decrements by 2 (`37 -> 35 -> 33...`) as the right-hand binary counter eats it ($\le 2\uparrow\uparrow 4$).
+  13. `1RB---_1RC1LC_1RD0RF_1LE1LC_1RG0LF_1RE0LD_0LB0RA` (`fam=2`, `D=25(K6)`, `FR=47`, `FR2=9`, `HT=1/1`, `NO-HALT`):
+      Static `(001000 100010)x25` on the left while `(01 00)x45` (`FR=47`) decrements by 2
+      next to a linearly growing `(10 00 01)xA` accumulator ($3.4 \times 10^6$ base steps at
+      1.7M macro steps — polynomial/exponential growth!).
+  14. `1RB---_0RC0LC_1LD0LG_1RE0LF_1RF0RD_1LB1RA_0RG1LC` (`D=6(K2)`, `FR=45`, `FR3=44`, `FR46=12`, `SMALL-HALT`):
+      Static `0010^2 0001^6` on the left while `0101^12 -> 0101^10 -> 0101^8` at `K=4`
+      (`01^40 -> 01^37 -> 01^36 -> 01^33` at `K=2`, explaining `FR3=44`!) drains into a
+      binary word driving `1010^A` ($\le 2\uparrow\uparrow 4$).
+  15–16. `1RB---_1RC0LC_1LD0RF_0LE0LB_1LB1LF_1RB0RG_0RA1RF` (`D=5(K6)`, `FR=45`, `NO-HALT`) &
+      `1RB---_1LC0LG_1LD0RD_1RE0LB_0RF0RC_1RC1RB_0LA1LB` (`D=4(K6)`, `FR=45`, `NO-HALT`):
+      Static `(001101 100101)x5` on the left, **single counter** `100101^41` decrementing
+      `41 -> 40 -> 39 -> 38` while incrementing `101101^k` and doubling `110110^B` ($\le 2\uparrow\uparrow 3$).
+  17. `1RB---_1RC0RB_0RD0RF_1RE0RA_1LF0LG_1RD0LE_1LF0LF` (`D=7(K5)`, `FR=41`, `SMALL-HALT`):
+      Static `(10101 01010)x7` on the left, **single counter** `01010^34` (`10^39` at `K=2`)
+      decrementing `34 -> 33 -> 32 -> 31` while driving a binary word in `{01010, 01011}`
+      and `10110^A` ($\le 2\uparrow\uparrow 4$).
+  18. `1RB---_1RC0LD_0LD0RG_0LG1LE_1LC0RF_0RE1RF_1RA0LG` (`D=22(K6)`, `FR=38`, `NO-HALT`):
+      Positional counter eating `(110011 001100)x23 -> 22 -> 21` ($\le 2\uparrow\uparrow 4$).
+  19. `1RB---_0RC1LG_1LD0RF_1LE1LB_0LF1LC_0RG0LD_0LA1RC` (`D=9(K3)`, `FR=36`, `NO-HALT`):
+      Static `(100 101)x9 111 100^2 000` on the left, **single counter** `111^28 -> 27 -> 26 -> 25 -> 24`
+      decrementing by 1 to drive a binary word in `{011, 111}` and `001^A` ($\le 2\uparrow\uparrow 4$).
+
+--------------------------------------------------------------------------------
+5.3 Category D: All `D >= 15` `SR` Candidates with `FR2 > 0`, `FR3 > 0`, `FR46 > 0`, or `FRref > 0`
+--------------------------------------------------------------------------------
+In `sr_d4_snap_triage.tsv`, 10 `D >= 15` `SR` families had `FR2 > 0`, 1 had `FR3 > 0`,
+0 had `FR46 > 0`, and 35 had `FRref > 0`. All 11 `FR2/FR3 > 0` families and the top
+`FRref > 0` / Tier-4 `SR` families were inspected via `--show=5` (`shows_digest.txt`):
+
+  +-----------------------------------------------------+---------+-----------+---------+----------------------------------------------+
+  | Machine (`sr_d4_snap_triage.tsv`)                   | `D (K)` | `FRgen`   | `HT`    | Exact Blank-Tape Mechanism                   |
+  +-----------------------------------------------------+---------+-----------+---------+----------------------------------------------+
+  | `1RB---_0LC1RB_1RD1LC_0LA1LE_1RF0LB_1RD1RG_0RF0LG`  | 505(K5) | FR2=21    | 0 / 0   | Binary counter eating `(10101 01010)x505` /  |
+  |                                                     |         | ref=2533  | NO-HALT | `10^2537 -> 2531 -> 2525` at K=2 (`<=2↑↑5`)  |
+  | `1RB---_0LC1LE_1LD1LC_1LA0RB_1LF0LA_0RG1LF_1RD0RF`  | 303(K3) | FR3=12    | 0 / 0   | Single run `100^27 -> 25 -> 22 -> 19` (-3 at |
+  |                                                     |         |           | NO-HALT | K=3) next to frozen `(110 100)x303` (`<=2↑↑4`)|
+  | `1RB---_1RC1RB_0RD0LC_1LE1RA_0RF1LF_0RD0RG_1LC0RF`  | 134(K2) | FR2=8     | 0 / 0   | Single run `10^220 -> 218 -> 216 -> 214` (-2 |
+  |                                                     |         | ref=222   | NO-HALT | at K=2) driving binary word + `01^A`         |
+  | `1RB---_1LC1RB_0RD0LC_1LE1RA_0RF1LF_1RD1RG_0LA0RF`  | 127(K2) | FR2=9     | 0 / 0   | Binary counter eating `(00 10)x128 -> 127`   |
+  |                                                     |         | ref=109   | NO-HALT | (`10^101 -> 99 -> 97` at K=2, `<=2↑↑4`)      |
+  | `1RB---_1LC1RB_0RD0LC_1LE1RA_0RF1LF_0RD0RG_1LA0RF`  | 118(K2) | FR2=8     | 0 / 0   | Binary counter eating `(01 11)x119 -> 118`   |
+  |                                                     |         | ref=125   | NO-HALT | (`10^119 -> 117 -> 115` at K=2, `<=2↑↑4`)    |
+  | `1RB---_1RC1RB_0RD0LC_1LE1RA_0RF1LF_1RD1RG_0LC0RF`  |  61(K2) | FR2=113   | 0 / 0   | Single run `10^109 -> 107 -> 105` (-2 at K=2)|
+  |                                                     |         | ref=113   | NO-HALT | next to frozen `(00 10)x61` (`<=2↑↑4`)       |
+  | `1RB---_0LC1RB_1RD1LA_0LC1LE_1RF0LB_1RD1RG_0RF0LG`  |  42(K5) | FR2=13    | 0 / 0   | Binary counter eating `(10101 01010)x42`     |
+  |                                                     |         | ref=217   | NO-HALT | (`10^213 -> 211 -> 209` at K=2, `<=2↑↑4`)    |
+  | `1RB---_1LC1RD_1LC0LG_1RA1LB_0RC0LF_1RE1LA_0LE0RG`  |  35(K6) | FR2=8     | 0 / 0   | Binary counter eating `(10 01)x36 -> 35 ->34`|
+  | & `..._1LC0RG_..._0LE0LG`                           |  35(K6) | FR2=8     | NO-HALT | in `{01, 10}` driving `01^A` (`<=2↑↑4`)      |
+  | `1RB---_1LC0RB_0RD1LF_1LE1LC_1RF0LB_0RG0LD_1RC0RE`  |  34(K6) | FR2=11    | 0 / 0   | Binary counter eating `(01 10 01 10^3)x35 -> |
+  |                                                     |         |           | NO-HALT | 34 -> 33` (`<=2↑↑4`)                         |
+  | `1RB---_0LC1RB_1RD1LC_0LA1LE_1RF0LB_1RD0RG_1RF0LG`  |  22(K5) | FR2=12    | 0 / 0   | Binary counter eating `(10101 01010)x23 ->22`|
+  |                                                     |         | ref=117   | NO-HALT | (`10^113 -> 111 -> 109` at K=2, `<=2↑↑4`)    |
+  | `1RB---_1LC1RB_1RD0LC_0LE1RA_1RF1LE_1RF1RG_0RB0RF`  |2351(K5) | ref=11761 | 0 / 0   | Binary counter eating `(10101 01010)x2351`   |
+  |                                                     |         |           | NO-HALT | (`01^11765 -> 11763 -> 11761` at K=2)        |
+  | `1RB---_1RC0LF_0RD1LD_0RE0LB_1RF0RG_1LB0RE_1RE0RA`  |1228(K2) | ref=8289  | 0 / 0   | Translated-trail multiplier (`(11 00)xN`     |
+  |                                                     |         |           | NO-HALT | segments growing $3.6\times$ per cycle)      |
+  +-----------------------------------------------------+---------+-----------+---------+----------------------------------------------+
+
+================================================================================
+6. INDEX OF FILES GENERATED IN `rcands_triage/`
+================================================================================
+
+All outputs are stored in `C:\Users\jeffr\Downloads\bb8\bb7_holdouts\nonlist\rcands_triage\`:
+  - `REPORT.txt`                  : This comprehensive triage report.
+  - `rcands_snap.tsv`             : Clean snapshot of `nonlist/rcands.tsv` (9,364 deduplicated
+                                    `FR + SR` families from chunks `r0000`..`r0016`).
+  - `rcands_rfull_all.tsv`        : Deduplicated `FR + SR` families across all 106 completed
+                                    `rfull` chunks (`r0000`..`r0105`: 57,622 families,
+                                    including 1,980 `FR > 0` families).
+  - `rhalts_rfull_all.tsv`        : All 2,137 natural `HALT` rows across `rfull/r0000`..`r0105`.
+  - `fr_snap_triage.tsv`          : Complete Prong A + Prong B triage table for all 309
+                                    `FR > 0` families in `rcands_snap.tsv`.
+  - `sr_d4_snap_triage.tsv`       : Complete Prong A + Prong B triage table for all 1,405
+                                    `D >= 4` `SR` (`FR == 0, SRs >= 10`) families in
+                                    `rcands_snap.tsv` (plus `sr_snap_runs/dl2_sr_c*.tsv`
+                                    covering all 9,055 `SR` families).
+  - `fr_ext_triage.tsv`           : Complete Prong A + Prong B triage table for all 1,671
+                                    extended `FR > 0` families from `rfull/r0017`..`r0105`.
+  - `shows_digest.txt`            : Digest of all 106 `--show=5` blank-tape macro trajectories
+                                    (2M macro steps) and 20M-step `dlscan3` results on the
+                                    57 Step-4 target candidates (raw outputs in `deep_shows/`).

@@ -1,0 +1,9 @@
+2026-10-22 20:03 start: folder created; reading claim (rank/x33) + model (bb7_c231_coq)
+2026-10-22 RULES (own, tools/sim.py + probe1.py): K(ds,a,b) = 1^dtop 0 .. 1^d0 0 1^a 0 1^b [A on 0], ds nearest-first, leading 0 digits = blank.
+   R1 (a+1,b)->(a,b+3); R2 K(y+1::t,0,b)->K(y::t,b+2,1); R3 k>=1: K(0^k++y+1::t,0,b)->K(2^(k-1)++(b-2k+2)::y::t,2,1) iff b>=2k
+   (odd b<2k halts; even b<2k collapses). E: K([],0,B): B odd HALT (B+3 ones), B even -> K(2^(B/2-1)++[1;2],2,1). Agrees with x33-check.
+2026-10-22 PARITY: U0 x=3x+7, U(j+1) x=iter (x-2j) U_j (W_j 7), W(j+1) B=U_j(U_j(W_j B)). W_j 7 odd => every U_j flips parity.
+   Run: K(2^31++[1;2],0,7) -> b1=U31(W31 7) even -> b2=U32 b1 odd -> b3=U32 b2 EVEN -> E rebuilds. CLAIM FALSE (rank used tail digits 1, not 2).
+   Literal: phi.py ones even at all 1767 K-events (3e6 steps from blank); probe2.py U1(2,3,4)=91,280,847 exact.
+2026-10-22 STOP (per brief): no Coq halting proof. Lead told (SendMessage main); OPEN_CANDIDATES X33 entry (already SETTLED by lead) got a confirmation line.
+2026-10-22 20:19 STOPPED per lead (X33 refuted, no non-halting proof needed). Update sits under the SETTLED X33 entry. REPORT.txt written. No coqc ever launched, no PIDs.

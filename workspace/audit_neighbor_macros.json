@@ -1,0 +1,317 @@
+{
+  "elapsed_seconds": 9.469000000040978,
+  "results": [
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1LH0LA_1RH1RZ_0RB1RF_0RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 188923466,
+          "ones": 20433,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546153666,
+          "ones": 35517,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364018901,
+          "ones": 14377,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_0RA0LA_1RH1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 220125433,
+          "ones": 23707,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546166794,
+          "ones": 35513,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364323560,
+          "ones": 12107,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_0RG0LA_1RH1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 188922851,
+          "ones": 20433,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546179874,
+          "ones": 35511,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364171771,
+          "ones": 14422,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1LH0LA_1RH1RZ_1LB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 220209836,
+          "ones": 23713,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546196947,
+          "ones": 35514,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364325381,
+          "ones": 12113,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1LH0LA_1RH1RZ_1RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 220209832,
+          "ones": 23713,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546196943,
+          "ones": 35514,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364325377,
+          "ones": 12113,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1LH0LA_1RH1RZ_0RB0RG_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 220125428,
+          "ones": 23705,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546136627,
+          "ones": 35511,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364323560,
+          "ones": 12107,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_0RD0LA_1RH1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 188918829,
+          "ones": 20431,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546187375,
+          "ones": 35510,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364215449,
+          "ones": 14434,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RA0LA_1RH1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 188935832,
+          "ones": 20433,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546187371,
+          "ones": 35510,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364215447,
+          "ones": 14434,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_0RF0LA_1RH1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 188922848,
+          "ones": 20433,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546149713,
+          "ones": 35511,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364171769,
+          "ones": 14422,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1LH0LA_1RH1RZ_0RB1RF_1RG0RH",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 220125417,
+          "ones": 23707,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546106449,
+          "ones": 35509,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364324462,
+          "ones": 12111,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_0RC0LA_1RH1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 192925164,
+          "ones": 20894,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546158125,
+          "ones": 35505,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364259133,
+          "ones": 18091,
+          "ops": 100000
+        }
+      ]
+    },
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1LH0LA_1LB1RZ_0RB1RF_1RG0LG",
+      "checks": [
+        {
+          "k": 2,
+          "status": "ops",
+          "steps": 192925162,
+          "ones": 20894,
+          "ops": 100000
+        },
+        {
+          "k": 3,
+          "status": "ops",
+          "steps": 546158121,
+          "ones": 35505,
+          "ops": 100000
+        },
+        {
+          "k": 4,
+          "status": "ops",
+          "steps": 364259131,
+          "ones": 18091,
+          "ops": 100000
+        }
+      ]
+    }
+  ]
+}

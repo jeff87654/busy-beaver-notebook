@@ -1,0 +1,145 @@
+tier4_ht/ REPORT: Hierarchy Metric (HT) and Generalized Frontier-Decrement Analysis of Tier-4 and Tier-5/2 SMALL-HALT Families
+==============================================================================================================================
+Date: 2026-10-24
+Scope: All 932 Tier-4 families (SMALL-HALT, D >= 4, FR = 0) + all 3,158 Tier-5 SMALL-HALT families (D < 4, FR = 0)
+       + all 66 Tier-2 SMALL-HALT families (D < 4, FR > 0) = 4,156 candidate families in bb7_holdouts/nonlist/final.tsv.
+
+1. EXECUTIVE VERDICT
+--------------------
+NO record candidate (> champ_231, 3↑^20 3, rank7 level 21) exists among the 932 Tier-4 or 3,224 Tier-5/2 SMALL-HALT families.
+Specifically:
+  (a) Standard HT (`nlp7v.exe 5000000 --small --nolist --K=<k>` over K in {2, DK, SRK, pilot_K}):
+      - Tier 4 (932 families): HT = 7 (1), HT = 5 (4), HT = 4 (1), HT = 2 (6), HT = 1 (405), HT = 0 (515).
+        819 / 932 families HALT even without the list cut (`--nolist`), confirming they are unary-list towers
+        (constant 1-5 forced rounds per consumed list item -> one exponentiation per item -> <= 2↑↑D, 2 arrows).
+      - Tier 5 & Tier 2 SMALL-HALT (3,224 families): HT >= 3 (0), HT = 2 (5), HT = 1 (608), HT = 0 (2,611).
+  (b) Glitch-safe HT_max (`nlp7_fr_gen.exe --htsafe`, preserving max HT before `iv.clear()` in `nlp7.cpp` line 289):
+      - Catches 4 additional Tier-4 rows where `std_HT` was 0 or 1 because `best` fluctuated by +-1 during carry propagation:
+        max_HT = 6 (1), max_HT = 5 (1), max_HT = 4 (1), max_HT = 3 (1).
+  (c) Exact mechanism of all 10 Tier-4 rows with HT >= 4 or max_HT >= 3:
+      - Every single one is a 2-stage POSITIONAL RADIX-b COUNTER (b in {2, 3, 4, 5}) eating a static Stage-1 unary list
+        of length N in [12, 34].
+      - Each consumed list item extends the positional counter by 1-2 digits of radix b, multiplying the number of
+        base-level accumulator doublings by a CONSTANT factor b in {2, 3, 4, 5} (e.g. intervals 3, 17, 65, 257, 1025,
+        4097, 16385 = 4^k + 1; or 19, 55, 163, 487, 1459 = 2*3^k + 1).
+      - Because digits refill to a CONSTANT (b - 1 <= 4) rather than the accumulator value A, consuming all N <= 34 list
+        items takes sum_{k=1}^N b^k ~ b^N <= 4^34 = 2^68 doublings of A, halting at sigma ~ 2^(2^68) < 2↑↑5 (rank7 level < 5,
+        strictly double-exponential f_2 / f_3).
+  (d) Generalized blank-tape frontier decrements (`nlp7_fr_gen.exe`, 1M macro steps across all K for all 932 Tier-4 rows,
+      including all 800 rows with D >= 15):
+      - FR3 (step -3): 0 / 932 rows.
+      - FR46 (step -4..-6): 0 / 932 rows.
+      - FR2 (step -2): 8 / 932 rows (all 8 have D >= 15; all 8 have HT <= 1 and halt in `--nolist`).
+      - FRpair (adjacent 2-run sum step -1..-4): 16 / 932 rows (8 are the FR2 rows + 8 others; all 16 have HT <= 1).
+      - FRref (any frontier run that decremented slowly by -1..-6 and later refilled v >= last + 4): 26 / 932 rows (all HT <= 1).
+      - Notable genuine -2 frontier-refill halter found: `1RB0RF_1RC1RA_1LD0LE_1LF1LE_1LA1LC_0RG0LA_---0RA` (D = 62, FR2 = 249).
+        On the blank tape, it builds a 2-item list, exhausts it at 1.70e5 steps to rebuild a 65-item list with a new `10^4`
+        far-end marker, then consumes 2 list items per cycle to refill a single `-2` frontier counter `10^d` from the
+        accumulator (`d := ACC`), halting when the 65-item list hits `10^4` at ~2↑↑35 steps (2 arrows, rank7 level ~3-4).
+
+2. FULL HT DISTRIBUTION (nlp7v.exe 5000000 --small --nolist)
+------------------------------------------------------------
+  Cohort                                      Rows   HT=0   HT=1   HT=2   HT=3   HT=4   HT=5   HT=6   HT=7   nolist HALT
+  ----------------------------------------------------------------------------------------------------------------------
+  Tier 4 (SMALL-HALT, D >= 4, FR = 0)          932    515    405      6      0      1      4      0      1     819 (87.9%)
+  Tier 4 glitch-safe max_HT (--htsafe)         932    390    512     20      1      2      5      1      1     819 (87.9%)
+  Tier 5 + Tier 2 SMALL-HALT (D < 4)         3,224  2,611    608      5      0      0      0      0      0   2,839 (88.1%)
+  ----------------------------------------------------------------------------------------------------------------------
+  Total SMALL-HALT families examined         4,156  3,126  1,013     11      0      1      4      0      1   3,658 (88.0%)
+
+3. ANALYSIS OF ALL 10 TIER-4 CANDIDATES WITH HT >= 4 OR max_HT >= 3
+-------------------------------------------------------------------
+All 10 candidates are fixed-radix positional counters (binary, ternary, base-4, or mixed radix ~4.8) that absorb items one by
+one from a static Stage-1 unary list of length N in [12, 34] while driving a base-level accumulator doubler (A -> 2A):
+
+  #  Machine                                              Fam   D(K)  std_HT max_HT  Forced Intervals (rounds per list item)        Radix / Mechanism & Halting Size
+  -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  1  1RB0LG_1RC0RA_1LD1RC_0LB1LE_1LF0LD_1LG1LE_1LA---       2  13(K2)    7      7    K2: 3,17,65,257,1025,4097,16385,1331,          b=4 (2 bits/item); (11 10)x15 list; halts ~2^(4^15) = 2^(2^30)
+  2  1RB0RG_1RC1RA_1RD---_1LE0RC_1LF0LD_1RB1LF_0RE1RA       3  31(K2)    5      5    K2: 1,2,17,65,257,1025,4097,4375,              b=4 (2 bits/item); (11 01)x33 list; halts ~2^(4^33) = 2^(2^66)
+  3  1RB1LA_0RC1RD_1LA0LG_1RE0RB_0RF1RD_1RG---_1LC0RF       1  31(K2)    5      5    K2: 2,17,65,257,1025,4097,4110,                b=4 (2 bits/item); (10 11)x34 list; halts ~2^(4^34) = 2^(2^68)
+  4  1RB1LA_0RC1RD_1LA0LG_0RE0RB_1LF1LA_1RG---_1LC0RF       1  31(K2)    5      5    K2: 2,17,65,257,1025,3362,                     b=4 (2 bits/item); (10 11)x34 list; halts ~2^(4^34) = 2^(2^68)
+  5  1RB1LA_0RC1RD_1LA0LG_0RE0RB_1LF0LB_1RG---_1LC0RF       1  31(K2)    4      4    K2: 2,17,65,257,1025,2004,                     b=4 (2 bits/item); (10 11)x34 list; halts ~2^(4^34) = 2^(2^68)
+  6  1RB0RD_1RC1RA_1RD0RB_1LE0RF_0LA0LD_1RD0RG_---0LD       1  15(K2)    5      5    K2: 1,1,7,37,173,837,4077,9699,                b~4.8; (11 01^2)x18 list; halts ~2^(5^18) ~ 2^(2^42)
+  7  1RB0LF_0RC1RA_1LC0LD_1LE0LA_1RA0LG_---0RA_1LD1LE       1  12(K2)    1      6    K2: 1,4,19,55,163,487,1459,1094,               b=3 (1 trit/item: 2*3^k+1); (00 01 10)x15 list; halts ~2^(3^15)
+  8  1RB0RC_1LC0RG_1LE0RD_---0LC_0LF1LC_1RF0RA_1RA1RB       1  12(K2)    1      5    K2: 2,13,37,109,325,973,1823,                  b=3 (1 trit/item: 4*3^k+1); (01 00 10)x16 list; halts ~2^(3^16)
+  9  1RB1RE_1RC1LG_1RD---_1LE0RB_1RG0LF_1LE0LD_1RA0RG       1  20(K2)    0      4    K2: 1,1,13,49,193,769,2,                       b=4 (3*4^k+1); (01 00 10)x20 list; halts ~2^(4^20) = 2^(2^40)
+  10 1RB0RD_1RC0LC_1LA0RA_1RA0LE_1LD0LF_0LB1LG_1LF---       1  18(K2)    1      3    K6: 1,3,2,2,2,2,1,1, (K2 binary counter)       b=2 (1 bit/item); (10 00)x20 list; halts ~2^(2^20)
+
+Detailed Blank-Tape Verification of the b=4 Family (#1-#5):
+  On the blank tape at K=2, machines #1-#5 build a static alternating list `(10 11)xN` (or `(11 10)xN`, N = 15 or 34) in Stage 1
+  (finishing before 10,000 base steps). In Stage 2, the tape has the exact form:
+      <far-end> (10 11)xV  [binary word in {10, 11}^(2(N-V))]  11^A 01^B <head>
+  Every sweep of the right-hand doubler `11^A 01^B` doubles `A + B` and increments the binary word in `{10, 11}` by +1.
+  When the binary word reaches all-ones (`11^(2(N-V))`), the carry propagates into `(10 11)xV`, consuming one `(10 11)` item
+  (`V -> V - 1`) and extending the binary word by 2 bits (`11^2 10^(2(N-V)+1)`). Thus the k-th consumed item requires
+  exact 4^k + 1 forced doubler rounds (3, 17, 65, 257, 1025, 4097, 16385). When all N items are absorbed and the 2N-bit binary
+  word overflows into the far-end marker, the machine hits its halt transition at ~2^(4^N) < 2↑↑5 steps (rank7 level < 5).
+
+4. ANALYSIS OF ALL 11 CANDIDATES WITH HT = 2 (6 TIER-4 + 5 TIER-5)
+------------------------------------------------------------------
+  - `1RB1LD_1RC0RD_1LD0LE_1RF0LC_0LB0RG_0RB0RA_0RE---` (Tier 4, D = 3326 at K=4, HT = 2 [K4:2,28,103,]):
+    On the blank tape at K=4, Stage 1 runs 9 doublings (`0101^9` transferred across `0100 1101`) to reach `1010^6587` at
+    1.15e8 steps, then sweeps left in state E to convert `1010^6587` into `(0101 0011)x3327` (1.21e8 steps), consumes one
+    item (`x3326`) to build `(0010 0000 0101^2)x340`, and thereafter each consumed item of `(0010 0000 0101^2)` resets the
+    bounded counter `0101^9` (9 doublings per item) and leaves a frozen barrier on the left while rebuilding a new translated
+    segment on the right. Not hierarchical (bounded 9-doubling inner loop; SMALL-HALT at K=2 was an early setup cut at r=30).
+  - `1RB0RA_1LC1LB_1LD0LC_1RE1LG_1RF1RE_1LB0LA_---0LF` (Tier 4, D = 2348, HT = 2 [K6:6,9,3,3,3,3,3,4, HALT]):
+    Unary list `(101110 111011)x782` at K=6; constant 3-4 rounds per item -> unary tower ~2↑↑782 (2 arrows).
+  - `1RB1RA_1RC0LG_1RD0RC_0LE1LA_---1LF_0RD0LE_1LB1LG` (Tier 4, D = 2176, HT = 2 [K2:52,56,2,76,4812,]):
+    Unary list `(00^2 10)x2176` at K=2; halts in 2 rounds at K=6 (`K6:HALT:r=2`).
+  - `1RB---_1RC0RA_1RD0RE_0RE0RB_1LF0RC_0LG0RG_1RA0LE` (Tier 4, D = 238, HT = 2 [K6:19,19,19,19,19,19,19,18, HALT]):
+    Unary list at K=6 with constant 19 rounds per item -> unary tower ~2↑↑238 (2 arrows).
+  - `1RB1RE_1LC1LB_1RE1LD_0LC1LG_1RA0LF_1RD1LE_---0LC` (Tier 4, D = 83, HT = 2 [K2:1,1,3,1,1,1,3,24777,]) &
+    `1RB1RG_1RC1LB_0LD0LG_1LG1LE_---0LF_1LA0RB_1RA1LC` (Tier 4, D = 31, HT = 2 [K2:1,3,3,3,1,1,3,22349,]):
+    Unary lists consumed in 1-3 rounds per item (at K=6, the D=31 machine halts in 58 rounds); after list exhaustion at K=2,
+    the machine enters a 2-run sweeper (`24777` / `22349` rounds at fixed list length).
+  - Tier-5 HT = 2 rows (5 machines: 3 with SRs=135 `K2:1,3,11723, HALT`, 1 with SRs=13 `K6:4,2,3,2,1,1,3,1060, HALT`,
+    1 with SRs=20 `K2:1,1,2,14,1082, HALT`):
+    All 5 halt in `--nolist` after consuming a short unary list (1-4 rounds per item) followed by a final counter drain.
+
+5. GENERALIZED FRONTIER DECREMENTS (-2, -3, -4..-6, PAIRED, REFILLED) ON TIER-4 BLANK-TAPE RUNS
+-----------------------------------------------------------------------------------------------
+Running `nlp7_fr_gen.exe` for 1,000,000 macro steps on all 932 Tier-4 families (800 with D >= 15) across all K in
+{2, DK, SRK, pilot_K} found:
+  - FR3 (step -3): 0 families.
+  - FR46 (step -4..-6): 0 families.
+  - FR2 (step -2): 8 families (all with D >= 15, all with HT <= 1, and all 8 HALT under `--small --nolist`):
+      1. `1RB0RE_1RC0LF_0RD1RG_1LD0RA_---1LF_1LA1LB_1RC0LG` (D=519, FR2=10 at K=2):
+         At K=4, frontier run `1111^40` decrements by -1 (which is -2 at K=2: `11^80 -> 11^78`), multiplying `0000^A 1010^B`
+         by ~2.3x per step. When `1111^40` hits 0 on the blank tape (>3e12 steps), it does not consume the `(1011 1010)x519`
+         trail; it decrements `1111^2 -> 1 -> 0` and halts after 2 exponentiations (~2^(2^100), 2 arrows).
+      2. `1RB0LD_0RC0RA_1RD1RF_1LE1RB_0LG0LF_1LA1RG_1RA---` (D=87, FR2=38 at K=2, HT=1 [K4:5,1,1,1,5,5,5,5, HALT]):
+         Unary list `(01 11 10)x87`; frontier `10^34` is a constant-reloaded inner counter (~5 forced rounds per item),
+         halting as a unary tower ~2↑↑87 (2 arrows).
+      3. `1RB1LD_1RC0RF_1LA1LF_0LC0LE_1LD0RA_1RE1LG_1LE---` (D=82, FR2=38 at K=2, HT=1 [K2:3,3,3,3,3,3,3,3, HALT]):
+         Same mechanism as #2; constant 3 rounds per list item -> unary tower ~2↑↑82 (2 arrows).
+      4. `1RB0RF_1RC1RA_1LD0LE_1LF1LE_1LA1LC_0RG0LA_---0RA` (D=62, FR2=249 at K=2, HT=1 [K2:1,2,1,5,1, HALT]):
+         Genuine -2 refilled frontier digit! On the blank tape, an initial 2-item list `(11 01 11^2 10)x2` against far-end
+         marker `01^3 11^2 10` exhausts at 1.70e5 steps and rebuilds a 65-item list `10^4 (11 01 11^2 10)x65` with far-end
+         marker `10^4`. Thereafter, each pair of list items (`64 -> 62 -> ... -> 2`) refills the single frontier counter
+         `10^d` from the accumulator (`d := ACC + 13`), and `10^d` decrements by -2 (`259 -> 257 -> ... -> 1`), doubling
+         the accumulator on each -2 step. Because there is only ONE refilled frontier run `10^d` (and list items are consumed,
+         not refilled in place), each pair of list items performs one base-2 exponentiation (`A -> 2^(A/2)`), and when the
+         65-item list reaches the `10^4` marker, it halts at ~2↑↑35 steps (2 arrows, rank7 level ~3-4).
+      5. `1RB0RE_1LC0RB_0LE1LD_0RA1LG_0LF1LB_1RD1LE_1LE---` (D=22, FR2=15 at K=2, HT=0, nolist HALT):
+         Small unary list with constant-size inner counter; halts in 449 forced rounds (level <= 4).
+      6. `1RB0RC_1LC1RG_1RF0LD_1LE1LD_0LC0LF_1LB0LA_---1RA` (D=15, FR2=12, FRref=22 at K=4, HT=0, nolist HALT):
+         Short list of 15 items; halts without counter cuts at K=4 (`r=0`).
+      7. `1RB1RD_1LC1RF_0LG0LD_1LE1RG_1RF0LB_0RA0RE_1RE---` &
+      8. `1RB1RD_1LC1RF_1LA0LD_1LE1RG_1RF0LB_0RA0RE_1RE---` (D=15, FR2=181 at K=2, HT=1 [K4:1,1,1,5,5,5,5, HALT]):
+         Constant 5 forced rounds per list item -> unary tower ~2↑↑15 (2 arrows).
+
+6. FILES IN tier4_ht/
+---------------------
+  REPORT.txt           This report.
+  run_ht.py            Resumable W=2 Idle driver for Phase 1 (Tier 4) and Phase 2 (Tier 5 & Tier 2 SMALL-HALT).
+  tier4_results.tsv    Full HT table for all 932 Tier-4 families (sorted by HT desc, D desc, max_rounds desc).
+  tier5_sh_results.tsv Full HT table for all 3,224 Tier-5 and Tier-2 SMALL-HALT families.
+  all_ht_results.tsv   Combined HT table for all 4,156 SMALL-HALT families across Tiers 2, 4, and 5.
+  tier4_htsafe.tsv     Glitch-safe `max_HT` vs `std_HT` comparison across all 932 Tier-4 families.
+  tier4_fr_gen.tsv     Blank-tape generalized frontier decrement table (FR1, FR2, FR3, FR46, FRref, FRpair) for all 932 Tier-4 families.
+  nlp7_fr_gen.cpp/.exe Source and binary for `--frgen` (generalized frontier decrements) and `--htsafe` (glitch-safe HT).
+  run_fr_gen.py        Driver for `nlp7_fr_gen.exe`.
+  t4_ht_K*.tsv         Raw `nlp7v.exe 5000000 --small --nolist` outputs for Tier 4 (K = 2, 3, 4, 5, 6).
+  t52_ht_K*.tsv        Raw `nlp7v.exe 5000000 --small --nolist` outputs for Tier 5/2 SMALL-HALT (K = 2, 3, 4, 5, 6).
+  pids_tier4.txt       PID log of all `nlp7v.exe` processes spawned by `run_ht.py`.

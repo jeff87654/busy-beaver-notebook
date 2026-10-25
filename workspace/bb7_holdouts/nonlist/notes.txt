@@ -1,0 +1,83 @@
+nonlist/ notes (agent: BB(7) holdout non-list residue scan), started 2026-10-23
+2026-10-23 09:00 pool: pf7 PASS (2,955,244) minus dlscan2-graded (1,828 = hits_triage7.tsv) = 2,953,416 machines
+                 (mkpool.py -> pool.txt, pool.tsv with pf7 stats). dl2_out holds only graded rows (no --all), so
+                 dlscan2 template counts are not available for the pool.
+2026-10-23 09:10 ack7.cpp (from pf7): per series/slot reset peaks; G = longest run of consecutive resets with peak
+                 ratio >= 1.4. Controls at 1M steps: champion G5, twin G4, champ_231/232 G3, N2 G4, N2relabel G4,
+                 B1 G2, dl3looper G3; h14 small-tape G1-2.
+2026-10-23 09:30 ack7 G>=2 keeps ~65% of the pool (doublers everywhere): rejected as 2nd filter.
+                 nlp7.cpp: macro (K-block RLE) simulator + pilot K choice + stable super-run SRs (list of equal digits,
+                 pattern of 2-4 runs repeated, unchanged >= 5 consecutive series snapshots). On the 63 ranked digit-list
+                 rows + controls, FAST (natural base steps) + SRs tracks the rank7 level: champion 5, level-16/20 rows
+                 6/8, champ_231/232 18, level-34/47 rows 14/22, level-424 rebuild rows 210. Slow rows (level <= 1.75)
+                 have P2 ~6.2. Forced counter-shrink chain (--shrink) did not separate levels: off by default.
+                 Stage P (pilot 6x30k + 300k macro at best K -> P2) ~9 ms/machine; P2 >= 8.0 keeps 18% of sample,
+                 misses 2/330 FAST (1 with SRs>=8: a late bloomer, pilot 5.2). Stage F: 1M macro + K=2 run 0.5M.
+2026-10-23 09:34 started: python run.py pilot 2 (Idle).
+2026-10-23 09:38 stage P rate ~105 machines/s on 2 Idle workers -> ~8 h for the pool.
+                 Example X1 = 1RB1RC_1LA0RA_1LD0RD_1LE1LG_1LF0LE_0LA0LD_0LB--- (from the 2k sample, SRs 30): K=4 list of
+                 ~30 digits D3=(0101)^3 1101 built from an accumulator; accumulator x4 per cycle, head digits only
+                 decrease (D2 D1 -> D1 D1 -> D1 ...): linear list consumption = exponential class per list, not f_omega.
+                 Lesson: SRs (list length) alone overestimates; need refill check (digit next to the list refilled
+                 with an accumulator-sized value, as champ_231's 11^16 digit at K=2).
+2026-10-23 09:41 restarted as 'python run.py run 2' (pilot then full per chunk; full = nlp7f.exe with FR)
+2026-10-23 ~10:10 FR (frontier refilled digit: run within 8 runs of the stable list that decrements by 1 after >= 3
+                 unchanged snapshots, >= 2 times, value >= 6, < half the max count). Calibration: FR > 0 exactly for the
+                 f_omega rows (champion 11, champ_231 22, level-16..424 rows 43-44); 0 for X1 and all level <= 7 rows.
+                 FAST (nat_lg) alone is NOT growth: sweeping counters with long uniform runs also reach 1e10 base steps.
+                 --small (nlp7s.exe): small-instance halting probe = cut the stable list to 2-3 items, then cut every
+                 counter (>= 3 falls, >= 24) to its residue mod 6 (min 2); run 2M macro at K=2. Controls: HALT for
+                 champion, twin, champ_231/232, B1, A1/A2; NO halt for N2 (+relabel), X1 and every NEVER-HALTS(invariant)
+                 row (levels 4..424). Miss: dl3 looper (halts at its 2nd exhaustion after a rebuild).
+2026-10-23 ~11:00 SRs is fooled by period-3/4 accumulators seen in K=2 blocks ((00 01 10)xN) and by translated trails.
+                 --life (nlp7v.exe): SRL = count of the longest-LIVED super-run (pattern+count unchanged), life = its
+                 lifetime / run. Controls (K=2, 1M macro): champion 5 (0.996), champ_231/232 18 (0.999), level-16/20/34/47
+                 rows 6/7/14/22 (~1.0), level-424 rebuild rows 210 (0.99), X1 27 (0.83); N2, B1, small rows 0; the
+                 SRs-2312 chunk-0 candidate 382 with life 0.007 (accumulator). Depth proxy D = SRL with life >= 0.5.
+                 --show=N prints compressed snapshots ((pattern)xN) at geometric times: the hand-exam viewer.
+                 Natural-run HALT rows: holdouts that halt at ~1e10 base steps (exact macro sim) -> halts.tsv.
+2026-10-23 ~11:50 Lead L1 = 1RB---_1RC1RD_0LD1LC_1RF0LE_0LG1LC_0RB0RG_0RA1LD (chunk p0002?, FR 3457, small probe HALT).
+                 K=6: setup accumulator -> at ~2.7e8 steps a LIST (110011 001100)x2312 (= (1100)^6936) is written, then two
+                 slow digits d1=010010^3462, d2=100100^3455 refilled from the 3466 accumulator, and an (010)^a/(100)^b
+                 transfer pair. d2 decrements at 4.9e8, 8.5e8, 1.8e9, 1.1e10, ~1e12 (super-geometric spacing). List items
+                 consumed one at a time in the forced probe (x5 -> x4). Reading: tower-type (unary list of ~7000), not yet
+                 known whether list items are refilled (f_omega) or consumed (tower). Needs rule-level analysis.
+                 Also: view K matters (K=2/4 views of L1 are slow, K=6 is aligned).
+2026-10-23 12:00 L1 resolved (constructed small configs from a --dumpat tape, msrun.py): level-1 rule (a,b)->(a-1,b+3)
+                 (F1 multiplicative, x3), d2 (with a mod-3 phase token and d1) counts F1 cycles, so d-exhaustion = one
+                 exponential; at d-exhaustion list items are CONSUMED (x3 -> x1) and d2,d1 refilled from the accumulator
+                 (3457, 193 from a (3,3) start). Each list item = one exponentiation -> about 3^^(list length ~7000), i.e.
+                 3 arrows. NOT record class (< 3^^^3 << 3^^^...^3 with 20 arrows). Probable halter (small probe HALT).
+                 HT metric (--small --nolist): rounds spent per list item while the forced run consumes the list;
+                 hierarchical lists show growing intervals: champ_231 K2 25,98,521,5332 (HT 4), champion K6 1,6,199 (HT 2),
+                 N2 HT 2-3, LEAVES-4.01 family HT 4 (but only a 3-4 digit list), L1 K6 2,36,124,67 (HT 2, then drops).
+                 LEAVES-TEMPLATE rows (rank/, 14): 8 at level 1.75 + 2 at 0.38 are slow small-tape machines (P2 ~6.2);
+                 the 4.01 family 1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1LB0LE (+2) is a list [2,1,k,a,b] with 01^d
+                 digits and a doubling pair: champion-like with ~4 digits = level ~4-5, consistent with rank7; 3.71 row
+                 1RB0RD_0RC1RG_... also small. None record class.
+2026-10-23 15:03 scan done (119/119 chunks); collect + post
+2026-10-23 15:30 post.py done: tiers {1:110, 2:66, 3:191, 4:932, 5:10215}. Top by HT (tier 1):
+                 H1 1RB1RE_1RC1RA_0LD1LE_1RE1LE_0RG0RF_---0LG_1LC1RA  D20 FR34 HT3 (1,1,27,730,2191) small NO-HALT
+                 H2 1RB1RF_0LC1LD_1RD1LD_0RE0RG_1LB1RF_1RA1RD_---0LE  D19 FR34 HT3 (1,1,15,506,2387) small NO-HALT
+                 H3 1RB1RF_1LC1RA_1RE1LD_1LC0LC_0RA1RE_0RD0RG_---0RD  D10 FR14 HT3
+                 H4 1RB0RE_1LC1RA_0LG1LD_0RB0RG_0RF---_1RC1LD_1LD0LB  D8  FR226 HT3
+                 natural-run halts: 397 holdouts halt at 1e9-1e11 steps (macro sim exact on BB(5): 47,176,870 / 4098).
+2026-10-23 21:17 hand groups A-E2 done (215 families): no record; H1 class (H1,H2,c01,c02) logged OPEN in OPEN_CANDIDATES.txt; REPORT.txt written
+2026-10-23 21:18 lead: L1 list-exhaustion + round map; tier-1 real-class follow (A); pf7 miss-rate + second pass (B)
+2026-10-23 L1 closed (l1/: ex*.txt constructed tapes, scan.py, rounds.py):
+  per item: d2 (inner, reloaded with a CONSTANT ~3459) x d1 (refilled ~36*ACC) count ACC x9 cycles -> one exponential;
+  last item consumed -> REBUILD: new list of ~8a+19 pairs from ACC a (a=3,9,27,60 -> 43,91,235,499), d2=3458, d1 big;
+  far-end marker 001010 010000 -> 100101 001000 -> 110010 100100, then STABLE (no round counter).
+  Branch scans: list exhaustion -> REBUILD for all (b,a) in 1..24^2 in two phases and 1..12^2 in the stable phase
+  (5M macro). Round map a_{r+1} ~ 9^^(c a_r) (c ~ 2..8): 3 arrows per round, rounds unbounded.
+2026-10-23 pf7 miss-rate check (pf7chk/, rej/): pf7@300k passes N2 2/2, fam0LD 3/3, pair-coded 4/4, famT14 core 18/18;
+  famT14 roots1043: 961/1119; per pocket gap class: GAP-GROWS 57/65, MULTI-GAP 152/166, UNARY-GAP 350/351, NOGAP 392/514,
+  OTHER 10/23 -> pf7 misses 23/582 gap-coded counters (all NOT-RECORD-CLASS per pocket_rescreen).
+  BUG FIXED: nlp7 parse treated state 'H' as halt (only matters for >= 8-state machines; the 7-state scan is unaffected).
+  Second signal search: macro (nlp7p pilot: P2, nsr slot resets) and plain (gap7.cpp: block/0-run/1-run slot resets,
+  3M steps). Best 0-miss signal: nres>=10 & maxpeak>=16 at 3M plain steps -> 53% of a 4k reject sample (nres>=10 alone
+  55%). P2>=8|nsr>=2 -> 22% of rejects, misses only slow/non-growing controls (rk63 <= 1.75, h14, 3 cal no-growth rows,
+  11 slow gap counters). No <= 20% signal with 0 misses found.
+2026-10-23 21:47 started run2.py run 1 (pf7-reject second pass; gate P2>=8|nsr>=2; 1 worker while tier-1 follow uses the other core)
+2026-10-24 02:00 tier1-real (agent): hand/tier1_real.tsv + .txt written. Real runs: no literal halt (214). H1 class + H4 family: first exhaustion CLASS-INDEPENDENT REBUILD (targeted N-scans + borrow templates, hand/real/h1,c01,h4). Others: probe over 80 natural-residue variants (hand/real/sm): 122 no-halt in all classes, 74 UNDECIDED (class-dependent, all level <= 6). Record picture unchanged.
+2026-10-24 01:39 tier-1 real follow done (hand/tier1_real.*). run2 restarted with 2 workers

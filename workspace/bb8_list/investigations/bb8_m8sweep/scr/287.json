@@ -1,0 +1,1 @@
+{"i": 287, "m": "1RB0RE_1RC1RA_0LD0RD_0LB1LE_0RG0RF_---0LG_1LD1RA", "tmpl": "L,G,P=1,u=10,s=0,d=1d+0,b=1b+0,S=-", "cls": [188], "M": 60, "runs": [{"X": "E0", "s": 0, "c": 8, "v": "g0", "snap": {"step": 11, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "287_E0_c8_g0.txt"}], "time": 0.5}

@@ -1,0 +1,21 @@
+2026-10-17 score/ notes (agent c04-score). Task: S1-S3 score arithmetic for C04 vs fw2. Build: python coqc_score.py Score.v
+- Score.v DONE (13 s, exit 0, all Print Assumptions Closed): S1_core, S1, S1_11, S1_iter, S1_mono, S1_lin, beats_fw2,
+  beats_fw2_ones; helpers f_le_U (f k x <= U k x), fomega_le_U, fomega_arrow, U0_arrow, sc_U_* monotonicity, Bx_big.
+  Route: f_k <= U_k (induction; U_{k+1} n = U_k^(2n+2) 0 absorbs U_k^n n); X := f_omega 465009 <= U_a a; R2 Bx = U_J(U_J 0)
+  with J = 12Bx+24 >= 465009 (Bx >= U_0 12 >= 2^16 - 2), so X + 2 <= R2 <= K and f_omega X <= U_X X < U_{X+2} 0 <= U_K 0.
+- Fw2Link.v DONE (11 s, --fw2 flag: BB8 = bb8_list/proofs, whose Individual92.vo/BB92.vo are byte-identical to lib's):
+  f_same, f_omega_same (reflexivity), ff_same, beats_fw2_link, S1_link stated with BB9_fw2_bound.f_omega. Closed.
+  PITFALL hit: `rewrite <- !f_omega_same` on the closed goal hung (826 MB, killed my PID 6580): conversion between
+  Score.f_omega (465009-term) and BB9_fw2_bound.f_omega (...) under different heads makes the kernel whnf the fixpoint.
+  Fix: identify at a variable argument (ff_same a), instantiate with eq_ind_r.
+- Fw2Upper.v DONE (14 s, --fw2, Closed): upper bound on fw2's EXACT score, so C04 beats fw2 itself, not just its
+  published lower bound.  V_le (fw2 U_i <= Abs U_(i+1), X_i <= U_(i+1) 1), Tpre_le/Tv_le (all trip clears = iterates of
+  one U_L), iter_U_absorb (iter n (U L) B <= U (L+1) (n+B)), second_le (second b <= U(3b+5)(3b+39)),
+  fw2_b3_bound : forall K, R2 Bx <= K -> b3 + 5 <= U K 0, and fw2_side (fw2_vs_records-style half: exists cf Nf, fw2 halts
+  in cf with Nf ones, Nf + 1 < N, for N >= 6x, x >= U K 0, K >= 11 R2 Bx).  Bx >= 16 U_2(10) + 30 >> b1 = U_2-level.
+- build.sh builds all three (~40 s).  If dev/Abs.vo or dev/Chain.vo is recompiled, rebuild score/.
+- 2026-10-17 ~23:10: lead heads-up (python processes killed ~22:45). Checked pids.txt: all my compiles after that finished;
+  Score.vo, Fw2Link.vo, Fw2Upper.vo dated 23:05-23:06 from the full build.sh run; no coqc of mine running.
+- ScoreK.v DONE (12 s, --fw2, Closed): bridge to c04-coq2's endgame form (P >= Pm + L, K = P - c_key, R_last >= iter 2 (U K) 0,
+  ones >= 6 R_last + 2): K_ge_R2 (c <= 1000 -> 11 R2 Bx <= K, via L1_val, R2_ge, Bx_big) and beats_fw2_end (both FGH bounds
+  + fw2_side). Note: c <= 100 Bx is NOT provable from R2_ge alone (R2_ge is only linear); c <= 1000 is.  Added to build.sh.

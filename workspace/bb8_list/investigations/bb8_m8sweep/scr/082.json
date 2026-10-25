@@ -1,0 +1,1 @@
+{"i": 82, "m": "1RB---_1RC1RG_1RD1RB_0LE0LF_1RA0LF_1LB1LD_0RE0RA", "tmpl": "L,F,P=1,u=01,s=0,d=1d+0,b=1b+0,S=0", "cls": [123], "M": 60, "runs": [{"X": "G0", "s": 0, "c": 3, "v": "g0", "snap": {"step": 25, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "082_G0_c3_g0.txt"}], "time": 5.3}

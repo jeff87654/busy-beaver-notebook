@@ -1,0 +1,47 @@
+coq_m8: Coq proof that the 8-state M8 halts with C04's score (agent coq_m8, 2026-10-18, Opus)
+==========================================================================================
+
+HANDOFF (keep current)
+- DONE 2026-10-18 13:00.  All files compile; probe.v: Print Assumptions = "Closed under the global context" for
+  m8_all_ok (conjunction of all main theorems), m8_beats_fw2, m8_string_ok.
+  M8  = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---   (Tm8.tm8 : Individual82.TM, 8-state Ctx BB82)
+  C04 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_0RG1LD_0LH1LH_1RI---_0RI0RF  (Dev.Base.tm, read-only, not recompiled)
+- Files (logical path M8; build in this order with  python coqc_m8.py FILE.v  -- Idle priority, 4 GB cap, PID -> pids.txt):
+    Tm8.v     ~10 s   tm8 over BB82; ones/count1/sym_val (verbatim BB8_champ35_bound copy); 8-state generic facts
+                      (halted_unique8, side_count8, multistep <-> evstep).
+    Sim.v     ~17 s   stmap (A..F->A..F, G->I, H->H), symmap; Rel = related via finite tape lists (no stream bisimulation);
+                      sim_step (each M8 step = 1 C04 step, F0 = 3 C04 steps); halted_rel; sim_run (strong induction on
+                      C04's step count, determinism); m8_reach; m8_halts_sim; m8_to_c04 / c04_to_m8 (ones transfer).
+    Final8.v  ~10 s   native 8-state statements (Individual82 halts / c0 / -[ ]->* / halted, ones = Tm8.ones):
+                      m8_halts, m8_fgh_bracket, m8_fgh_coarse, m8_score_exact, m8_score_reached, m8_sigma_bracket,
+                      m8_beats_bb8, m8_beats_champ35, m8_beats_fw2; arithmetic bb8_lt, arrow_same.
+    probe.v   ~580 s  (almost all Print Assumptions) table = string by 16 eq_refl AND against a parser of the literal
+                      string (m8_string_ok); c0 blank; Tm8.ones = BB8_champ35_bound.ones by eq_refl; prints defs;
+                      Checks types; Print Assumptions.  Log: probe.log.
+- Load path (coqc_m8.py): -Q third_party/busycoq/verify BusyCoq, -Q bb8_list/proofs BB8, -Q bb9_c04_coq/{dev,k31,score,fgh}
+  {Dev,K31,Score,Fgh}, -Q coq_m8 M8.  Uses compiled .vo of bb8_list/proofs BB8_champ35_{1RB0RA,bound,exact}, BB9_fw2_*.
+- Statements (Final8.v):
+    m8_halts         : halts tm8 c0
+    m8_fgh_bracket   : forall c N, c0 -[tm8]->* c -> halted tm8 c -> ones c N ->
+                         f_omega (f_omega (12*Bx+26)) < N < f_omega (f_omega (12*Bx+27))      (2*Bx+4 = arrow 13 2 3)
+    m8_fgh_coarse    : ... -> f_w1 3 < N < f_w1 4
+    m8_score_exact   : ... -> N = Exact.sigma_c04
+    m8_score_reached : exists c, c0 -[tm8]->* c /\ halted tm8 c /\ ones c sigma_c04
+    m8_sigma_bracket : f_omega (f_omega (12*Bx+26)) < sigma_c04 < f_omega (f_omega (12*Bx+27))
+    m8_beats_bb8     : ... -> 12 * BB8_champ35_bound.arrow 37 2 3 + 59 < N
+    m8_beats_champ35 : exists c N (M8 halting, ones c N) /\ exists cf Nf, c0 -[champ35.tm]->* cf /\ halted /\
+                         BB8_champ35_bound.ones cf Nf /\ Nf + 1 < N
+    m8_beats_fw2     : as ScoreEnd.c04_beats_fw2 (N > fw2.f_omega(fw2.f_omega 465009), beats fw2 machine count + 1)
+- Score: M8 halts in H reading 1 (H1 undefined), so sigma = ones (as for C04).  ones = Tm8.ones is convertible to the
+  champion's BB8_champ35_bound.ones (probe eq_refl).
+
+LOG
+2026-10-18
+- 12:20 setup; design: tm8 over the genuine 8-state BB82 (not BB92-with-unused-I).  Sym types differ (BB82.sym vs
+  BB92.sym), so Rel relates configurations through finite tape lists (c8 = L *> const 0 ..., c9 = map symmap L *> ...);
+  this avoids stream bisimulation (Leibniz equality of mapped streams is not provable).
+- Individual82 names are reached in 92-files via Module T8 := Individual82.Individual82.Permute.Flip.Compute.TM.
+- Pitfalls: in sym_scope, "exists 0" / "exists 2" are parsed as Sym -> use 0%nat; cbn needs Streams.const in its list
+  to reduce hd/tl (const 0); Print Assumptions on anything depending on c04_halts takes minutes (kept only in probe.v).
+- 12:31 killed own coqc PID 7712 (Sim.v stuck in Print Assumptions while I bisected).  No other kills.
+- 12:57 probe.v PASS (581 s), all Closed.

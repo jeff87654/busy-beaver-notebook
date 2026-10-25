@@ -1,0 +1,57 @@
+2026-10-23 start counters (outer-counter analysis of 15 rows: fam C 10, B 4, A 1)
+2026-10-23 03:33 family C: abstract rules absC.py validated 400/400 random configs (rep + row10 NEWTOP=5); halts only in SMALL (b<=K) / SMALLTOP cases. row2 typo fixed (0RD1LB). 9 rows identical run-list trace (md5), row10 same rules, rebuild top=5
+2026-10-23 RESULT SUMMARY (counters/)
+ tools: rl.exe (run lists of 1s sep by single 0, S=0), rlg.exe (general u/s/S, modes 0..4 incl raw bits), rlp.py/thr.py/pb.py/pb2.py (probe wrappers; pb2 = u=10 runs with alt separator '1' shown as '|'),
+        absC.py / absB.py / absA.py (abstract one-event maps, validated vs literal), absC_v.py (all-row validation), absC_small.py (halt set), invC.py (slack b-K), hA.py/hB.py (random-language halt search), trace_check.py (blank-run traces vs abstract maps)
+ FAMILY C (10 rows; row2 = 1RB0RG_0LC1LC_0RD1LB_..., user list had a typo 0RD1RB): raw run list R (runs of 1s, single-0 separators), y = acc raw (2b+1), at a=0 moments.
+   odd run 2v+1 = digit v with flag; top = raw 1. rules: R2 last even d>=2: d-=2, y=2y+5. borrow over trailing block B (raw 0/1): K = #elements of B not directly after a flag;
+   source-=2, B refilled: first 2(b+1-K)+f, others 2+f, element after a flag 0+f; y=7. top exhaustion (source = top raw 1): R=[top,2^(b-2-K),3]+refill(B, first after flag), y=7 (row10: new top raw 5).
+   halts ONLY when b<=K (borrow) / b-2-K<1 (top) (exact: absC_small, 0 halts outside). validated 400/400 random + 120/row all 10 rows + blank traces 23/36 events.
+   VERDICT NEVER-HALTS: b at borrow >> K (doubling chain), every top exhaustion rebuilds a longer list (len ~ b). f_(omega+1)-type non-halter.
+ FAMILY B (4 rows; rows 1&3 and 2&4 identical traces, all 4 same abstract map): u=10 runs, y=2b+1; state (c|) [1 top, digits] a y; alt sep '1' after counter c.
+   R2: y=2y+7; borrow refill y+3-2K, 2^(K-1), y=5; TOP-ACC [c|][1,0^K] -> c'=c+y+2-2K (no counter: c=-1), list [1,2^(K-1)], y=5; ABSORB [c|1] y=5 -> even c: [1,2^(c/2+5)], odd c: 1|[1,2^((c-1)/2+5)].
+   no halts in the family at all (random probes); only garbage when v<=2 / c'<1 (b<K), and halts only in non-family patterns ('|' next to active end). NEVER-HALTS.
+ FAMILY A (1 row): u=10, y=2b even; digits even raw, single odd run = rebuild top 1; R2 y=2y+6; borrow refill y+2-2K; raw-1 source (TOP-ACC): becomes counter c'=y-1-2K + alt sep, zeros->2^K, y=6;
+   counter sublist exhausted -> collapses (alt sep + empty run = one u block) into an ordinary even digit c'+1 (or into the a-run when K=1); blank left -> rebuild [1,2^(y/2-1)].
+   validated 249/249 + blank trace 38/38; no halts in family; garbage only for y<=2-type small values. NEVER-HALTS.
+2026-10-23 05:08 FOLLOW-UP: pool_d_unsettled_groups.txt (28 rows). plan: blank-trace check vs absC/absB/absA, then random literal validation of the matching map; other groups analysed separately
+2026-10-23 FOLLOW-UP progress: classify.py (blank-trace vs maps) -> classify_d.log, traces in trd/.
+  B-map (absB) siblings, 119/119 random each + blank trace 48/48: 1RB1RE_1RC1RA_0LD0LE_1LF0LE_0RG1LC_0RB---_1LC0RF, 1RB1RG_0LC0LD_1LF0LD_0RE1LB_1LB0RF_0RA---_1RA1RD, 1RB1RE_1RC1RA_0LD0LE_1RA0LE_0RF1LC_1LC0RG_0RB---, 1RB1RF_0LC0LD_1RF0LD_0RE1LB_1LB0RG_1RA1RD_0RA--- -> NEVER-HALTS
+  A-map (absA, S=1 variant ASS=1) siblings, 125/125 + trace 36/36: 1RB1RE_1RC1RA_0LD0LE_1RF0LE_0RG1LC_0RB---_1LC0RF, 1RB1RG_0LC0LD_1RF0LD_0RE1LB_1LB0RF_0RA---_1RA1RD -> NEVER-HALTS
+  C-map (absC, rebuild offset TOPOFF 0/1) 100/100 + traces: 11 rows 1RB1RA_0LC0LD_0LD1LD_0RE1LC_1RA1RF_* (0RD0RG_---0RA needs NEWTOP=3 TOPOFF=1, pending) -> NEVER-HALTS
+  C-map variants validated (absCg_v.py random 100/100 + trace_cg.py blank traces): R,A group (u=1, even acc y=yC+1, TOPOFF=1) 1RB1RF_0LC0LE_---1LD_..., 1RB1RG_0LC0LF_---1RD_..., 1RB1RE_0LC0LD_1LD1LC_...; HKTT rows (u=10,S=1, y=yC-1) 1RB1RC_1LA0RD_..., 1RB1RF_1RC0RC_...; MULTI? 1RB1RF_1RC1RA_..._1LG1RE (u=10,S=1, constant prefix '1', top raw 3 rebuilt as 3); 1RB1RA_..._0RD0RG_---0RA (NEWTOP=3,TOPOFF=1). all NEVER-HALTS (C argument).
+  NOBOUNDARY 3 rows (1RB1RC_1LC0RF_0RA0LD_1LE0LF_1LA0LE_1RC0RG_0LC--- L,E S=00; ..._1RC0LG_0RC--- and ..._1RC0RG_1RB--- L,A S=001): tape 101 (10)^(4d+1)1 ... (10)^(4a+1)1 (10)^(2b) S.
+    absNB.py (values, a=0 moments, b=y/2): last d>=1: d-1, y -> 2^(b+3)-4 ; borrow: source-1, first zero := b, other zeros stay 0, y=4 ; exhaustion (all zero): insert top digit b-1, first old zero := 1, y=4.
+    validated 120/80/80 random (nb.py literal) + blank traces (trace_nb.py, 4/4 events each). No k-dependent refill, b>=2 always -> no small-value branch: NEVER-HALTS (list +1 per exhaustion, f_omega-type growth, never halts).
+  CHECK row 1RB1RA_0LC0LD_1RE1LD_1LB1LC_1RF1RG_0RA0RA_---0RF (L,C; u=11 s=0 S=1011, constant prefix '1'): absCK.py: last d>=1: d-1, y->2y+3; borrow over K zero digits: source-1, refill y+1-K, tail 1s, y=3;
+    all digits zero (rebuild, no top marker): K=1 -> [1^(y-1),0] y=11; K=2 -> [1^y] y=5; K>=3 -> [1^(y+2-K),2,1^(K-3)] y=3. validated 150/150 random + blank trace 26/26. halts only for y<=2 / y+1-K<1 (garbage): NEVER-HALTS (C argument).
+  N2-like 1RB1RE_1LC0RA_1RF0RD_1LC0LE_1LD0LC_1RG0RE_0RB---: = N2 (1RB0RC_1RC0RA_1LD0LB_1LE0LA_0LF---_1RC0LG_1LF1LA) mirrored with a 4-step prefix:
+    tape at t+4 == mirror of N2 tape at t (checked t=1e3,1e5,1e6, head positions agree), ones-count sequences identical for 3e6 steps (iso.py).
+    N2 analysis in reb7/grows/notes.txt (segment coding, rebuild ~y/2 segments, n2scan 0 halts); my n2rand.py: 300 random segment configs (<=6 segs, odd p,q<=9, y<=25, 4 left contexts, 2e6 macro steps) 0 halts.
+    verdict: NEVER-HALTS (strong evidence, no formal argument for the segment hierarchy) -> lowest-priority OPEN.
+2026-10-23 FOLLOW-UP DONE: 28 rows: 27 NEVER-HALTS (validated maps), 1 NEVER-HALTS-by-evidence (N2 equivalent). no record-relevant row.
+2026-10-23 07:37 NEW TASK pool_f_nofit (61 rows): group by behaviour (ones-count sequences with shift), relabel-match, structure per group. work dir counters/pf
+2026-10-23 07:52 pf: tinfer.py (rk7 trace over dlscan2 candidate (O,Q,P,u,s) x 17 S) -> t_all.tsv (60/61 got templates). drive.py: reb7.py on top-3 templates
+  pf stage1: res_a*.jsonl/summary1.tsv: 15 NEVER-HALTS(residue)+Q2 (1RB---_0RC0RA_* family 11 rows R,C/R,D u=01; 26896 pair L,B/L,D u=01; 24175/24177/33787 u=1 C-type), 6 UNSETTLED (u=011 L,E/L,F; T at exhaustion -> mrounds), 40 NOFIT.
+  NOFIT causes: (a) 33185/33187 u=01 rows need S=0,b=2b+1 (manual: 1RB0RF_1LC1RA_..._0LD--- L,D,P=1,u=01,s=0,d=1d+0,b=2b+1,S=0 -> NEVER-HALTS(residue)+Q2); (b) u=10/s=1 rows (spans 4654/15730/24997/26414/26913/...): D fits with P=11,u=01,s=1,S=- but B2 leaves the template ('X'): a borrow over >=2 zeros writes a unary 1-block (e.g. '. 1 . 1x27') that is later converted into a new digit list -> new family, see below.
+  stage2 running: reb7 on pool_b (12 u=01 rows + 32828 u=110 row), then mrounds on all T rows.
+2026-10-23 pf RESULT (pf/final_list.tsv): 27 NEVER-HALTS(residue)+Q2 via reb7 pipeline with inferred templates (24 u=01 rows: 1RB---_0RC0RA_* 12, 33185/33187 family 12 (needs L/R,D|C,P=1,u=01,s=0,d=1d+0,b=2b+1,S=0), 26896 pair in same count; 3 u=1 rows 24175/24177/33787);
+  6 u=011 rows (30953/33401/33404 spans) NEVER-HALTS: CHECK-type rebuilder (rules D b+1, R2 a=2b+2, borrow refill 2b+2-k tail 1s; prefix '1' acts as top digit; blank-left exhaustion rebuilds prefix 1 + [2,0,1^(y-3)]), absCK2 inner map 67/67 + rebuild probes; halts only at b<=K.
+  28 OPEN: 27 u=10/s=1 rows (spans 4654,15730,24997,26414,26899,26913,26951,27087,32687,49509): D/R2 fit with P=11,u=01,s=1,S=- but B2 leaves template creating a unary 1-block that is later re-coded as digits (outer counter); not modelled in time. 1 u=110 row 1RB0LF_0RC0LG_1LD1RE_0RC---_1LA0RB_1RG0RD_1LE0RF (L,A,P=11,u=110,s=0,S=11 parses, rules NOFIT). None halted to 3e8 (pool data), rep 1RB1RF_1RC1RA_1RD0RD_... none to 2e10.
+  tools: pf/tinfer.py (template inference via rk7 trace), pf/drive.py, pf/sweep.py, pf/ev.exe/evp.py/evtail.py (edge views), absCK2.py.
+2026-10-23 08:27 NEW TASK: 28 OPEN pf rows (u=10/s=1 unary-block family + u=110 row). rep 1RB1RF_1RC1RA_1RD0RD_0LE0RG_1LA0LF_1LD0RF_---1RE (L,A, u=01 s=1)
+  rep (15730) blank run, template L,A,P=11,u=01,s=1,S=-, y raw even: D a-1,y+2; R2 last nonzero digit -1, a:=y, y:=4 (=> y->2y+4 per unit);
+    a zero digit at the END is inert (B1 = source-1, zero stays, a:=y). Trace: [1,5,2] -> [1,5,0] y=116 -> middle 5..1 -> [1,0,0] y=3836 (2.95e7) -> list vanishes: a=3842,y=4 -> D -> empty list a=0 y~7688
+    -> exhaustion writes unary 1^15375 (=2y-1) at 1.18e8 and starts a slow right-side process building (1^11 0^4)^n blocks (one per ~8.4e6 steps, halving a 1^4091 chunk): still running at 4.7e9.
+    small-y exhaustion table E([] a=1, y): y<=14 -> [1,5,*], 18..28 -> [1,4,*], 30..56 -> [1,3,*], 64..96 -> [1,2,*], 128 -> [1,1,*]: middle digit ~ 7-log2(y) => the re-coding is a log-type counter, NOT a refill to ~y.
+2026-10-23 09:07 rep 1RB1RF_1RC1RA_1RD0RD_0LE0RG_1LA0LF_1LD0RF_---1RE: after 2nd exhaustion the unary block re-coding becomes a TRANSLATED CYCLER (tcyc.exe: window 4200, period 8425390 steps, shift +16, from step 202570204; head stays in window) -> NEVER-HALTS proven. Running tcyc on all 28 OPEN rows.
+2026-10-23 09:25 tcyc batch (tc_all.log): 12/28 OPEN rows PROVEN translated cyclers (spans 4654 x8, 15730 x4; period ~8425390, shift 16, W=4400, S0=1e8) -> NEVER-HALTS. 16 rows no cycle by 3e9.
+  cycler family exhaustion map (rep, constructed [] a=1 y, tcyc): y=1024..10000 (1024,2000,2048,3000,4096,5000,7686,7688,7690,8192,10000) -> TRANSLATED CYCLER, same period 8425390, shift 16 (y-independent);
+    y=130..1000 -> no cycle within 6e9 (small-y regime: re-coded into a short list [1,k,..], k~7-log2 y, then grows again).
+    So in the 12 proven rows every exhaustion with y>=1024 ends in the same translated cycler: no halt, no escalation beyond the 2nd exhaustion.
+  16 NONE rows: same engine shape (doubling digit counter c=15..19 + x,y), exhaustion not reached (needs ~1e15+ steps). Testing by tape surgery (pf/surg2.py: reduce counter, shrink y to ~1200, run tcyc2 hash detector).
+2026-10-23 OPEN-28 RESULT:
+  12 PROVEN NEVER-HALTS (literal translated cycler from blank tape, tcyc/tc_all.log): spans 4654 x8, 15730 x4.
+  7 NEVER-HALTS strong evidence (pf/surg_auto.log: real tape at 1e8, counter deleted, x=1, y=1200 -> translated cycler, tcyc2): 26414/26415 x5 (period 8425386-94, shift 16, same cycler as the proven 12), 26913 x2 (different cycler: period 135504, shift 16).
+  9 OPEN (same doubling-counter engine, exhaustion beyond literal reach, surgery inconclusive/not done): 24997 x3 (surgery END at 3e10), 27087, 26899, 26951 (surgery END 4e10), 32687 (surgery END), 49509, 32828 (u=110).
+  No halt seen anywhere; nothing record-relevant or class-dependent found. Tools: pf/tcyc.exe, pf/tcyc2.exe (two-sided hash detector), pf/surg*.py, pf/evlog2.py, pf/ev.exe (init support).

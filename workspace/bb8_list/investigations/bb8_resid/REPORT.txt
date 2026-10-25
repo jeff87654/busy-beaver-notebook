@@ -1,0 +1,84 @@
+bb8_resid -- 8-state residue-halt search and follow-ups (agent bb8-resid, 2026-10-18)
+====================================================================================
+(interim; see notes.txt for the running log and HANDOFF)
+
+1. MAIN RESULT: C04 collapses to an 8-state machine (new BB(8) record)
+   C04 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_0RG1LD_0LH1LH_1RI---_0RI0RF   (9 states, Coq-proved, sigma > f_w(f_w(12B+24)))
+   M8  = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---          (BB(7) champion + E0=1LH, H = 1RG ---)
+   C04's G = 0LH 1LH only steps back to the cell F0 = 0RG just wrote, H0 = 1RI rewrites it as 1 and I = 0RI 0RF is the
+   champion's G: F0 G H0 (3 steps) = the champion's F0 = 1RG (1 step).  C04's H1 halt is reached only via E0 (a sync point),
+   so sigma(M8) = sigma(C04).  Literal lockstep (tools/lockstep.exe): 3e9 C04 steps = 2.0e9 M8 steps, state/head at every
+   sync point and full tape every 2^20 syncs: OK.  M8 was row 189 of halt_redirect/c7/set8.txt, graded TIME at b0=6.
+   Coq: done by agent m8-coq (coq_m8/, simulation lemma on the C04 development).
+   C04-trace twins of M8 (identical jump traces): 0LH/0RC---, 0LH/1RD--- (ones = M8 - 1 in all 15 test contexts),
+   1LH/0RB---, 1LH/0RE--- (ones = M8 exactly).  None larger.  (0RH/1RH twins with H0 halt never halt, see 3.)
+
+2. COLLAPSE CHECK (lead priority 1)
+   tools/collapse2.py (sound, syntactic: bisimulation merge + gadget elimination for single states and pairs, symbolic
+   execution of every entry) and tools/dyncollapse.exe (observational: tracks every entry into every state set |G|<=3 over a
+   1e9-step literal run).  Both find C04 -> M8.
+   Records (rec_list.txt = 15 proof machines with 9-14 states + C04; outputs dyn/r*.txt): NO collapse.
+     n1 (BB10): rare states I (= 0LJ 0LI, an unbounded left sweeper) and J (---0LC, a halting peek) are irreducible; no state
+     has X1 = 0LX to merge with; F/G/H have no pass-through set in the dynamic run.  T12a: K, L are halting peeks.  M13, M14,
+     fw2: only the halt slot unused in 1e9 steps, no gadget.  The two BB9 records 1LI0LC.._0R{G,H}0RE_0LH--- show a
+     dynamic "I pass-through" only because the I1 halt branch is unobserved (not a collapse).
+   Curated 9-state lists (cur9plus.txt, 88k): 840 syntactic collapses (collapse_cur.txt), all copies of 8/7-state
+   champion-engine machines (set8 rows, rebuilders, the record gadget + spare state); none is a halter above the BB(8) bar.
+   NOT done: the 3.3M 10-14-state strings (cur10plus.txt) -- lead said skip.
+
+3. SET8 = BB(7) champion + H, E0 -> H (the complete engine-preserving 8-state neighbourhood)
+   symsim ktgrid over all 403 single changes of the champion: only C0=0LC keeps R1-R3 (t=0 only), so the neighbourhood with
+   the champion's exact rules is E0 -> H with H free: 256 rows (152 halt at the first H read).
+   104 non-trivial rows, pkf6 world w1 (runs/scr_w1/summary.tsv) + backref (br_s8.txt):
+   - 51 never halt (halt slot UNREACHABLE).  Key invariant: E is entered only by D1 = 1LE, so with E0 = xRH the head lands
+     on a 1 and H always reads 1 (all 0RH/1RH rows with H0 halt never halt -- incl. the 4-escalation Q5 group, closed;
+     agent bb8-esc4 confirmed).
+   - 14 halt with <= 1 escalation (best 1LH/1LF---, ones 7543 in w1) -- far below M8.
+   - M8 + 4 twins (above).
+   - the rest: rebuild loops (12R+c or 6R+c growth per exhaustion), counters, 8 tape runaways after J1; open but
+     looper-shaped.
+
+4. M8 + 1 STATE (BB(9), lead priority 2)
+   F1 = M8 with H1 -> I (288).  Screens: small context (runs/scr_k18s) and order-faithful (runs/scr_k18f, P=300, R=30+k).
+   - 59 never halt (backref, br_f1_all.txt; xRI/I0-halt rows: H reads the 1 E0 wrote).
+   - Y family (lead Y1 = ..._1RG0LI_0RA---, twin ..._1RG0LI_1LG---, and 1LI/0RF---, 1LI/1RA---; sibling Y2 =
+     ..._1RG0LI_1RG---): after M8's halt point they consume the far cascade tokens as counters, reach the top-level marker,
+     rebuild 1^(12R) (3rd escalation) and halt in some endgame classes, escalate further in others, halt early in class
+     k=12.  Handed to agent y1-deep (bb9_y1).  Data: f1/ctx_0LI_0RA.tsv, f1/ctx_0LI_1RG.tsv, f1/y1_k24_deep.txt.
+   - Extra-level halters (0LI/0LD---, 1LI/0LD---, 0LI/1LD--- ...): halt in all 60 test contexts, but in the classes where
+     I's peek hits the halt they stop at M8's own halting point with ones = M8 + {-1,0,+1}.  Structural: every F1 machine
+     reaches M8's halting configuration and decides on one peek whose cell depends on the (uncomputable) endgame class; a
+     strict gain in every class would need both I slots defined (no halt left).  So F1 cannot give a provable BB(9) gain
+     over M8 except through a class-resolving analysis (as for Y).
+   R9 = BB(8)-record engine (36-digit start) + E0 -> I (144 rows, r9/z1.tsv, zfg6 with the record template): no C04-like
+   exhaustion; 108 trivial halts, 33 rebuild loops / count-ups / counters.  Reason: M8's exhaustion step needs a state with
+   X1 = 0RF (the champion's G), which the record lacks.
+   F2 = M8 with E0 -> I (TNF-branched, f2/tree.tsv): running; level 1 reproduces set8 with H dead.
+   Growers (37 F1 rows with reachable halt, budget-limited): reduced context grids f1/g_*.tsv, running.
+   Rebuilder E0 variants (p2/p3/p3b, 96): 25 never halt (backref); 71 in runs/scr_w1r, running.
+
+5. TOOLS (tools/)
+   lockstep.cpp/.exe (lockstep of a gadget machine vs its collapse), collapse.py, collapse2.py, dyncollapse.cpp/.exe,
+   tnfx.py (TNF branching over pkf6), zscreen.py (zfg6 screen driver), backref_s.py (copy), pkf6.exe/zfg6.exe (copies from
+   bb9_c04_sib), f1/ctx.py (endgame-context grid runner), f1/cmp.py (grid vs M8 comparison), screen.py (copy).
+
+6. UPDATE 2026-10-18 night / 2026-10-19
+   6.1 Residue-correct worlds.  B, B' and every tower accumulator are 366 mod 3600 (= 2491 mod 3125, 324366 mod 450000;
+       symsim wtab C 10 2 0 / C 34 2 0).  tools/pkf7 (= pkf6 + --cls/--mod rounding with --rk/--rc) and tools/zfg7
+       (= zfg6 + --rmodc).  World r6 = --B 6 --rk 1 --rc 20 --cls 6 --mod 360 (residues right mod 360).
+   6.2 set8 re-screened in r6 (runs/scr_r6): no 8-state candidate beyond M8.
+   6.3 R9 re-screened with R = 366 mod 3600 (r9/z366.tsv): escalating rows are exact periodic rebuild loopers
+       (12b+n+9 per round from K(0^n;0;b), uniform in b); R9 closed negative.
+   6.4 Rebuilder E0 variants (p2/p3/p3b x 32): 25 never halt (backref), 11 halt <= 1 escalation, and the Z family:
+       Z1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LF0LC_1RG1LD_0RH0RF_---0RF (8 states; literal lockstep with M8 for 3e9 steps,
+       tools/lockpair.exe), Z2 (E0 = 0LC), Z3 (E0 = 1RD): run M8 exactly, continue where M8 halts, halt only if the
+       champion's G crosses two zeros.  No halt in 30 endgame contexts within budget.  Handed to y1-deep.
+   6.5 Complete "M8 then continue" enumeration: tools/cover.exe lists all machines whose blank run writes/moves like M8
+       for N steps.  8 states: 100 covers (N = 1e7 and 4e8), 573 completions -> continuers only E0 in {0LC,1LF,1RD}
+       on 4 covers; reachable halts only in p3b (Z1/Z2/Z3); the c41/c52 relabelled covers have UNREACHABLE halts.
+       9 states: 2054 covers (N = 3e8), exhaustion-slot completions: 150 continuers, 49 with undecided halt, all the
+       Z mechanism (G split chain, halt on 2-3 zeros).  So the whole class hangs on the Z question.
+   6.6 F2 (E0 -> I on M8, r6, f2r6/tree.tsv, 1515 nodes): halters <= 1 escalation; M8-trace rows are twins or never
+       halt; relay Y3 = ..._1LI0LC_..._1RG---_0RI1LH is Y-type (class-dependent), logged in OPEN_CANDIDATES.
+   6.7 Outer-counter queue: Q5+I (E0 -> I, r6, q5i/tree.tsv) and the 162 L clone-split completions re-run with pkf7 in
+       r6 (runs/scr_csr6): so far only rebuild loopers (11 -> ~86 -> ~4481), set8 duplicates and M8 twins.

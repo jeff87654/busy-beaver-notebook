@@ -1,0 +1,5 @@
+s=open('gk2.cpp').read()
+s=s.replace("if(tape[mn]!=1||tape[mn+1]!=1) continue;","")
+s=s.replace("while(x-8>=mn+2){","while(x-8>=mn){")
+s=s.replace("if(!(tape[x-1]==1&&tape[x-2]==1)) continue;\n      tt=t2; e=x-2; }\n    long long i=mn+2;","if(!(x-2>=mn&&tape[x-1]==1&&tape[x-2]==1)) continue;\n      tt=t2; e=x-2; }\n    long long i=mn; if(argc>6) i=mn+2;")
+open('gk3.cpp','w').write(s)

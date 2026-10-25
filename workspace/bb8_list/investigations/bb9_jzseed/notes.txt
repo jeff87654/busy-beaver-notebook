@@ -1,0 +1,51 @@
+bb9_jzseed notes (crash-safe log; final report goes to the lead by message)
+2026-10-17
+- Workspace created. jz.cpp = bb9_symsim/symsim.cpp (copied as symsim_orig.cpp) + part_ulaw.cpp (U residue law,
+  cascade value kValue/kLower) + part_kd.cpp (Sim::tryKd accelerator) + part_drv.cpp (driver: run / enum / utab);
+  build: python assemble.py; g++ -O2 -std=c++17 -o jz.exe jz.cpp (C:\msys64\ucrt64\bin).
+- Core of R1..R3 (literal test t_rules.py, champion and fw2): A0 A1 B0 B1 C0 C1 D0 D1 E1 F0 F1 G1 (12 slots, I1 not
+  used); R1 shifts the word 2 cells left and reads up to 3 cells left of the head cell -> left side must be blank.
+- U law: U_0=3x+7, U_(j+1)(x)=iter(x-2j) U_j X_j. Residue tables stabilise at JINF=3 for MG=2520/27720/720720
+  (U_j(x) mod MG depends only on parity of x for j>=3; X_j class constant). ucheck.py: 0 mismatches (~26k queries).
+- fw2 (champion labels, start E): HALT sigma = X1+4, X0 = cascade depth 465010 (b2, r847 mod 2520 => 7 mod 8),
+  X1 = cascade depth (3X0+7)/4 (b3, r280 even). Champion: HALT sigma = X1+4 (b2'+4, X1 odd). Both match Coq.
+- validate.py free 300 / mut 300: BAD 0. kdcheck.py 2000: 1433 literal matches of the predicted Kd configuration, 0 nomatch.
+- jz_v2: tryKd keeps the list tail after the first uncleared digit untouched (proof generality); --nocycle; compact C lines in enum.
+- CYCLE GEN-W-AFF check: 6866 GEN* leaves of a capped start-E tree rerun with --nocycle (prover rules on, no cycle claims),
+  budget 30000: all BUDGET, none halts (most made 600-900 big cascades).
+- Residue law for mod 2^20, 2^21, 3^14, 9*2^20: U_j(huge x) for j>=2 depends only on parity of x (2 constants). => after a
+  deep cascade the counter is in one of 2 residue classes (mod everything we can test). Consequence (class argument): with the
+  end-of-list routine reading only residues of b, at most 2 big cascades can precede a halt (fw2 and champion both do 2).
+- 2026-10-17 15:52 enum1/ launched: free-slot tree (E0 G0 H0 H1 I0 free; core 12 + I1=0LH), start A..I, budget 20000 macro,
+  tlimit 2 s/node; lanes 1:A E I 2:B F 3:C G 4:D H (bash PIDs in pids.txt), exe jz_enum1.exe (= jz_v2).
+- 2026-10-17T20:34:53 enum1 DONE (all 9 roots, 12,968,685 nodes): HALT 360,241 (big=0 352,166; big=1 7,701; big=2 374; big>=3 NONE),
+  CYCLE ~12.53M, holdouts 72,506 (BUDGET 72,489, UNDECIDED overflow 17). Top halter = fw2 itself (start E and I, d0=465010);
+  next d0=5739 (1RB1RA_0LC0LF_0RD1LC_1RA1RG_1LH0RA_1LB1LF_---1RE_1LI0RI_1RE0LH start E). summary: enum1/summary.txt.
+- launched grade1/ (holdouts, MG 3548160, budget 2e5, tlimit 20) and mut/ (1+2-slot mutants of fw2 E / champion A, 397,872, MG 3548160, budget 2e4, tlimit 2).
+- 2026-10-17T20:44:00 mut/ DONE: 397,872 1+2-slot mutants of fw2(E)/champion(A). Core intact: 14,398 HALT, 24,818 CYCLE, 96 BUDGET;
+  core broken: 100,077 HALT (best sigma ~4.0e18), 257,218 CYCLE, 1,265 BUDGET/UNDEC. No big>=3. Best: big=2 d0=19 (below fw2). mut/summary.txt.
+- grade1 (v3, 2e5 budget) stopped: useless (1150/1161 still BUDGET). Found partial-stop holdouts (cascade stops at B<2j: marker digit
+  beyond a zero gap ~1.5*X1 with counter X2=U_2(9) << X1): undecidable symbol comparisons. v4: cascade symbols carry linear lower
+  bound X >= 128*J (Coq Xbound, J = depth of last op >= 6) used by sgnG; exact counters allowed at depths > JMAX (table periodic);
+  symbolic huge B0 counts as hugeB. v4 validated? -> see below.
+- launched enum2/ (I1 free too, --skipval I1:0LH, MG 3548160, jz_enum2.exe = v4) lanes 1:E A G I 2:B C D F H;
+  grade2/ (enum1 holdouts with big>=2, 10,947, v4, budget 5e4, tlimit 5).
+- v4 validation: kdcheck 1406 match/0 nomatch; validate free 400 / mut 400 BAD 0; ucheck 0 mismatches; deep exact-arg U (jmax 20 vs 48, 600 queries) 0 diffs; fw2/champion reproduced at MG 3548160.
+- 2026-10-17T20:56:08 grade2 stopped (holdouts stay BUDGET at 5e4 with v4). Holdout families (enum1, by last two cascades): 30.5k no cascade at all;
+  12.5k one big cascade then the end routine never finishes in budget; 11.5k R1-only steps on a symbolic counter; ~7k eternal
+  rebuilders (depth X/2, X+c, ...) not certified (rounds need deepCompress, absent in proof mode); ~2.5k partial-stop (marker beyond a
+  zero gap, counter vs gap comparison of unrelated symbols).
+- v5: rebuild-cycle proof trigger at each used-up list (did not help F1: proof-mode lacks deepCompress).
+- rep1/: REPRESENTATIVE screening (not sound): huge cascade values -> smallest value >= 3000 with the right residue mod 2520, all
+  73,862 holdouts (enum1 + mutants), budget 5e4, tlimit 2. Purpose: flag any holdout that halts after >= 3 big cascades or with
+  a deep first list. fw2/champion under --rep 3000: HALT big=2.
+- 2026-10-17T22:50:09 rep1 lane 01 finished normally (36,931/36,931); lane 00 running (PID 20236); enum2 lanes running. No jz processes of mine were killed (jz_grade1 was stopped by me at 20:43). rep2/: lane-01 inputs rescreened with --rep 7000 (different residue-representative magnitude) as a consistency check.
+- 2026-10-18 14:30 rep1+rep2 DONE: 73,862 holdouts, 0 HALT under representatives. enum2 E/B ~2/3 done (est. E +10h, B +6h), left
+  running; C,D skipped (enum1 trees identical to B: same node count + machine sequence, 18 BUDGET/CYCLE timing diffs, no HALT diffs);
+  A F G H I to run with --compact (jz_v5c.exe: counts + big>=1 halters + holdouts only). Compact check: rerun enum1 root E (t_e1c.txt).
+  Final summary sent to the lead. None of the halters beats fw2, hence none beats M8/C04.
+- enum2/in_{A,C,D,F,G,H,I}.txt renamed held_in_* so the running verbose lanes 1/2 (bash 13028/13076) stop after E/B without spawning more; compact copies in enum2/inc_*.
+- 2026-10-18 15:00 WIND-DOWN (lead's instruction): enum2 E/B stopped (PIDs 4548 7568, plus my compact test 15840), all checked and
+  gone; compact roots not started. enum2/summary.txt written (partial: HALT big0 364,572 / big1 8,861 / big2 210 / big>=3 none;
+  best big=2 d0=63); raw enum1+enum2 outputs gzipped (workspace 213 MB). Final summary in REPORT.txt (closed results, structural
+  argument, OPEN: 73,862 uncertified holdouts incl. ~2.5k partial-stop family = only escape from the class argument). DONE.

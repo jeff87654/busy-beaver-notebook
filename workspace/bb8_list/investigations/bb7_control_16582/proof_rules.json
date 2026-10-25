@@ -1,0 +1,82 @@
+{
+ "L0": {
+  "lhs": "000 [A0] 0 (100)^{j} 1010 (110)^{k+1}",
+  "rhs": "[A0] 0 (100)^{j+2} 1010 (110)^{k}",
+  "lower_bounds": {
+   "j": 0,
+   "k": 0
+  },
+  "macro_steps": 20,
+  "walls": [
+   true,
+   true
+  ]
+ },
+ "L0*": {
+  "lhs": "[A0] 0 (100)^{j} 1010 (110)^{k}",
+  "rhs": "[A0] 0 (100)^{j+2k} 1010",
+  "lower_bounds": {
+   "j": 0,
+   "k": 1
+  },
+  "justification": "induction on k using L0; left side blank",
+  "walls": [
+   false,
+   true
+  ]
+ },
+ "R1": {
+  "lhs": "[A0] 0 (100)^{x} 1010 (100)^{j} 1010 (110)^{k+1}",
+  "rhs": "[A0] 0 (100)^{2x+3} 1010 (100)^{j+2} 1010 (110)^{k}",
+  "lower_bounds": {
+   "x": 1,
+   "j": 0,
+   "k": 0
+  },
+  "macro_steps": 87,
+  "walls": [
+   false,
+   true
+  ]
+ },
+ "T1": {
+  "lhs": "[A0] 0 (100)^{x} 1010 (100)^{j} 1010 10100",
+  "rhs": "[A0] 0 (100)^{2x+3} 1010 10 (100)^{j+1} 00100 10",
+  "lower_bounds": {
+   "x": 1,
+   "j": 0
+  },
+  "macro_steps": 99,
+  "walls": [
+   false,
+   true
+  ]
+ },
+ "R2": {
+  "lhs": "[A0] 0 (100)^{x} 1010 (100)^{j} 10 (100)^{m+1}",
+  "rhs": "[A0] 0 (100)^{2x+3} 1010 (100)^{j+2} 10 (100)^{m}",
+  "lower_bounds": {
+   "x": 1,
+   "j": 0,
+   "m": 0
+  },
+  "macro_steps": 85,
+  "walls": [
+   false,
+   true
+  ]
+ },
+ "T2": {
+  "lhs": "[A0] 0 (100)^{x} 1010 (100)^{j} 10 00100",
+  "rhs": "[A0] 0 (100)^{2x+3} 1010 1010 (110)^{j} 10100",
+  "lower_bounds": {
+   "x": 1,
+   "j": 0
+  },
+  "macro_steps": 77,
+  "walls": [
+   false,
+   true
+  ]
+ }
+}

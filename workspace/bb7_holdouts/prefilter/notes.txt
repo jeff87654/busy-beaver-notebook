@@ -1,0 +1,20 @@
+== prefilter notes (agent: prefilter, started 2026-10-21) ==
+- First pass params (bb7scan.py): dlscan census 1,000,000 / probes N=100,000; dlscan.exe built 2026-10-02 from current dlscan.cpp.
+- dlscan2 plan: bb7scan ARGS 1,000,000 / 20,000; sample1pct uses 300,000 / 20,000.
+- "Covered" analysis: dlscan base keys = (orient, q, suf in {0,01,1}) for every dlscan end shape seen; probes identical
+  to dlscan2 template (P="", u=1, s=0, d=1d+0, b=1b+0, S=suf). fit2 ok => dlscan screen()==2 (R1,R2 same tests; R3 k=1
+  probe == dlscan's K(1,2,0;0;b) test, bs_with>=3 => good>=3) as long as N2<=N1 and the shape was seen in dlscan's census.
+  dlscan general keys (non-base unit/sep) are NOT treated as covered (dlscan rejects leftmost zero digit, dlscan2 strips it;
+  and top-3 choice depends on dlscan's own snapshots).
+- dlscan2_skipdl.exe built (neighbors/dlscan2_skipdl.cpp, patch script prefilter/patch_skipdl.py). Without --skipdl output
+  byte-identical to dlscan2.exe on cal (--all). cal+champion: all 24+1 grades unchanged with --skipdl (0-3 templates dropped each).
+- s500 (1M/20k, --all, under load, 2 jobs parallel): orig 66.7 s (census 10.0 infer 33.6 fits 22.3), skip 65.2 s
+  (fits 20.7); 392 of 105,473 templates skipped (0.4%). u=1/s=0 templates are 49% of all, but almost all have a prefix,
+  a suffix other than 0/01/1, or a scaled encoding -> not covered. --skipdl buys ~2%.
+- Inference sub-profile (100 machines, quiet): parse loop 1.50 s of infer 1.65 s; grouping 0.06; enc ~0. Per machine
+  census 6.8 ms, infer 16 ms, fits 8 ms = 32 ms quiet (the 60-130 ms figures are under load).
+- 23:21 pf7.cpp v2 (features R/R3/T/T3 x B=6/12/24, 12 slots); triage7.py written (bb7_holdouts/triage7.py); dlscan2 on 2,416 dlscan hits running (hits_dl2_1M.tsv, 1M/20k --all) for calibration
+- 23:45 pf7 final design: clean transfers CT2 (see src/pf7.cpp header); rule CT2>=60 or (span<60 and CT2>=3); minsnaps=200 F=4 budget=2 300k. hits2416: 0/374 imp miss, 0/722 graded miss; cal+h14 38/38 PASS; s2000 pass 12.8%. dlscan2 on 2416 hits (1M/20k): CHAMPION 6, R4-SOME 34, HALT-SOME 54, CHECK 280, NOBOUNDARY 348. Exploratory version kept as src/pf7_explore_v5.cpp
+- 23:52 skipdl on 2416 hits: grades AND best templates identical for all 2416 (1162 templates skipped); wall 427 s vs 394 s orig (shared load, noise)
+- 00:06 FINAL pf7 (clean transfers + insertions, CS>=60 or (CS>=20 and CS>=0.7(CSN-1)) or (span<60 and CS>=3)). ext set (2885 dlscan2-graded 9-10 state machines from bb8_list investigations): v5 rule missed 2 CHAMPION + 13 NOBOUNDARY (slow sweeps / list growth) -> fixed. final: hits 0/722 miss, cal 38/38, ext 0/2885 miss, s2000 pass 17.7%. Re-running 1% sample inputs + c00100 + s500.
+- 00:42 REPORT.txt written. final: 1% sample pass 17.25% (29,320/169,944), c00100 15.35%, s500 14.6%; graded sample rows so far 6/6 PASS. Nothing of mine left running.

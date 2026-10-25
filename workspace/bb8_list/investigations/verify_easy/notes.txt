@@ -1,0 +1,48 @@
+verify_easy: make the C04 / M8 Coq proofs easy to compile and audit (agent verify-easy, 2026-10-18, Opus; lead = team-lead)
+=====================================================================================================================
+
+HANDOFF (keep current; read this first)
+- STATUS 2026-10-19 01:40: ALL DELIVERABLES DONE; final single-instance audit+coqchk rerun of the REPO version running
+  (output repo_verify2.out).  Lead asked (2026-10-18 evening) to audit the repo's BB8/verify_m8/Statement.v (+Defs.v,
+  c04-package, PR #29 78bd08e) instead of my own statement -> the REPO VERSION is the deliverable now:
+    repo_add/BB8/verify_m8/easy/{verify.sh, Dockerfile, README.md, tools/winidle.py, tools/split_generated.py}
+    verify.sh copies BB9/verify_c04/{lib,dev,k31,score,fgh}, BB8/verify (champ35, no probe), BB8/verify_m8 (no probe)
+    into easy/_verify/tree (repo untouched), optional --split, builds (make or coqdep scheduler), writes its own
+    Audit.v = tuple of every `Theorem` in Statement.v + ONE Print Assumptions, coqchk -o M8.Statement with the
+    4-axiom declared whitelist, PASS summary with sha256 of Statement.v / Defs.v.  Options --resume, --no-coqchk.
+  Tested on repo_main/ (git archive origin/main 78bd08e + easy/): PASS (12 theorems Closed 228 s; coqchk 2781 s,
+  1.08 GB).  200/213 .vo seeded from the fresh split test (byte-identical .v only).  CAVEAT: two verify.sh instances
+  overlapped ~6 min (a `&` relaunch survived its tool call) -> clean single rerun repo_verify2.out.
+- pkg/ (my own Statement.v/Check.v for C04+M8, Check.all : Statement.All) = superseded by the repo statement, but its
+  fresh-copy test PASSED: test_split/ (split tree, 202 files): build 47,140 coqc-s (~3.5 h wall at J=4 Idle, incl. an
+  OOM at 16:30 from machine-wide memory pressure -> --resume), Check+audit 216 s, coqchk 2192 s, peak 1.05 GB.
+  c04-package reused its string parser / wording.
+- Build-time study (study/): profile = `do N step` 77-82%, Qed 12%; per-lemma cost ~ steps x statement length
+  (5.5e-5 s/unit at Idle, +-15% across all 26 generated files).  Split: critical path 7,865 s -> ~1,600 s; simulated
+  J=4 2.2 h -> 2.1 h, J=8 2.2 -> 1.1 h, J=16 2.2 -> 0.7 h.  Fast-step experiment (study/P14fast.v) running.
+- coqchk axioms (declared, not used): BusyCoq.LibTactics.inj_pair2 (Axiom in LibTactics.v), proof_irrelevance
+  (LibTactics requires Coq.Logic.ProofIrrelevance), eq_rect_eq (Coq.Program.Equality -> JMeq -> Eqdep), and
+  functional_extensionality_dep (busycoq Flip.v).
+- Lessons: Git Bash `tail -F` Monitor never fired -> use until-loops; a `cmd &` inside a foreground tool call can
+  survive it (check tasklist, not ps); python heredocs: '\r'/'\n' in non-raw strings become real CR/LF in the
+  written file -> use the Edit tool for such lines.
+
+LOG
+2026-10-18 12:20 read verify_c04 (README, compile_clean.sh/log, probe.v), fgh notes, m8 Tm8/Sim, busycoq TM.v, CI.
+12:35 Statement.v drafted, compiles (16 s).  Check.v C04 part: Closed (253 s).  Pitfalls: (1) `rewrite !f_omega_eq in H`
+  rewrote only the outer f_omega of f_omega (f_omega x) -> use the dev-form theorem directly; (2) lia atoms
+  `f (36 + 2) 3` vs `f 38 3` -> `change`; (3) inside Modules that Import Individual92/82, open nat_scope (sym_scope
+  makes 0/1 Sym).
+12:47 static profile of the generated files: intra-file dependency chains are 1-16% of each file; levels 5-8.
+12:53 m8-coq done (Final8/probe Closed); later moved BB82/Individual82 to logical M8 -> pkg/m8 follows that.
+12:56 -time profiles: P14 (=G_p14_0, 453 s): `do N step` 77%, Qed 12.5%, execute 8%; K_e1 sample (60 lemmas, 893 s):
+  `do N step` 82%, Qed 12%.  Per-lemma time ~ steps x statement length (R^2 0.90 / 0.975); per-file the same proxy
+  gives 5.5e-5 s/unit +-15% over all 26 generated files (study/filecost.py).
+13:13 Check.v full (C04 + M8): Closed (389 s).
+13:15-13:19 smoke tests of verify.sh (5-file package): fixed busycoq build cwd, Windows path (cygpath -m), CRLF in
+  coqdep output; negative test: audit rejects a Check.all of the wrong type.
+13:20 started the fresh-copy test (split tree).
+2026-10-18 16:36 split test FAIL: K_e1_p21 "Fatal error: out of memory" (machine-wide; part compiles in 447 s,
+  838 MB on resume).  Added winidle peaks + verify.sh --resume.  18:20 resume PASS (see HANDOFF).
+2026-10-19 00:25 repo version (audits BB8/verify_m8/Statement.v) PASS on repo_main; killed my stale tail.exe 4512,
+  32416 (lead's request; command lines checked).

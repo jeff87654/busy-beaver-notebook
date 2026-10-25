@@ -1,0 +1,5 @@
+s=open('glue35.v').read()
+s=s.replace("Lemma lft_zeros :","Lemma lft_cons : forall d t, lft (d :: t) = [1;0]^^(S (3 * d)) *> 1 >> lft t.\nProof. reflexivity. Qed.\n\nLemma lft_zeros :",1)
+s=s.replace("intros. unfold Kc. simpl lft.\n","intros. unfold Kc. rewrite lft_cons.\n")
+s=s.replace("intros. unfold Kc. rewrite !lft_zeros. simpl lft.\n","intros. unfold Kc. rewrite !lft_zeros, !lft_cons.\n")
+open('glue35.v','w').write(s)

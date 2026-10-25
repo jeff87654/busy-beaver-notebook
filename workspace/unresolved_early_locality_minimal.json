@@ -1,0 +1,91 @@
+[
+  {
+    "candidate": "C05",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_1LE0LE_1RH1RZ_1RH1RB",
+    "initial_state": "A",
+    "initial_head": -1,
+    "left_background": 0,
+    "known_prefix": "11100000",
+    "unknown_suffix_start": 8,
+    "cycle_steps": 30494,
+    "displacement": -324,
+    "blank_seed_steps": 30517,
+    "check": {
+      "read_bounds": [
+        -324,
+        7
+      ],
+      "final_head": -325,
+      "final_state": "A",
+      "known_final_ones": [
+        -324,
+        -323,
+        -322,
+        6
+      ],
+      "new_unknown_suffix_start": -316
+    },
+    "negative_checks": [
+      {
+        "mutation": "unknown boundary one cell too close",
+        "status": "rejected",
+        "reason": "unknown suffix read at step 30152, coordinate 7"
+      },
+      {
+        "mutation": "incorrect cycle time",
+        "status": "rejected",
+        "reason": "final state or head mismatches recurrence"
+      },
+      {
+        "mutation": "first transition changed to halt",
+        "status": "rejected",
+        "reason": "halts at step 1"
+      }
+    ],
+    "status": "verified_partial_configuration_recurrence"
+  },
+  {
+    "candidate": "C06",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_0LC0LE_1RH1RZ_1RH1RB",
+    "initial_state": "A",
+    "initial_head": -1,
+    "left_background": 0,
+    "known_prefix": "110000000",
+    "unknown_suffix_start": 9,
+    "cycle_steps": 12611,
+    "displacement": -205,
+    "blank_seed_steps": 12631,
+    "check": {
+      "read_bounds": [
+        -205,
+        8
+      ],
+      "final_head": -206,
+      "final_state": "A",
+      "known_final_ones": [
+        -205,
+        -204,
+        7
+      ],
+      "new_unknown_suffix_start": -196
+    },
+    "negative_checks": [
+      {
+        "mutation": "unknown boundary one cell too close",
+        "status": "rejected",
+        "reason": "unknown suffix read at step 12389, coordinate 8"
+      },
+      {
+        "mutation": "incorrect cycle time",
+        "status": "rejected",
+        "reason": "final state or head mismatches recurrence"
+      },
+      {
+        "mutation": "first transition changed to halt",
+        "status": "rejected",
+        "reason": "halts at step 1"
+      }
+    ],
+    "status": "verified_partial_configuration_recurrence"
+  }
+]

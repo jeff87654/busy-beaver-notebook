@@ -1,0 +1,3 @@
+machine	halted_step	n_keys	full	partial
+1RB0LF_0LC1LD_1RD1RC_1RE0RD_0LA0LG_1LC1LG_---1LA	-1	13	L,A,1,1,0	-
+#summary	machines=50000	halted=0	with_keys=50000	full=1	partial=0

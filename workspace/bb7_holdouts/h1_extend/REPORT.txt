@@ -1,0 +1,120 @@
+h1_extend REPORT: "M8 recipe" (+1 state at the halt slot) on the four BB(7) H1-class holdouts (agent h1-extend, Opus,
+2026-10-23 21:40 - see notes.txt for the timestamped log; pids.txt lists every process I launched)
+=====================================================================================================================
+
+0. VERDICT
+----------
+NEGATIVE.  No 8-state or 9-state record from this recipe.  In all four bases the undefined slot is NEVER REACHED from
+the blank tape (strong evidence, residue-class-uniform; no proof).  A child that redirects an unreached slot runs
+identically to its base forever, so every 8-state child (260 per base + 28 same-state redirects) and every 9-state
+extension through that slot NEVER HALTS.  Nothing beats M8 (f_w^3(12) < sigma < f_w^3(13)) or h003 (~f_w^7(12)).
+OPEN_CANDIDATES.txt: no new OPEN entry; an update line was appended to the existing "H1 class" entry (still OPEN, low).
+
+  base  machine                                              undefined slot   first reached
+  H1    1RB1RE_1RC1RA_0LD1LE_1RE1LE_0RG0RF_---0LG_1LC1RA     F0               never (strong evidence)
+  H2    1RB1RF_0LC1LD_1RD1LD_0RE0RG_1LB1RF_1RA1RD_---0LE     G0 (not F0)      never (strong evidence; = H1 dynamics)
+  c01   1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0LD0LB     A1               never (strong evidence)
+  c02   1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0RD0LB     A1               never (strong evidence; = c01 dynamics)
+
+Corrections to the brief: H2's undefined slot is G0 (its F row is 1RA1RD).  The BB(7) champion is
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF (E0 undefined); the brief's "..._1LF0LC_..." E row is a typo.
+
+No other late branch point exists: every DEFINED transition of each base is first used within 122 steps of the blank
+start (H1 by step 34, H2 by 42, c01/c02 by 122), so the halt slot is the only transition whose first use could be
+astronomically late, and it is never used.
+
+1. WHERE A HALT WOULD HAVE TO HAPPEN (cell level)
+-------------------------------------------------
+H1: F is entered only by E1 = 0RF.  E entered by a left move (C1, D1 = 1LE) reads the 1 just written and F reads a 1.
+    D0 = 1RE puts E on the 0 that C0 just wrote.  So a halt needs A1 = 1RE (A reading 1) followed by cells "1 0":
+    the A/B right sweep must hit "1 1 0".  Literal blank run, 1e9 steps: A1 occurs 97 times (all G1->A1, at the left
+    tape end or during the list build), always followed by E0 (A1E1 = 0 times).
+H2: G is entered only by D1 = 0RG; a halt needs D1 followed by a 0.  1e9 steps: D1->G 1.67e8 times, always G1.
+c01/c02: A is entered only by B1 = 0RA; a halt needs the B/A right sweep over (10)* (B1 A0 B1 A0 ...) to meet "11".
+    1e9 steps: B1->A 2.45e8 times, always A0.
+The four bases sit on the bbchallenge holdout list, so they ran 1e9+ steps there without halting as well.
+
+2. STEP 1: IS THE SLOT REACHED IN THE REAL RUN?
+-----------------------------------------------
+(a) CTL attempt (to get a proof): plain NGramCPS (ngcps2, every nL,nR in 2..16 with nL+nR <= 30) and writer-annotated
+    NGramCPS with the halting-reach set g (ngann 2 1, kL,kR 3..10, machine and its mirror) FAIL for all four bases
+    (1,388 runs, ctlscan.tsv).  The spurious halt is always the sweep in section 1 running into a blank-looking window.
+(b) Rule-level structure (from nonlist/hand/groupA.txt, groupC.txt, re-checked here):
+    the tape is ACC | G1 | ... | Gn (groups 10^x 01^y split by 00 at K=2).  Every group drains through (1,0) as its
+    last nonzero value, and an emptied group is just zeros, so the far end is blank beyond the top nonempty group.
+    Hence EVERY list exhaustion, in every round, is the configuration "ACC | (1,0)" + blank, with the ACC in one of
+    its cycle phases.  c01's natural start is the same configuration (top counter 01^9 counts down to 01^1, then the
+    first list is built), so c01 meets its exhaustion form already at 1.27e7 steps.
+(c) Exhaustion sweeps (exact K=2 macro simulation with run acceleration, src/xs.cpp; each run continues through the
+    exhaustion, the complete rebuild and 0.1-2.5M further macro steps into the new list):
+      H1  E|10^2 01^b 00 10,  E|11 01^b 00 10,  C|10 01^b 00 10   (the three phases of the last L1 cycle; dumps at
+          steps 6847/7497/7798 of the natural run), b = 1..200 (+ 201..229/232 at 2.5M macro): 750 runs, 0 halts.
+      H2  same three phases (D/B for E/C), b = 1..264: 792 runs, 0 halts.
+      c01 C 0| 01 00 10^q 01^p [head]  (ACC pair (q,p) at the right end), p = 0..40, q up to 300 (q <= 120 for p >= 13): 6,060 runs, 0 halts.
+      c02 same template: 2,640 (q <= 120) runs, 0 halts.
+    The cycle maps every orbit through a small-p (c01) / start-of-cycle (H1) point, so these templates cover every
+    ACC phase.
+(d) The rebuild is exactly uniform in the accumulator: for H1 and H2 the rebuilt list after "ACC|(1,0)" with ACC
+    01^b is (01 00 10)xN with N = 9b/8 + O(1) and one of 4 end forms, strictly periodic in b mod 8, b = 1..110
+    (rbform_H1_T1.txt, rbform_H2_T1.txt; H1 and H2 give identical item counts).  c01 builds (10 00 01)xN with a
+    parity-dependent end (rbform_c01_p2.txt).  So no residue class of the (uncomputable) real accumulator behaves
+    differently from the tested ones: the exhaustion never halts in ANY class, unlike the BB(7) champion.
+(e) Literal near-miss counts on the H1 exhaustion templates (T1/T2/T3, b = 1..120, 2e8 steps each, nm_H1.tsv):
+    A1E1 (the only way into F) = 0 occurrences in 113 runs (T1 b=1..33, T2/T3 b=1..40), each through the
+    exhaustion, the rebuild and ~2e8 steps of the new list.  A1 itself occurs, always with E then reading 0.
+(f) The generic phase between rebuild and the next exhaustion (L1/L2/Lx/Ly/borrow rules) was scanned by nonlist
+    (2,640 H1 templates, c01 borrow templates; halts only at tiny ACC forms that never occur), and is covered again
+    by the post-rebuild parts of the runs in (c).
+Conclusion: slot never reached, in every round and every residue class (strong evidence, not a proof).
+
+3. STEP 2/3: CHILDREN
+---------------------
+src/children.py enumerates the 8-state children (slot -> 0/1, L/R, new state H; H0,H1 over 33 options each with at
+least one halt: 260 per base) plus the 28 same-state redirects.  Because the slot is never read, every child's run
+equals its base's run for ever: all 288 x 4 children NEVER HALT (same evidence as step 1).  Nothing was simulated
+for them beyond that argument, since a faithful follow can only reproduce the base.
+9 states (step 5): the same argument covers any number of added states hung on an unreached slot.  A per-rebuild
+countdown (the f_(w+1) route) would need a transition that is first used at a rebuild; none exists (section 0: all
+defined transitions are used by step 122).  Changing a defined transition alters the run within the first 122 steps
+and destroys the list engine.
+
+4. POSITIVE CONTROL (BB(7) champion, control/)
+----------------------------------------------
+Step 1 method on the champion 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF: from its exhaustion configurations
+K(0^n;0;b) (word from bb8_resid/tools/exhcfg.py), n = 0..8, b = 0..40, the champion reaches its undefined slot E0 in
+every case (ctl.py slot).  So the exhaustion-sweep method does detect a reachable slot; the H1-class negative is a
+real difference, not a blind spot.
+Step 2/3 on the champion: the enumeration contains M8 (E0 = 1LH, H = 1RG ---) once.  Literal follow from 5 champion
+exhaustion configs: 154 of the 260 H-children halt in all 5 configs (shortly after the slot), 12 halt in some
+    configs only, 94 survive 2e7 steps in all 5 (M8 among them); the 28 same-state redirects have no halt.  (bb8_resid
+    set8 found 152 trivial halts in the same neighbourhood.)  The generic literal follow does not single M8 out of
+    the 94 survivors:
+M8 itself runs past the champion's halt point and keeps going (3e9 steps, tape width ~96k, no halt) from all 5
+configs: it survives by rebuilding, as expected.  Its later halt (2 more escalations) needs the champion-specific
+jump engine (bb8_resid pkf6/zfg7, which found it); my generic macro engine cannot follow the champion's Ackermann
+clearings.  That limitation does not touch the H1-class verdict, which rests on step 1 alone.
+
+5. METHOD AND TOOLS (all in this folder)
+----------------------------------------
+src/firstuse.py   first-use step of every transition (blank run).
+src/ngram.exe     literal transition n-gram counts (near-halt statistics); src/ctx.exe contexts of a pattern.
+src/xs.exe/xs2    exact K-block macro simulator over a template family (ms 'i' format, {x} placeholders; xs2 adds
+                  RSIDE=1 for right-end views); BB(5) check 47,176,870 steps / 4098 ones.
+sweep.py + jobs_*.txt   2 Idle workers; outputs ex/*.txt (one line per parameter: H ... or END ... last tape-end view).
+src/rbform.py     rebuilt-list form vs accumulator; src/nm.exe literal near-miss counter; nmsweep.py.
+ctlscan.py        ngcps2 / ngann scans (copies of the m7 tools) -> ctlscan.tsv.
+src/children.py   child enumeration.  control/ctl.py, control/litk.exe  positive control.
+
+6. GAPS
+-------
+- No proof: the slot's unreachability rests on the rule-level picture (fitted by nonlist and re-checked here on
+  constructed tapes) plus the sweeps; the CTL route failed.  The remaining item is the same as the OPEN entry's:
+  an invariant/Coq non-halting proof (N2 method).  If such a proof is wanted, the cell-level halt conditions in
+  section 1 are the target statements.
+- Sweeps cover b <= 264 (H1/H2) and q <= 300 (c01); larger values are covered only by the periodicity argument (d).
+- The champion control exercised step 1 fully and step 2/3 only up to "M8 survives the slot by rebuilding".
+
+7. COST
+-------
+CPU: ~6 CPU-h at Idle priority, at most 2 cores (brief third-core use for short literal checks).
+Tokens: ~0.3M (no subagents).

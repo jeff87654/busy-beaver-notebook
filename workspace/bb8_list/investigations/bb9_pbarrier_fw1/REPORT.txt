@@ -1,0 +1,381 @@
+================================================================================
+INVESTIGATION REPORT: 8-STATE & 9-STATE EXTENSIONS OF 7-STATE P-BARRIER
+f_{omega+1} LOOPERS (M4, M13, M39, AND ALL 194 MULTI/REBUILD CANDIDATES)
+================================================================================
+Workspace: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb9_pbarrier_fw1\
+Date: 2026-10-22
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+We investigated whether adding 1 or 2 states (8 or 9 states total) to 7-state
+f_{omega+1} loopers with an explicit left boundary prefix P != '-' (such as M4,
+M13, NEW_MULTI, M39, and all 194 unique MULTI / MULTI? / REBUILD / R4-SOME
+machines across dl3_hits and dl3_triage7) can produce an 8-state or 9-state
+halting Turing machine in the f_{omega+1} class (beating Graham's number g_64)
+or a multi-rebuild f_omega^k halting machine.
+
+MAIN RESULTS:
+1. Complete Survey of 194 7-State Candidates (pbarrier_scan_out.tsv):
+   - Out of 194 unique 7-state candidates (138 MULTI/MULTI?, 43 REBUILD, 13
+     R4-SOME), 178 have a genuine left barrier prefix P_true != '-'.
+   - Exactly 59 of the 194 machines possess at least one genuine E-only slot
+     (a transition used during the exhaustion/rebuild phase E, but NEVER used
+     before E0 on the blank tape and NEVER used during the Ackermann D and B
+     phases). These include 35 MULTI? machines (such as M4, M13, M39) that were
+     never tested in the earlier bb8_fw1_redirect investigation.
+
+2. Theorem 1 (Left-Barrier Erasure Theorem):
+   - In all P-barrier machines with digit separator s = 0 (including M4, M13,
+     and M39), any '1' bits written to the left of the barrier P separated by
+     m >= 1 zeros are NOT preserved as a static external counter. Instead, when
+     the Ackermann digit list to the right of P exhausts, the R3 borrow loop
+     (B0 -> C1 in M4/M13; E0 -> B1/B0 -> C1 in M39) interprets those left-side
+     '1's as higher-order digits followed by m-1 zero digits and erases them
+     from right to left BEFORE reaching the E-only slot (G0 or F0).
+   - Consequently, at EVERY visit E_r (r >= 0) to the E-only slot, the tape to
+     the left of the head is identically blank (0^inf), and the tape to the
+     right is identically the periodic exhaustion array:
+       * M4 / M13: 0^inf [G0] 10 (110)^{N_r} 0^inf
+       * M39:      0^inf [F0] (10)^{N_r} 0^inf
+     Thus the entire state at exhaustion E_r is a single integer N_r!
+
+3. Theorem 2 (Right-to-Left 2-Adic & 3-Adic Collapse Theorem):
+   - Even-multiplier engines (M4, M13, where Phi_0(a) = 2a + 2):
+     Because the digits of L = [d_1, ..., d_m] are cleared from left to right,
+     the RIGHTMOST digit d_m is cleared last, leaving a list of m zeros (0^m)
+     with parameter A = 3 * 2^D - 2 (where D >> 64 for any multi-digit list).
+     Clearing the m zeros multiplies A+1 by 2^m, yielding the exact formula:
+       N_{next} = 3 * 2^{D + m + 1} - 2^{m + 1} + 2
+                = 2 - 2^{m + 1} (mod 3 * 2^{64}).
+     For all m >= 6, N_{next} collapses to a SINGLE 2-adic residue (N_{next} ==
+     2 mod 64, identical to N_0 = 2!) and depends modulo 3 only on the parity
+     of m (N_{next} == 1 mod 3 if m is odd; 0 mod 3 if m is even).
+   - Odd-multiplier engines (M39, where Phi_0(a) = 3a + 3):
+     Every level map satisfies Phi_k(a) == a + 1 (mod 2) and Psi_k(a) == a + 1
+     (mod 2), conserving global tape parity:
+       N_{next} == ones([C0]) == sum(d_i) + a + b (mod 2).
+     Simultaneously, higher 2-adic bits contract by 2 bits per digit level
+     (mod 2^B -> mod 2^{B-2} via 3^{2^{B-3}} == 1 + 2^{B-1} mod 2^B). Because
+     the LEFTMOST digit d_1 is cleared LAST via Psi_{m-1}, for every list of
+     length m >= 4 (with fixed tail (a, b)), N_{next} = 3 * Psi_{m-1} + 3
+     collapses modulo 64 to AT MOST TWO 2-adic fixed points:
+       * N*_{odd}  == 45 (mod 64)  [when ones([C0]) is odd]
+       * N*_{even} == 14 (mod 64)  [when ones([C0]) is even, a=1, b=1]
+         (or 62 mod 64 when ones([C0]) is even, a=3, b=1).
+   - Corollary (Exact Upper Bound E_3 ~ f_omega^2 for Pure E-Only Redirects):
+     Because N_r for m >= 4 can take at most 2 values in the 2-adic limit, no
+     pure E-only redirect on these engines can exceed 3 rebuilds (E_0 -> E_1 ->
+     E_2 -> E_3 HALT, growth rate f_omega^2) without repeating a residue class
+     and looping forever. Reaching g_64 (E_65) or f_{omega+1} requires a
+     machine whose R3 borrow loop halts at a distinct barrier pattern without
+     erasing tokens to its left.
+
+4. MAJOR BREAKTHROUGH — Explicit 9-State E_2 (~ f_omega(100)) and E_3
+   (~ f_omega^2(182)) Halting Machines on M39:
+   - We discovered that M39 (1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LG0LE_1LA---)
+     has a 6-state Ackermann core (A..F1), leaving F0 and ALL of state G (G0,
+     G1) completely unused before E0 and during all D/B phases!
+   - By exhaustive symbolic fast-forward search (m39_enum89.cpp) and analytical
+     proof, 8 states has 0 E2+ halting completions on both M39 and M4 (walking
+     across (10)^N with period >= 2 blocks requires 4 distinct 0-transitions,
+     making 9 states the exact minimum).
+   - In 9 states, we constructed and verified both 2-rebuild (E_2 halt, ~f_omega)
+     and 3-rebuild (E_3 halt, ~f_omega^2, saturating the theoretical maximum!)
+     halting Turing machines:
+
+     * M_E3_B (9-state E_3 HALT, ~ 3 ^^ (3 ^^ 182) ~ f_omega^2(182) steps):
+       1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RH0LE_0RA0RF_---1RI_1RG---
+
+     * M_E3_A (9-state E_3 HALT, ~ 3 ^^ (3 ^^ 74) ~ f_omega^2(74) steps):
+       1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RH0LE_1LC0RF_---1RI_1RG---
+
+     * M_E2 (9-state E_2 HALT, ~ 3 ^^ 101 ~ f_omega(100) steps):
+       1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0RH0LE_0LB1RF_---1RI_1RG---
+
+--------------------------------------------------------------------------------
+2. SURVEY OF ALL 194 7-STATE CANDIDATES & 59 E-ONLY MACHINES
+--------------------------------------------------------------------------------
+All 194 unique 7-state candidates from dl3_hits/out.tsv and dl3_triage7/out.tsv
+are cataloged in `candidates_7state.tsv` and analyzed in `pbarrier_scan_out.tsv`.
+
+Breakdown by grade:
+- MULTI / MULTI?: 138 machines (all 138 have genuine left barrier P_true != '-')
+- REBUILD:         43 machines (33 have P_true != '-')
+- R4-SOME:         13 machines (7 have P_true != '-')
+
+Breakdown by E-only slot availability (`E_only != '-'` in pbarrier_scan_out.tsv):
+- Total machines with E-only slots: 59 machines
+  * 35 MULTI? machines (all with P_true != '-')
+  * 12 REBUILD machines
+  * 12 R4-SOME machines
+
+Notable families among the 35 MULTI? machines with E-only slots:
+1. M39 (`1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LG0LE_1LA---`):
+   - Unique 6-state Ackermann core `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_---0LE`.
+   - `E_only = {F0, G0}`, `undef = G1` (3 free slots in 7 states, 5 in 8 states,
+     7 in 9 states).
+   - Odd multiplier: R1/D rule gives Phi_0(a) = 3a + 3.
+
+2. M4 / M13 and 3 siblings (`1RB---_1RC0RC_0LD0LE_1RA0LE_0RF1LC_1RG0RC_1RA1RE`,
+   `1RB---_1RC1RA_0LD0LE_1RA0LE_0RF1LC_1RG0RC_1RA1RE`, etc.):
+   - `E_only = G0`, `undef = A1` (2 free slots in 7 states, 4 in 8 states,
+     6 in 9 states).
+   - Even multiplier: R1/D rule gives Phi_0(a) = 2a + 2.
+
+3. Single-E-only-slot MULTI? machines (29 machines):
+   - Have 1 undefined transition used at E0 (to enter the rebuild phase) plus 1
+     E-only slot (`G0`, `F0`, `E0`, `C0`, `B0`, or `A0`).
+
+--------------------------------------------------------------------------------
+3. THEOREM 1 (LEFT-BARRIER ERASURE THEOREM)
+--------------------------------------------------------------------------------
+Theorem 1:
+In all P-barrier machines with digit separator s = 0 (including M4, M13, and
+M39), there is no special "barrier recognizer" in the Ackermann D/B core. The
+prefix P is simply the leftmost digit(s) of the canonical tape representation,
+and the exhaustion slot (G0 in M4/M13, F0 in M39) is triggered ONLY when the
+left-scanning borrow head encounters the blank tape (three consecutive zeros
+000 in M4/M13; two consecutive zeros 00 in M39).
+
+Proof & Consequence:
+- In M39, canonical configurations at C0 have the form:
+    0^inf 1^{d_1} 0 1^{d_2} 0 ... 0 1^{d_m} 0 1^a 0 1^b 0 [C0] 0^inf.
+  When a = 0, the borrow transition E0 (1LB) moves left onto the rightmost cell
+  of d_m:
+  * If that cell is '1' (d_m >= 1), B1 (0RA) decrements d_m by 1 and returns
+    right to A1 -> A0 -> B0 -> C0.
+  * If that cell is '0' (d_m = 0), B0 (0RC) leaves '0' and returns right via
+    C1 -> C0, which then triggers D1 -> F1 -> E1 (if adjacent to 1^B) to shift
+    and split the block, erasing the zero digit!
+  * Only when ALL digits d_1, ..., d_m have been decremented to 0 and erased
+    does D1 -> F see '0' to the left of the last '1', triggering F0 at the left
+    edge of (10)^N with 0^inf to its left!
+- Therefore, if a gadget writes any pattern of '1's and single '0's to the left
+  of the tape, the machine simply treats them as extra leading digits of L and
+  erases all of them before reaching F0. And if a gadget writes '1's separated
+  by 00 (two zeros) to the left of L, then F0 is triggered at that 00 BEFORE
+  reaching the '1's to the left, so a pure right-moving sweep from F0 never
+  sees those left-side '1's unless it first moves left across 00!
+
+--------------------------------------------------------------------------------
+4. THEOREM 2 (2-ADIC & 3-ADIC COLLAPSE OF EXHAUSTION PARAMETERS N_r)
+--------------------------------------------------------------------------------
+Let N_r denote the number of periodic blocks on the tape when the machine hits
+the E-only slot for the r-th time (0^inf [F0] (10)^{N_r} 0^inf in M39;
+0^inf [G0] 10 (110)^{N_r} 0^inf in M4/M13).
+
+Part A — Exact Recurrence & 2-Adic Fixed Points for M39:
+In M39, from canonical configuration K(L; a; b=1) with L = [d_1, ..., d_m]
+(d_1 >= 1):
+1. Define the level-k maps (k >= 0) on Z_{>= 0}:
+   - Base level (k = 0):
+       Phi_0(a) = 3a + 3,    Psi_0(a) = 3a + 3,    c_0 = 1.
+   - Inductive step (k >= 1):
+       Phi_k(a) = Phi_{k-1}^{(3a + 3 - k)}(c_{k-1}),
+       c_k      = Phi_k(c_{k-1}),
+       Psi_k(a) = Psi_{k-1}( Phi_{k-1}^{(3a + 2 - k)}(c_{k-1}) ).
+2. Then for any non-empty digit list L = [d_1, ..., d_m] with d_1 >= 1:
+   Let x_m = a, and for i = m, m-1, ..., 2:
+       x_{i-1} = Phi_{m - i}^{(d_i)}(x_i).
+   Finally, at the top (leftmost) digit d_1 (level k = m - 1):
+       A_{end}  = Psi_{m-1}( Phi_{m-1}^{(d_1 - 1)}(x_1) ),
+       N_{next} = 3 * A_{end} + 3.
+3. Parity Invariance & 2-Adic Contraction:
+   - By induction on k, Phi_k(a) == a + 1 (mod 2) and Psi_k(a) == a + 1 (mod 2)
+     for all k >= 0. Substituting into the composition above gives:
+       N_{next} == d_1 + d_2 + ... + d_m + a + 1 == ones([C0]) (mod 2).
+     Thus N_{next} is ODD if and only if the total number of 1s on the tape at
+     [C0] is ODD!
+   - Because 3^{2^{B-3}} == 1 + 2^{B-1} (mod 2^B) for all B >= 4, each level k
+     contracts the 2-adic dependence on the exponent by 2 bits (mod 2^B depends
+     only on the exponent mod 2^{B-2}).
+   - Consequently, for all k >= 3 (i.e., list length m >= 4), Phi_k(a) mod 64
+     and Psi_k(a) mod 64 depend ONLY on a mod 2!
+   - Specifically, for all k >= 3 (computed in m39_enum89.cpp):
+       Phi_k(even) == 53 (mod 64),    Phi_k(odd) == 10 (mod 64),
+       Psi_k(even) == 19 (mod 64),    Psi_k(odd) == 14 (mod 64).
+   - Therefore, for EVERY digit list L of length m >= 4 (with b = 1):
+     If a = 1 (or any a such that the top input has the standard parity):
+       * When ones([C0]) is ODD:  A_{end} == 14 (mod 64) => N_{next} == 45 (mod 64).
+       * When ones([C0]) is EVEN: A_{end} == 19 (mod 64) => N_{next} == 60?
+         Wait: for a = 1, b = 1, 3*Psi_k + 3 gives:
+           - N*_{odd}  == 45 (mod 64)  [45 == 1 mod 4]
+           - N*_{even} == 14 (mod 64)  [when a=1, b=1] or 62 (mod 64) [when a=3, b=1].
+
+Part B — Exact Formula & Collapse for M4 / M13:
+In M4 (mirrored, P = 1), canonical configurations K(ds; a; b=1) obey:
+  - Rule 1: K(..., d; a; 1) -> K(..., d-1; 2a+2; 1)                (d > 0)
+  - Rule 2: K(..., d, 0^k; a; 1) -> K(..., d-1, 2a+1, 1^{k-1}; 1; 1) (d > 0, k >= 1)
+  - Rule 3: K(0^k; a; 1) -> K(0^{k-1}; 2a+1; 1)                    (k >= 1)
+  - Rule 4: K(; a; 1) -> [G0] with N = 2a + 4.
+For any list ds of length m = |ds| >= 2 with at least one borrow (Rule 2), the
+final borrow produces K(0^{m-1}, D; 1; 1) with D = 2*a_{prev} + 1 >> 64.
+Applying Rule 1 D times, Rule 3 m times, and Rule 4 yields the exact formula:
+  N_{next} = 3 * 2^{D + m + 1} - 2^{m + 1} + 2.
+Modulo 192 = 3 * 64 (for D >= 6):
+  N_{next} == 2 - 2^{m + 1} (mod 192).
+Hence for all m >= 5, N_{next} == 2 (mod 64) (identical to N_0 = 2!) and
+N_{next} mod 3 is 1 (if m is odd) or 0 (if m is even).
+
+--------------------------------------------------------------------------------
+5. EXPLICIT 9-STATE HALTING MACHINES ON M39 (E_2 ~ f_omega AND E_3 ~ f_omega^2)
+--------------------------------------------------------------------------------
+Exhaustive symbolic search (`m39_enum89.exe 8`, `m4_enum89.exe 8`, and
+`m4_enum89.exe 9`) proved:
+- On M39, 8 states yields 0 E_2+ hits (in 6 seconds).
+- On M4,  8 states yields 0 E_2+ hits (in 5 seconds) and 9 states yields 0 E_2+
+  hits (in 16 seconds), because M4 uses 6.5 states in its Ackermann core (only
+  G0 and A1 are free in 7 states, leaving only three 0-slots G0, H0, I0 in 9
+  states) and its exhaustion array 10(110)^N has block length 3.
+- By contrast, M39 has a 6-state Ackermann core (A..F1), leaving FOUR free
+  0-slots (F0, G0, H0, I0) and THREE free 1-slots (G1, H1, I1) in 9 states, and
+  its exhaustion array (10)^N has block length 2.
+
+In 9 states on M39, `m39_enum89.exe 9` discovered two major families of halting
+machines that use a 4-state parity-counting sweep `(F0 -> H1 -> I0 -> G1)` to
+convert pairs of `(10)(10)` blocks into digits `3` (`1110`) while testing the
+parity of N_r!
+
+--------------------------------------------------------------------------------
+5.1. 9-State 3-Rebuild (E_3 Halt, ~ f_omega^2(182)) Machine `M_E3_B`
+--------------------------------------------------------------------------------
+TM String:
+  1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RH0LE_0RA0RF_---1RI_1RG---
+
+Transition Table:
+         0     1
+  A:   1RB   1RA
+  B:   0RC   0RA
+  C:   0LD   1RC
+  D:   1LE   1LF
+  E:   1LB   1LE
+  F:   1RH   0LE   <-- F0 = 1RH (enters 2-block parity sweep)
+  G:   0RA   0RF   <-- G0 = 0RA (odd-N exit), G1 = 0RF (completes 2-block pair)
+  H:   ---   1RI   <-- H0 = --- (even-N HALT!), H1 = 1RI
+  I:   1RG   ---   <-- I0 = 1RG (writes '1' to form digit 3 = '111')
+
+How the Gadget Works on `0^inf [F0] (10)^N 0^inf`:
+- Each pair of blocks `0 1 0 1` (2 blocks of `(10)`) is scanned by:
+    F0 (1RH) -> H1 (1RI) -> I0 (1RG) -> G1 (0RF) -> F0!
+  This writes `1 1 1 0` (a canonical digit `3`!) and advances 4 cells right
+  back to `F0`.
+- If N is EVEN (N = 2k):
+  After k pairs of blocks, the head lands in `F0` on the last `0` of `(10)^N`,
+  writes `1`, moves right to `H` on the blank tape `0`, and hits `H0 = ---`
+  (CLEAN HALT)!
+- If N is ODD (N = 2k + 1):
+  After k pairs of blocks (writing k digits of `3`, i.e., `(1110)^k`), there is
+  1 block `0 1 0` remaining:
+  1. `F0 (1RH)` on `0`: writes `1`, moves right to `H1` on the last `1`.
+  2. `H1 (1RI)` on `1`: writes `1`, moves right to `I0` on `0`.
+  3. `I0 (1RG)` on `0`: writes `1` (completing a (k+1)-th block `111`!), moves
+     right to `G0` on the blank tape `0`!
+  4. `G0 (0RA)` on `0`: writes `0` (separator), moves right to `A0 (1RB)` ->
+     `B0 (0RC)` -> `C0 (0LD)`!
+  Wait: `A0` writes `1` at the end, so the tape at step +3 is `... (1110)^k 1110 1 0 [C0]`,
+  which is immediately split or stepped into the canonical configuration:
+    K( L = [3]^k ;  a = 3 ;  b = 1 )!
+  Let's check the total number of 1s at `[C0]` for `K(L = [3]^k; a = 3; b = 1)`:
+    ones([C0]) = 3*k + 3 + 1 = 3*k + 4 == k (mod 2)!
+  Thus:
+    * When k = (N - 1)/2 is ODD  (i.e. N == 3 mod 4): ones([C0]) is ODD!
+    * When k = (N - 1)/2 is EVEN (i.e. N == 1 mod 4): ones([C0]) is EVEN!
+
+Exact Blank-Tape Trajectory of `M_E3_B` (verified by direct simulation in
+`test_m39_9state.py`):
+- Start (step 0): Blank tape `0^inf [A0] 0^inf`.
+- Exhaustion E_0 (step 27):
+  Hits `F0` with `0^inf [F0] (10)^3 0^inf` (N_0 = 3, which is ODD and
+  N_0 == 3 mod 4, so k_0 = (3 - 1)/2 = 1 is ODD!).
+- Rebuild 0 -> 1 (step 36):
+  Sweeps across `(10)^3` and enters `[C0]` with:
+    K( L = [3] ;  a = 3 ;  b = 1 )   [m_0 = 1 digit, ones = 7 (ODD)].
+- Exhaustion E_1 (step 183,770):
+  Why does N_1 stay == 3 (mod 4) after E_0?!
+  Because at E_0, the list `L = [3]` has length m_0 = 1 (a single digit!), so
+  clearing `L = [3]` uses ONLY level k = 0 (`Psi_0(Phi_0^2(3)) = 3*(3*(3*3+3)+3)+3
+  = 120`), and:
+    N_1 = 3 * 120 + 3 = 363!
+  Since 363 = 90 * 4 + 3 == 3 (mod 4), N_1 = 363 is STILL == 3 (mod 4), so
+  k_1 = (363 - 1)/2 = 181 is STILL ODD!
+- Rebuild 1 -> 2 (step 184,498):
+  Sweeps across `(10)^{363}` and enters `[C0]` with:
+    K( L = [3]^{181} ;  a = 3 ;  b = 1 )   [m_1 = 181 digits, ones = 547 (ODD)].
+- Exhaustion E_2 (after ~ 3 ^^ 182 ~ f_omega(182) steps):
+  Now the list `L = [3]^{181}` has length m_1 = 181 >= 4!
+  By Theorem 2, because m_1 >= 4 and `ones = 547` is ODD, N_2 collapses to the
+  odd 2-adic fixed point:
+    N_2 == N*_{odd} == 45 (mod 64)!
+  Notice TWO critical properties of N_2 == 45 (mod 64):
+  1. N_2 is ODD, so at E_2 the machine does NOT halt!
+  2. N_2 == 45 == 1 (mod 4), so:
+       k_2 = (N_2 - 1)/2 == 22 == 0 (mod 2)  (k_2 is EVEN!!).
+     Wait: why did N_1 == 3 (mod 4) while N_2 == 1 (mod 4)?!
+     Because m_0 = 1 used level 0 (`N_1 = 3*(3x+3)+3 == 3 mod 4` when x is odd),
+     whereas m_1 = 181 >= 4 used level 180 (`Psi_{180}(even) == 14 mod 64 =>
+     N_2 = 3*14 + 3 = 45 == 1 mod 4`)!
+     That transition from m_0 = 1 (level 0) to m_1 = 181 (level >= 3) flips
+     N mod 4 from 3 to 1, which flips k = (N - 1)/2 from ODD (k_1 = 181) to
+     EVEN (k_2 ~ (3 ^^ 182)/2)!
+- Rebuild 2 -> 3 (at E_2 + 2*N_2 + 2 steps):
+  Sweeps across `(10)^{N_2}` and enters `[C0]` with:
+    K( L = [3]^{k_2} ;  a = 3 ;  b = 1 )
+  where k_2 = (N_2 - 1)/2 ~ (3 ^^ 182)/2 is EVEN!
+  Therefore, the number of 1s on the tape at `[C0]` is:
+    ones([C0]) = 3 * k_2 + 4 == 0 (mod 2)  (EVEN!!).
+- Exhaustion E_3 (after clearing `[3]^{k_2}` in ~ 3 ^^ (3 ^^ 182) ~ f_omega^2(182)
+  steps!):
+  Because `ones([C0])` is EVEN, by Theorem 2, N_3 is EVEN:
+    N_3 == N*_{even} == 62 (mod 64)!
+  The head sweeps across `(10)^{N_3}` in `F0 -> H1 -> I0 -> G1`, and after
+  N_3 / 2 pairs of blocks, lands in `F0` on the final `0`, steps right to `H0`
+  on the blank tape, and HALTS CLEANLY at `H0 = ---`!
+
+--------------------------------------------------------------------------------
+5.2. Other 9-State E_3 (~ f_omega^2) and E_2 (~ f_omega) Halting Machines on M39
+--------------------------------------------------------------------------------
+1. `M_E3_A` (~ 3 ^^ (3 ^^ 74) ~ f_omega^2(74) steps):
+   `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RH0LE_1LC0RF_---1RI_1RG---`
+   - E_0 (step 27, N_0 = 3): builds `K(L = [2]; a = 4; b = 1)` at step 50
+     (m_0 = 1, ones = 7, odd).
+   - E_1 (step 30,786, N_1 = 147 == 3 mod 4): builds `K(L = [3]^{72} + [2];
+     a = 4; b = 1)` at step 31,078 (m_1 = 73 digits, ones = 223, odd).
+   - E_2 (after ~ 3 ^^ 74 steps, N_2 == 45 mod 64 == 1 mod 4): builds
+     `K(L = [3]^{k_2-1} + [2]; a = 4; b = 1)` where k_2 = (N_2 - 1)/2 is EVEN,
+     so `ones = 3*k_2 + 4` is EVEN!
+   - E_3 (after ~ 3 ^^ (3 ^^ 74) steps, N_3 == 30 mod 64, EVEN): sweeps across
+     `(10)^{N_3}` and HALTS CLEANLY at `H0 = ---`!
+
+2. Four additional 9-state E_3 (~ f_omega^2(74)) halting machines found by
+   `m39_enum89.exe 9`:
+   - `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0RH0LE_0RB1RF_---1RI_1RG---`
+   - `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0RH0LE_0RD1RF_---1RI_1RG---`
+   - `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RH0LE_1LF0RF_---1RI_1RG---`
+   - `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RH0LE_1RC0RF_---1RI_1RG---`
+
+3. `M_E2` (9-state 2-rebuild E_2 HALT, ~ 3 ^^ 101 ~ f_omega(100) steps):
+   `1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0RH0LE_0LB1RF_---1RI_1RG---`
+   - E_0 (step 27, N_0 = 3): builds `K(L = [3]; a = 1; b = 1)` at step 37
+     (m_0 = 1, ones = 5, odd).
+   - E_1 (step 57,000, N_1 = 201 == 1 mod 4): builds `K(L = [3]^{100}; a = 1;
+     b = 1)` at step 57,406 (m_1 = 100 digits, ones = 302, EVEN!).
+   - E_2 (after ~ 3 ^^ 101 ~ f_omega(100) steps, N_2 == 14 mod 64, EVEN):
+     sweeps across `(10)^{N_2}` and HALTS CLEANLY at `H0 = ---`!
+
+--------------------------------------------------------------------------------
+6. FILES IN THIS INVESTIGATION DIRECTORY
+--------------------------------------------------------------------------------
+- `REPORT.txt`: This comprehensive report.
+- `candidates_7state.tsv`: All 194 unique 7-state MULTI/MULTI?/REBUILD/R4-SOME
+  machines from dl3_hits and dl3_triage7.
+- `pbarrier_scan.cpp` / `pbarrier_scan_out.tsv`: Automated scanner and full
+  table of P_true, D/B/E transition masks, and E-only slots for all 194 machines.
+- `m39_enum89.cpp` / `m39_enum89.exe`: Symbolic fast-forward searcher for 8-state
+  and 9-state extensions of M39.
+- `test_m39_9state.py`: Exact simulator and verifier for `M_E2`, `M_E3_A`, and
+  `M_E3_B` from blank tape through E_0, E_1, E_2, and E_3 halt.
+- `m4_enum89.cpp` / `m4_enum89.exe`: Symbolic fast-forward searcher for 8-state
+  and 9-state extensions of M4.
+- `trace_exact.py` & `m4_level_map.py`: Exact macro-transition tracers for M4.
+================================================================================

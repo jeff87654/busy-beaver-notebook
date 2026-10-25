@@ -1,0 +1,149 @@
+pocket_rescreen REPORT: size-ranked rescreen of never-ranked 8-state pockets (agent pocket-rescreen, Opus, 2026-10-23)
+=====================================================================================================================
+BOTTOM LINE
+  NO new BB(8) record candidate. Nothing ranks at or above M8, and nothing halts between champ35 (~2↑^37 3) and M8.
+  All 323 graded rows were settled by the tools or by hand (subagents), except 6 low-priority unsettled rows (sec. 5).
+  The 1814 roots holdouts were mostly ungraded. 165 roots growers outside the 1RB1LG family were classified (sec. 4).
+  1RB1LG roots block (1119 rows, capped per lead): 589 NOT-RECORD-CLASS by a gap filter, 7 small halts, and
+  523 UNCLASSIFIED (sec. 7; first exhaustion at most level ~14, so they need >= 3 rebuild-then-halt rounds to matter).
+  Several rebuild-forever engines (f_(omega+1)-shaped hosts, incl. F4.13) are listed for gadget work (sec. 6).
+  Earlier hypotheses confirmed: the R4-SOME/HALT-SOME 1RB1LG_0RC0R{F,H}.. rows never halt (every exhaustion rebuilds,
+  level ~63); the Ackermann-parent CHECK rows never halt (residue, multi-template) or halt small.
+
+1. POCKETS AND OVERLAP (inventory.py, inv_all.tsv)
+  sources (8-state rows)             rows   note
+  roots_grade/dl2.tsv                 168   graded subset of the 1814 roots holdouts (dlscan2 1e6 steps)
+  champ12_subtree/m8/dl2.tsv           29   (champ35 itself is here: positive control inside the run)
+  champ12_subtree/m7/watch_hits.tsv    42
+  neighbors/dl2_hits.tsv               21   = the 21 rank8 rows (all already ranked)
+  neighbors/dl_hits.tsv               127   dlscan v1 rows; 104 'partial' + 5 'unconfirmed' were NEVER dispatched
+  neighbors/nob_screen.tsv (8-st)      39
+  nested_detector bb8_sample dl3       21
+  unique 336; in rank8 21 (all of rank8); in reb7 pool8 22. NEW 315 + 8 roots rows with only a dlscan-v1 key = 323
+  ranked rows (rank_in.tsv; v1 keys converted to dlscan2 templates, rules refit by rank7/reb7).
+  The roots holdouts were never size-screened: 1814 machines, only 168 graded. A dlscan2 regrade at 5e6/1e5 gave the
+  same 168. Template-free blk at 3e8 steps found 1188 non-halting rows growing champion-like (span > 10000 cells),
+  1130 of them untemplated: 1043 of the 1RB1LG_0RC.. marker family plus 87 others. A further 87 untemplated rows grow
+  more slowly (span 200-10000): 76 of the 1RB1LG family plus 11 others. These were added (sec. 4).
+
+2. CONTROLS (all OK; run before the pocket, ctl_in.tsv / ctl_pool.tsv)
+  rank7 (ctl_rank.tsv): champ35 RECORD? level 37.0 | BB(7) champion CLOSE 13.0 | champ_231 RECORD? 21.0 |
+    X33, i NEVER-HALTS(invariant) | M8 LEAVES-TEMPLATE 13.0.
+    CAVEAT: rank7 measures only the FIRST exhaustion (M8 scores 13 < champ35), so every T row was followed up.
+  reb7 (ctl_reb.jsonl): M8 UNSETTLED{T} | champ35, BB(7) champ, champ_231 HALT@1 | X33, i NEVER(residue+INV).
+  W2 world (pkf8t --B 66 --cls 66 --mod 150): M8 HALTS (H1 at 3.2e8 steps, tops 817/753 then the 445 cascade).
+  r6 world (--B 6 --rk 1 --rc 20 --cls 6 --mod 360): M8 signature 11 97 12 4374 2617 (as bb8_resid).
+  Old champion: the lead's string (E0=1LF, H row undefined) has no reachable halt. champ35
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_1LC0RH_1RG1LF (level 37 = the 2↑^37 3 class) was used instead.
+
+3. RANKED TABLE (rank_main.tsv; 323 rows; full merge in final.tsv)
+  rank7 verdicts: REBUILD 189, LEAVES-TEMPLATE 71, CLOSE 18, SMALL-HALT 17, below 12, RECORD? 7, NO-K 5,
+  NEVER-HALTS(inv) 4.
+  Top 20 by estimated first-exhaustion level (rows with a fitted rule system; level l ~ 2↑^l):
+  lvl  machine                                                 grade      rank7     rule line                          final
+  63   1RB1LG_0RC0RF_1RD0RE_1LF---_1RF1RE_0LA0LG_1LH1LA_1LB0RB HALT-SOME  REBUILD   R1 1b+1|R2 a=2b+1|R3 2b-2k t=2 a=3 NEVER(residue)
+  63   1RB1LG_0RC0RF_1RD0RE_1RE---_..._1LB0RB                  HALT-SOME  REBUILD   same                               NEVER(residue)
+  63   1RB1LG_0RC0RH_{0RD,1RD}0RE_*---_1RF1RE_0LA0L{G,H}_1LH1LA_{0RA0LA,1LH0LA,0RE0LA}  14 rows HALT-SOME  REBUILD
+                                                                          R1 1b+1|R2 a=2b+2|R3 2b+2-2k t=2 a=2  NEVER(residue)
+  37   1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_1LC0RH_1RG1LF champ35 + 3 relabel/twins (0RG1LD_1RH1LG_1LC0RG,
+       ..1LC0RH_1RG1LH, ..1LC1RH_0LH0RF)                       CHAMPION   RECORD?   R1 2b+2|R2 a=2b+2|R3 2b+2 t=0      HALT@1 (known)
+  32   1RB0RA_..._---0LC_1RG1LD_1LC0RH_1RG1{RF,RH} (champ35 with H1 changed)  NOBOUNDARY REBUILD  same rules   NEVER(residue,multi)
+  27   1RB---_0LC0RG_1LE1LD_1LC0LB_0RF1RD_1RB1RH_1RE0RA_1RG{0LB,1LE} (Ackermann parent) HALT-SOME LEAVES-T  NEVER(residue,multi)
+  21   1RB0RA_{0,1}RC0RD_*---_1RE0L{F,H}_1RF1RD_1LE0LG_1LF1LH_0RA0LG (11 rows) CHECK REBUILD              NEVER(residue)
+  Rows whose rule refit failed (RULES?) carry no usable level. RECORD? 38/31/19 for 1RB0LD_0RC---_1LC0RD_..._1RH1RC_1LD1RG
+  and levels of 83..9583 on v1 rows are artefacts. All of them were decided by hand (sec. 4).
+
+4. HAND-EXAMINED ROWS (every row at or above champion level, every T / NOFIT / RULES? row)
+  * champ35 family (level 37, HALT@1): known. The old champion and its twins tie it; none beats it.
+  * Champion engine, E0 redirected, G0=0RH, halt H0:
+      1RB0RA_1LC1LF_1RD0LB_1RA1LE_{0RB,1LG,1RA,1RG}0LC_1RG1L{D,E}_0RH0RF_---0R{E,F} (level 13, LEAVES-TEMPLATE, T).
+    These are the M8-type suspects. None reproduces M8's escalation. In r6, M8 gives 11 97 12 4374 2617. These give
+    3 3 2..; 2 2 28 39x13 17x8 4..; 11 (stall); 3 3 1 0 1 2 2 6 1 0... No halt in W2 (1000 jumps / 3e9-step
+    segments) or in r6 (3e9). The 1RA/1RG variants are M8 "covers" already screened by bb8-resid (scr_cov0_18: no
+    halt, not continuers). The 0RB/1LG variants are new. Their halt needs G to read 00, the same mechanism as Z1/Z2,
+    which y1-deep found unreachable. UNSETTLED-low (sweep note in OPEN_CANDIDATES).
+    The E0=0RG pair (_0RG0LC_.._0{L,R}H0RF_---1{R,L}E) grows additively (W2 tops 807, 1603, 2399, ...: +796 per
+    round, rebuild forever). mrounds: NEVER(residue,multi).
+  * 1RB0LD_0RC---_1LC0RD_{1LE,1LF,0RF}1LE_0LF1LA_1LG0LG_1RH1RC_1LD1RG (rank RECORD? 38/31/19, refit failed):
+    subagent fam0LD (fam0LD/notes.txt). rk7's '-' hid trailing zero digits. Exact rules were validated on 400
+    configs, giving a single-digit map c -> ~(58*4^k)/3 that halts when c = 1 mod 3. All three halt small:
+    M_a sigma 1.81e15, M_c 1.73e9, M_b ~2^2^2^2^41.9 (< 2^^7).
+  * 1RB1LG_0RC0LB_1RD0RF_1LE---_.. (T1) and _1RD0RH_1LE1RC_.._---0RE (T2) (level 14, LEAVES-TEMPLATE, T), and their 16
+    unresolved siblings 1RB1LG_0RC0R{D,F}/0LD..: subagent famT14 (famT14/notes.txt, RESULT.txt). The digit list carries
+    marker bits. Each exhaustion prepends a block of size b-sum ~ b, so it is a REBUILD-FOREVER engine (f_(omega+1)
+    shape). Validated by random macro probes and blank-tape lockstep to 3e8-3e9 steps. All 18 NEVER-HALTS.
+    Rows _1LC0RE_..._{0RA0LA,1LH0LA} rebuild once (b=90). Odd N then gives an [M0]-alone loop b -> 2b+3.
+    Rows 1RB1LG_0RC0LD_1LE0RE_1LC{1RB,0RF}: [M(b),M2] -> [M(b'),M2] forever, with b' ~ tetration of b.
+  * mrounds (multi-template) on all 39 reb7-T rows: NEVER 12, HALT@2 5, UNSETTLED 22 (the 22 = the rows above).
+    The 5 HALT@2 rows are the H8 family (1RB1RG_0LC1LH_..), a fixed-size rebuild, small (reb7 REPORT).
+  * NOFIT rows (122; reb7 could not fit rules): growth.py and blk at 3e8 gave 15 LOW-GROWTH and 16 literal halts
+    under 3e8 steps. The 91 growers went to four S4 subagents (nofit_s4/s0..s3/RESULT.tsv): every family settled as
+    NEVER (single-block exponentials, bouncers, counter-reload "towers"), small HALTS (largest: 2^^(24570+O(1)) for
+    1RB1RA_0LC0RG_1LE1LD_.._1RA---; 2^2^2^92 for 1RB1RF_1LC1LE_..._---0LG; literal halters up to sigma 131064), or
+    NOT-RECORD-CLASS (Collatz-like bounded-depth maps, halting open). No flag (a) or (b) anywhere.
+  * Roots, 87 untemplated non-1RB1LG growers: borrowed sibling templates gave reb7/mrounds verdicts. NEVER(residue,multi)
+    for 13 (the 1RB1RC_.._---0RA family), HALT@2 small for 1 (H8). The other 67 went to S4 agent s4
+    (nofit_s4/s4/RESULT.tsv): Ackermann-parent extensions NEVER (n' = 2n+1 / 2n+2 orbit avoids the halting class) or
+    NOT-RECORD-CLASS; X33 relatives NEVER; H8 relatives NOT-RECORD-CLASS; one tiny literal halter. The 11 slow
+    growers (F4.mid) are NEVER (2) or NOT-RECORD-CLASS (9). No (a)/(b) flags.
+  * Roots, 1RB1LG marker family (1043 fast + 76 slow growers = 1119): NOT classified, see sec. 7.
+
+5. FINAL VERDICTS (final.tsv, 323 ranked rows)
+  NEVER-HALTS 224 (reb7/mrounds 162, S4 62) + 3 'NEVER?' (1RB0RA_{0,1}RC0RD_{0,1}RG---_..: every round rebuilds,
+  one class, round cap) | HALT@1/@2 30 (champion family, champ35 family, H8) | small HALTS 34 | NOT-RECORD-CLASS 21 + 3
+  low-span | UNSETTLED 6, all low priority:
+    the 4 champion-engine E0-redirect rows of sec. 4; the calibration row 1RB0RA_.._---0LC_1RH1LG_0RG1LD_0RH0RF
+    (already Coq-proved non-halting: proofs/BB8_m7_1RB0RA_1RH1LG.v); 1RB0RA_0RC0RD_0LF---_.. (reb7 ERROR; level 2.6
+    sibling of the NEVER(residue) family).
+
+6. f_(omega+1)-SHAPED HOSTS (rebuild forever; never halt; candidates for counter-gadget work)
+  T1/T2 family (famT14: block of size ~b prepended per exhaustion; 18 rows) | champ35 H1-variants
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_1LC0RH_1RG1{RF,RH} (level-32 exhaustion rebuilds a 12b+37-digit list,
+  every class) | 1RB1LG_0RC0R{F,H}.. level-63 family (16 rows, every exhaustion rebuilds) | E0=0RG pair (additive
+  tops) | 1RB0RA_{0,1}RC0RD_.. level-21 family | 1RB---_0RC0RH_0LD1RC_1RE1LE_1LF0LG_1LB0RD_1LA1LF_1RB1RH (S4 F4.13, flag c:
+  list grows to length d, d rebuilt from the accumulator forever). Counter-reload "tower" hosts (f_3 level, no list)
+  are listed in the S4 RESULT files and are not useful.
+
+7. ROOTS 1RB1LG MARKER FAMILY: 1119 ROWS (r1lg.txt; capped on the lead's instruction)
+  These are untemplated champion-subtree roots 1RB1LG_0RC.._1RD?_1LE?_1RF1RE_?0LG_.. (T1's family). None halts within
+  3e8 steps. Each uses a distinct transition set. Backref (depth 40) decides none.
+  famT14 found the T1 run coding in only 7 rows. In the rest the counter lives in ZERO GAPS: the first exhaustion turns
+  the accumulator into a gap of ~2b zeros, and that gap is then worked off in steps of +-1 to -4 per doubling of B.
+  That is exponential per round, not f_omega. Hand-read on #60 by famT14 (HANDOFF in famT14/notes.txt).
+  Cheap size filter (tools/gapsnap.exe): snapshots of the zero-gap and 1-run structure at 1e7/3e7/1e8/3e8 steps
+  (gapsnap_r1lg.txt -> gapcls_r1lg.tsv -> r1lg_final.tsv).
+    UNARY-GAP 351: one big gap, nearly constant (e.g. 96, 93, 90, 87) while the largest 1-run grows (#60 shape).
+    MULTI-GAP const 126: an inert big gap plus a second gap shrinking by 3 per checkpoint. Same unary consumption.
+    GAP-GROWS 65: the rebuild is seen inside the window. A gap of size ~ the accumulator appears (12228 -> 12273).
+    MULTI-GAP changing 40: repeated fixed gaps (218) whose count grows linearly; linear span (1.65e6 at 3e8).
+    -> 582 NOT-RECORD-CLASS by this filter. A further 7 show a gap by 2e9 and 7 halt within 2e9 steps (small).
+  UNCLASSIFIED 523 (r1lg_final.tsv, label UNCLASSIFIED). These show no gap structure up to 3e8 steps, or up to 2e9
+  for the 71 of them run that far. This literal filter cannot tell a binary/unary counter from a T1-type digit list:
+  both show a few long 1-runs and gaps <= 2, and spans of ~16000-33000 at 3e8.
+  Size estimate: their first phase is the shared parent engine, at most ~2↑^14 (T1's first exhaustion is level 14).
+  The T1-coded relatives were all rebuild-forever, and the gap-coded ones are exponential per round. A record would
+  need >= 3 rebuild-then-halt rounds; no evidence of that appeared anywhere in the family.
+  Needed to close: the gap-coded engine (famT14 HANDOFF outline) on the largest NOGAP groups. The 6 G1 C0 variants
+  (T1 coding) need only glock/gval runs with famT14's geng.py.
+LEFT UNCLASSIFIED (complete list)
+  * 523 1RB1LG roots (sec. 7): size at most ~2↑^14 per round unless 3+ rebuild-then-halt rounds; not record candidates.
+  * 4 champion-engine E0-redirect rows (sec. 4; first exhaustion ~2↑^13 3, no M8 escalation, no halt seen).
+  * 1RB0RA_0RC0RD_0LF---_1RE0LH_1RF1RD_1LE0LG_1LF1LH_0RA0LG (reb7 ERROR; level 2.6; siblings never halt).
+  * Bounded-depth, halting open (NOT-RECORD-CLASS in the S4 files; at most f_4/f_5 or Collatz-like, << champ35):
+    S4 F0.2, F0.4, F1.3b, F3.3, F4.0-converters, F4.19, F4.11/12/26/27, F4.mid (9 rows).
+
+COST
+  CPU (Idle, 1-2 cores): rank7 ~45 min, reb7 2 x 45 min, mrounds ~55 min, growth/blk ~1 h, W2/r6 runs ~40 min,
+  dlscan2 ~5 min; subagents about 1 core each over 25-100 min (fam0LD, famT14 x4 rounds, S4 x5).
+  Gap filter ~25 min (1 core); partial 2e9 runs ~15 min (2 cores, stopped by me after 90 rows).
+  Tokens: own ~0.45M; subagents ~1.9M (fam0LD 0.12M, famT14 4 rounds ~0.45M, S4 s0-s4 0.16/0.21/0.26/0.14/0.25M + follow-up).
+  Wall time 09:10-18:45. No helper or own process is still running.
+
+FILES (bb8_list/investigations/pocket_rescreen/)
+  notes.txt, pids.txt, REPORT.txt | inventory.py, inv_all.tsv, build_inputs.py, rank_in.tsv, pool_in.tsv |
+  ctl_in.tsv, ctl_rank.tsv/.log, ctl_reb.jsonl | rank_main.tsv/.log (rank7) | reb_s0/s1.jsonl, reb_all.jsonl (reb7),
+  mr.jsonl (mrounds) | growth.tsv, blk.txt, nofit.jsonl | joined.tsv, final.py, final.tsv | w2/ (pkf8t W2/r6 runs) |
+  tr_0LD.txt | fam0LD/, famT14/ (subagents) | nofit_s4/slice0-4.tsv + s0..s4/RESULT.tsv | roots_all.txt,
+  roots_dl2_5e6.tsv, blk_roots.txt, roots_big_untemplated.txt, roots_mid_untemplated.txt, pool_oth.tsv,
+  reb_oth.jsonl, mr_oth.jsonl | r1lg.txt, used_r1lg.txt, br_r1lg.tsv, gapsnap_r1lg.txt, gapcls_r1lg.tsv,
+  gapsnap2e9_nogap_partial.txt, r1lg_final.tsv, tools/{used,gapsnap,gapsnap3}.cpp, tools/{br_batch,gapcls,gs2cls}.py | OPEN_CANDIDATES.before_pocket.txt (backup; a sweep note was inserted at the end of OPEN).

@@ -1,0 +1,10 @@
+2026-10-22 05:48:46 packaging started: worktree C:/Users/jeffr/Downloads/bb9c7_wt branch bb9-c7 off bb9-f3 (= main 78bd08e; the f3 package is still uncommitted in bb9f3_wt)
+2026-10-22 05:53:06 clean from-scratch build launched: pkg/launch.py (Idle, J=3, COQC=pkg/coqc_idle -> pids_pkg.txt with cpu times), log BB9/verify_c7/compile_clean.log
+2026-10-22 05:57:35 committed sources + write-up on bb9-c7 (597f410); build running
+2026-10-22 05:58:11 CI job text prepared in pkg/ci_job.txt (insert after the f3 PR merges: job + paths filter bb9-c7 + outputs line)
+2026-10-22 10:08:55 clean build PASSED (6890 s wall, 6721 s cpu, probe 5/5); committed logs+README+sha256 (953b1ce); waiting for the f3 PR merge
+2026-10-22 10:22:33 rebased bb9-c7 onto origin/bb9-f3 (52aab0e); added CI job bb9-c7 (timeout 150), paths filter, README BB9 section (C7 entry, f3 dominated), dominated-note in f3 write-up: commits 214ceec 12287ea 92a140a. NOT pushed; waiting for PR #30 (f3) to merge.
+2026-10-22 12:20 lead: a CI-filter PR lands after #30; then rebase bb9-c7 on main, job in the new paths style. Package copies of the 3 new files staged in the session scratchpad (pkgstage)
+2026-10-22 14:17 rebased bb9-c7 onto origin/main 60a24cc (741f01c d449f76 609521f); staged Lower5 files + DEPLIST/_CoqProject/probe (8 closed); compiling the 3 new files + probe with compile_clean.sh only (launch.py, log compile_lower5.log)
+2026-10-22 14:30 staged + committed locally (Lower5 package files, probe 8/8 closed, write-up 2.2, READMEs, CI counts): 72a003a. NOT pushed; waiting for go after narrow-CI PR
+2026-10-22 14:32 rebased on f4d567f, narrow filter commit, pushed; PR #32 opened; only bb9-c7 runs

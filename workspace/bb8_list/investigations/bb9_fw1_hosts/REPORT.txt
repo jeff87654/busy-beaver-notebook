@@ -1,0 +1,83 @@
+bb9_fw1_hosts REPORT (2026-10-22): moving-separator f_(omega+1) host search (7/8-state host + <=2 states -> 9-state halter)
+=========================================================================================================================
+ANSWER: NEGATIVE. No MOVING-with-consumption or CREATES host with an accumulator-length rebuild exists among the
+1347 graded looper/rebuild rows (7, 8 and 9 states). The only constant-shift grower is one 8-state machine (H8), and
+an exhaustive H8 + 1-state screen (24,934 machines) finds no late halt. Nothing appended to OPEN_CANDIDATES.
+
+1. METHOD (tools in this folder, all Idle, <= 2 cores)
+   hpc.cpp (current build hpcw2.exe): literal chain probe. Round = run until a stable K-configuration (same outer
+     prefix O and digit count n at 6 consecutive parseable K-moments; free-prefix parse from the template's u/s/S),
+     then MODE 1 reset: keep O and the leading (most significant) digit literally, a = 0, b = b1. The machine then
+     runs that digit down itself and reaches a GENUINE exhaustion every round, so many rounds are visible
+     (blank-tape runs show only 1-3 exhaustions). Per round: lo (leftmost 1), leftmost visited cell, n, O.
+     Env: HPC_WMAX (width cap), HPC_KMAX (K-moments per round), HPC_SLOTS (slot counts per round).
+   mkpool.py -> pool.tsv: 1347 distinct LOOPER/REBUILD/MULTI/MULTI? rows from dl3_hits, dl3_triage7,
+     triage7_1RB1LA, parents (7-state, 698), bb8_sample + calib (8-state, 16), roots9, c7m12, n1f0, n1f0c (9-state, 633).
+   probe.py -> base_all.jsonl; classify.py -> cls_all.tsv: chains from the blank tape, b1 = 3 and 4, 6 rounds.
+     Classes (rounds >= 2): STATIC (lo fixed), SHIFT (lo moves by one constant for both b1), OUT (lo moves outward by
+     an amount growing with b1, i.e. Theta(b)), OUTc, CREATES (outer prefix longer for larger b1 / growing over
+     rounds), NONE (halt / timeout / < 3 rounds). growth = rebuilt digit count larger for b1 = 4 than for b1 = 3.
+   planted.py -> planted.jsonl; plsum.py -> plsum.txt: blocks {1^8, 1^9, (10)^6, (110)^5, (100)^5, (1100)^4} planted
+     beyond the separator at gaps 1-3, 6 rounds: is a block consumed per round? does contact halt?
+   h8g.py -> h8g.tsv: H8 + one new state (section 4).
+
+2. CLASSIFICATION (cls_all.tsv)
+     7-state (698): OUT/grow 640 | SHIFT/fixed 16 (1 CREATES) | OUTc/fixed 5 (2 CREATES) | NONE 37
+     8-state (16):  OUT/grow 14  | SHIFT/grow 1 (= H8)                                   | NONE 1
+     9-state (633): OUT/grow 312 | OUT/fixed 7 | OUTc/shrink 6                           | NONE 308
+   * STATIC: 0. Correction to bb9_fw1_counter: its 489 "one-sided, STATIC MSD end" rows (geo_all.tsv) looked static
+     only because no exhaustion happened after 2^20 steps (e.g. 1RB---_0LC0RG_... rebuilds 1^5 at step 304 and then
+     runs f_5). Under a forced exhaustion 467 of them are OUT/grow: the separator is rewritten ~n cells further out each
+     round and the rebuilt list straddles the old position. The rest are NONE / SHIFT-fixed / OUTc-fixed.
+   * Every row whose rebuild length grows with the accumulator is OUT (both list ends move Theta(b) per round), except H8.
+   * The constant-shift rows (SHIFT/OUTc, 21 at 7 states) all rebuild a FIXED-size list (n independent of b1): additive
+     or fixed-depth counters (incl. the dl3 "m" family: unary counter 1^(3a+2) + fixed inner list; and 1RB0RD_1RC---_*,
+     whose (100)^k prefix grows each round with n = 2). Not f_(omega+1) hosts.
+   * CREATES with growth: none.
+   * NONE: 7/8-state 38 = parity halts at the first forced exhaustion (the dl3 F1-F3 type, excluded by invariants in
+     real runs) + 16 rows whose forced exhaustion never returns to a parseable list even at 3e8 steps per round
+     (tbig.txt; lo keeps moving outward on about half of them): UNRESOLVED by this tool, listed in tlist.txt.
+     9-state 308 = mostly champion/parity halts at the first forced exhaustion (roots9 HE0/HI1/HI0, c7m12 HH0/HI1,
+     n1f0 HE0) and timeouts; these slices were already closed by earlier work.
+
+3. PLANTED BLOCKS (676 classified 7/8-state rows x 18 variants)
+   ABS0 5596, ABS1 3692 (absorbed into the list within 1-2 rounds); H1 1403 + H0 753 (contact halts in the first
+   round, before any counting); T ~530; SURV 15 (only the fixed-size OUTc rows and H8); H2 11 = a (1100)^k contact
+   artefact on 3 OUT rows (round-2 halt for EVERY k = 1..12, checked) + 2 fixed OUTc rows.
+   No growing host consumes a planted block one unit per round. On OUT hosts the frontier moves Theta(b) per round, so
+   anything parked beyond is overrun at the next exhaustion (the bb9_fw1_counter result for the 18 v-coded bases holds
+   for the whole pool): a counter would have to be transported with the list (>= 3 states).
+
+4. H8 = 1RB1RG_0LC1LH_1LD1RC_---0LE_0RF0LA_0RA1LH_1RA0RC_1RA1LF (8 states, bb8_sample LOOPER, template
+   R,C,P=1,u=10,s=11; rebuild n = 220 / 252 / 284 for b1 = 3 / 4 / 5)
+   * Each round the whole configuration shifts exactly ONE cell outward (identical reset words); growth on the LSD
+     side; far side pristine. The real blank run agrees (lo 0 -> -1 at the rebuild at step 1763; no further exhaustion
+     within 3e9 steps).
+   * A block planted behind a gap g: the gap shrinks 1 cell per round with normal growth (a gap counter that counts
+     rounds UP), then the block is absorbed as leading zero digits (runs of 1s parse as s = 11). The contact round has
+     exactly the slot profile of a normal round. h8x.py: all 192 words X (length <= 7) x gaps 1-3: no halt.
+   * E0 (defined 0RF) and D0 (undefined) are never read.
+   * A 9-state f_(omega+1) design on H8 would need a far marker at accumulator distance (transport, >= 2 states) plus a
+     contact detector (>= 1): more than 1 new state. Screened anyway: h8g.py = H8 + I with every hook (each defined
+     transition re-targeted to I keeping write/move, or D0/E0 set to any write/move -> I) and all I0, I1 (36 actions +
+     halt): 24,934 machines, chain screen b1 = 3 (and b1 = 5 if late), 10 rounds:
+     T0 14175, H0 9243, END10 1512, T1 3, H1 1; ZERO halts at round >= 2. Negative.
+   * H8 + 2 states is a 10-state question, not run.
+
+5. CONCLUSION / LESSONS
+   * All 7/8-state f_omega rebuild-loopers in the graded pool rebuild OUTWARD by Theta(b) per round. No BB(13)-style
+     static separator exists among them; the earlier STATIC label was a no-exhaustion artefact. With <= 2 new states
+     nothing outside the list survives an exhaustion, so the "moving separator / created counter" route needs a host
+     class we do not have (an engine that rebuilds toward the accumulator side and leaves its outer end fixed or
+     consumes from it). The one constant-shift grower (H8) drifts outward (counts rounds up) and absorbs every marker;
+     H8 + 1 state is exhaustively negative at screening level.
+   * Classify hosts with forced exhaustions (hpc MODE 1), not with blank-tape geometry.
+   * Caveats: MODE 1 deletes the list right of the leading digit, so a gadget whose counter lives inside the list or on
+     the LSD side would be destroyed by the reset (the h8g screen is biased against such designs); 16 7/8-state rows
+     unresolved (tlist.txt); classification uses b1 = 3, 4 only.
+   * Side result: the 23 dl3_hits + 2 triage7_1RB1LA W1-LOOPER rows (not in the earlier pool) have sqrt(t) tape width
+     (runw.py): polynomial, not record class.
+
+Files: notes.txt, pids.txt, pool.tsv, base*.jsonl, cls_all.tsv, planted.jsonl, plsum.txt, h8g.tsv, tlist.txt,
+tbig.txt, hp.cpp/hp.exe, hpc.cpp (-> hpcw2.exe), probe.py, classify.py, planted.py, plsum.py, h8x.py, h8g.py, tbig.py,
+mkpool.py, runw.py. CPU: about 3 core-hours at Idle priority.

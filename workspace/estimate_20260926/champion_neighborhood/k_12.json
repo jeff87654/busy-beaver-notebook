@@ -1,0 +1,1 @@
+{"root":"1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_---0RF_------","states":8,"seed":112,"probes":8888,"nodes":{"sum":70779320,"sumsq":2181809619128,"max":33825},"holdouts":{"sum":1557056,"sumsq":50473519104,"max":32768},"halters":{"sum":23396352,"sumsq":766651662336,"max":32768},"cpu_seconds":{"sum":1102786.8494884295,"sumsq":6140096209.2468309,"max":19627.90116476675}}

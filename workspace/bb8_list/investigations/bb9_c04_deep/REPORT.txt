@@ -1,0 +1,181 @@
+C04 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_0RG1LD_0LH1LH_1RI---_0RI0RF  --  deep investigation
+=====================================================================================================
+Workspace: bb8_list/investigations/bb9_c04_deep (notes.txt = running notes, runs/ = all data, scripts listed in section 7).
+Agent: c04-fable, 2026-10-17.  Builds on bb9_parked (Opus agent); every fact used below was re-derived or re-checked here.
+
+0. SUMMARY
+----------
+Verdict: C04 HALTS, after its second escalation, with
+
+    sigma(C04)  >  2 ^^(11 R2) 4  >  2 ^^(2 ^^(12B+25) 4) 4,        2B+4 = 2 ^^13 3  (B = the record's B),
+
+i.e. sigma > f_omega(f_omega(12B+24)) >> f_omega(f_omega(465009)) = the published fw2 bound.  Status: STRONG EVIDENCE
+(abstract model verified against ~700 literal pkf4/ktr runs in several hundred contexts; no proof yet).  The exact value of
+sigma depends on quantities that are not computable in practice (see 3), but the lower bound does not.
+
+The two facts that overturn the previous "Collatz-hard" assessment:
+ (i) PARITY INVARIANT.  The level-B cascade is one 5-adic affine chain L -> (3L + c)/5 with c in {32,-46,-64,-52} (and -100
+     for the stop branch).  All constants are even, so L mod 2 is invariant.  L0 = 36B+73 is odd.  The only way to halt
+     before the second escalation is the all-even tree 10 <- 34 <- 46 <- 94 <- ... .  Hence that halt is impossible.
+ (ii) ENDGAME EXHAUSTION.  The entry value of the chain into the small window (first value < 60) is odd and = 1 mod 3, hence
+     in {31,37,43,49,55}; from every one of these the machine activates the parked list 1^(12 R2 - 10 - ...) (second
+     escalation) and then halts in state H reading 1, after a counter mode whose every variant was followed to the halt.
+
+1. MACHINE, NOTATION, TOOLS
+---------------------------
+Table:  A 1RB 0RA | B 1LC 1LF | C 1RD 0LB | D 1RA 1LE | E 1LH 0LC | F 0RG 1LD | G 0LH 1LH | H 1RI --- | I 0RI 0RF.
+The undefined slot is H1.  H is entered from E0 (1LH) and from G (0LH/1LH).  Gadget equivalence with the BB(7) champion:
+F0 G(0/1) H0 I* reproduce the champion's F0 1RG / G 0RG 0RF exactly (H always reads the 0 that F just wrote), so every
+champion-rule computation (states A-D, E1, F1 + gadget) is step-for-step equivalent; C04 differs only when E0 is read, which
+is exactly the champion's halting situation (an exhausted all-zero digit list).  So the record's rules R1/R2/R3 and clearing
+functions U_j hold verbatim for C04 until an exhaustion.
+Notation (record's Kt): Kt(d_n..d_1; m; r; t) = 0^inf 11 D(d_n)..D(d_1) D(m) (10)^r 11 (11111100)^t 1001 B> 0^inf, D(x)=(10)^x 1.
+Digits are tokens = 1 mod 3 (value (x-1)/3), zero digit = D1 = 101.  "1^k" below = k zero digits.  Views are far -> near.
+Tools (copied from bb9_parked, unchanged): ktr.exe (literal K-moment tracer), pkf4.exe (literal TM with two jumps: CL =
+champion clearing of the digit suffix -> r := 3R+2 with R from a size policy, R1 = exact doublings).  New: tmsim.py (literal,
+whole-tape raw dumps), pk.sh, survey.py/survey2.py, chain_model.py, check_stops.py, real_chain.py.
+
+2. THE RUN (abstract model)
+---------------------------
+2.1 Level 0.  Blank tape -> Kt(1^10, 7; 1; 2; 0) at step 2369 (record: step 2149; the gadget costs 2 extra steps per use),
+    then the champion program clears the list: K([0]*11; 0; B; 0) = Kt(1^11; 1; 3B+2; 0), B = U_10(U_10(0)), 2B+4 = 2^^13 3.
+    Residues: B = 1 mod 5, B = 6 mod 2520 (towermod.py), B even.
+
+2.2 Exhaustion #1 (E0 is read at the far left end).  Kt(1^11; 1; 3b+2; 0) ->* Kt(0,0,7,1^(12b+24); 1; 2; 3)   [re-verified
+    literally for b = 7, 100 here; bb9_parked: b = 0,1,2,7,100..104,616,2491].  The champion rules then clear the digit 2 (=D7)
+    and the 12B+24 zeros:  Kt(0,0,1^(12B+25); 1; 3R2+2; 3) with R2 = U_{12B+24}(U_{12B+24}(0)), 2R2+4 > 2^^(12B+25) 4.
+    First escalation.  (Here "0,0" are the far 11 cells read as two D0 tokens.)
+
+2.3 Exhaustion of a zero list = a chain of sub-steps.  An exhaustion starts from Kt(ctx, 1^n; 1; 3R+2; t).  The accumulator
+    run is re-encoded (36R^2+O(R) steps) and the list becomes a run of n' = L ones ("D0-run"), L = 3n-2 (top level, ctx =
+    0,0) or L = 3n-5 (ctx ending in 0,2,z2 = the marker left by a previous stop).  Then, while L >= 60 (empirical threshold;
+    all checks below are for L >= 60):
+        r = L mod 5:  r=1: L -> (3L+32)/5     r=2: L -> (3L-46)/5     r=3: L -> (3L-64)/5     r=4: L -> (3L-52)/5
+        r=0 (L >= 30): STOP.  The run becomes a digit X = (L-30)/5 + 8 behind (L-30)/5 zero digits, preceded by the
+              marker 0 2 z2; the next clear (CL) gives n' = (L-25)/5 zeros, so the next exhaustion starts at L' = 3n'-5 =
+              (3L-100)/5.
+    Every sub-step writes, to the left, a separator s_r = (4 5 | 2 | 6 | 4) for r = (1|2|3|4) and a token y = (L+d_r)/5,
+    d_r = (-21 | 3 | 7 | 11), consumes a_r = (11 | 4 | 6 | 6) zero digits of the parked list, and adds 3 tail blocks; the stop adds
+    3 more tail blocks, takes 3 more parked zeros, and the last token written carries +3 (y_s+3, or 6R+12 when s = 0) which the next
+    exhaustion removes.  Checked: 340 sub-steps (tokens and separators) and 280 chains with all residue stops matching
+    (check_stops.py), k up to 600 (L0 up to 1795), in the real-like context of 2.5, and 62 randomized contexts with the complete
+    token string, t and parked length predicted exactly (rule_test.py, runs/rule_a.txt, rule_b.txt).
+    Arithmetic consequences: every chain value is = 1 mod 3; stops are L = 10 mod 15; the number of zeros n' is = 0 mod 3
+    (so X = n'+6 is a digit, automatically); L mod 2 is INVARIANT (all constants even).
+    The accumulator of the exhaustion is converted into a parked object placed just left of the near region:
+        top level (ctx 0,0, t=3):          a parked LIST 1^(12R-10)      (exhaustion #2 only)
+        later, >= 1 sub-step:              a parked TOKEN D(6R+9), inserted before the parked list, and the token adjacent to
+                                           the parked list loses 3 (it was written with +3), the parked list loses 3 + sum a_r zeros
+        later, 0 sub-steps (L0 = 0 mod 5): a parked TOKEN D(6R+12) = (6R+9)+3 adjacent to the parked list, parked list loses 3.
+    Top-level first step with L0 = 1 or 2 mod 5 behaves differently (not needed: the real L0 = 4 mod 5).
+
+2.4 Exhaustion #2 (top level, n = 12B+25, L0 = 36B+73 = 108499 mod 5^8).  Residues (towermod): branches 4,4,3,3 then stop:
+    108499 -> 65089 -> 39043 -> 23413 -> 14035 (= 0 mod 5).  Result (literal for n = 1792, 4917 = real class mod 5^5, R2 small):
+        Kt(0,0, y1,4,y2,6,y3,6,y4, 1^(12R2-10), 0,2,z2, X, 1^k3; 1; 2; 18),  k3 = (243n-32331)/3125 ~ 0.93 B,  X = k3+7,
+        y1 = (3n+9)/5, y2 = (9n-3)/25, y3 = (27n-259)/125, y4 = (81n-152)/625.
+    CL clears X 1^k3 -> R3 (depth k3, so R3 << R2) and exhaustion #3 starts: n = k3+1, L0 = 3n-5 = (3*14035-100)/5-class.
+
+2.5 The level-B cascade.  From here on every exhaustion is in the context
+        ... [triples (6R_i+9) 2 y_i  or  tokens (6R_i+12)] 1^(P) 0 2 z2 | X 1^k        (P = 12R2-10 - 7j - 3j'')
+    and the chain simply continues: the whole cascade is ONE orbit of the map of 2.3 (with the stop branch L -> (3L-100)/5),
+    started at 36B+73.  The near list shrinks geometrically (factor 3/5 per step), so the cascade has about
+    log_{5/3}(36B) exhaustions -- a tower-sized number -- before L gets small; its residue path is computable only for the
+    first ~K steps from B mod 5^K (real_chain.py: first 22 exhaustions have 4,8,4,6,0,0,2,3,3,4,3,6,0,2,5,3,21,1,1,4,12,0
+    sub-steps).  The value at which the orbit enters the window [0,60) depends on all base-5 digits of B (leading and
+    trailing) and is NOT computable in practice.  This is where the previous agent stopped ("Collatz-hard").
+
+2.6 The endgame.  Define the KEY = first orbit value < 60.  Because L = 1 mod 3 and L is odd (parity invariant from the odd
+    start), the key is in {31, 37, 43, 49, 55} (the even keys 22, 28, 40, 46, 52, 58 and the odd/even small values 4, 13, 16,
+    19, 25 as exhaustion starts are unreachable from an odd start).  Measured fates (survey of all k = 0 mod 3 up to 600 in the
+    context "0,0,1077,4,645,6,385,6,229,19749,2,77,1^P,0,2,z2 | 1^k", P = 3000..3005, R0 = 300..5000; plus mini worlds):
+        key 37: 37 -> 13 -> the chain runs out, consumes 0 2 z2, continues into the parked list and leaves the tokens
+                "6 7" before it: ESC (CL of the digit 7 at depth P'' ~ P), then counter mode 6 -> 3 -> 0 -> HALT H1.   [class b]
+        key 43: 43 -> 13 -> same.                                   key 49: 49 -> 19 -> "4 6 7" -> same.
+        key 55: stop -> k=6 -> 13 -> same.
+        key 31: 31 -> 25 (not a valid stop) -> ESC with the tokens "... 2 7" before the parked list; the post-ESC exhaustion
+                first does one sub-step on the parked list P' -> (3P'-c')/5, c' = (30,33,21,34,37) for P' mod 5 = (0,1,2,3,4):
+                P' = 1 mod 5: counter 3 -> 0 -> HALT (4 clears after ESC)                                              [class b']
+                P' = 0: form "2 1 [C] T|", C = 6R_ESC + ~0.6P';  P' = 2: "2 4 (6R+1) [C] T|";  P' = 3: "2 3 (6R+6) 2 z2 [C] T|";
+                P' = 4: "2*2 (6R+7) z2 0 2 z2 [C] T|", C ~ 0.6P'.  Counter mode: each CL of "T 1^z" (T = 6R+7, a digit 2R+2)
+                is followed by an exhaustion that rewrites T from the new accumulator and takes 3 off C.  At C = 0:
+                "2 1 0 T|" -> HALT;  "2 4 (6R+1) 0 T|" -> HALT;  "2 3 (6R+6) 2 z2 0 T|" -> two more clears -> HALT;
+                "2*2 T z2 0 2 z2 0 T'|" -> "2 1 [6R'+T+8] 7 1^(z-1)" (one nested cycle, tower-sized counter) -> HALT.  [class c2]
+        All counters observed are = 0 mod 3 (so the C=0 forms are the ones reached); the residues 1, 2 were also tested and
+        halt (through a full top-level-like rebuild), so nothing hinges on it.  All four C=0 endings were re-run in the big
+        real-like context (P ~ 1780-3000, R = 800-1000, runs/c2ends.txt): HALT, HALT, 2 clears -> HALT, and the nested form
+        "2 1 [8415 = 6*800+3607+8] 7 1^1777" exactly as predicted (which is the first ending).  Full counter-mode countdowns
+        with fixed R = 400 (runs/c2full.txt, ~1400 and ~2600 clears) were also launched; see notes.txt for their status.
+    The (a) class -- halt BEFORE the escalation -- exists (keys 46 -> 34 -> 10: "... 7 1^P 0 2 3 | m=3" -> R1 -> HALT) but is
+    even-only, i.e. unreachable.  End-to-end worlds from exhaustion #2 (n = 1792+3125j, j = 0..4, order-faithful accumulators)
+    all halt three clears after the ESC.
+
+3. VERDICT, STATUS, WHAT IS NOT COMPUTABLE
+------------------------------------------
+PROVED (paper/computation): parity invariance and the key set, given the sub-step rule; residues of B; exhaustion #2's path.
+STRONG EVIDENCE (literal simulation in representative worlds, hundreds of contexts, no counterexample): the sub-step rule for
+L >= 60 in the cascade context; the endgame table; the post-ESC counter modes and their halts; size-independence (R >> P or
+R << P give the same forms; the rules are local).
+HEURISTIC: which fine class occurs.  With a uniform prior on an odd start: key 31: 0.52, 49: 0.35, 37: 0.08, 55: 0.03,
+43: 0.02; P' mod 5 uniform =>  P(HALT 3-4 clears after ESC) ~ 0.58, P(long counter mode first) ~ 0.42.  The real class is
+decided by the full base-5 expansion of B = (2^^13 3 - 4)/2 (the orbit's entry point) and by the number j of cascade
+exhaustions (through P' mod 5): not computable in practice.  So C04 is a machine that provably (modulo the model) halts
+while its exact score is beyond computation; only bounds are available.
+NOT a reduction to an open problem: nothing is open; the uncertainty is purely computational.
+
+4. SCORE BOUND
+--------------
+At the halt the tape holds all parked tokens D(6R_i+9), the far tokens, the consumed parked list and the last counter-mode
+token T = 6R_last+7, so sigma > 6 R_last.  Chain of lower bounds:
+  * P'' (the depth of the ESC clear) >= 12R2 - 10 - 7j - 3j'' - 60 with j + j'' <= log_{5/3}(36B+73)+1 (each exhaustion
+    shrinks L by at least 3/5), so P'' > 11 R2 (R2 is a tower far above B).
+  * R_ESC = U_{P''}(U_{P''}(0))  (digit 2 at depth P'', b = 0), 2R_ESC+4 = 2^^(P''+1)(2^^(P''+1) 4) > 2^^(P''+1) 4.
+  * Every later clear is of a digit of value 2R+2 >= 2R_ESC+2 at depth >= P''-1: R_last > R_ESC.
+  Hence sigma > 2^^(11 R2) 4 with 2R2+4 > 2^^(12B+25) 4, i.e. sigma > 2^^(2^^(12B+25) 4) 4.
+  FGH (record's inequalities f_omega(n) >= 2^^(n-1) n, f_omega(n) <= 2^^(n+1) 4):  sigma > f_omega(11R2-1) and
+  11R2-1 > f_omega(12B+24), so sigma > f_omega(f_omega(12B+24)).  fw2's bound is f_omega(f_omega(465009)) and
+  12B+24 > 2^^12 3 >> 465009.  Upper bound (not needed): sigma < f_omega(13 R2) roughly (at most ~0.6P'+2 clears of depth <= P'').
+
+5. THE REAL CASCADE'S KNOWN PREFIX (real_chain.py, B mod 5^120)
+-----------------------------------------------------------------
+exh#2: 4 sub-steps (4433)   exh#3: 8 (12411112)   exh#4: 4 (1144)   exh#5: 6 (334443)   exh#6: 0   exh#7: 0   exh#8: 2 (33)
+exh#9: 3 (433)  exh#10: 3 (434)  exh#11: 4 (3121)  exh#12: 3 (421)  exh#13: 6 (344113)  exh#14: 0  exh#15: 2 (14)  exh#16: 5 (23213)
+exh#17: 3 (144)  exh#18: 21 (442233244411313222131)  exh#19: 1 (2)  exh#20: 1 (1)  exh#21: 4 (1132)  exh#22: 12 (144114221421)
+exh#23: 0 ... (one 5-adic digit of B per step; any K is available, the orbit itself has ~log B steps).
+
+6. WHAT A COQ PROOF WOULD REQUIRE
+---------------------------------
+(a) Level 0: the record's development adapted to C04's table (same K-rules; the step-level lemmas must be regenerated for
+    the new gadget).  (b) Exhaustion #1 rebuild, parametric in b (like the record's 51-stage rebuild lemma).  (c) The
+    champion clearing with the U_j functions (reusable).  (d) THE SUB-STEP LEMMA: parametric in L (>= 60) and in the
+    parked-region contents (the sub-step sweeps the parked list, so the lemma is parametric in P as well), 4 residue cases
+    + the stop case + the accumulator-to-token/list conversions (6R+9, 6R+12, 12R-10) + the 3 tail blocks; plus the
+    top-level first step for r = 4.  (e) The cascade: a well-founded induction on L over the configuration family of 2.5 with
+    the invariant "L odd, L = 1 mod 3", down to the key.  (f) The endgame: five keys x (for key 31) five P' residues, each a
+    short sequence of parametric lemmas (the ESC sweep over 1^P'' is parametric in P''; counter mode = induction on C; the
+    nested cycle once).  (g) Residue facts: B mod 5^5 (for exh#2's branches) and parity of 36B+73.  (h) The score bound.
+Size: the sub-step lemma family is the hard part (each sub-step is a sweep with several phases visible in tmsim raw traces:
+(110)^a / (10011)^b / (100)^c encodings).  Estimate 3-6x the record's effort; feasible with the symbolic-executor workflow
+(generate lemma statements from pkf4/tmsim traces, check step by step), but a multi-day project.  Not started (per rules).
+
+7. FILES / REPRODUCTION (all in bb9_c04_deep)
+---------------------------------------------
+tmsim.py "<kt>" --kmom --E0 --raw     whole-tape traces (the sub-step phases, the halting sequence).
+pk.sh "<kt>" "<Rlist>" JUMPS [args]    pkf4 wrapper (compact J lines).  NB: after the Rlist is used up pk.sh falls back to
+                                       --R 999999 (rebuild cost 36R^2 ~ 4e13 steps): always give enough Rlist.
+survey.py / survey2.py                 endgame surveys (runs/surv_real_*.txt, runs/s2_*.txt): k -> outcome sequence.
+chain_model.py                         the chain map, key table from surveys, Monte Carlo entry distribution.
+check_stops.py                         formula-vs-survey residue stops (280/280).
+real_chain.py K                        the real cascade's residue-determined prefix.
+runs/world_A.txt, runs/e2e.txt         end-to-end worlds from exhaustion #2 to HALT.
+runs/robust1.txt, runs/robust2.txt     P mod 5 / big-R / y,t,token variations.   runs/t1.txt, t2.txt, c2nest.txt, c2full.txt: counter modes.
+
+7b. PROOF SKETCH: see PROOF_SKETCH.txt (rule families R0-R4, arithmetic A1-A2, cascade induction I, Coq plan).
+
+8. CAVEATS
+----------
+* All "rules" are empirical TM facts verified in worlds where the tower-sized quantities are replaced by representatives with
+  the right residues and size order; the processes are local, and no size dependence appeared across 1-2 orders of magnitude
+  (R from 20 to 10^4, P from 30 to 3000, L to 1795).  A proof must establish them for all sizes.
+* The threshold 60 for the sub-step rule is empirical (no deviation seen at any L >= 60; deviations at L <= 31 are documented).
+* The real-run specifics that enter: L0 = 36B+73 odd (needs exhaustion #1's 12B+24 and the champion clearing), L0 = 4 mod 5
+  (needs B mod 5^k), and nothing else about B.

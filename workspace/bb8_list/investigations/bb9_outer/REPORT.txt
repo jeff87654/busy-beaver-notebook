@@ -1,0 +1,146 @@
+bb9_outer REPORT (agent bb9-outer, 2026-10-18) -- outer counter on 9-state f_(w+1)-shape loopers
+=====================================================================================================
+Goal: a 9-state f_(w+1) grow-and-count halter: an f_w looper plus an OUTER counter that drops once per round and sends
+the machine to the halt when it runs out.
+Workspace: bb8_list/investigations/bb9_outer (notes.txt has the running notes and HANDOFF; tools/; scr/; ffg/).
+Everything here is evidence (symsim v12 template engine plus literal checks), not proof.  No Coq.
+
+0. VERDICT
+----------
+NO CANDIDATE.  No f_(w+1) machine was found, and no machine that halts after >= 2 f_w rounds either.
+  - L1 (roots9) and M1 (c7m12) are rigid, self-similar f_w iterators.  The state carried between rounds is (X, k_end)
+    for L1 and (d, X) for M1.  Nothing is parked, and their free slots can only be read in tape contexts that never
+    occur.  No distance-1 mutant keeps the round engine (exhaustive screen).
+  - Order-faithful regrade of the old triage2 set and of the L clone-split completions: no halt after the first round.
+    Most rows are still unresolved (section 4).
+  - Methodological finding: the old triage2 rounds (X := residue mod 2520, i.e. X = 6) are UNFAITHFUL for these
+    bases (section 1.3).  Its "413 loopers / 168 BUDGET" counts were made in a wrong world.
+
+1. L1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_1LC0RH_0LI1RF_0RF---  (roots9 looper; E0, I1 undefined)
+-------------------------------------------------------------------------------------------------------------
+1.1 Exact round structure (symsim v12, template R,G,P=11,u=01,s=1,d=3d+1,b=3b+0,S=1010101, KGRID RULED; l1_r0.txt)
+  From blank: first clear X0 = C(29,2,0), with residue r17330046 mod 38918880 (= 6 mod 2520, 3246 mod 3600).  Every later
+  C-value has the same residue (tower fixed point).
+  Round tape:  1 (101010101)^N 1 0 1^2 (011)^k (01)^{3X} 1 0 1 0 1 0 1 G>   [= 1^2 (010101011)^N 0 1^2 ...]
+  One jump:    N -> N-1,  k -> k+1,  X -> C(k-1, 2X+2, 0) = U_k(X)   (depth +1 per jump)
+  Round 1:     N = 12 X0 + 35, k from 2.
+  Counter end: the last counter cells are absorbed (k+2, k+3).  Then the round-end routine runs (trace tr1.txt):
+    - (01)^{3X} is doubled to (10)^{6X+..} by the H/I/F/G/C/B bouncer;
+    - (011)^k is converted 1:1 into 101 units on the right;
+    - the head walks to the left marker 1^2 (B1, F1, then D0 on the blank cell to its left), A erases, and a new counter
+      is built.
+  New round:   1^2 (010101011)^{N'} 011^3 (01)^{3X'} ...,  N' = 12 X_last + k_end + 4,  k reset to 3.
+               k_end(round 1) = 12 X0 + 38;  k_end(r+1) = N'(r) + 3 = 12 X_r + k_end(r) + 7.
+  Each round is one f_w application (final depth ~ 12 X_prev).  Rounds are exactly self-similar.  Nothing else is on
+  the tape: no parked token.  k_end is the only quantity that changes monotonically, and it is folded into the next
+  counter (its residue mod m moves by 12r+7 per round, but nothing in the restart reads it mod m).
+  Checked: faithful synthetic round end (X0 = r+MG, k = 12X0+31, X = r+100MG), quick test in scr/l1_tests.txt.
+1.2 Free slots
+  I1: UNREACHABLE (backref_s).  I is entered only from H0 = 0LI, and H only from G1 = 0RH, so I always reads the 0 that
+      G wrote.  Defining E0 = ?xH would make I1 readable.
+  E0: E is entered only from D1 = 1LE.  At a restart, D reads the cell left of the 1^2 marker.  It reads a 1 (so E then
+      reads a 0, i.e. E0) only if a 1 sits within distance 1 left of the marker.  Prefix tests (P placed left of 1^2 at
+      a round end):
+        - HALT (E0) for P = 1, 1 0, 1^3 0, 1^5 0, 1^2 0^2, 1 0^4, 1 0^3 1 0^2, 110^3 0;
+        - absorbed into the new counter (normal round, counter + |P|) for P = 1 0^2, 1 0 1 0^2, (10)^3 0;
+        - messy non-round continuations for P = 1 0^3, 1^2 0, 1^2 0^3, ...
+      From blank the left of the marker stays blank forever, so E0 is never read.
+  Direction problem: L1 does "blank left -> continue" and "token near the marker -> E0".  An outer counter needs
+  "tokens left -> continue, none -> halt", so it would need a terminal pattern beyond the tokens, plus a builder.
+1.3 Unfaithful-world warning
+  With X := 6 (triage2), the tape 1^2 011^31 (01)^18 makes 011^110 and clears C(108,2,0).  With any X = 6 + 2520 t,
+  t >= 1, the machine builds the counter 12X+35, which matches the symbolic run.  Small representatives change the
+  branch here.
+1.4 Literal slot usage (tools/hk.exe)
+  Every defined slot is used inside the inner jump loop (C0, D1, E1, H1 about once per jump; the rest heavily).  L1 has
+  no restart-only hook transition.
+1.5 Distance-1 screen (tools/mscreen.py, scr/l1_d1_*.txt; all 648 single-slot mutants that keep >= 1 halt)
+  E0:* (36) and I1:* (36) are SAME as L1 on every test (never read).  All 576 used-slot changes diverge at jump 0, except
+  C0:0LC (CYCLE) and H0:1RG (a different engine; it frees I, but the rounds are gone).
+  => no distance-1 mutant keeps the round engine and changes only the restart.  Distance 2: a used-slot change plus
+  E0/I1 cannot work, since the used-slot change already breaks the engine.  Two used-slot changes give new machines (not
+  screened: about 155k, no rationale).  CLOSED.
+
+2. M1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0LH0RF_1RI0RE_0RG---  (c7m12; I1 undefined)
+-------------------------------------------------------------------------------------------------
+  Post-clear tape  1^3 011^d (01)^{3X+2} 1^2 0^2 A>  ->  the (01) block is converted to a counter 1(101010101)^(~12X),
+  then the champion engine runs.  symsim sees the round as one CDP: X' = C(d + 12X + 2, 2, 0) with d' = d + 12X + 4
+  (12 -> 88 at X=6, 12 -> 522 at X=42).  The depth list accumulates.  Nothing is parked, and the left end 1^3 is the same
+  every round: a self-similar f_w iterator.
+  I1 is read only if the cell left of the E0 event (the left end) holds a 1.  It never does.  M1 is the 8-state looper
+  L = ..._0RG0LC_1RG1LD_0LH0RF_---1RE_------ with the E0 event routed through I (E0=0LI, I0=0RG) and H0=1RI.
+  Distance-1 screen: scr/m1_d1.txt (see 5.).
+  Practical limit: symsim has no accelerator for the (01)^{3X} -> counter conversion (about 500 macro steps per unit).
+  In order-faithful worlds (X >> d) one round therefore costs > 1e7 macro steps, so M1-type rounds can be followed only
+  1-2 times.
+
+3. Other bases named in the task
+--------------------------------
+  - Q5 (bb8_esc4): 8-state M8-engine escalating looper.  H0 is provably unreachable (E0 = xRH).  It is the natural base
+    WITH a spare state, but its E0 -> I gadget families are bb8-resid's F1/F2 territory, so I did not duplicate them.
+  - Y1: owned by y1-deep; its rounds are class-dependent (uncomputable residues).  Not certifiable; not pursued.
+  - L (8-state free-state looper): the clone-split completions were regraded (section 4).
+
+4. Order-faithful regrade (tools/ffg.py)
+----------------------------------------
+  ffg.py runs symsim with --jumpdump and looks for a linear counter in 3 consecutive JUMPTAPEs (same skeleton,
+  constant per-jump deltas, one exponent decreasing).  When it finds one it fast-forwards:
+    - every symbol becomes r + RM*t (r = symsim residue; older symbols smaller; the fresh accumulator larger than twice
+      every exponent);
+    - it skips a multiple of 360 jumps;
+    - it continues; each fast-forward is one round.
+  If a segment ends BUDGET with no counter, ffg re-substitutes the last jump tape (SUB, up to 3 times; fixed at 18:3x so
+  that reps exceed the tape's numeric exponents).
+  Validation: L1 -> FF1..FF6 ROUNDS-DONE.
+  (a) 602 triage2 rows (bb9_symsim/post/budget_kj.txt; RM = 38918880, cap 40-120 s per row; ffg/t2_full.txt):
+        - 10 L1-type rows: FF1..FF6 ROUNDS-DONE (faithful 6-round loopers, no halt):
+            L1, ..._0RI1LF_..._1LC0RH_1RG1R{F,H}_0LG1LG, ..._1LC0RH_0LI1RH_0RF1RF, ..._1LI0RH_1RG1R{F,H}_1LC0LI,
+            ..._---0LC_1RI1LD_1LC0RH_1RG1RH_1RG0RI, ..._---0RI_..._1RG1R{F,H}_0LC1LI, ..._0RI0LC_..._0LE1RF_1RG---;
+        - 591 END BUDGET (unresolved): no linear counter visible.  Two kinds:
+            * M1-type (214): one clear, then the (01)^{3X} -> counter conversion that symsim does not accelerate;
+            * R1/affine-doubling type: after the first clear the rows run hundreds of R1x14/R1x2 affine jumps with
+              thousands of symbols in 1e5 macro steps (an X0-long affine iteration), e.g.
+              1RB0RA_0LI1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_1LC0RH_1RG1RH_0RG1RG.  triage2's X=6 world showed these
+              as "C108 -> C187 -> C266" loopers; with faithful X they are not followable by symsim;
+        - 1 row with 3 SUBs, 0 HALT.
+      M1-type subset, RM = 36 (ffg/m1type_m36.txt, stopped at 68/214): every row followed made 1 clear per round, 21 of
+      them for 2 rounds; all then ran out of budget in the next conversion.  0 HALT.
+  (b) 162 clone-split completions of L (bb9_clonesplit), RM = 36:
+        - 4 HALT after ONE clear (sigma 12X0+47, 24X0+47, 24X0+51; f_10 level);
+        - 61 CYCLE (symsim proof) after the first clear;
+        - 97 BUDGET (the M1-type conversion problem, unresolved);
+        - 0 halts after >= 2 rounds.
+
+5. Negatives to mark closed
+---------------------------
+  - L1 (roots9 1LC0RH_0LI1RF_0RF---): CLOSED.  Exact self-similar round map (sec. 1.1); free slots unreachable on its
+    orbit; distance-1 screen finds no engine-preserving mutant; distance 2 is not useful (any used-slot change breaks
+    the engine).
+  - M1 (c7m12 0LI0LC_..._1RI0RE_0RG---): CLOSED.  Self-similar (d, X) rounds; I1 is never read; distance-1 screen:
+    609/612 break the first jump, and 3 are round-level twins.
+  - L clone-split completions (bb9_clonesplit, 162 machines): no halt after round 1 (4 single-round halters, 61 CYCLE);
+    97 unresolved.
+  - triage2 rows (602): the 10 faithful L1-type loopers are confirmed loopers.  The other 591 are NOT closed by this
+    work: they are only "never seen to halt after 1-2 rounds".  The old triage2 labels for them come from an
+    unfaithful world.
+  - Q5 / Y1: not pursued (Q5's E0->I families are bb8-resid's F1/F2; Y1 is owned by y1-deep and is class-dependent).
+
+6b. Lessons / design notes for a future search
+-----------------------------------------------
+  - On these BB(7)-engine f_w iterators every transition is used inside every jump, so a "hook" (restart-only
+    transition) does not exist.  The 9th state is already spent, so an outer counter needs an 8-state f_w iterator plus
+    a gadget state.  Candidates: L (8 states, H0 and I free; its clone-split completions are listed above) and Q5.
+  - L1's round index is visible only in k_end mod m (k_end(r+1) = 12 X_r + k_end(r) + 7; all X share one residue).  A
+    variant whose restart reads k_end mod m would halt after a COMPUTABLE number of rounds (f_w^j, certifiable, j up to
+    the period).  No distance-1 mutant does this.
+  - Small representatives (X = 6) flip branches on these bases.  Use X = r + M*t with X >> every list length.
+  - symsim needs two more accelerators before the 591 unresolved rows can be graded: (01)^{3X} -> counter conversion
+    (M1-type) and X-fold affine iteration (R1/doubling type).
+
+6. Tools (bb9_outer/tools)
+--------------------------
+  idle.sh (Idle-priority wrapper; logs the real Windows PID), hk.cpp/.exe (literal slot-usage and hook tracer),
+  mscreen.py (single/double-slot mutant screen against canonical symsim outputs), pexp.py (prefix explorer for
+  restart/parked-token behaviour, written but not run in bulk), rg.py (L1-form round grader, superseded by ffg.py),
+  ffg.py (generic order-faithful round grader with counter fast-forward and SUB).
+  Copies: symsim_v12.exe+src, lit, kmom, triage2.py, pkf6, backref_s.py.

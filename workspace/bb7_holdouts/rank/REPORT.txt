@@ -1,0 +1,203 @@
+rank/ REPORT: record-level estimator for dlscan2 digit-list rows (BB(7) holdouts), 2026-10-22
+=====================================================================================================
+
+BOTTOM LINE
+  Ranked all 63 CHAMPION / R4-SOME rows (final run with literal refit + invariant search;
+  verdict counts: 2 RECORD? (champ_231/232), 2 CLOSE (champion + twin), 20 NEVER-HALTS(invariant), 21 REBUILD,
+  14 LEAVES-TEMPLATE, 4 below): 22 CHAMPION, 41 R4-SOME. Inputs: hits_triage7.tsv (re-read at the end; 5 new
+  rows since the start), prefilter/hits_dl2_1M.tsv and sample1pct/hits.tsv; hits_dlscan2.tsv is empty.
+  NO new BB(7) record candidate. The only machines above the champion are champ_231/232 (level 21, already OPEN,
+  bb7_c231check). Every other row either never halts (by an invariant), halts small, or is a counter that is not
+  record class.
+  * Two of my own alarms during the run were FALSE. Both are retracted and moved to SETTLED: X33 (refuted by the lead's
+    x33-check) and Z16 (refuted by me). The cause was a dlscan2 fitting flaw (FINDING 1), which also matters for the
+    pipeline.
+  * 1RB0RA_1LC1LF_0LD0LB_1RE0LB_1RA---_1RG1LE_0RG0RF is a champion TWIN. Its K-trace is identical (every ds, a, b equal)
+    and the halting ones are 6b+11 for both, so it has the SAME sigma as the BB(7) champion, in fewer steps. A tie, not a
+    record.
+  * Halting holdouts found on the way (not records):
+      A1/A2 = 1RB0LF_1RC1RF_1LD1RE_0LA1LD_---1RA_0RB1RG_0RA{0LE,1RB} halt at their 3rd exhaustion, at level ~3
+        (between 3↑↑↑3 and 3↑↑↑4).
+      B1 = 1RB0RD_0LC1LC_1LE1LD_1RE1LB_1RG1LF_---0LE_1RA1RG halts with sigma = (3^(3^82+1)+21)/2 ~ 10^(6.35e38).
+    These are rule-level results, literal-checked; details in f3/notes.txt.
+
+CALIBRATION (controls)
+  BB(7) champion 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF:
+    first K at step 2117: 11 digits [2,0^10], a=0, b=0. Levels u = 0..11 (doubling base).
+    Estimated level 13.00 (true value 3*(2↑^13 3)+22). Halts at exhaustion: yes.
+  champ_231/232:
+    first K at step 3715 (232: 3775): 20 digits [1^20], a=1, b=2. Base additive (b+3), F1 = 3b+9 (multiplicative),
+    u_j = j-1, 20 levels. Estimated level 21.00 (2↑^21-class; c231-check's paper bound is 3↑^20 3).
+  Level scale: level l = L + (h-3) for N = 2↑^L h with h in [3,4). The champion is 13.0. Accuracy is about +-1 near
+  the top: enough to separate 13 from 16+, but not for close calls. A CLOSE verdict needs a hand check, as the twin got.
+
+TOOL (everything at idle priority, 1 core)
+  rk7.exe (rk7.cpp) includes dlscan2.cpp, so K-configurations are parsed exactly as dlscan2 parses them. Modes:
+    trace     literal run from the blank tape; prints every K-config in a template
+    probe     next K-config / HALT / timeout from a constructed K(ds;a;b) read from stdin
+    haltones  runs a constructed config to its halt; prints steps and ones
+    follow    raw tape at each end event (for runs that leave the template)
+  rank7.py IN.tsv [...] -o OUT.tsv [--settled settled.txt]   (OUT.log holds per-machine detail). Steps:
+    1. refit_rules: re-fit R1 and R2 (on b>=1) and R3 (borrows over k=1..4 zeros, any tail digit) from targeted probes.
+       dlscan2's R3 tail/e3 are NOT trusted (FINDING 1). Rows whose refit fails are marked +RULES?.
+    2. Literal trace from the blank tape (3e8 steps / 3000 K-configs): find the first K-config, and check every
+       consecutive pair against the rules (lockstep). Literal exhaustions that rebuilt are listed separately and are
+       not counted as misses.
+    3. runcheck: continue at the rule level from the last literal K-config and probe each config literally (while
+       values <= 3000). randcheck: 60 random configs, 60% of them forced to borrow over k=1..4 zeros.
+    4. Model: F0(b) = m1 b + c1;  F1(b) = F0^(m2 b + c2)(b2);  F_j(b) = F_(j-1)^(m3 b + c3 + e3 (j-1))(K_j),
+       with K_j = F_(j-2)^t .. F_1^t F0^a3(b3). Values are exact below 1e40, then tracked as (residue mod Q=20160,
+       level), with orbit/cycle tables per level. This gives the exhaustion accumulator b_E: its level (the estimate)
+       and its residue.
+    5. Exhaustion probes in two windows: b = 0..47 and b = 4n+40..4n+63. Thresholds such as "halts iff b < 2n" only
+       show at large b. The real b_E then decides H / rebuild / leaves-template.
+    6. P-inclusive re-analysis: if dlscan2's prefix P consists of digits (P=110 is the digit 2), rerun with P absorbed
+       (P='-'). This exposes hidden top levels and the TRUE exhaustion (the X33/Y19/Z16 family).
+    7. Round-2 sweep (modulus Q2=720): evaluate the exhaustion reached from each rebuilt list in the large window. The
+       class transitions b mod per -> b_E2 mod per give either "never halts (rebuild forever)" or "HALT REACHABLE".
+       This reproduced the dl3_hits invariants for the r/s/h/u/i/a/b/c/t machines and for X33/Y19/Z16. It is NOT trusted
+       when the refit failed: A1/A2/B1 were called never-halting that way, and they halt. Such rows are now marked
+       UNRELIABLE.
+    8. Invariant search (find_invariants / invariant_check): looks for a linear form Phi = ca a + cb b + cd sum(ds)
+       mod m (m = 2, 3, 4, 6) that every refit rule preserves (tested on 400 random rule steps). Then: Phi at the real run,
+       which exhaustions b are compatible with it, whether any of those halts, and whether the rebuilds keep Phi. If every
+       compatible exhaustion rebuilds and Phi is kept, the verdict is NEVER-HALTS(invariant). Skipped when the refit fails.
+  Controls (check_controls.py; run it after every change to rank7.py): positive = BB(7) champion (level 13, halts) and
+    champ_231 (level 21, halts); negative = X33 and dl3's sibling i (never halt). Status: ALL CONTROLS OK. For X33 and i
+    the search finds Phi = a+b+sum(ds) mod 2 = 0 along the run and through every rebuild. For champ_231 the only
+    invariant mod 2 allows the halt, so it is not excluded.
+  Verdicts: RECORD? (halts, level > 13.5) | CLOSE (11.5-13.5) | below | REBUILD | LEAVES-TEMPLATE | HALT-UNKNOWN |
+    SMALL-HALT. Suffixes: +RULE-MISS (a literal/rule mismatch somewhere, usually early small-b transients) and +RULES?
+    (refit failed). The 'settled' column carries the label from settled.txt.
+
+HOW TO RUN AFTER EACH SCAN
+  cd C:\Users\jeffr\Downloads\bb8\bb7_holdouts\rank
+  python rank7.py ..\hits_triage7.tsv ..\prefilter\hits_dl2_1M.tsv ..\sample1pct\hits.tsv -o rank_all.tsv --settled settled.txt
+  python summary.py rank_all.tsv > summary.txt
+  Cost is about 20-30 s per row. Alert only on:
+    - verdict RECORD? or CLOSE with settled = '-';
+    - round2 "HALT REACHABLE" with level >= ~5 (f_(w+1) potential);
+    - LEAVES-TEMPLATE or +RULES? rows with level >= 10 (hand analysis, as for X33/Z16/Y19).
+  Add newly settled machines to settled.txt ("machine label").
+  Suggested addition to triage7.py's status output (NOT applied, because triage7 is running): after its dlscan2 stage,
+    run rank7.py on the new CHAMPION/R4-SOME rows, e.g.
+      # subprocess.run([sys.executable, RANK7, hits_tsv, '-o', 'rank_new.tsv', '--settled', SETTLED], creationflags=IDLE)
+    and print the rows with verdict RECORD? / CLOSE / HALT REACHABLE in the status block.
+  Suggested dlscan2 fix (the owner's call): in fit2's R3 loop, do not stop at a tail digit >= 2. Either accept any
+    constant tail digit and fit e3 from k>=2 points, or flag the R3 fit as k=1-only.
+
+FINDINGS
+ 1. dlscan2's R3 fit only collects borrows over k=1 zero, because it stops at the first tail digit 2. So "tail=1, e3=0"
+    in its params is often an unfitted DEFAULT. The real rules of the i/j/X33/Z16/Y19/r/s/h/u family have refill
+    ... - 2k and a tail of 2s. With the wrong tail the parity of every level flips. That produced my two false alarms:
+      X33 = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE: claimed halt ~2↑^34; refuted by x33-check (Phi invariant).
+      Z16 = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE: claimed halt ~2↑^16; refuted by me. Its real R3 is
+        3b+3-2k with tail 2; Phi = a + b + sum(ds) mod 2 is invariant, so every true exhaustion is odd and rebuilds.
+    My lockstep (3000 literal K-configs) and random checks missed the flaw, because k>=2 borrows are rare early in real
+    runs and in random configs. Both checks now force such borrows. Both machines are in OPEN_CANDIDATES.txt under
+    SETTLED, with the refutation.
+ 2. Hidden top digits: for prefixes like P=110 or P=10, dlscan2's "R4" config K(;0;b) is really a borrow from P's digit.
+    The true exhaustion lies one or two levels further up. The P-inclusive re-analysis now handles this automatically.
+ 3. Y19 = 1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG (level 19-20 if it halted): NEVER HALTS. Its true exhaustion
+    halts iff b is even. With the correct R3 every F_j flips parity, and the real run never reaches an even class. The
+    round-2 sweep agrees.
+ 4. P=101 family M1/M2/M3 (1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_{1LB,1RB}0LE and 1RB0LE_1LC0LA_..._1RB---):
+    NEVER HALT. P's "0 digit" is half a separator. An exhaustion-size lemma (b_end >= v+L+1) keeps every borrow and
+    every exhaustion on the rebuild branch. Rules checked on 3000+ random literal configs (k up to 45). Details in
+    p101/notes.txt (subagent).
+ 5. C1 = 1RB0RD_0RC1RG_1RD1RC_1LD0LE_0RB1LF_0LC1LE_---1RA: NEVER HALTS (in v-coding, r is never 1 mod 3 at an
+    exhaustion). Details in f3/notes.txt.
+ 6. A1/A2/B1 halt, at small values (see BOTTOM LINE). Their R3 refits failed because of an ABSORB rule:
+    [..,z,0,0;a] == [..;a+z+2].
+
+TABLE (summary.txt): rank7 verdict, estimated level of the next exhaustion accumulator, first K-config (step, #digits),
+and the settled label or a note.
+#   machine                                           grade    verdict (rank7)                 level halts        first K (step n)           settled / note
+1   1RB---_1LC1LE_1LD0LC_0RE0LA_0LF0RF_1RF1RG_1LB1RB  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 963 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+2   1RB---_1LC1LE_1LD0LC_0RE0LA_1LB0RF_1RF1RG_1LB1RB  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 586 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+3   1RB0LE_1RC1RA_1RD0RC_0LA0RG_1LE1LF_1RB1LB_1LB---  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 580 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+4   1RB0LE_1RC1RA_1RD0RC_0LA1RG_1LE1LF_1RB1LB_0RC---  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 550 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+5   1RB1LB_1RC1RE_1RD0RC_0LE0RG_0RF0LF_1LF1LA_1LB---  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 957 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+6   1RB1LB_1RC1RE_1RD0RC_0LE0RG_1RB0LF_1LF1LA_1LB---  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 580 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+7   1RB1LB_1RC1RE_1RD0RC_0LE1RG_0RF0LF_1LF1LA_0RC---  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 913 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+8   1RB1LB_1RC1RE_1RD0RC_0LE1RG_1RB0LF_1LF1LA_0RC---  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   1.75 no?(leaves t 550 n=2                    refit incomplete: R3 refit failed (bad 16, tails [0], consts
+9   1RB0RB_1RC1RG_1LD---_1RA1LE_0RF0LE_1LC0RF_0LD1RD  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   0.38 no?(leaves t 5 n=0                      P-inclusive (orig L,E,P=10,u=1,s=0,d=1d+0,b=1b+0,S=-: REBUIL
+10  1RB0RB_1RC1RG_1LD---_1RA1LE_0RF0LE_1LC0RF_0LF1RD  CHAMPION LEAVES-TEMPLATE+RULE-MISS+RULE   0.38 no?(leaves t 5 n=0                      P-inclusive (orig L,E,P=10,u=1,s=0,d=1d+0,b=1b+0,S=-: REBUIL
+11  1RB0RG_1LC---_1LD1LC_0LE0LC_0RF1LE_0RA1RA_1RD1RG  R4-SOME  REBUILD+RULE-MISS                1.38 no(rebuild)  41 n=1                     round2: never halts (rebuild forever)
+12  1RB0RG_1RC---_1LD1LC_0LE0LC_0RF1LE_0RA1RA_1RD1RG  R4-SOME  REBUILD+RULE-MISS                1.38 no(rebuild)  7 n=0                      round2: never halts (rebuild forever)
+13  1RB0LB_1LC---_1LD1LB_0RE0RF_0LG0RF_1RD1RE_0LA1LG  R4-SOME  REBUILD                          1.25 no(rebuild)  642 n=0                    E(b=10) rebuilds a 5-digit list
+14  1RB0LG_0RC1RB_1LD1RD_1RE---_1RF1RD_0LA0LG_0RA1LF  R4-SOME  REBUILD                          1.25 no(rebuild)  730 n=0                    E(b=10) rebuilds a 5-digit list
+15  1RB0RB_1RC---_1RD1RB_0LE0LF_0RG0LF_1LD1LE_0RA1RG  R4-SOME  REBUILD                          1.25 no(rebuild)  649 n=0                    E(b=10) rebuilds a 5-digit list
+16  1RB1LB_1LC---_1LD1LB_0RE0RF_1LG0RF_0LE1RD_0LA1LG  R4-SOME  REBUILD                          1.25 no(rebuild)  743 n=0                    E(b=10) rebuilds a 5-digit list
+17  1RB1RG_0LC0LD_1RE0LD_0RC1LB_0RF1RE_1LG1RG_1RA---  R4-SOME  REBUILD                          1.25 no(rebuild)  734 n=0                    E(b=10) rebuilds a 5-digit list
+18  1RB0LC_0RC1LC_0RD1LA_1RE---_0LC0RF_1LD1RG_1RF1RB  R4-SOME  REBUILD                          1.12 no(rebuild)  78 n=0                     NO-HALT-NEXT(invariant); E(b=9) rebuilds a 8-digit list
+19  1RB1LB_0RC0LF_1LD1LG_0RD0RE_1LA1RD_0LA1LF_1LC---  R4-SOME  REBUILD+RULE-MISS                1.12 no(rebuild)  2781 n=1                   E(b=9) rebuilds a 4-digit list
+20  1RB1RA_0LC0LG_0RD1LC_0RE1RE_1RF0RA_1LG---_1LB1LG  R4-SOME  REBUILD+RULE-MISS                1.12 no(rebuild)  61 n=2                     round2: never halts (rebuild forever)
+21  1RB1RA_0RC0RA_0LD1RC_0LE1LE_1LG0LF_1LB1LF_1RA---  R4-SOME  REBUILD+RULE-MISS                1.12 no(rebuild)  66 n=2                     round2: never halts (rebuild forever)
+22  1RB0RF_1LC1LB_0LD0LB_0RE1LD_0RA1RG_1RC1RF_---1RA  R4-SOME  REBUILD+RULE-MISS                1.00 no(rebuild)  4 n=0                      round2: HALT REACHABLE
+23  1RB1RA_0RC0RG_0LD1RC_0LE1LG_1LB0LF_1LE1LF_---0RA  R4-SOME  REBUILD+RULE-MISS                1.00 no(rebuild)  113 n=0                    E(b=8) rebuilds a 7-digit list
+24  1RB1RA_1RC0RA_0LD0LF_0RE1LD_0RB1RF_---0LG_1LC1LG  R4-SOME  REBUILD                          1.00 no(rebuild)  108 n=0                    E(b=8) rebuilds a 7-digit list
+25  1RB0LF_1RC1RB_0RD0RB_0LE1RD_1LF1LG_1LC1LF_---1LA  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   7.00 no(rebuild)  31 n=0                     round2: never halts (rebuild forever)
+26  1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_0RG0RB_1LC1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   5.00 no(rebuild)  22 n=0                     round2: never halts (rebuild forever)
+27  1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1RG0RB_1LC1LG  R4-SOME  NEVER-HALTS(invariant)           4.02 no(rebuild)  104 n=3                    round2: never halts (rebuild forever)
+28  1RB0LF_1RC1RB_0RD0RB_0LE1RD_0LA1LG_1LC1LF_---1LA  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   1.38 no(rebuild)  61 n=0                     round2: never halts (rebuild forever)
+29  1RB---_1LC1LB_0RE0RD_1RC1RD_0LF1RE_0LG1LG_0LA0LB  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   1.12 no(rebuild)  31 n=0                     round2: never halts (rebuild forever)
+30  1RB---_1RC1RB_0RD0RB_0LE1RD_0LF1LF_0LA0LG_1LC1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   1.12 no(rebuild)  27 n=1                     round2: never halts (rebuild forever)
+31  1RB0RG_0LC---_1LD1LC_0LE0LC_0RF1LE_0RA1RA_1RD1RG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   1.12 no(rebuild)  28 n=0                     round2: never halts (rebuild forever)
+32  1RB0RG_1LC---_0LE0LD_1LC1LD_0RF1LE_0RA1RA_1RC1RG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   1.12 no(rebuild)  4 n=0                      round2: never halts (rebuild forever)
+33  1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_0LA1RG_0LA1RA  CHAMPION below+RULE-MISS+RULES?           0.38 yes          67 n=0                     refit incomplete: R1 refit failed (18/27); R2 refit failed (
+34  1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_0RA1RG_0LA1RA  CHAMPION below+RULE-MISS+RULES?           0.38 yes          67 n=0                     refit incomplete: R1 refit failed (18/27); R2 refit failed (
+35  1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_1LF1RG_0LA1RA  CHAMPION below+RULE-MISS+RULES?           0.38 yes          67 n=0                     refit incomplete: R1 refit failed (18/27); R2 refit failed (
+36  1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_1LF1RG_0LE1RA  CHAMPION below+RULE-MISS+RULES?           0.38 yes          65 n=0                     refit incomplete: R1 refit failed (18/27); R2 refit failed (
+37  1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB  CHAMPION RECORD?                         21.00 yes          3715 n=20                  OPEN:champ_231(bb7_c231check)
+38  1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB  CHAMPION RECORD?                         21.00 yes          3775 n=20                  OPEN:champ_232(bb7_c231check)
+39  1RB0RA_1LC1LF_0LD0LB_1RE0LB_1RA---_1RG1LE_0RG0RF  CHAMPION CLOSE                           13.00 yes          1951 n=11                  champion-twin(same-sigma)
+40  1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF  CHAMPION CLOSE                           13.00 yes          2117 n=11                  BB7-champion(control)
+41  1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1LB0LE  CHAMPION LEAVES-TEMPLATE                  4.01 no?(leaves t 132 n=1                    NEVER-HALTS:p101/M1(LemmaQ)
+42  1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1RB0LE  CHAMPION LEAVES-TEMPLATE                  4.01 no?(leaves t 148 n=1                    NEVER-HALTS:p101/M2(LemmaQ)
+43  1RB0LE_1LC0LA_1RF1RD_0RF0LE_0LC1LB_1RG0RC_1RB---  CHAMPION LEAVES-TEMPLATE                  4.01 no?(leaves t 149 n=1                    NEVER-HALTS:p101/M3(=M2)
+44  1RB0RD_0RC1RG_1RD1RC_1LD0LE_0RB1LF_0LC1LE_---1RA  R4-SOME  LEAVES-TEMPLATE+RULES?           3.71 no?(leaves t 21 n=0                     NEVER-HALTS:f3/C1(r-mod-3)
+45  1RB1LA_0RC1RD_1LD1LC_1LE0RF_0LA0LC_---0RG_1RE1RG  R4-SOME  REBUILD+RULE-MISS+RULES?         4.02 no(rebuild)  266 n=2                    dl3_hits:NEVER-HALTS(n)
+46  1RB0LF_1RC1RF_1LD1RE_0LA1LD_---1RA_0RB1RG_0RA0LE  R4-SOME  REBUILD+RULE-MISS+RULES?         3.19 no(rebuild)  14 n=0                     HALTS-SMALL:f3/A1(level~3)
+47  1RB0LF_1RC1RF_1LD1RE_0LA1LD_---1RA_0RB1RG_0RA1RB  R4-SOME  REBUILD+RULE-MISS+RULES?         3.19 no(rebuild)  14 n=0                     HALTS-SMALL:f3/A2(level~3)
+48  1RB0RD_0LC1LC_1LE1LD_1RE1LB_1RG1LF_---0LE_1RA1RG  R4-SOME  REBUILD+RULE-MISS+RULES?         3.19 no(rebuild)  49 n=2                     HALTS-SMALL:f3/B1(~10^(6.35e38))
+49  1RB1LA_1LC1RC_1LF0RD_---0RE_1RF1RE_0LA0LG_1LC1LG  R4-SOME  REBUILD+RULE-MISS+RULES?         3.19 no(rebuild)  13 n=0                     dl3_hits:NEVER-HALTS(o)
+50  1RB1RA_0LC0LF_1RD1LC_0RF1RE_1LB0RG_1LE1LF_---0RA  R4-SOME  REBUILD+RULE-MISS+RULES?         3.19 no(rebuild)  11 n=0                     dl3_hits:NEVER-HALTS(d)
+51  1RB1RA_0LC0LF_1RD1LC_1LE1RE_1LB0RG_1LE1LF_---0RA  R4-SOME  REBUILD+RULE-MISS+RULES?         3.19 no(rebuild)  11 n=0                     dl3_hits:NEVER-HALTS(f)
+52  1RB0LG_1RC1RB_0RD0RB_0LE1RD_0LD1LF_---1LA_1LC1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI 424.00 no(rebuild)  119 n=1                    dl3_hits:NEVER-HALTS(r)
+53  1RB0LG_1RC1RB_0RD0RB_0LE1RD_0LE1LF_---1LA_1LC1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI 424.00 no(rebuild)  98 n=1                     dl3_hits:NEVER-HALTS(s)
+54  1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1RA0LG_1LB1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI 424.00 no(rebuild)  90 n=1                     dl3_hits:NEVER-HALTS(h)
+55  1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1LG0RB_1LC1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI 424.00 no(rebuild)  62 n=1                     dl3_hits:NEVER-HALTS(u)
+56  1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA0LG_---0LE  R4-SOME  NEVER-HALTS(invariant)+RULE-MI  47.00 no(rebuild)  39 n=1                     dl3_hits:NEVER-HALTS(i)
+57  1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE  R4-SOME  NEVER-HALTS(invariant)+RULE-MI  34.00 no(rebuild)  32 n=1                     NEVER-HALTS:X33(x33-check,Phi)
+58  1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI  20.00 no(rebuild)  9 n=0                      NEVER-HALTS:Y19(rank7,parity)
+59  1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE  R4-SOME  NEVER-HALTS(invariant)+RULE-MI  16.00 no(rebuild)  27 n=1                     NEVER-HALTS:Z16(rank7,Phi)
+60  1RB1RA_0LC0LF_0RD1LC_1RA1RE_0RF0RG_1LB1LF_---0RA  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   5.00 no(rebuild)  18 n=0                     dl3_hits:NEVER-HALTS(a)
+61  1RB1RA_0LC0LF_0RD1LC_1RA1RE_0RF1RG_1LB1LF_---0RA  R4-SOME  NEVER-HALTS(invariant)           5.00 no(rebuild)  141 n=4                    dl3_hits:NEVER-HALTS(b)
+62  1RB1RA_0LC0LF_0RD1LC_1RA1RE_1RF1RG_1LB1LF_---0RA  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   4.02 no(rebuild)  11 n=0                     dl3_hits:NEVER-HALTS(c)
+63  1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_0LC0RB_1LC1LG  R4-SOME  NEVER-HALTS(invariant)+RULE-MI   4.02 no(rebuild)  42 n=0                     dl3_hits:NEVER-HALTS(t)
+
+ Notes on the table:
+  - Rows 1-8 (1RB---_1LC1LE.., 1RB0LE_1RC1RA.., 1RB1LB_1RC1RE.. x4; P=1, u=0011) and rows 33-36 (1RB1LD_1RC0RF..,
+    R1 0b+3) are counters. Every level is additive (u=-1) or constant, and each round rebuilds a 2-digit list with b+1
+    (literal rebuilds at b=0,1,2,..,9). Not record class even if they halt. Their R3 refit fails (irregular tails), so
+    their exact fate is left open (not pursued).
+  - Rows 11-32 are R4-SOME rebuilders with additive or low levels. Rows 25-32 are NEVER-HALTS by the invariant search;
+    round-2 also says "never halts" wherever the refit is clean. Row 22 (1RB0RF_1LC1LB_0LD0LB_0RE1LD_0RA1RG_1RC1RF_---1RA) has a reachable halting class, but its levels are
+    additive (u=-1), so it is level ~1-3 even if it halts.
+  - The level column is for the NEXT exhaustion accumulator. A rebuilder that halted at a later round would be
+    f_(w+1)-class. That is why every rebuilder with sizable lists was settled by an invariant, not by its level.
+  - The 18 dl3_hits machines (settled column) were re-run as a cross-check. rank7 plus round-2 independently say
+    "never halts" for the r/s/h/u/i/a/b/c/t machines. d/f/o/n have refit failures (F3-type irregular tails), so for
+    those we rely on dl3's analysis.
+
+LIMITATIONS
+  Rules are fitted from literal probes and checked on literal runs and random configs; nothing is proved. The level
+  estimate is a crude up-arrow interpolation (+-1). The residue evaluation assumes that cycle lengths divide Q (it flags
+  them when they don't; this never happened here). Rows marked +RULES? are not modelled faithfully.
+
+FILES
+  rk7.cpp / rk7.exe, rank7.py, summary.py, settled.txt (labels), rank_all.tsv and rank_all.log (final run, 63 rows),
+  summary.txt, rows_all.tsv, notes.txt (log).
+  x33/: X33/Z16/Y19 chain and probe scripts (chain.py, chainZ.py, pinc.py, ends.py, ktr.py, look.py).
+  p101/ and f3/: subagent analyses (notes.txt and scripts).

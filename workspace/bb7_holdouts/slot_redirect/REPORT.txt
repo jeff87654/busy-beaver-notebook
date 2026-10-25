@@ -1,0 +1,241 @@
+slot_redirect: 7-state spare-slot redirects inside the BB(7) holdout list                         2026-10-23
+=====================================================================================================================
+VERDICT: NEGATIVE. No holdout with >= 2 undefined transitions has a record-relevant first exhaustion, so no 7-state
+spare-slot redirect of a listed machine can be an M8-type record. The digit-list pipeline (pf7 + dlscan2 over the
+whole list) graded only 7 such rows, all NOBOUNDARY with trivial rules. No row has a halting exhaustion probe.
+The nonlist pipeline's only f_omega-flagged rows (FR > 0) are false alarms with a constant refill, and they never reach
+their live slot. Nothing goes into OPEN_CANDIDATES.
+The positive control works: the same redirect enumeration on the old champion + empty 8th state reproduces M8.
+
+1. POOL (census.py, live.py)
+  The lead's 10% figure comes from the first 20 chunks, the 1M rows that sort first (TNF order, many 1RB--- rows).
+  Over the whole list the share is 2.67%.
+                         rows     1 '---'     2 '---'   3 '---'  4   5
+  first 1M rows       1,000,000    899,320     96,789     3,713  171  7
+  whole list         16,949,557 16,496,729    425,637    26,669  491 31   (>=2: 452,828)
+  pf7 PASS            2,955,244  2,885,625     65,667     3,898   50  4   (>=2: 69,619 -> pool_pf7_multi.txt)
+  The pf7 pass rate for >=2 rows is 15.4%, against 17.5% overall.
+  Live slots: in 10,748 of the 2-'---' passers one slot is dead (no transition enters its state, mostly A1 of 1RB---).
+  A redirect into that state would revive it, so these rows were kept.
+
+  dlscan2 grades of the >=2 rows. Triage7 covered the whole list. The 1% sample and the 2,416 first-pass hits
+  were also run without pf7.
+    triage7 (all 69,619 pf7 passers)    7 graded, all NOBOUNDARY (R1 = 0b+2/0b+3, i.e. no growth)
+    first-pass hits (2,416, no pf7)    43 rows with >=2: 3 NOBOUNDARY (same machines), 40 with no R1-R3 fit
+    1% sample (4,627 rows with >=2)     0 graded
+  If the >=2 rows behaved like the rest, about 23 rows with halting probes would be expected
+  (963 CHAMPION/R4-SOME/HALT?/HALT-SOME/CHECK among the 2.95M passers). Observed: 0.
+  rank7 on the 7 NOBOUNDARY rows (pool_dl2_rank.tsv) gives levels 0.25-0.38 or no K-configuration at all.
+
+  Nonlist pipeline (nonlist/final.tsv, all ungraded pf7 passers): 72 rows have >=2 undefined slots.
+    3 FR rows (tier 1: FR 671 x2; tier 3: FR 10), all small-probe NO-HALT.
+    69 SR rows (tiers 4-5: 26 SMALL-HALT, 43 NO-HALT), shallow, with FR = 0 (no refilled digit, not f_omega).
+  Natural halters (nonlist/halts.tsv): 3 rows with 2 undefined slots halt at 3.4e10-6.9e10 steps,
+  with 131k-197k ones.
+
+  Size tiers of the first exhaustion for rows with >=2 undefined slots:
+    record class (level >= 13):  none
+    level 5-13:                  none
+    level <= 1 or tiny halts:    7 dlscan2 rows, 3 natural halters, 26 SR SMALL-HALT rows
+    no exhaustion found:         3 FR rows, 43 SR NO-HALT rows
+
+2. POSITIVE AND NEGATIVE CONTROLS (ctl8.py -> ctl8/, ctl8_summary.txt; ctl.txt -> ctl_dl2.tsv, ctl_pf7.tsv)
+  Machine: C8 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_------ (two undefined slots, H0 and H1).
+  - Sensitivity: pf7 PASS (CS 146), and dlscan2 grades it CHAMPION, R4 HHHHH. So two undefined slots do not hide an
+    Ackermann halter from the triage. M8 itself grades NOBOUNDARY (R4 TTTTT), and rank7 calls it LEAVES-TEMPLATE 13.0.
+  - Redirect: the first-reached slot is H0. All 32 completions H0 = {0,1}{L,R}{A..H} were followed with pkf8t, with H1
+    left as the halt, in two worlds: r6 (--B 6 --rk 1 --rc 20 --cls 6 --mod 360) and W2 (--B 66 --cls 66 --mod 150),
+    3e9 steps each.
+      M8 (H0 = 1RG): r6 signature 11 97 12 4374 2617 (matches bb8_resid and pocket_rescreen); W2 HALT H1 at
+        3.23e8 steps, top 817. M8 REPRODUCED: YES.
+      H0 = 0RB and 0RE behave identically to M8 (same signature; W2 halt 3.2303e8, 3284 ones). They are M8 equivalents.
+      Negative controls (the other 29):
+        15 halt small: <= 3 jumps, or a cascade of 12s (0LG/0RG), at most 8,839 ones.
+        8 rebuild without halting in budget (k 4.4k in r6, 27k-37k in W2).
+        6 tape runaways (bouncers).
+        1 stalls (0LH).
+        1 differs by world (1LF: no halt in r6, small halt in W2).
+      None shows an escalation signature.
+
+3. OUTCOMES FOR THE POOLED ROWS
+  - 7 dlscan2 NOBOUNDARY rows: no live exhaustion at any level (rank7). Redirects were not run because the slot is
+    not reached in a record-relevant way.
+  - 3 natural halters (nhrun.py, nhms.py; nh/). Both undefined slots got all 28 completions: 3 x 56 machines, run
+    with nlp7v (3e6 macro), and every halter re-run exactly with ms.exe.
+      The slot reached first (checked again with cont/reach7.exe, which reports the halting slot):
+        base 0 1RB---_1RC0LF_1RD---_...: C1, and A1 is dead.
+        base 1 ..._---1RB_1LE---: G1.
+        base 2 ..._1LG---_0LA---: G1.
+      Completions of the OTHER slot halt exactly at the base halt; they are unchanged machines.
+      Completions of the first-reached slot:
+        a few halt within O(1) steps of the base halt (0LA/1LA-type, straight into the other slot);
+        base 2 with G1 = 0RF halts at 1.08e11 steps with 163,883 ones;
+        the rest (24-26 per base) do not halt within 3e6 macro steps and were not classified further
+        (the bases are about 1e5-ones machines, far from record class).
+      CORRECTION 2026-10-23: an earlier version of this report named the slots D1/G0/G1 and said "every halting
+      redirect halts at the base halt". Those were mostly other-slot completions, as stated above.
+  - FR rows (fr/, dumprun.py, from nlp7v dumps).
+      fr1 = 1RB---_1LC1LF_0LD0LB_0RE0RG_1RB1RE_0LC0RE_1RD---: A1 is dead, G1 is the live slot. The digit
+        c ~ 670 is refilled with a constant (~676) after every exhaustion. Each c-cycle consumes 2 of 162 list items,
+        which is exponential class. FR = 671 is that constant, so the f_omega flag is false.
+      Small instances (list cut to 0-4, c = 2) never reach G1 within 2.7e12-3.4e12 steps: the list is re-grown or
+        junk is left behind.
+      fr2 (FR 671, A1 dead) is treated as the same family. fr3 (tier 3, FR 10) is small.
+  - Rebuild-then-halt rows with estimated size above f_omega(20): none.
+
+4. WHY IT FAILS
+  The M8 mechanism needs an Ackermann digit-list engine whose exhaustion reaches an undefined slot.
+  Rows with 12 or fewer defined transitions do not seem to support that in the list. Every graded row with a halting
+  or rebuilding exhaustion of record interest (CHAMPION, R4-SOME, HALT?, HALT-SOME, CHECK) has exactly one '---'.
+  The c231ext result says an 8th state is not enough on champ_231. Together with this one, spare-slot redirects inside
+  BB(7) are closed for the digit-list class.
+  NOT covered:
+    - pf7-FAIL rows outside the 1% sample and the first-pass hits. pf7 is calibrated to zero misses, but that is
+      empirical.
+    - Engines that neither dlscan2 nor the nonlist detector sees.
+    - Unused DEFINED transitions in 1-'---' rows (free-transition variants). That is a different construction.
+
+5. COST
+  CPU, all Idle, 1-2 cores: about 1.3 h. Census ~3 min, rank7 ~1 min, ctl8 64 pkf8t runs ~45 min, nh nlp7v+ms
+  ~20 min, fr probes ~15 min. Tokens: moderate (one agent, no subagents).
+
+6. FILES (bb7_holdouts/slot_redirect)
+  census.py, live.py, pool_pf7_multi.txt (69,619 rows)  census and live-slot counts
+  pool_dl2.tsv, pool_dl2_rank.tsv/.log/.out             the 7 dlscan2-graded rows and their rank7 results
+  ctl.txt, ctl_dl2.tsv, ctl_pf7.tsv, ctl_rank.tsv        control machines (C8, M8, old champion) in dlscan2/pf7/rank7
+  ctl8.py, ctl8/, ctl8_summary.txt                       control: 32 H0 completions x {r6, W2} with pkf8t
+  nhrun.py, nhms.py, nh/                                 natural halters: completions (nlp7v) and exact halts (ms.exe)
+  frsmall.py, dumprun.py, fr/                            FR-row probes (dumps with edited counts or a cut list)
+  notes.txt, pids.txt                                    log; PIDs (all processes finished)
+
+=====================================================================================================================
+FOLLOW-UP (2026-10-23): FREE SLOTS = DEFINED BUT UNUSED TRANSITIONS IN 1-UNDEFINED RECORD-RELEVANT ROWS
+VERDICT: NEGATIVE, EMPTY POOL. Every pooled row uses all 13 defined transitions within the first 7,017 steps.
+No free slot exists, so there are no variants to follow.
+
+POOL (free/pool.txt, sources in free/pool_src.tsv): 3,647 distinct 7-state rows with exactly one '---'. Sources:
+  rank/rank_all.tsv (63 CHAMPION/R4-SOME rows), reb7/final_all_verdicts.tsv (1,876 rebuild-family rows, including the
+  f_(w+1) loopers and the dl3 bases), dl3_hits/machines.txt (2,416 first-pass hits), hits_triage7.tsv,
+  sample1pct/hits.tsv, nonlist/final.tsv tiers 1-2 (176).
+  This is wider than asked: all reb7 rows instead of only the Ackermann-graded ones, and all dl3 rows instead of 18+15.
+METHOD (free/usage.cpp -> usage.exe): literal blank-tape run of 3e8 steps per row, recording the first-use step
+  of each slot.
+RESULT (free/use_a.tsv, free/use_b.tsv)
+    rows with all 13 defined transitions used:   3,647
+    rows with >= 1 unused defined transition:        0
+  The latest "last first use" is at step 7,017 (1RB---_0RC0LA_1LD0RF_1LE1LB_0LF1LC_0RG0LD_0LA1RC).
+  The median is in the hundreds of steps.
+  No row halted or ran off the tape in 3e8 steps.
+WHY (structural): the holdout list comes from a TNF enumeration. The enumerator defines a transition only when the
+  run reaches that undefined slot, so every defined transition of a listed row was used within the enumerator's budget.
+  That is long before any record-relevant exhaustion. champ_231's 13/13 is the rule, not luck. Free slots can only
+  appear in machines built by hand (relabels, redirects, extensions), never in rows taken straight from the list.
+  The one free-slot-like construction still available inside BB(7) is the spare-slot redirect of the main report.
+CONTROL: the old BB(7) champion also uses 13/13 (last first use at step 102). There were no variants, so nothing
+  reached the follow stage. The M8 control of the follow stage is the one in section 2 (reproduced).
+COST: 2 x ~30 min Idle CPU (usage.exe).
+FILES (slot_redirect/free): usage.cpp/.exe, pool.txt, pool_a.txt, pool_b.txt, pool_src.tsv, use_a.tsv, use_b.tsv
+
+=====================================================================================================================
+CONTINUATION (2026-10-24): LATE-REACHED FIRST SLOTS IN ALL 452,828 ROWS WITH >= 2 UNDEFINED SLOTS; 28 CHILDREN EACH
+VERDICT: NEGATIVE.
+  - 30 rows reach an undefined slot within the simulated budget. All are small halters: 8e8 to 1e11 steps,
+    17k-294k ones.
+  - Their 840 children contain no record candidate. 97 halt; the biggest has 172,858 ones.
+  - The fastest-growing children have list-plus-exponential-counter structures: a list of 14-51 items and a binary
+    counter that decrements a large block. That is tower class at most, far below f_omega(20).
+  - Nothing goes into OPEN_CANDIDATES.
+  Coverage is partial (see COVERAGE): 64% of the rows do not accelerate under the macro simulator and were run to
+  only ~1e6-1e7 steps.
+
+1. REACH SCAN (cont/reach7.cpp; driver cont/drive.py, stages A, B, B2; summary cont/summarize.py -> final.tsv)
+  reach7 uses nlp7's macro core (K-cell blocks with K chosen by a pilot, run-length stacks, self-loop acceleration)
+  and reports the first undefined slot reached, the step count and the ones.
+  Check: on the BB(5) champion it gives 47,176,870 steps exactly. Ones are counted before the halting write
+  (4097 = 4098 - 1).
+  The three nonlist natural halters with 2 undefined slots are found again (C1, G1, G1).
+    Stage A, all rows: 1e6 macro steps, stop at 1e10 base steps.
+    Stage B, 40,062 rows with log10(steps) >= 7 after A: 1e7 macro, stop at 1e11.
+    Stage B2, the other 120,883 of those rows: 3e6 macro, stop at 1e11. The macro budget was lowered because the
+      shared machine slowed Stage B to ~3 rows/s.
+  FINAL STATUS (log10 of base steps reached; pf7 = row passed the pf7 prefilter)
+      status  decade   pf7-pass   pf7-fail
+      HALT       8          0          1
+      HALT       9          0          1
+      HALT      10          9         19        (all 28 at 1e10-1e11)
+      RUN        6     46,844    245,037        (no acceleration: macro ~ literal; coverage ~1e6-1e7 steps)
+      RUN        7      4,973     25,499
+      RUN        8      3,832     22,427
+      RUN        9      4,799     73,834
+      RUN       10      3,124      8,834
+      RUN       11      6,038      7,557        (reached the 1e11 cap)
+  REACHERS by step decade: 1e8: 1 | 1e9: 1 | 1e10: 28. Total 30 (cont/reachers.tsv).
+  Several form families with identical step counts: the C0 family x6, the G0 family x7, the 116,102-ones family x3.
+  These 30 listed holdouts HALT. Largest: 1RB1RE_1LC0LB_1RA0RD_0LB1LD_1RF---_0RC1LG_---0RA, 9.60e10 steps,
+  293,966 ones (first slot E1). The other undefined slot is then irrelevant.
+  COVERAGE CHECK on non-accelerating rows: a random sample of 500 rows run literally to 3e8 steps, plus 14 rows to
+  1e9 steps (free/usage.exe). None halted. A miss rate of ~1e-3 cannot be excluded.
+
+2. CHILDREN (cont/kids.py -> kids.tsv, kin/s000): 30 x 28 = 840 children. The first-reached slot X := w d S, and the
+  other undefined slot(s) stay as the eventual halt. Controls champ_231 and the old champion are in the batch.
+  a) reach7b (macro, 3e7 macro steps, cap 1e13 base steps; also reports tape cells and runs) -> kout2/s000.tsv
+       HALT right at the branch (X sends the head straight into the other slot)        94
+       HALT later                                                                       3
+         1RB0LB_1LC0RE_0LC0LD_1LA1LC_1RA1RF_0RG---_0RC1LC  F1 at 2.69e10 steps, 172,858 ones (the biggest)
+         1RB0LD_1RC1RG_0RD1RA_0LE0RB_0RF1LA_1LG---_0LA0RF  F1 at 1.08e11 steps, 163,883 ones
+         1RB0LB_1LC0RE_0LC0LD_1LA1LC_1RA1RF_0RG---_0RC1LD  F1 at 1.50e10 steps, 129,168 ones
+       LOOP (in-block cycle: never halts)                                              15
+       RUN, no halt by the budget                                                     728
+         reached 1e13: 396 | 1e12: 81 | 1e11: 35 | stuck at the branch (no compression afterwards, >= 3e7 macro
+         steps without a halt): 216
+     Controls: champ_231 RUN to 1e13, old champion RUN to 6.4e12 (both expected: they halt far later).
+  b) Standard pipeline from the blank tape.
+       - pf7: 254 of 842 PASS. Every child gets exactly its base's verdict (0 of 30 bases mixed).
+       - dlscan2 on the 254 passers: only the 2 controls are graded (CHAMPION). No child is graded.
+       - rank7/reb7: no input apart from the controls.
+     The reason is that every branch happens at >= 8.3e8 steps, beyond pf7's 3e5 and dlscan2's 1e6 census. These
+     tools only ever see the base's setup. The standard pipeline is blind to this construction, so the
+     post-branch analysis below replaces it.
+  c) nonlist pipeline with a long natural run (nlp7f, 2e7 macro, --k2) on the 730 RUN rows -> kn_00.tsv, kn_01.tsv:
+       FR = 0 & SRs < 10: 482 | FR = 0 & SRs >= 10: 239 | FR > 0: 9 = 7 children + both controls
+     The 7 FR > 0 children:
+       base 1RB0LD_1RC1RG_0RD1RA_0LE0RB_0RF1LA_1LG---_0LA--- with G1 = 0RB, 0LC, 1RB, 1RC, 1RE, 1LE (FR 8 to 49,118)
+       base 1RB---_1RC0LF_1RD---_... with C1 = 1LD (FR 9).
+     I looked at four of them with nlp7v --show (cont/look/). After the branch they build a fixed list:
+       (110 100)x51, (011 010)x29 or (011 010)x14 items,
+       a large block 111^N (N = 49,118 / 33,063 / 2.2M) that loses 1 per overflow of a ~17-bit binary counter
+       (the decrement spacing grows ~x3),
+       and a growing accumulator 001^M.
+     Each list item costs one exponential. The list is fixed (no rebuild was seen up to 3.6e13 steps), so the
+     size is at most a tower of height ~50 (level ~3). FR here measures the refilled block size, not an f_omega
+     engine.
+     No child shows a growing, rebuilt list.
+
+3. CONCLUSION
+  - Late-reached slots exist (30 rows, 1e8-1e11 steps). But every reacher is a small halter (<= 3e5 ones), and its
+    children branch from a 1e5-cell tape with a slow engine.
+  - The best post-branch dynamics found are tower class at most.
+  - Halters: the largest sigma is 172,858 among children and 293,966 among bases.
+  - Gaps:
+    - the 292k non-accelerating rows (scan reached only ~1e6-1e7 steps; literal sample of 514 clean);
+    - the 216 children stuck at their branch;
+    - the 728 RUN children with no proof of non-halting. Any halt among them would come from a tower-class engine
+      or slower, so not a record.
+
+4. COST (CPU at Idle, <= 2 cores)
+  Stage A ~2.8 CPU-h, B ~2 CPU-h, B2 ~4 CPU-h (the shared machine was heavily loaded), slow sample ~1 CPU-h,
+  children (reach7b + nlp7f + pf7/dlscan2) ~0.5 CPU-h. Total ~10 CPU-h, about 5 h wall.
+  Tokens: moderate (polling plus a few views).
+  All my processes have finished. PIDs are in pids.txt: reach7 children, the drive.py drivers 119648 and 131676,
+  usage.exe, nlp7f.
+
+5. FILES (slot_redirect/cont)
+  reach7.cpp/.exe, reach7b.cpp/.exe          macro reach simulator (b adds tape cells/runs)
+  all_multi.txt, in/, inB/, inB2/            the 452,828 rows and their shards
+  outA/, outB/ (incl. partial .tmp), outB2/  stage outputs
+  drive.py, summarize.py, final.tsv          resumable driver; final per-row status
+  reachers.tsv                               the 30 reachers (slot, steps, ones)
+  slow2k.txt, slow3_a.out, slow3_b.out, slow_1e9.out   literal coverage sample
+  kids.py, kids.tsv, kin/, kout2/            children and their reach7b results
+  kids_pf7.tsv, kids_dl2.tsv                 pf7/dlscan2 on the children
+  krun_00/01, kn_00.tsv, kn_01.tsv, look/    nlp7f on the RUN children; nlp7v views of the FR>0 children

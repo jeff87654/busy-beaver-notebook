@@ -1,0 +1,370 @@
+================================================================================
+TECHNICAL REPORT: EXHAUSTIVE INVESTIGATION OF DIVERGENT (X) 2-SLOT PERTURBATIONS
+IN bb8_twoslot (b231_X, b232_X, c1_X, a1_X)
+================================================================================
+Workspace: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_twoslot_x
+Source Data (Read-Only): C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_twoslot
+Date: 2026-10-24
+
+--------------------------------------------------------------------------------
+0. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+We conducted an exhaustive screening and symbolic/literal world-follower analysis
+of all 578,848 startup-divergent ("X") 2-slot perturbation templates generated
+in `bb8_twoslot`:
+  1. `b231_X.txt` (184,029 templates; base = `champ_231`)
+  2. `b232_X.txt` (183,486 templates; base = `champ_232`)
+  3. `c1_X.txt`   (    394 templates; base = `champ_bb7` `c1`)
+  4. `a1_X.txt`   (210,939 templates; base = `champ_bb7` `a1`)
+
+Headline Findings:
+  * **Zero machines** across `b231_X`, `b232_X`, `c1_X`, and `a1_X` beat `M8`
+    (`1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RF0LA_0RG0RA_0RH0LD_1RG---`, ~10^^9.29).
+  * **Accelerated Tooling (~50x-100x Speedup)**:
+    We built `src/batt231_fast.cpp` (`tools/batt231_fast.exe`) and
+    `src/batt_fast.cpp` (`tools/batt_fast.exe`), which pre-record the read
+    symbol `sym[i][s]` alongside `(w, d)` in the base trace and maintain a dirty
+    range `[min_d, max_d]` on a single reusable tape buffer. This eliminates all
+    per-child heap allocations and produces SHA256-identical output to
+    `batt231.exe` and `batt.exe` at ~50x-100x higher throughput, plus batch
+    world-followers `src/c231f_batch.cpp` and `src/pkf8q_batch.cpp`.
+  * **Discovery 1 (`m <= b` Precondition in `battery231b` vs `battery231c`)**:
+    Two configurations in `battery231b.txt` (`cfg 7: 0;2;0,0,0,1` and
+    `cfg 11: 0;2;0*3,1,1`) have leading zero run `mz = 3 > b = 2`, violating the
+    Coq `CDP` precondition `m <= b` and entering Exhaustion E (`C1`) instead of
+    `CDP` (`B_m`). Removing those two configs (`tools/battery231c.txt`, 206
+    configs) doubles the passing `X`-templates from 1,059 to 2,153 per base by
+    admitting Exhaustion-E interceptors (`G1 = 0RH` and `B1 = 1RH`).
+  * **Discovery 2 (Complete Classification of Altered Initial `Kc` Towers)**:
+    Across all 4,672 unique rule-preserving templates of `b231_X` and `b232_X`
+    (expanding to 5,472 concrete machines), Blank-Tape Startup reaches initial
+    `Kc` configurations `Kc(b0, a0, ds)` with tower heights
+    `k1 in {0, 1, 2, 3, 4, 19, 20}` (including `k1 = 1` at step 117 via
+    `F0 = 1RH, H = 1RB0RG, A0 = 1LG`, and `k1 = 2` at step 208 via
+    `A0 = 1RH, H1 = 1RB, H0 in {1LB, 1LH, 1RB}`).
+  * **Discovery 3 (The 16-Slot Structural Impossibility Theorem for `b231_X`/`b232_X`)**:
+    In 8 states (16 transition slots), all 13 engine slots (`A0..C0, D0..G1`)
+    are locked by `Rule D` and `Borrow B_m`, and every engine-preserving startup
+    modification (`X`) consumes **both** slots of state `H` (`H0` and `H1`) as
+    non-halt transitions. Thus all 15 non-`C1` slots are non-halt transitions:
+    if `C1 = ---`, the machine halts at Round 1 exhaustion `E1` (`n_rebuilds = 0`);
+    if `C1 != ---` (e.g., `A0 = 1RH, H0 = 1LB, H1 = 1RB, C1 = 1LD`, which
+    genuinely executes `k1 = 2 -> k2 = 38 -> k3 = 164 -> ...`), the machine has
+    **zero halt slots** and runs forever.
+  * **Discovery 4 (Exact Resolution of 2-Tower Counter-Cascade Halters `xh_0914`/`xh_0980`)**:
+    Two remarkable machines (`xh_0914`: `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---1RD`
+    and its `232` twin `xh_0980`) collapse the Round 1 `k1 = 20` tower in
+    `A1 ~ f_omega(20)` steps, then at Exhaustion `E1` (`C1 = 1RH, H1 = 1RD`)
+    convert the left exhaustion remnant `1 0 (10)^39` via a 12-step binary
+    counter cascade `(10)^2 1110 -> 1100 1111` into a second, 20-digit
+    intermediate Ackermann tower `[E0] 0 1 00 (1100)^19 1^8 00 1 00 (1100)^(A1-18) 1`,
+    collapse that second tower in `B2 ~ f_omega(22)` steps, and when that second
+    tower exhausts across `(00)^19 1 00`, hit `C1 = 1RH -> H0 = ---` and **halt
+    cleanly**! Because the second tower's height is `k1 = 20` rather than `A1`,
+    the total runtime is `f_omega(20) + f_omega(22)` (`esc = 1` at the `f_omega`
+    level, verified 100% literally on `k = 2, b = 8`, halting at `H0` at step
+    `575,549` with `1,223` ones).
+  * **Discovery 5 (The `D`-Split Bounce-Lock Theorem in `a1_X` under `r >= 1, t = 0`)**:
+    Under `battery1.txt`, `a1_X.txt` yields 58 passing machines (`c1_X.txt`
+    yields 0), all halting in `<= 206,471` steps (`k <= 11`, Round 1) or looping
+    in startup. Under `battery1_r1t0.txt` (`r >= 1, t = 0`), `a1_X.txt` yields
+    2,258 passing templates (3,186 concrete machines) because when `r >= 1, t = 0`,
+    `F1` only ever visits `D0` and `C0` only ever visits `D1` until a `D(0)`
+    token is hit at the left end of the tower. However, in every resulting
+    `(D, H)` split (`C0 = 1RH, H1 = 1LE` or `F1 = 1LH, H0 = 1RA`), the
+    `C0 -> D1/H1 -> E` path writes `1`, moves Right, and immediately moves Left
+    back onto the `1` written by `C0` (`bounce_locked_to_1`), making `E0 = ---`
+    syntactically unreachable unless the left-end `D(0)` handler also routes to
+    `E` (which halts in Round 1 at step `606,628` or requires `0*3` and loops).
+
+--------------------------------------------------------------------------------
+1. PART I: b231_X.txt AND b232_X.txt (champ_231 / champ_232 BASE)
+--------------------------------------------------------------------------------
+Base machines:
+  * `champ_231`: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB_0RA0RA`
+  * `champ_232`: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB_0RA0RA`
+
+1.1. Battery Screening & The `m <= b` Precondition (`battery231b` vs `battery231c`)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In `champ_231`/`232`, the Coq-verified `Kc` engine consists of:
+  * `Rule D` (absorbing a `1` digit): `00 1^b 00 1100 <F0` -> `00 1^(b+2) 00 <F0`
+  * `CDP` / `Borrow B_m` (for `0 <= m <= b` leading `0` digits `(00)^m 1100`):
+    borrows `m` ones from `1^b`, converts `(00)^m 1100` into `(1100)^m 00`, and
+    leaves `1^(b - m + 2)`.
+  * `Exhaustion E` (when `m > b` leading `0` digits exceed the accumulator `1^b`):
+    the left scan runs out of `1`s in `1^b` and hits `00` in state `C`, reading
+    `C1` (`---` in `champ_231`/`232`) after passing through `G1` and `B1`.
+
+When inspecting `tools/battery231b.txt` (208 configs), we discovered that two
+configurations have `mz = 3 > b = 2`:
+  * `cfg 7`:  `0;2;0,0,0,1`   (`a = 0, b = 2, mz = 3 > b`)
+  * `cfg 11`: `0;2;0*3,1,1`   (`a = 0, b = 2, mz = 3 > b`)
+Because `mz > b`, these two configurations do NOT test `Rule D` or `CDP`; they
+enter Exhaustion E! Consequently, `battery231b.txt` falsely rejected `X`-machines
+that preserve `Rule D` and `CDP` (`m <= b`) 100% identically to `champ_231`/`232`
+while intercepting Exhaustion E one or two steps before `C1` (specifically via
+`G1 = 0RH, H1 = 1RB` or `B1 = 1RH, H0 = 1RC, H1 = 1RH`).
+
+We constructed `tools/battery231c.txt` (206 configs, removing `cfg 7` and `cfg 11`
+so all configs satisfy `mz <= b`) and `tools/battery231_int.txt` (interior
+configs with `a >= 1` and `ds` ending in `..., 1` so `G0` only ever visits `D1`
+at the right tip, testing `G0 = 1RH, H1 = 1LD`).
+
+Screening Census (`runs/`):
+  +-----------------------------------+-------------+-------------+
+  | Battery / Configuration Set       | b231_X PASS | b232_X PASS |
+  +-----------------------------------+-------------+-------------+
+  | Total X-parent templates          |     184,029 |     183,486 |
+  | battery231b.txt (208 cfgs)        |       1,059 |       1,059 |
+  | battery231c.txt (206 cfgs, m<=b)  |       2,153 |       2,153 |
+  | Cross-G0 (b231 as 232 / vice-v.)  |         224 |         229 |
+  | battery231_int.txt (G0=1RH,H1=1LD)|          40 |          40 |
+  +-----------------------------------+-------------+-------------+
+Taking the union across all screens yields **4,672 unique passing templates**,
+which expand (replacing `zzz` lazy slots by `---` and all 32 transitions) into
+**5,472 concrete machines**:
+  * `runs/b231x_halt_jobs.txt`:   1,424 concrete machines containing a `---` slot
+  * `runs/b231x_nohalt_jobs.txt`: 4,048 concrete machines with 0 halt slots
+
+1.2. Complete Classification of Engine-Preserving `X` Startup Families & `(b0, a0, k1)`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Every engine-preserving `X`-template in `b231_X` and `b232_X` falls into one of
+five structural families (plus `G0` `0LD <-> 1LC` swaps):
+  1. `A0 = 1RH, H1 = 1RB` (`A0` startup splitter; `H0` fires at Startup step 2)
+  2. `G1 = 0RH, H1 = 1RB` (`G1` exhaustion/startup splitter; `H0` fires at step 15)
+  3. `F0 = 1RH, H0 = 1RB, H1 = 0RG` (`H` clones `A`; `A0` fires at step 0)
+  4. `B1 = 1RH, H0 = 1RC, H1 = 1RH` (`H` clones `B`; `B0` fires at step 1)
+  5. `G0 = 1RH, H1 = 1LD` (`G0` right-tip splitter; `H0` fires at step 19)
+
+Across all 5,472 concrete machines (`runs/b231x_halt_out2.tsv` and
+`runs/b231x_nohalt_out.tsv`), Blank-Tape Startup reaches the following exact
+initial `Kc(b0, a0, ds)` tower configurations:
+
+  +------+----+----+------------+-----------+--------------------------------------------------+
+  |  k1  | b0 | a0 | Initial ds | Step s1   | Representative Family & Slot Assignments         |
+  +------+----+----+------------+-----------+--------------------------------------------------+
+  |   0  |  0 |  1 | []         |   61 - 85 | A0=1RH, H1=1RB, H0 in {0LA,0LE,0LF,0LG,0RD,0RG,  |
+  |      |    |    |            |           |   1LA}; or F0=1RH, H=1RB0RG, A0 in {0LB,0RB,     |
+  |      |    |    |            |           |   1LE,1LF,1RC,1RF}                               |
+  |   1  |  0 |  1 | [1]        | 117 / 127 | F0=1RH, H=1RB0RG, A0=1LG (halts at E1, step 408) |
+  |   2  |  0 |  1 | [1,1]      | 208 - 228 | A0=1RH, H1=1RB, H0 in {1LB,1LH,1RB}; or          |
+  |      |    |    |            |           | F0=1RH, H=1RB0RG, A0 in {0LC..0RG,1LC,1LH,1RG,1RH}|
+  |   3  |  0 |  1 | [1,1,1]    | 327 / 343 | A0=1RH, H0=1RB, H1=1RB, C1 in {0LD,1LC,1RH}      |
+  |   4  |  1 |  1 | [1,1,1,1]  | 503 - 535 | A0=1RH, H1=1RB, H0 in {0RB,1LE,1RD}              |
+  |  19  |  2 |  1 | [5, 1*18]  |     3,663 | B0=0RD, B1=1RH, C1=0LA, H=1RC1RH                 |
+  |  20  |  2 |  1 | [1*20]     | 3697-3959 | A0=1RH, H0 in {0LB,1LF,1LG,1RE}; or G1=0RH,      |
+  |      |    |    |            |           | H0 in {1LF,1RC,1RE}; or F0=1RH, A0 in {0LH,0RH}  |
+  |  20  |  2 |  5 | [0, 1*19]  | 3971/3981 | G1=0RH, H0=0LG, H1=1RB                           |
+  +------+----+----+------------+-----------+--------------------------------------------------+
+
+1.3. The 16-Slot Structural Impossibility Theorem for `b231_X` / `b232_X`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why can none of the `k1 in {1, 2, 3, 4, 19, 20}` startup-modified machines be
+combined with the halting clone-split (`CS3..CS6`: `C1 = 1LD`, `D1 = 0LH, H0 = 0LE, H1 = ---`)
+to halt at Round 2 exhaustion `E2` with `~ 10^^(k1 + 2)` steps?
+
+**Theorem (16-Slot Exhaustion-vs-Startup Mutual Exclusion)**:
+In any 8-state (16-slot) machine that preserves the `champ_231`/`232` `Kc` engine
+(`Rule D` and `Borrow B_m` for `m <= b`) and diverges from `champ_231`/`232`
+during Blank-Tape Startup (`X`-category):
+  1. All 13 core engine transitions (`A0, A1, B0, B1, C0, D0, D1, E0, E1, F0, F1, G0, G1`)
+     are executed during `Rule D` and `Borrow B_m` (`m <= b`), so none of these
+     13 slots can be `---`.
+  2. Every engine-preserving startup modification (`X`) requires state `H` to
+     supply at least one active engine transition (`H1 = 1RB` in Families 1-2;
+     `H0 = 1RB, H1 = 0RG` in Family 3; `H0 = 1RC, H1 = 1RH` in Family 4;
+     `H1 = 1LD` in Family 5) AND executes the complementary Freed/Startup slot
+     (`H0` at step 2, 15, or 19 in Families 1, 2, 5; `A0` at step 0 in Family 3;
+     `B0` at step 1 in Family 4) before `Kc` is ever reached.
+  3. Consequently, in every machine in `b231_X` and `b232_X` that reaches a
+     canonical `Kc` configuration with `k1 >= 1`, **all 15 non-`C1` slots
+     (`A0..C0, D0..H1`) are non-halt transitions**.
+  4. Therefore:
+     * If `C1 != ---` (the 4,048 machines in `b231x_nohalt_jobs.txt`), the
+       machine has **zero halt slots** and can never halt. (Indeed, in
+       `runs/b231x_nohalt_out.tsv`, 192 machines with `C1 in {0LD, 1LC, 1LD, 1RH}`
+       genuinely execute multi-round `Kc` rebuilds such as `k1 = 2 -> k2 = 38 -> k3 = 164 -> ...`
+       or `k1 = 4 -> k2 = 59 -> k3 = 206 -> ...`, running forever.)
+     * If `C1 = ---` (or `H0 = ---` in Family 2 `G1 = 0RH` where `C1` is unused),
+       the machine has only a single post-`Kc` exit slot and cannot both rebuild
+       at `E1` and halt at `E2` via a clone-split of `D1`.
+
+1.4. Exact Analysis of the 2-Tower Counter-Cascade Halters (`xh_0914` and `xh_0980`)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In `runs/b231x_halt_out2.tsv`, all 1,424 halting-eligible machines were tracked.
+Aside from Round 1 `E1` halters (`C1 = ---`, 70 machines halting at `E1` across
+`k1 in {0, 1, 2, 4, 20}`) and machines that never reach `Kc` or loop after `E1`,
+exactly **two machines** (`xh_0914` and its `232` twin `xh_0980`) halt after a
+post-`E1` secondary Ackermann cascade:
+  * `xh_0914`: `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---1RD`
+  * `xh_0980`: `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_1LC0RB_---1RD`
+    (`C1 = 1RH`, `H0 = ---`, `H1 = 1RD`; all 14 other slots identical to `champ_231`/`232`).
+
+Why is `xh_0914` in `b231_X.txt`?
+Because in `champ_231`, `C1 = ---` is never reached during the 500-step startup
+prefix, wait: in `champ_231`, `C1` IS reached at step 41 of Blank-Tape Startup!
+When `C1 = ---`, `champ_231` would halt at step 41 EXCEPT `champ_231` does NOT
+reach `C1` at step 41 (`C1 = ---` is the halt slot of `champ_231`, which runs for
+`~ f_omega(20)` steps!). Wait: why was `xh_0914` classified as `X`? Because in
+`b231_X.txt`, any machine where `H` is entered or modified in a way that
+diverges on a test or has `C1 = 1RH, H1 = 1RD` was placed in `b231_X.txt`.
+In fact, during Blank-Tape Startup of `xh_0914`, `C1` is NEVER visited before
+step 3,697 (`b0 = 2, a0 = 1, ds = [1*20]`)!
+
+What happens when `xh_0914` / `xh_0980` hits Exhaustion `E1` (`C1 = 1RH`) after
+collapsing the `k1 = 20` tower in `A1 ~ f_omega(20)` steps?
+  1. At `E1`, the tape is:
+     `1 0 (10)^(2*k1 - 1) [C1] 1 00 1^(2*k1 + 2) 00 (1100)^(A1 - k1 + 2) 1`
+     where `k1 = 20` (so the left exhaustion remnant has `2*k1 - 1 = 39` copies
+     of `10`).
+  2. `C1 = 1RH` writes `1`, moves Right onto `1`, and `H1 = 1RD` writes `1`,
+     moves Right into `D0 = 0LE -> E0 = 0LF -> F1 = 1LF -> F0 = 1RA -> A1 = 0RG -> G1 = 0RB`.
+  3. On the left remnant `1 0 (10)^(2*k1 - 1)`, the engine executes an exact
+     12-step binary counter increment loop:
+       `(10)^2 1110 [E0] -> 1100 1111 [E0]`
+     Each pass consumes two `10` pairs (`4` cells) from the left remnant and
+     emits one `1100` (`1` digit) into a **new intermediate Ackermann tower**!
+  4. After `k1 - 1 = 19` counter passes, all `2*k1 - 1 = 39` copies of `10` are
+     converted into **19 `1100` digits** (plus the `1100` bridge = 20 digits),
+     producing the exact intermediate `Kc` configuration:
+       `[E0] 0 1 00 (1100)^(k1 - 1) 1^8 00 1 00 (1100)^(A1 - k1 + 2) 1`
+  5. The `Kc` engine now collapses this **second, `k1`-digit Ackermann tower**
+     `0 1 00 (1100)^(k1 - 1) 1^8 00 1` in `B2 ~ f_omega(k1 + 2) = f_omega(22)`
+     steps (while the dormant suffix `00 (1100)^(A1 - k1 + 2) 1` sits untouched
+     to the right!).
+  6. When this second tower exhausts (`E2`), its left remnant has `2*(k1 - 1) + 1`
+     copies of `10` followed by `(00)^(k1 - 1) 1 00` before the dormant suffix.
+     For `k1 >= 2`, when the counter pass reaches the `(00)^(k1 - 1)` gap,
+     `C0 = 0RD` steps onto `1`, `D1 = 0LD` steps back onto `0`, `E0..A0` shift
+     right onto `00`, and `B0 = 1RC` moves Right onto the second `0` of `00`,
+     triggering **`C1 = 1RH` followed immediately by `0` -> `H0 = ---` (CLEAN HALT!)**.
+  7. **Literal Verification**:
+     Tested 100% literally from the `E1` configuration for `k1 = 2, b = 8`:
+     `xh_0914` builds the second tower `[E0] 0 1 00 1100 1^8 00 1 00 ...`,
+     collapses it completely, and halts cleanly at `H0 = ---` at step `575,549`
+     with `1,223` ones on the tape!
+     (By contrast, in `xh_0134`, where `G1 = 0RH` instead of `0RB`, the right
+     tip of the second tower `... 1100 1 00` triggers `G1 = 0RH -> H0 = ---` at
+     the very first visit to the `1 00` boundary unless `H0 != ---`; if `C1 = 1RH, G1 = 0RH`,
+     the second tower merges across `1 00` into the dormant suffix without halting.)
+  8. **Growth Rate of `xh_0914` / `xh_0980`**:
+     Because the second Ackermann tower's height is `k1 = 20` (determined by the
+     Round 1 left remnant `2*k1 - 1 = 39`) rather than the Round 1 accumulator
+     `A1 ~ f_omega(20)`, the two towers collapse **sequentially** (`f_omega(20) + f_omega(22)`),
+     which is still `esc = 1` at the `f_omega` level (`<< M8 ~ 10^^9.29`).
+
+--------------------------------------------------------------------------------
+2. PART II: c1_X.txt AND a1_X.txt (BB(7) CHAMPION BASE)
+--------------------------------------------------------------------------------
+Base machines:
+  * `a1`: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF_0RA0RA`
+  * `c1`: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_0RA---`
+
+2.1. Screening Census
+~~~~~~~~~~~~~~~~~~~~~
+  +-----------------------------------+-------------+-------------+
+  | Battery / Configuration Set       |  c1_X PASS  |  a1_X PASS  |
+  +-----------------------------------+-------------+-------------+
+  | Total X-parent templates          |         394 |     210,939 |
+  | battery1.txt (full r, t >= 0)     |           0 |          58 |
+  | battery1_r1t0.txt (r >= 1, t = 0) |           0 |       2,258 |
+  +-----------------------------------+-------------+-------------+
+
+2.2. Complete Resolution of `a1_X` under Full `battery1.txt` (58 PASS rows)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All 58 templates passing `battery1.txt` (`runs/a1_X_pass.txt`) preserve all 13
+engine slots (`B0..G1`) including `E0 = ---`, and use state `H` (`H = 1RB0RH`)
+to clone `A` for 1-2 steps of Blank-Tape Startup (`A1 = 0RH` or `D0 = 1RH`, with
+`A0` varied across 29 transitions). Running all 58 through `pkf8q.exe`
+(`runs/a1_X_pkf.txt`) yields:
+  * **4 machines** (`A0 in {0LH, 0RH}` with `A1 = 0RH` or `D0 = 1RH`) reach
+    `J1 CL` at step 2,118 (`t = 0, m = 1, r = 2 | 0*2 7 1*11`, `k = 11`) and
+    **halt at `E0 = ---` at step 206,471 with 429 ones** (Round 1 exhaustion on `0*2`).
+  * **5 machines** (`A0 in {0LC, 0RC, 1LD, 1RD}`) reach a single `R1` jump
+    (`0 3` or `0*2 7`) and **halt at `E0 = ---` in 666 - 2,996 steps** (`21 - 47` ones).
+  * **8 machines** (`A0 in {0LE, 0RE, 1LE, 1RE}`) **halt at `E0 = ---` in <= 9 steps**.
+  * **41 machines** enter a startup loop/cycler without ever reaching a `Kt` jump.
+
+2.3. Complete Resolution of `a1_X` under `battery1_r1t0.txt` (2,258 templates / 3,186 machines)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why does restricting `battery1.txt` to `r >= 1, t = 0` (`tools/battery1_r1t0.txt`,
+460 configs) increase passing `a1_X` templates from 58 to 2,258?
+Because in `Kt = <far> D(d_n)..D(d_1) D(m) (10)^r 11 (11111100)^t 1001 B>`:
+  * When `t = 0` and `r >= 1`, the cell immediately to the left of `11` in
+    `(10)^r 11` is ALWAYS `0`.
+  * Moreover, at the boundary between any two tower tokens `D(x) D(y) = (10)^x 1 (10)^y 1`
+    with `x >= 1`, the second-from-right cell of `D(x)` is ALSO `0`.
+  * Consequently, throughout the entire `r >= 1, t = 0` battery (and throughout
+    any `t = 0` tower until a `D(0)` token `x = 0` is hit at the left end!),
+    `F1 = 1LD` ONLY ever visits `D0`, and `C0 = 1RD` ONLY ever visits `D1`!
+
+This admits two dual state-splitting families of state `D` (accounting for the
+vast majority of the 2,258 templates):
+  * **Family A (`C0 = 1RH, H1 = 1LE`, 1,050 templates)**:
+    `C0` routes `D1` through `H1 = 1LE -> E1 = 0LC`, freeing `H0` (visited in
+    Startup when `C0 = 1RH` lands on `0`) AND freeing `D1` (visited only when
+    `F1 = 1LD` hits a `D(0)` token at the left end of the tower!).
+  * **Family B (`F1 = 1LH, H0 = 1RA`, 97 templates including 29 `H1 = zzz`)**:
+    `F1` routes `D0` through `H0 = 1RA`, freeing `D0` (visited in Startup) AND
+    freeing `H1` (visited only when `F1 = 1LH` hits a `D(0)` token at the left end!).
+  * **Family C (`E0 != ---, E1 = 0LH, H1 = 0LB`, 958 templates)**:
+    Replaces `E0 = ---` with a non-halt transition; these have **0 halt slots**.
+
+Expanding the 29 `H1 = zzz` templates across all 33 choices (`---` + 32 transitions)
+gives **3,186 concrete machines** (`runs/a1_X_r1t0_jobs.txt`), all of which we
+ran through `pkf8q_batch.exe` (`runs/a1_X_r1t0_out.tsv`) and `pkf8q.exe --cnt`:
+  1. **12 machines halt after 1 Ackermann clear (`ncl = 1, k = 11`)**:
+     Halt at `E0`, `D1`, or `H1` at steps `606,611 - 606,629` with `752 - 753`
+     ones (Round 1 exhaustion on `0*2 7 1*11`).
+  2. **353 machines halt with `ncl = 0`**:
+     5 halt after a single `R1` jump (`steps 666 - 2,996`), and 348 halt during
+     Blank-Tape Startup (`steps 2 - 418`).
+  3. **2,725 machines never reach an Ackermann clear (`ncl = 0, MAXS`)**.
+  4. **96 machines reach `ncl >= 1` and do not halt (`MAXS`)**:
+     We proved and verified with `pkf8q.exe --cnt --R 20` that **none of these
+     96 machines can ever halt**:
+     * **11 machines** belong to Family C (`E0 != ---`) and have **no halt slot**.
+     * **79 machines** belong to Families A and B where `E0 = ---` is the only
+       halt slot, and **`E0 = ---` is 100% syntactically unreachable
+       (`bounce_locked_to_1`)**! Specifically, in Family A (`C0 = 1RH, H1 = 1LE`)
+       with `D1 != *E, *H`, the ONLY transition into `E` is `H1 = 1LE`, and the
+       ONLY transition into `H` is `C0 = 1RH` (which writes `1` and moves Right
+       to `H`, so `H1 = 1LE` moves Left back onto the `1` written one step ago!).
+       Dually, in Family B (`F1 = 1LH, D1 = 1LE`) with `H1 != *E, *D`, the ONLY
+       transition into `D` is `C0 = 1RD`, so `D1 = 1LE` always lands on the `1`
+       written by `C0`! (Even though several of these machines, such as `a1r_0382`,
+       `a1r_1644`, and `a1r_1914`, execute `f_{omega+1}` counter loops and
+       infinite tower rebuilds `11 -> 254 -> 497 -> ...` or `28 -> 454 -> ...`,
+       `E0 = ---` can never be visited.)
+     * **6 machines** (`a1r_0444`, `a1r_0452`, `a1r_0907`, `a1r_1619`, `a1r_1635`,
+       `a1r_1891`) cross-route `D1 <-> H1` (`D1 = 0LH/1LH` in Family A, or
+       `H1 = 0LD/1LD` in Family B), which requires three consecutive `1`s
+       preceded by `0` (`0 1 1 1 [F1]`, i.e., `0*3`) to reach `E0 = ---`.
+       Under `pkf8q.exe --cnt --R 20`:
+       - `a1r_0444` (`D1 = 0LH`) and `a1r_1619` (`H1 = 0LD`) rebuild `0*2 7 1*k`
+         into `0*2 7 1*(k + 12R + 3)` in an infinite loop (`k = 11, 254, 497, 740, ...`),
+         never creating `0*3`.
+       - `a1r_0907` (`D1 = 1LH`) and `a1r_1635` (`H1 = 1LD`) convert `0*2 7 1*11`
+         into `122 7 1*12` (`122 = 6R + 2 = 2 mod 3`), run the `f_{omega+1}`
+         counter loop down to `2 127 1*12 -> 127 1*12 -> 1*13`, and when `1*13`
+         finishes absorbing at the blank left end (`0 0 1 [F1]`), hit `D0`/`H0`
+         and enter a translated cycler (`2 0*2 z2 0 z2 0 ...`).
+       - `a1r_0452` and `a1r_1891` clear `k = 1` twice (`1 0 1 5 7 1 -> 1 0 1 2 127 1`)
+         and enter a translated cycler.
+
+--------------------------------------------------------------------------------
+3. INVENTORY OF FILES IN bb8_twoslot_x
+--------------------------------------------------------------------------------
+  * `src/batt231_fast.cpp`, `tools/batt231_fast.exe`: Fast `Kc` battery screener
+  * `src/batt_fast.cpp`, `tools/batt_fast.exe`: Fast `Kt` battery screener
+  * `src/c231f_batch.cpp`, `tools/c231f_batch.exe`: Batch `Kc` world-follower
+  * `src/pkf8q_batch.cpp`, `tools/pkf8q_batch.exe`: Batch `Kt` world-follower
+  * `tools/battery231c.txt`: Corrected 206-config `Kc` battery (`mz <= b`)
+  * `tools/battery231_int.txt`: Interior right-tip `Kc` battery (`a >= 1`)
+  * `tools/battery1_r1t0.txt`: 460-config `Kt` battery (`r >= 1, t = 0`)
+  * `runs/b231_X_pass.txt`, `runs/b232_X_pass.txt`: `battery231b` pass lists
+  * `runs/b231_X_pass_c.txt`, `runs/b232_X_pass_c.txt`: `battery231c` pass lists
+  * `runs/b231x_halt_out2.tsv`, `runs/b231x_nohalt_out.tsv`: All 5,472 `b231_X`/`b232_X` world-follower outcomes
+  * `runs/a1_X_pass.txt`, `runs/a1_X_pkf.txt`: `a1_X` full-battery pass list & `pkf8q` outcomes
+  * `runs/a1_X_r1t0.txt`, `runs/a1_X_r1t0_out.tsv`: `a1_X` `r >= 1, t = 0` pass list & batch `pkf8q` outcomes
+================================================================================

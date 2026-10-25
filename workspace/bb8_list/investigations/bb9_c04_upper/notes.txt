@@ -1,0 +1,28 @@
+C04 upper bound -- running notes (c04-upper agent, 2026-10-17)
+Task: paper upper bound / FGH bracket for C04 score.  Sources: ../bb9_c04_deep (REPORT, PROOF_SKETCH), BB9 record txt.
+
+== 2026-10-17 session 1 ==
+Tools here: pkf4.exe (copy), pkf5.exe (= pkf.cpp + prints rin = accumulator run at each CL; src/pkf5.cpp, g++ ucrt64 -O2 -static),
+drive.py (runs pkf jobs from a json, 2 at a time, child PIDs -> pids.txt), an_scan.py, predict.py (full post-ESC model check incl. HALT ones),
+an_ones.py.
+KEY CORRECTION to my first reading: pkf's CL clears the WHOLE suffix of tokens = 1 mod 3 (multi-digit number), not only the nearest
+digit.  In key-31 variants P'=1 and P'=3 the token 6R_E+7 / 6R_E+4 is the FAR digit of a two-digit clear, so R_E is iterated (not erased).
+Clear formula (b=0 at every CL, rin=2 checked): phi(R) := 2R+4.  Single digit X (v=(X-1)/3) behind view count kv (incl. m):
+  phi(R) = 2^^(kv+1)(v+2).  Two digits X1 (near) X2: phi(R) = (2^^(kv+2))^{v2} (2^^(kv+1)(v1+2)).
+Endgame model (K = view count at ESC "... 2 7 1*K", z = post-ESC view count), verified 135 runs / 16281 views (runs/key31_scan.txt)
+plus 32 ones-runs (runs/onesdep.txt), predict.py 0 mismatches:
+  b   : ESC "6 7|K": views 3 T(R_E)|K, 0 T(R')|K, HALT.         phi_last = 2^^(K+2)(5)
+  r0  : z=(3K-30)/5, "2 1 C 7|z", C=6R_E+(3K+45)/5, countdown.      phi_last = 2^^(z+2)(phi_E + (K+10)/5)
+  r1  : z=(3K-33)/5, "2 3 (6R_E+8) 2 z2 (z+7)|z" -> "2 3 (6R_E+7) (6R_a+10)|z-1" (2 digits) -> "2 0 T|z" -> HALT
+  r2  : z=(3K-21)/5, "2 4 (6R_E+1) C 7|z", C=(3K+9)/5; 6R_E+1 survives to the halt.   phi_last = 2^^(z+2)((K+18)/5)
+  r3  : z=(3K-34)/5, "2 3 (6R_E+6) 2 z2 C 7|z", C=(3K-9)/5 -> "2 3 (6R_E+4) (6R_x+10)|z" (2 digits) -> "2 0 T|z+1" -> HALT
+  r4  : z=(3K-37)/5, "2 2 (6R_E+7) z2 0 2 z2 C 7|z", C=(3K-12)/5 -> "2 1 (6R'+6R_E+15) 7|z-1" countdown -> HALT
+  All C = 0 mod 3 IDENTICALLY (arithmetic), so no C=1,2 residue (top-level-like rebuild) is reachable.
+HALT ones (all 167 runs): ones = sum_{tokens left of the cleared suffix}(x+1) + 2(k+1) + 6 R_last + 4t + 8   (k = digits beyond m).
+upper.txt v1 written (bracket f_w(f_w(12B+26)) < sigma < f_w(f_w(12B+27)); b: f_w(K+2..K+3), key31: f_w(K+1..K+2)).
+check_arith.py ALL OK.  val1000 running (90 jobs), val2.json prepared (52 jobs: other key-31 routes, keys 37/43/49/55).
+val1000 DONE: 90 runs, 13353 views, 0 mismatches (predict.py).  rin=2 at all 13484 CLs in the raw pkf5 outputs runs/tmp_*.out
+(drive.py's temp files; the os.remove patch did not apply, so the raw outputs stay -- useful).  val2 started after it.
+Sent c04-coq a note: the A2 argument "R_last >= R_ESC" fails in key31 K=2 mod 5 (the bound holds via the surviving 6R_E+1 token); two-digit clears in K=1,3.
+val2 DONE: 52 runs, 6172 views, 0 mismatches; rin=2 on all 6246 CL lines.  ESC prefixes: key31 always "5 2 6 2 7"; class b "...6 7".
+P-K per route: 17..54, and 89 (k=732, 8 large-L sub-steps).  TOTAL validation 309 runs / 39522 views.  upper.txt updated (final).

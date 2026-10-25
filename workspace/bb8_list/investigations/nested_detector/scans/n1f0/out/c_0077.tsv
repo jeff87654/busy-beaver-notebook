@@ -1,0 +1,3 @@
+machine	halted_step	n_templates	grade	template	w1	params
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_0RG1LD_1LH0LH_1RG1RI_0RI0RF	-1	381	CHAMPION	R,B,P=11,u=10,s=1,d=3d+1,b=3b+2,S=111001	unanchored (last 998868) 2:H/0 3:H/0 4:H/0 5:H/0 lead2,2:FFH/0 lead2,3:FFH/0	R1 2b+2 | R2 a=2b+2 b=0 | R3 2b+2+0k tail=0 a=0 b=0 | R4 HHHHH | H -
+#summary	machines=1500	halted=149	W1-HALTER=0	W1-HALT?=0	W1-LOOPER=0	MULTI=0	MULTI?=0	LOOPER=0	REBUILD=0	CHAMPION=1	R4-SOME=0	HALT?=0	HALT-SOME=0	CHECK=0	NOBOUNDARY=0	SAFE=0

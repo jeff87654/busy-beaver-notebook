@@ -1,0 +1,8 @@
+2026-10-22 18:23:37 packaging start: worktree C:/Users/jeffr/Downloads/bb9h003_wt branch bb9-h003 from 0345a6c
+2026-10-22 18:32:09 clean from-scratch build launched: pkg/launch.py (Idle, J=3, COQC=pkg/coqc_idle with 6 GB own-PID guard -> pids_pkg.txt with cpu/peak), log BB9/verify_h003/compile_clean.log. Package: 66 .v + probe.v; port_check.sh PASS.
+2026-10-22 18:38:46 committed sources + write-up + CI + READMEs locally (76877ad); build running; README has BUILD_TIMES/BUILD_RECORD placeholders to fill
+2026-10-22 20:19:29 lead: HOLD push/PR until the BB7 PR merges; then rebase bb9-h003 on origin/main (keep BB(7) row + bb7 job), rerun linkcheck/cicheck, push, PR.
+2026-10-22 21:28:47 lead: BB7 PR #34 merged (ed1580b); rebase after build, PR number will be #35
+2026-10-22 21:29:55 rebase prepared: scratchpad apply_ci.py / apply_readme.py (take main's README.md + coq.yml, re-apply h003 edits, PR #35); dry run OK
+2026-10-22 21:31:19 main moved to faae759 (PR #35); PR number will be #36; dry run OK
+2026-10-23 04:20:12 rebased on faae759 (41b7c95, 1b7f5e6), pushed, PR #36 opened

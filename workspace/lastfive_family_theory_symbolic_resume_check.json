@@ -1,0 +1,10 @@
+{
+  "resume_test": "passed",
+  "checkpoint_micro": 10,
+  "resumed_equals_direct": true,
+  "full_input": "111",
+  "full_output": "1111",
+  "a": 38,
+  "b": 12,
+  "offset": 1
+}

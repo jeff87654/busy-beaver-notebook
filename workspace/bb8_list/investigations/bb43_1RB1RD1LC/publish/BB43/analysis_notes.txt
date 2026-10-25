@@ -1,0 +1,130 @@
+BB(4,3) champion 1RB1RD1LC_2LB1RB1LC_1RZ1LA1LD_0RB2RA2RD -- analysis notes for the write-up
+=========================================================================================
+
+Machine (standard bbchallenge notation, 4 states A-D, 3 symbols 0-2, start A on all-0 tape):
+      0    1    2
+  A  1RB  1RD  1LC
+  B  2LB  1RB  1LC
+  C  1RZ  1LA  1LD      (C0 = 1RZ is the only halting transition)
+  D  0RB  2RA  2RD
+
+Credits / sources
+-----------------
+- Discovered by Pavel Kropitz, May 2024, together with six other long-running BB(4,3) machines:
+    https://discord.com/channels/960643023006490684/1026577255754903572/1243253180297646120
+- Analysed by hand by Polygon, Oct 2025 (rules 1-29, the D(a,b,c) configuration, the bound
+  2^^^2^^^2^^^(7.92e28) < e4 < 2^^^2^^^2^^^(7.93e28), score 4*e4+18):
+    https://wiki.bbchallenge.org/wiki/1RB1RD1LC_2LB1RB1LC_1RZ1LA1LD_0RB2RA2RD
+    https://wiki.bbchallenge.org/wiki/User:Polygon/Page_for_analyses
+- Racheline analysed other machines from the same May 2024 batch (Feb 2025):
+    https://discord.com/channels/960643023006490684/1331570843829932063/1337228898068463718
+- Listed as the current BB(4,3) champion on https://wiki.bbchallenge.org/wiki/BB(4,3).
+  That page states a lower bound for S(4,3) > Sigma(4,3) shown to us as "10 (arrow) 44"; the arrow
+  superscript was lost when we fetched the page, so check the rendered page before quoting it.
+- Before this work: no machine-checked proof was known (the wiki mentions none).
+
+Our contribution: an independent re-derivation of the rules (each checked by literal simulation
+first), and a Coq proof on busycoq (bd2e36f) of halting, the exact halting tape, the exact score as a
+symbolic recursion, and a tight bracket in Knuth arrows that implies the wiki's claim.
+
+Notation
+--------
+Ligocki style: "x <Q" = head on the cell x (left of the arrow) in state Q; "Q> x" = head on x.
+In Coq (busycoq), the left stream is listed from the head outwards.
+
+Configuration family
+--------------------
+  D(a,b,c)  = 0^inf   (11)^a (12)^b 2 2 1 <D (11)^c 0^inf
+  D1(a,b,c) = 0^inf 1 (11)^a (12)^b 2 2 1 <D (11)^c 0^inf      (one extra 1 at the far left)
+Coq: DL t a b c with t = const 0 (D) or 1 >> const 0 (D1).
+The blank tape reaches D(2,2,1) after 80 steps (Coq lemma `start`).
+
+Functions
+---------
+  g b  = 2b + 5
+  f1 b = g^(b+3)(1) = 3 * 2^(b+4) - 5          (f1 1 = 91)
+  G c  = f1^(2c+11)(1)                          (a tower of 2s of height about 2c)
+
+Rules (all proved for all parameters in BB43_rules.v; all checked first by literal simulation)
+---------------------------------------------------------------------------------------------
+Sweeps: D> (11)^n -> (21)^n D>,  A> (11)^n -> (12)^n A>,  B> (11)^n -> (11)^n B>,
+        (21)^n <C -> <C (11)^n,  (12)^n <A -> <A (11)^n,  D> 2^n -> 2^n D>.
+Local rules (Polygon's numbering where they coincide):
+  R10  2 <D (11)^(a+1) 0 0        -> <D (11)^(a+2) 2
+  R11  2 <D (11)^a 2 0 0          -> <D (11)^(a+1) 2 2
+  R12  1 <A (11)^b 0 0            -> <A (11)^(b+1) 2
+  R13  1 <A (11)^b 2 0 0          -> <A (11)^(b+1) 2 2
+  R14  (12) 1 <D (11)^b 0 0       -> 1 <D (11)^(b+2)
+  R15  (12)^a 1 <D (11)^b 0^inf   -> 1 <D (11)^(b+2a) 0^inf
+  R16  (12) 2 1 <D (11)^b 0^inf   -> 2 (12)^(b+2) 1 <D (11) 0^inf
+  R17  (12) 2 1 <D (11)^b 0^inf   -> 2 1 <D (11)^(g b) 0^inf                 (R16 + R15)
+  R18  (12)^a 2 1 <D (11)^b 0^inf -> 2 1 <D (11)^(g^a b) 0^inf
+  R20  1 <D (11)^(b+1) 2 0^inf    -> 2 1 <D (11)^(2b+1) 0^inf
+  R21a 2 2 1 <D (11)^b 0^inf      -> 2 <D (11)^(b+2) 0^inf
+  R22  1 <D (11)^(b+1) 2 2 0^inf  -> 2 (12)^b 2 1 <D (11) 0^inf
+  Y    1 1 1 <D (11)^b 0^inf      -> 1 <A (11)^(b+2) 0^inf
+  R23z A> 1 (11)^b 2 2 0^inf      -> (12)^b 2 2 1 <D (11) 0^inf
+Composite rules:
+  R21  (12) 2 2 1 <D (11)^b 0^inf -> 2 2 1 <D (11)^(f1 b) 0^inf
+       = R21a, R10, R11 (giving 1 <D (11)^(b+4) 2 2), R22, then R18 with a = b+3 from b = 1.
+  R30  D(a,b,c) -> D(a,0,f1^b c)                                       (DL_b)
+  R23  (11)^3 2 2 1 <D (11)^b 0^inf -> (12)^(2b+11) 2 2 1 <D (11) 0^inf
+       = R21a, R10, R20, R14, Y, R12, R13, R23z.
+  R31  D(a+3,0,c) -> D(a,2c+11,1) -> D(a,0,G c)                        (DL_3)
+  R32  D(3k+a,0,c) -> D(a,0,G^k c)        (and the same for D1)       (DL_3k)
+Left-edge rules (the left end is reached; the a-counter is reset to about 2c):
+  R25  D(2,0,c)  -> D1(2c+8,3,1)
+  R26  D1(1,0,c) -> D1(2c+7,3,1)
+  R27  D1(0,0,c) -> D(2c+5,3,1)
+  R28  D(1,0,c)  -> halting configuration: state C reading a 0, with 1^(4c+17) to its right and
+                    blanks elsewhere.  C0 = 1RZ then writes one more 1.
+  (Only these four edge cases occur: all values involved are 1 mod 3, since f1 and G only produce
+   values = 1 mod 3, which fixes 2e+8, 2e+7, 2e+5 mod 3.)
+
+The run
+-------
+  blank --80 steps--> D(2,2,1) --R30--> D(2,0,e1),           e1 = f1^2(1) = f1(91) = 3*2^95 - 5
+  --R25--> D1(2e1+8,3,1) --R30--> D1(2e1+8,0,v),              v = f1^3(1)
+  2e1+8 = 3k1+1, k1 = (2e1+7)/3 = 2^96 - 1
+  --R32--> D1(1,0,e2),                                         e2 = G^k1(v)
+  --R26--> D1(2e2+7,3,1) --R30--> D1(2e2+7,0,v);  2e2+7 = 3k2, k2 = (2e2+7)/3
+  --R32--> D1(0,0,e3),                                         e3 = G^k2(v)
+  --R27--> D(2e3+5,3,1) --R30--> D(2e3+5,0,v);    2e3+5 = 3k3+1, k3 = (2e3+4)/3
+  --R32--> D(1,0,e4),                                          e4 = G^k3(v)
+  --R28--> halt.
+
+Score
+-----
+  sigma = 4*e4 + 18  (number of nonzero cells after the final 1RZ write; all of them are 1s, so the
+  nonzero count, the number of 1s and the sum of the symbols all agree; the 1s are contiguous, so the
+  machine is also a num(4,3) contender, as the wiki notes).
+  Exact value as a symbolic recursion (Coq, bb43_main):
+     sigma = 4 * E4 e1 v + 18,
+     E2 e1 v = G^((2e1+7)/3) v,  E3 e1 v = G^((2*E2+7)/3) v,  E4 e1 v = G^((2*E3+4)/3) v.
+  Size (Coq, e4_bounds / wiki_bracket / sigma_bounds), with P = 2^^^ (pentation, knuth 3 2):
+     P(P(P(2^96 - 1))) < e4 <= P(P(P(2^96 + 6))),     2^96 = 79228162514264337593543950336
+  which implies the wiki's claim  P(P(P(7.92e28))) < e4 < P(P(P(7.93e28)))  (theorem wiki_bracket,
+  with 792*10^26 and 793*10^26 written out).  Informally sigma is about f_4^3(10^29) in the
+  fast-growing hierarchy (three nested pentations).
+  Proof idea of the bracket: tower(2c+11) <= G c and G c + 6 <= tower(2c+14).  Iterating, a
+  G-cascade of length k from v gives P(k+1) <= G^k(v), and G^k(v) + 6 <= P(1+k+m) whenever
+  k + 6 <= P(m) (using v + 6 <= tower(6)).  The seed of each next cascade is about 2/3 of the
+  previous value, which only shifts the pentation argument by a constant
+  (lower: 2/3 * P(k+1) >= P(k); upper: absorbed by P(n) + n + 7 <= P(n+1)).
+  Step count: not computed (no closed form proved; it is of the same pentation size).
+
+Coq development (BB43/verify, busycoq bd2e36f, Coq 8.20.1, logical path TM43)
+-------------------------------------------------------------------------------
+  BB43.v          4-state 3-symbol Ctx (after busycoq verify/BB33.v)
+  Individual43.v  Individual BB43 + notations
+  BB43_rules.v    tm, sweeps, all rules above (automated with stepping + sweep lemmas)
+  BB43_run.v      start (80 steps), chain (the three cascades over abstract e1 v), reaches_final,
+                  final_halted, bb43_halts : halts tm c0, sigma := 4*e4+18 (e4 sealed, e4_eq)
+  BB43_score.v    knuth arrows, bb43_main, e4_bounds, wiki_bracket, sigma_bounds, sigma_lower
+  probe.v         parses the machine string and checks it equals tm (vm_compute), checks C0 = "1RZ",
+                  c0 = blank tape in state A, the final configuration's shape; Print Assumptions on 13
+                  theorems: all "Closed under the global context".
+  Build: BUSYCOQ=/path/to/busycoq/verify ./compile_clean.sh   -> 80-84 s total on this machine at
+         Idle priority (BB43_rules.v 54-56 s, the rest 5-9 s each); probe 13/13 closed.
+  No large number is ever evaluated: huge closed values are sealed (e4) or generalized away before
+  lia / conversion; all bounds are proved by induction on symbolic recursions.

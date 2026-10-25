@@ -1,0 +1,25 @@
+{
+  "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RG0LE_1LD1RH_0RE0RG",
+  "verdict": "nonhalting_by_inductive_recurrence",
+  "proof_documents": [
+    "candidate_audit_c10.md",
+    "candidate_theory_c10.md"
+  ],
+  "finite_check_counts": {
+    "C_entry": 66,
+    "P_interior": 324,
+    "P_v0": 54,
+    "P_boundary": 63,
+    "R_interior": 54,
+    "R_terminal": 9,
+    "D_return": 48,
+    "E_return": 48,
+    "blank_prefix": 1
+  },
+  "finite_checks_total": 667,
+  "all_checks_passed": true,
+  "outer_initial_a": 2,
+  "outer_formula": "a_j=(32*2^j-2*j-17-7*(-1)^j)/4",
+  "halting_boundaries": "S_j=6*2^j-j-6",
+  "proof_basis": "Universal P/R/D/E sweep lemmas plus strict interval invariance; finite checks detect transcription mistakes."
+}

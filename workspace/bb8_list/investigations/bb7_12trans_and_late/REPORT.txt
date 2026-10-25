@@ -1,0 +1,91 @@
+bb7_12trans_and_late REPORT (2026-10-23): 7-state 12-transition neighbourhood of champ_231/champ_232 + late-list holdouts
+========================================================================================================================
+ANSWER: NO NEW 7-STATE RECORD CANDIDATE. Nothing gets appended to OPEN_CANDIDATES.
+  * In the clean (bug-fixed) sweep, the only machines that reach champ scale (21-digit list, f_omega type, halting) are
+    champ_231 itself and champ_232 = its 1-mutation G0=1LC. No other 1- or 2-slot completion/mutation of any
+    <=12-transition 7-state engine reaches f_omega scale AND halts.
+  * Part B: none of the 15 7-state tlist rows or the 9 OPEN rows of final_open28.tsv looks record-class.
+
+  champ_231 = 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB
+  champ_232 = 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB   (G0=1LC; matches OPEN_CANDIDATES)
+  (Note: inspect_top_z_and_champ.py printed a block labelled "champ_232 (G0=0LC)". That label is wrong. 0LC is a
+   different, non-champion mutation. The real champ_232 is the "1MUT G0=1LC" block in that output, and its rules,
+   E_map and HALT@1 are identical to champ_231's.)
+
+PART A: 12-TRANSITION COMPLETION SWEEP (sweep12.exe, clean rerun)
+-----------------------------------------------------------------
+Bug fixed before the rerun: in run_and_parse, lo/hi were shrunk during K-moment checks, so the exit cleanup
+(zeroing lo..hi) missed cells. Later candidates on the same thread buffer then read dirty tape. The fix tracks
+min_vis/max_vis, the range of visited cells, and zeroes that range at exit. Every result below comes from the
+rerun (task-218, prior agent): compile, then sweep12.exe, analyze_sweep12.py and audit_204_and_zslots.py.
+Completeness check: run log ends "Sweep complete! Wrote 24686 survivors"; sweep12_survivors.tsv has 24686 data rows
+(written 13:25); sweep12_analyzed.txt was written at 13:30 (1146 lines). No sweep process is still running.
+
+  Scope: 413 parent engines (<=12 transitions used after 5k steps), 141,110 unique candidates (1-slot and 12th+13th
+  2-slot completions/mutations plus halt relocations), 500k-step literal run with K-moment / exhaustion probes,
+  2 idle threads. 24,686 survivors from 150 parents (137 ORIG controls, 24,549 mutants).
+  Late literal halters (200k..2M steps): 2, both HALT at 3.3e5 / 4.4e5 steps with 955 ones (trivial).
+  273 interesting candidates (max_nd >= parent and >= 5, H in E-pattern, or nd >= 20) -> 143 trajectory classes,
+  all run through reb7.analyse (rk7.exe with PATH fixed):
+    - growth=FOMEGA classes: 17
+        1 halts:   champ_232 (G0=1LC of champ_231), HALT-REACHED(HALT@1/HALT@1), nd=21, same rules as champ_231
+                   (D b->b+3, R2 a=b+3, Bk tail 1^*, E_map {21: 0:H}). It is already known.
+        16 never halt: NEVER-HALTS(residue)+Q2 (8) / +Q2+INV (8); Q1 = LOOP in every case. These are mutants of
+                   R4-SOME / LOOPER parents (1RB---_1RC1RA_..., 1RB0LE_1RC---_..., 1RB1RA_0LC0LF_..., 1RB1RA_0RC0RA_...,
+                   1RB1RE_1RC1RB_...).
+    - all other classes: NOFIT (no affine rule fit) or NEVER-HALTS. The A1/A2/B1/R7 (rank/f3) mutants carry the
+      ABSORB rule, which bounds them at the f_3/f_4 level (rank/f3/notes.txt).
+  champ_231 neighbourhood specifically: 474 surviving mutants. Only ORIG and G0=1LC keep the 21-digit list
+  (max_nd=21, n_K=307). Every other survivor has max_nd < 3 (G1=0LD has n_K=336 but a tiny list). The previous
+  agent's finding that champ_232 is the only 1-mutation reaching k=21 is CONFIRMED on clean data.
+
+  NEW CHECK (this agent): nofit_growth.py -> nofit_growth.txt. Literal runs to 2^24 = 1.68e7 steps on the 14 top
+  NOFIT/large-nd classes:
+    span ~ t^1.00 (translating/linear growth, polynomial, not record class): nd1199, nd1197, nd800, nd798a, nd798b,
+      nd667, nd533, nd402, nd401, nd267 (span 1.3e6-2.9e6 cells at 1.68e7 steps)
+    span ~ t^0.47-0.57 (sqrt-type, polynomial): nd567, nd91, nd26
+    HALTS: nd322 = 1RB1LD_1LC0LE_1RD0RA_1RE1RC_1LF0RE_0LB1LG_---1LF (2MUT F1=1LG,G1=1LF of an OPEN parent) halts at
+      830,757 steps with 1298 ones, span 1303. It survived the sweep only because of the 500k cap. Small, not a record.
+  So the long "nd" digit lists of the NOFIT classes come from linear/sqrt tape growth (periodic 0/1 digit lists). They
+  are not f_omega counters, and the f_omega-scale candidates are exactly the 17 FOMEGA classes above.
+
+PART B: LATE-LIST HOLDOUTS
+--------------------------
+B1. bb9_fw1_hosts/tlist.txt (16 rows; 15 seven-state + 1 eight-state). xref output: part_b_tlist_xref.txt
+    (audit_part_b.py). These rows are "unresolved" only for the hpc MODE-1 forced-exhaustion host classifier (the
+    reset never returns to a parseable list). Their blank-tape verdicts in reb7/final_all_verdicts.tsv:
+      NEVER-HALTS(residue)+Q2 / +Q2+E-FAR-DIFF / (residue,multi)+Q2:   rows 1, 2, 7, 12        (4)
+      NEVER-HALTS(+1-per-exhaustion grower; halting configs unreachable): rows 4, 9, 15      (3)
+      NOT-RECORD-CLASS(LOW-GROWTH) (periodic block <= 35 cells, span <= 145 after 3e8 steps): rows 3,5,6,8,10,11,13,14 (8)
+      row 16 = 8-state champion-embedding calibration machine (1RB0RA_1LC1LF_..._0RH0RF), UNSETTLED in run8. It is
+        outside the 7-state question.
+    -> no 7-state record candidate.
+B2. reb7/counters/pf/final_open28.tsv (28 rows) plus tc_all.log (tcyc translated-cycler detector) and surg_auto.log
+    (tape surgery at 1e8 steps: counter removed, y=1200):
+      13 PROVEN translated cyclers from the blank tape (period ~8.4e6, shift 16; tc_all.log)
+       6 NEVER-HALTS strong evidence (surgery -> same translated cyclers, period 8425386-8425394 or 135504)
+       9 OPEN in the tsv:
+         7 u=10/s=1 doubling-counter siblings of the proven cyclers (24997 x3, 27087, 26899, 26951, 32687). Surgery
+           gave NO-PATTERN (5) or END without a detected cycle (2: 32687, 26951). Their first real exhaustion is
+           ~1e15 steps away. The proven siblings re-code the unary block with a log-type counter after the 2nd
+           exhaustion and then cycle; they do not iterate a rebuild. Even a halt right after the doubling counter
+           runs out would be ~1e15-step scale, nowhere near the champion (~2^^^...^^3, 13+ arrows).
+         1RB0LF_0RC0LG_1LD1RE_0RC---_1LA0RB_1RG0RD_1LE0RF (u=110): reb7 REPORT classifies it NEVER-HALTS(residue)+Q2
+           (exact relabel of 4 never-halting pool machines).
+         1RB0RD_0LC1RF_0LA1LD_1LE1LB_1LA0LG_0LA0RA_---0LE: NOT-RECORD-CLASS (fixed 2-3 counters, span ~ t^0.47, at
+           most ~f_3; no halt to 7e10).
+    -> no record candidate. The 7 doubling-counter rows stay formally open (not proven), but they are not record-class.
+
+CAVEATS
+  * The sweep's literal cap is 500k steps. The NOFIT growth probe covers the top 14 classes, not all NOFIT survivors.
+    Lower-nd NOFIT classes were screened only by sweep12 + reb7.
+  * The 16 FOMEGA never-halters rest on reb7 Q2 residue proofs (strong evidence, not Coq).
+  * The 7 doubling-counter rows of final_open28 are unproven non-halters (likely translated cyclers).
+
+FILES (this folder)
+  REPORT.txt, sweep12.cpp/.exe (min_vis/max_vis fix), sweep12_survivors.tsv, sweep12_analyzed.txt,
+  analyze_sweep12.py, audit_204_and_zslots.py, audit_204_out.txt (pre-fix run, superseded), check_nok.py,
+  inspect_top_z_and_champ.py, audit_z_only_deep.py, census12.cpp/.exe, census12_all.tsv, census12_candidates.tsv,
+  census12_pool7f.tsv, pool7f_verdicts.tsv, summarize_census.py, inspect_12trans.py, prep_pool7f.py,
+  audit_part_b.py, part_b_tlist_xref.txt, nofit_growth.py, nofit_growth.txt.
+  Clean-run console log: brain/dda59344-.../.system_generated/steps/218/output.txt

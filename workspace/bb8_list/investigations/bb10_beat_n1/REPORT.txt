@@ -1,0 +1,265 @@
+================================================================================
+BB(10) TARGET #2 — BEATING n1 AT THE f_{omega+1} LEVEL
+Workspace: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb10_beat_n1
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------
+We audited all three candidate directions for finding a 10-state machine that beats
+`n1` (`1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_0RG1LD_1RH1LG_1LC0RG_0LJ0LI_---0LC`,
+proved in `bb10_n1_coq.md` with ones(c) = 2*W + f + 3*k + 22 = score_value >
+f_{omega+1}((3 * 2^^37 3 - 13)/7 - 2)):
+
+  * RESULT 1 (New Champion `n1_GH_plus1` and 3-Machine `+1` Family):
+    We found a 2-state (I, J) gadget replacement `---0LJ_0LE0LJ` (replacing
+    `0LJ0LI_---0LC`) that works across all three 35-digit base siblings (`BASE_GH`,
+    `BASE_REC`, `BASE_H`) and strictly beats `n1` by +1 one on the halting tape
+    (and +1 step on `BASE_GH`):
+      1. `n1_GH_plus1`:  `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_0RG1LD_1RH1LG_1LC0RG_---0LJ_0LE0LJ`
+      2. `n1_REC_plus1`: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LF_---0LJ_0LE0LJ`
+      3. `n1_H_plus1`:   `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LH_---0LJ_0LE0LJ`
+    In addition, the two `0LJ0LI_---0LC` twins on `BASE_REC` and `BASE_H` tie `n1`'s
+    exact ones count (`score_value(n1)`):
+      4. `n1_REC`:       `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LF_0LJ0LI_---0LC`
+      5. `n1_H`:         `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LH_0LJ0LI_---0LC`
+
+  * RESULT 2 (Coq / Symbolic Verification of `n1_GH_plus1`):
+    Running the symbolic Coq proof generator `mexp.py` from `bb10_n1_coq` on
+    `n1_GH_plus1` (`test_mexp_variants.py`) proves all 415 symbolic machine lemmas
+    (`PASS, PRO, R2M, H, S0, P1, P2, P3, P4, E, HALT`) in 1.15s with ZERO changes
+    to `init_reach, R1, R2, CLR, H, S0, P1, P2, P3, P4, E`, and proves that at `HALT`,
+    from `FarE(k) ++ D(0) ++ D(1)^w ++ D(0) ++ D(f)` in state `H`, `n1_GH_plus1`
+    halts in `16 + 3*k` steps (from `w = 0`) at configuration:
+      `0^inf (10101)^k 1 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 0 1 0 0 0 <I 1 0 0 1 1 1 1 0 0 1 0 0 1 0 0 1 0 0 1 0 1 0 1 0 (10)^f 0 1 0 1 (101)^w 0^inf`
+    which has `ones(c) = 2*w + f + 3*k + 23 = ones(n1) + 1` and step count
+    `S(n1_GH_plus1) = S(n1) + 1`.
+
+  * RESULT 3 (Exhaustive Search Over All `(E0, I0, I1, J0, J1)` Gadgets & Base Mutations):
+    - By lazy-branching DFS over all 256,000 `(E0, I0, I1, J0, J1)` gadgets with at
+      least one halting slot (`search_n1_gadgets.py`), `0LJ0LI_---0LC` (`n1`) and
+      `---0LJ_0LE0LJ` (`n1_plus1`) are the ONLY TWO gadgets that satisfy the `Per`
+      engine (`S0, P1, P2, P4, E`) and halt at `HALT`.
+    - Auditing all 11 growth-halter candidates in `bb10_c35_rebuild/growth_halters.txt`
+      (`audit_growth_halters.py`, `inspect_growth_candidates.py`, `check_m11_st11.py`,
+      `verify_m11_halt.py`) shows that outside `n1_REC` and `n1_REC_plus1`, 6 are
+      omega-level 1 (`f_omega` / `f_omega^2`) halters and 3 (`1LJ0RI_{0RB,0RH,1RG}---`)
+      are non-halting infinite rebuilders that only halted in `mf35` due to constant
+      `FIXREP` truncation.
+    - Exhaustively testing all 600 1-slot and all 168,000 2-slot mutations of the 15
+      base transitions `A0..H1` (`test_base_and_startup_mutations.py`) proves that the
+      ONLY machines preserving `R1` and `R2` and building a startup list from blank
+      tape are the three 35-digit bases (`BASE_GH`, `BASE_REC`, `BASE_H` and their
+      G<->H state-swapped copies), all starting at `B([7, 1^35], 4)` ($K_1 = 35$).
+
+  * RESULT 4 (Audit of `c35m14`, `rec14`, `bb9_n1f0_complete`, `bb10_rec9_ext`):
+    - All 68 non-HALT machines in `c35m14` (`c35_rec14_audit.txt`) and all 189
+      `MAXSTAGES` / `level >= 2` machines in `rec14` & `rec14_0RH` (`summarize_rec14.py`)
+      are accounted for: none is a halting machine above omega-level 1 (`f_omega`).
+    - All 10-state extensions of 9-state 2nd-round (`f_omega`) machines (`ola_j.tsv`,
+      `sib_j.tsv`, `bb10_rec9_ext`) either halt within <= 2 post-exhaustion jumps at
+      omega-level 1 or never halt, because entering the 2nd round consumes state `I`,
+      leaving only 1 state (`J`) for the 2nd-round exhaustion whereas an `f_{omega+1}`
+      `Per` countdown requires a 2-state gadget.
+
+================================================================================
+2. MECHANISM AND PROOF OF THE `+1` GADGET (`---0LJ_0LE0LJ`)
+================================================================================
+
+2.1 Why `---0LJ_0LE0LJ` is Identical to `0LJ0LI_---0LC` on Every Non-Halting `E0` Call
+--------------------------------------------------------------------------------------
+By profiling `n1` across `startup_6447, R1, R2, H, S0, P1, P2, P3, P4, E, HALT`
+(`profile_n1.py`), we find:
+  - `E0, I0, I1, J0, J1` are NEVER used during `startup_6447`, `R1`, `R2`, `H`, or `P3`.
+  - In every non-halting `E0` call (`S0`, `P1`, `P2`, `P4`, `E`), when state `E` reads `0`
+    at tape cell `p`, the tape immediately to the left of `p` has the form:
+      `... 1_{p-k-2} 0_{p-k-1} 1^k [0]_p`   with `k in {1, 2}`:
+      * `S0`:  `(1010, 1^1, 0000)` and `(1100, 1^2, 0000)`
+      * `P1`:  `(0010, 1^1, 0000)` and `(1010, 1^2, 0000)`
+      * `P2`:  `(0010, 1^1, 0000)`, `(1010, 1^1, 0000)`, `(1010, 1^2, 0000)`
+      * `P4`:  `(0010, 1^1, 0000)` and `(0010, 1^2, 0000)`
+      * `E`:   `(0010, 1^1, 0000)`, `(1010, 1^1, 0000)`, `(1010, 1^2, 0000)`
+
+  - Compare the execution of `n1` (`E0=1LI, I=0LJ0LI, J=---0LC`) vs `n1_plus1`
+    (`E0=1LI, I=---0LJ, J=0LE0LJ`) on `... 1_{p-k-2} 0_{p-k-1} 1^k [0]_p` for any `k >= 1`:
+      * In `n1` (`0LJ0LI_---0LC`):
+        1. `E0 = 1LI`: writes `1` at `p`, moves left to `p-1` (`1`) in state `I`.
+        2. `I1 = 0LI` (x k): erases `1^k` at `p-1 .. p-k`, moves left to `p-k-1` (`0`) in `I`.
+        3. `I0 = 0LJ`: writes `0` at `p-k-1`, moves left to `p-k-2` (`1`) in state `J`.
+        4. `J1 = 0LC`: erases `1` at `p-k-2`, moves left to `p-k-3` in state `C`.
+        Total steps: `k + 3`. Resulting tape: `... <C 0_{p-k-2} 0_{p-k-1} 0^k 1_p`.
+
+      * In `n1_plus1` (`---0LJ_0LE0LJ`):
+        1. `E0 = 1LI`: writes `1` at `p`, moves left to `p-1` (`1`, since `k >= 1`!) in `I`.
+        2. `I1 = 0LJ`: erases `1` at `p-1`, moves left to `p-2` in state `J`.
+        3. `J1 = 0LJ` (x (k-1)): erases `1^{k-1}` at `p-2 .. p-k`, moves left to `p-k-1` (`0`) in `J`.
+        4. `J0 = 0LE`: writes `0` at `p-k-1`, moves left to `p-k-2` (`1`) in state `E`.
+        5. `E1 = 0LC` (from base table `1LI0LC`!): erases `1` at `p-k-2`, moves left to `p-k-3` in `C`!
+        Total steps: `k + 3`. Resulting tape: `... <C 0_{p-k-2} 0_{p-k-1} 0^k 1_p`.
+
+  - Because `k >= 1` in every non-halting `E0` call, `n1_plus1` NEVER visits `(I, 0)` during
+    any non-halting phase and produces the EXACT SAME tape and state at the EXACT SAME step
+    count (`k + 3`) as `n1`!
+
+2.2 Why `---0LJ_0LE0LJ` Writes +1 Extra `1` at `HALT`
+-----------------------------------------------------
+At the final `HALT` phase (`FarE(k) ++ D(0) ++ D(1)^w ++ D(0) ++ D(f)`), after `w` steps of
+`R2` reduce `w` to `0`, the head enters `FarE(k)`, which contains the 5-zero run `00000`:
+  `1011010101010101001 00000 10111100100100100100`
+When `E0` is called inside `FarE(k)`, the tape to the left of `p` has `k = 1`, preceded by
+`000` instead of `10`:
+  `... 0_{p-4} 0_{p-3} 0_{p-2} 1_{p-1} [0]_p`
+  * In `n1` (`0LJ0LI_---0LC`):
+    - `E0(1LI)` writes `1` at `p`, moves left to `p-1` (`1`) in `I`.
+    - `I1(0LI)` erases `1` at `p-1`, moves left to `p-2` (`0`) in `I`.
+    - `I0(0LJ)` writes `0` at `p-2`, moves left to `p-3` (`0`) in `J`.
+    - `J0 = ---` HALTS at `p-3` (`000 0 <J 0 0 1 ...`).
+  * In `n1_plus1` (`---0LJ_0LE0LJ`):
+    - `E0(1LI)` writes `1` at `p`, moves left to `p-1` (`1`) in `I`.
+    - `I1(0LJ)` erases `1` at `p-1`, moves left to `p-2` (`0`) in `J`.
+    - `J0(0LE)` writes `0` at `p-2`, moves left to `p-3` (`0`) in `E`.
+    - `E0(1LI)` WRITES AN EXTRA `1` at `p-3` and moves left to `p-4` (`0`) in `I`!
+    - `I0 = ---` HALTS at `p-4` (`000 <I 1 0 0 1 ...`)!
+
+Thus `n1_plus1` halts 1 step later with 1 additional `1` on the tape (`2*w + f + 3*k + 23`
+vs `2*w + f + 3*k + 22`).
+
+2.3 Comparison of the 6 Machines in the `n1` / `n1_plus1` Family (`compare_bases_steps_and_ones.py`)
+----------------------------------------------------------------------------------------------------
+| Machine Name          | 10-State TNF String                                                     | Canon | Startup to `[7,1^35|4]` | `R1([2,4],4)` | `R2([2,4,1,1],4)` | `HALT` (`w=2,f=4,k=1`) | Closed-Form Halting `ones` |
+|-----------------------|-------------------------------------------------------------------------|-------|-------------------------|---------------|-------------------|------------------------|----------------------------|
+| `n1` (`n1_GH`)        | `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_0RG1LD_1RH1LG_1LC0RG_0LJ0LI_---0LC` | `H`   | 6,447 steps             | 412 steps     | 252 steps         | 197 steps, 33 ones     | `2*W + f + 3*k + 22`       |
+| **`n1_GH_plus1`**     | `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_0RG1LD_1RH1LG_1LC0RG_---0LJ_0LE0LJ` | `H`   | **6,447 steps**         | **412 steps** | **252 steps**     | **198 steps, 34 ones** | **`2*W + f + 3*k + 23`**   |
+| `n1_REC`              | `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LF_0LJ0LI_---0LC` | `G`   | 6,413 steps             | 394 steps     | 246 steps         | 197 steps, 33 ones     | `2*W + f + 3*k + 22`       |
+| **`n1_REC_plus1`**    | `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LF_---0LJ_0LE0LJ` | `G`   | 6,413 steps             | 394 steps     | 246 steps         | 198 steps, **34 ones** | **`2*W + f + 3*k + 23`**   |
+| `n1_H`                | `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LH_0LJ0LI_---0LC` | `G`   | 6,413 steps             | 394 steps     | 246 steps         | 197 steps, 33 ones     | `2*W + f + 3*k + 22`       |
+| **`n1_H_plus1`**      | `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_1LC0RH_1RG1LH_---0LJ_0LE0LJ` | `G`   | 6,413 steps             | 394 steps     | 246 steps         | 198 steps, **34 ones** | **`2*W + f + 3*k + 23`**   |
+
+Where `W`, `f`, `k = K_1 = (3 * 2^^37 3 - 13)/7 - 2` are identical across all 6 machines!
+In particular, `n1_GH_plus1` strictly dominates all 5 other machines in step count `S` and
+ties `n1_REC_plus1` and `n1_H_plus1` for the strictly highest ones count `Sigma = score_value(n1) + 1`.
+
+================================================================================
+3. AUDIT OF DIRECTION (A): `c35m14` AND `rec14` / `rec14_0RH`
+================================================================================
+
+3.1 Complete Classification of the 68 Non-HALT Machines in `c35m14` (`c35_rec14_audit.txt`)
+-------------------------------------------------------------------------------------------
+Why `n1_REC` was not in `c35m14`: `c35m14` branched `G0, E0, I*, J*` with a 4,000-step TNF
+budget (`knuth10.exe`). When `G0 = 1LC`, `E0` is not reached until > 2^^37 3 steps, so `G0 = 1LC`
+remained the 8-state leaf `E0 = ---`. All 146 `E0`-defined machines in `c35m14` have `G0 != 1LC`
+(`G0 in {0LD, 1LD, 0LI, 1LI, 0RI, 1RI}`) where `I` is entered during startup/R1-R3 to emulate
+`G0 = 1LC`. Thus only 1 or 2 slots of `(I, J)` remain free when `E0` is reached.
+
+The 68 non-HALT machines in `c35m14` (62 `MAXSTAGES`, 4 `UNCLEAR-T`, 2 `FAIL`) partition into
+17 stage-0 groups (`c35_rec14_audit.txt`):
+  * Groups 1, 2, 3, 4, 5, 7, 9, 10, 11, 13 (56 `MAXSTAGES` machines):
+    Stage 0 produces `[D(2) (or D(6)), D(1)^{12*b + c}, D(0), ...]` where the `12*b + c` run is
+    trapped to the left of a `D(0)` blocker and decrements by a constant `Delta_m in {2, 3, 6, 8, 9, 10}`
+    per stage while the active zero-list to the right of `D(0)` stays bounded (`<= 41` zeros,
+    omega-level 0, `f_{O(40)}(2^^37 3)`).
+  * Groups 8, 16 (3 `MAXSTAGES` machines):
+    Build blocker-separated repeating groups `(D(0) D(2))^{6*b+3}` or `(D(0) D(1) D(2))^{4*b+2}`
+    at omega-level 0.
+  * Group 14 (1 `MAXSTAGES` machine: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_0LD0RH_1RG1LF_0LJ1RI_---0LA`):
+    The `c35m14` exception, proved in `bb10_c35exc_verify.md` to enter a translated cycler and
+    never halt.
+  * Groups 15, 17 (2 `MAXSTAGES` machines with `level = 3`):
+    `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LB0LC_1RG1LD_1RI0RH_1RG1LF_0LB0RJ_0LE---` and
+    `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LJ0LC_1RG1LD_0LI0RH_1RG1LF_0RC1RE_---1LI`:
+    Infinite rebuilders (`D(1)^{4*R2 + 4*R4 + 12*b + c}`) whose undefined slot (`J1` or `J0`)
+    is never reached (0 halting cells).
+  * Group 6 (3 `UNCLEAR-T` machines: `1RI0LC_1RG1LD_1LD0RH_1RG1LF_{0LJ0LI_---0RG, 1LJ0LI_---0RF, 1LJ0LI_---1RA}`):
+    Stage 0..1 has `D(1)^{12*b+5}` trapped behind `D(0)` at omega-level 0 (`level = 0`), timing
+    out at stage 2.
+  * Group 12 (1 `UNCLEAR-T` + 2 `FAIL` machines: `0LJ0LC_1RG1LD_1LI0RH_1RG1LF_0RA0LE_---0LI`,
+    `1LJ0LC_1RG1LD_1LI0RH_1RG1LF_1LC0LE_---0LI`, `1LJ0LC_1RG1LD_0LI0RH_1RG1LF_0RC1RE_---0RD`):
+    Fail or time out at stage 0/1 at omega-level 0.
+
+3.2 Audit of the 189 Non-LOOP `rec14` & `rec14_0RH` Machines (`summarize_rec14.py`)
+-----------------------------------------------------------------------------------
+Out of all 189 non-LOOP machines in `rec14` and `rec14_0RH` with `MAXSTAGES`, `full_cycles >= 2`,
+or `level >= 2`:
+  * 6 machines halt (`RESULT HALT`), and ALL 6 halt at `level = 1` (`full_cycles = 2, level = 1`,
+    i.e., `f_omega`):
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0RI0RH_1RD0LJ_0RE---` (`ones = 8/3*R1 + 2*R3 + 59/3`)
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LJ0LC_1RG1LD_0RH0RF_0RI0RH_0LE0LH_0RC---` (`ones = 8/3*R1 + 2*R3 + 62/3`)
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LJ0LC_1RG1LD_0RH0RF_0RI0RH_1RD0LE_0LG---` (`ones = 8/3*R1 + 2*R3 + 62/3`)
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LJ0LC_1RG1LD_0RH0RF_0RI0RH_1RD0LE_0RI---` (`ones = 8/3*R1 + 2*R3 + 62/3`)
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_0RH0RF_0RD0RH_1RI0LJ_---0RF` (`ones = 8*R1 + 2*R5 + 2*R7 - 16`)
+    - `1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LI0LC_1RG1LD_0RH0RF_---0RE_1LJ0LG_0RJ1RI` (`ones = 2*R2 + 24*b + 54`)
+  * 146 machines are `UNCLEAR-T` at `level = 2` (145) or `level = 3` (1):
+    - 145 are in the `NOBOUNDARY` infinite-rebuild class (`D(0)^2 D(1)^{11} -> D(0)^2 D(1)^{4*R1+6}
+      -> D(0)^2 D(1)^{4*R1+4*R2+1} -> ...`), which never reach their undefined slot (`0` halting cells).
+    - 1 (`1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RI0LC_1RG1LD_0RH0RF_---0RE_0LJ0LI_0RE0RC`) has no undefined
+      slot in `I` or `J` (`H0 = ---` is unreachable because `G0 = 0RH` enters `H` on `1`).
+  * 37 machines are `MAXSTAGES` (34 at `level = 0`, 3 at `level = 1`, all unary counters behind
+    `D(0)^2 D(4)` blockers).
+
+================================================================================
+4. AUDIT OF DIRECTION (B): ALL 11 `growth_halters.txt` CANDIDATES IN `bb10_c35_rebuild`
+================================================================================
+In `bb10_c35_rebuild`, all 192,163 TNF leaves extending `BASE_REC` at `E0, I0, I1, J0, J1` were
+screened with `mf35` (`levelchk2.py` -> 153 `DEP` machines -> `growthchk.py` -> 11 machines in
+`growth_halters.txt`). Our complete stage-by-stage and ordered-representative (`REPSEQ`) audit
+(`audit_growth_halters.py`, `inspect_growth_candidates.py`, `check_m11_st11.py`, `verify_m11_halt.py`)
+resolves all 11 machines:
+
+  1. `[1/11] ---0LJ_0LD0RA` (`M3`):
+     Proved in `bb10_m3j_verify.md` (`m3ordered.py`) to halt at stage 7 (omega-level 1) in the
+     real run because `R_0 << R_1 << R_2 << R_3` triggers `y = 2*R_new + 4 - R_old < 0` after 1 cycle.
+  2. `[2/11] ---0LJ_0LE0LJ` (`n1_REC_plus1`):
+     Genuine `f_{omega+1}` halter — beats `n1` by +1 one (`ones = 2*W + f + 3*k + 23`).
+  3. `[3/11] 0LJ0LI_---0LC` (`n1_REC`):
+     Genuine `f_{omega+1}` halter — twin of `n1` on `BASE_REC` (`ones = 2*W + f + 3*k + 22`).
+  4. `[4/11] ---0RJ_1RH0RI`:
+     Omega-level 1 (`f_omega^2`) halter — converts `1^{12b+12}` into `6^{4b+2}`, consumes `6^{4b+2}`
+     one `6` per 3 stages at omega-level 0, performs 1 reset + 1 second pass of `6^{4b'+2}`, and
+     halts at `I0` after 2 omega-jumps.
+  5. `[5/11] ---0RJ_1RH0RJ`:
+     Identical trajectory to `[4/11]` (`I1` is only used before `J1 = 0RI/0RJ` merges), halts at
+     omega-level 1 (`f_omega^2`).
+  6. `[6/11] ---1LJ_1LA0RJ`:
+     Omega-level 1 halter — converts `1^82` into `42^27` where `D(2)` blocks the jump so all 27
+     jumps clear the fixed 35-zero suffix `7, 1^35, 2` (`R = f_omega(35)`), then decrements the
+     top two `42` tokens by 4 per 5 stages until hitting `0` and halting at `I0` while `42^25`
+     remains untouched on the left.
+  7. `[7/11] ---1LJ_1RH0RJ`:
+     Omega-level 1 halter — converts `1^80` into nine omega-level 0 tokens `(1, 42)^9`, unpacks
+     two of them, emits raw-zero junk `0^3 _^79` isolating `(1, 42)^4`, and halts at `I0` on `_*92`.
+  8. `[8/11] 1LJ0RI_0RB---`:
+     Non-halting infinite rebuilder (`omega`-level `omega`) — in each 12-stage cycle
+     (`1^Z | R, 2 -> 2, 1^M, 0^2, 1^N -> 1^{Z'} | R', 2`), the wave across `2, 1^M, 0^2, 1^N`
+     only halts if `N > 5*M`. In `mf35` with constant `FIXREP`, `M = 4*r + 5` was held constant
+     while `N` grew past `5*M`, causing a spurious halt; in the real run `M = 4*R + 5 >> Z > N`
+     holds at every cycle forever.
+  9. `[9/11] 1LJ0RI_0RH---`:
+     Identical trajectory to `[8/11]`, non-halting infinite rebuilder.
+ 10. `[10/11] 1LJ0RI_1RG---`:
+     Identical trajectory to `[8/11]`, non-halting infinite rebuilder.
+ 11. `[11/11] 1RI0LC_..._0LJ0LI_---0RC` (`M11`):
+     Omega-level 1 halter — verified (`verify_m11_halt.py`) to halt at `J0` for `FIXREP = 19`
+     (80 stages), `FIXREP = 31` (309 stages), and `FIXREP = 43` (250 stages) because every counter
+     exhaustion steps the prefix through the finite 5-step chain `(3,5) -> (1,4) -> (4,3) -> (2,5)
+     -> (0,4) -> (4,0,2,0,1)` and halts unconditionally at `(4,0,2,0,1)` while `1^{12b - 54}`
+     remains untouched on the far left.
+
+================================================================================
+5. SCRIPTS & ARTIFACTS CREATED IN WORKSPACE
+================================================================================
+All scripts and outputs are in `C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb10_beat_n1\`:
+  * `test_n1_twins.py`: Tests all 6 machines (`n1_GH`, `n1_GH_plus1`, `n1_REC`, `n1_REC_plus1`,
+    `n1_H`, `n1_H_plus1`) on startup and all literal rules (`R1, R2, H, S0, P1..P4, E, HALT`).
+  * `test_mexp_variants.py`: Runs `mexp.py` from `bb10_n1_coq` on `n1_GH_plus1`, proving all 415
+    symbolic Coq machine lemmas in 1.15s and verifying `ones = 2*w + f + 3*k + 23`.
+  * `profile_n1.py`: Profiles transition usage and `E0` entry contexts across all phases of `n1`
+    and `n1_GH_plus1`.
+  * `search_n1_gadgets.py`: Exhaustive lazy-branching search over all `(E0, I0, I1, J0, J1)`
+    gadgets on `BASE_GH`.
+  * `test_base_and_startup_mutations.py`: Exhaustive test of all 1-slot and 2-slot mutations of
+    `A0..H1` preserving `R1` and `R2`.
+  * `compare_bases_steps_and_ones.py`: Compares exact step counts and ones counts across the 6
+    machines in the `n1` / `n1_plus1` family.
+  * `audit_c35_rec14.py` & `c35_rec14_audit.txt` & `summarize_rec14.py`: Full stage-by-stage audit
+    of the 68 non-HALT machines in `c35m14` and 189 `MAXSTAGES` / `level >= 2` machines in `rec14`.
+  * `audit_growth_halters.py`, `inspect_growth_candidates.py`, `check_m11_st11.py`,
+    `verify_m11_halt.py`: Complete audit of all 11 machines in `bb10_c35_rebuild/growth_halters.txt`.

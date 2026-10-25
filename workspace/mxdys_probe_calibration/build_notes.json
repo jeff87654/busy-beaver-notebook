@@ -1,0 +1,16 @@
+{
+  "compiler": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+  "flags": "-O2 -std=c++17",
+  "probe_build": "g++ mxdys_probe7.cpp -O2 -std=c++17 -o mxdys_probe7.exe",
+  "resume_build": "g++ mxdys_resume.cpp -O2 -std=c++17 -DBB_STATES=8 -o mxdys_resume8.exe",
+  "upstream": "https://github.com/ccz181078/TM",
+  "sha256": {
+    "mxdys_main.cpp": "22294ab2153a47e1031758b07549a3d48499a9b0ef1199b19f6e73379291746f",
+    "mxdys_pilot.cpp": "cf26a8387b825eed6134505e319df55bcc2d8e7ab9909813904e9b6fc6f89511",
+    "mxdys_probe7.cpp": "f415bfc1875ce3332403ca7963e8b4e8fa23806d346c663f1223c5ee1034446e",
+    "mxdys_resume.cpp": "834adc23b08f29871da1b8796115bbaa3dcaa787b73ae68410bcda8f539b5038",
+    "mxdys_probe7.exe": "d028d957a09da26225f0be7ce153125c531a137d2b628fa2747ce24872c16fb4",
+    "mxdys_resume8.exe": "2797266c42d455baf16fc272a7de2ec8ee585c3bb2bbdda56fac7bfba3a83a34"
+  },
+  "calibration": "All three expected classifications passed; BB7 holdout survival is not a new halting proof."
+}

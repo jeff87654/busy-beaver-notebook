@@ -1,0 +1,69 @@
+{
+  "configuration": {
+    "seconds": 180,
+    "workers": 4,
+    "seed": 20260926,
+    "ops": 3000,
+    "output": "run3_20260926.json"
+  },
+  "elapsed_seconds": 182.5,
+  "best": [],
+  "workers": [
+    {
+      "worker": 0,
+      "counts": {
+        "evaluations": 13109,
+        "ops": 6703,
+        "halt": 6229,
+        "accepted": 1616,
+        "cache_hits": 4950,
+        "deep_evaluations": 20,
+        "infinite": 177
+      },
+      "best": [],
+      "unresolved": []
+    },
+    {
+      "worker": 1,
+      "counts": {
+        "evaluations": 12658,
+        "ops": 6773,
+        "cache_hits": 6220,
+        "accepted": 1392,
+        "halt": 5728,
+        "infinite": 157,
+        "deep_evaluations": 15
+      },
+      "best": [],
+      "unresolved": []
+    },
+    {
+      "worker": 2,
+      "counts": {
+        "evaluations": 12781,
+        "halt": 6011,
+        "ops": 6590,
+        "accepted": 1517,
+        "cache_hits": 6189,
+        "deep_evaluations": 17,
+        "infinite": 180
+      },
+      "best": [],
+      "unresolved": []
+    },
+    {
+      "worker": 3,
+      "counts": {
+        "evaluations": 12938,
+        "halt": 6028,
+        "ops": 6765,
+        "accepted": 1584,
+        "cache_hits": 5134,
+        "infinite": 145,
+        "deep_evaluations": 14
+      },
+      "best": [],
+      "unresolved": []
+    }
+  ]
+}

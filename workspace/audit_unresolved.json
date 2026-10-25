@@ -1,0 +1,44 @@
+[
+  {
+    "machine": "1RB1LC_1RC1RB_1LD0LE_1LA1LD_1RH0LA_1LH1RF_0LH1LE_1LF1LZ",
+    "intermediate_state": "C",
+    "classification": "proved nonhalting",
+    "cycle_time": "t(n) = 4*n*n + 2*n",
+    "ones_at_cycle": "4*n"
+  },
+  {
+    "machine": "1RB1LC_1RC1RB_1LD0LE_1LA1LD_1RH0LA_1LZ1RF_0LH1LE_1LF1LA",
+    "intermediate_state": "C",
+    "classification": "proved nonhalting",
+    "cycle_time": "t(n) = 4*n*n + 2*n",
+    "ones_at_cycle": "4*n"
+  },
+  {
+    "machine": "1RB1LC_1RC1RB_1LD0LE_1LA1LD_1RH0LA_1RB1RG_1RE1RD_1RF1LZ",
+    "intermediate_state": "C",
+    "classification": "proved nonhalting",
+    "cycle_time": "t(n) = 4*n*n + 2*n",
+    "ones_at_cycle": "4*n"
+  },
+  {
+    "machine": "1RB1LC_1RH1RB_1RD0LE_1LA1LD_1RF0LA_1RH1RC_1RE1LD_1LD1LZ",
+    "intermediate_state": "H",
+    "classification": "proved nonhalting",
+    "cycle_time": "t(n) = 4*n*n + 2*n",
+    "ones_at_cycle": "4*n"
+  },
+  {
+    "machine": "1RB1LC_1RH1RB_1RD0LE_1LA1LD_1RF0LA_1RH1RZ_1RE1RF_1LD1RG",
+    "intermediate_state": "H",
+    "classification": "proved nonhalting",
+    "cycle_time": "t(n) = 4*n*n + 2*n",
+    "ones_at_cycle": "4*n"
+  },
+  {
+    "machine": "1RB1RZ_1RC1RB_1LD0LE_1LA1LD_1RG0LA_0RA1RC_1LA1RF_1LE1RF",
+    "intermediate_state": "C",
+    "classification": "proved nonhalting",
+    "cycle_time": "t(n) = 4*n*n + 2*n",
+    "ones_at_cycle": "4*n"
+  }
+]

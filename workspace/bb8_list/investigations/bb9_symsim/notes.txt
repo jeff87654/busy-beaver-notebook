@@ -1,0 +1,178 @@
+bb9_symsim progress log (crash-resilience notes; REPORT content is relayed to the lead by message)
+2026-10-17
+- symsim.cpp written (symbolic macro sim + prover + Ch jump); lit.cpp literal reference.
+- M9 c_init(1): sigma 23 (Ch on and off; 1710 literal steps = m9s noacc). c_init(2): sigma (X1+50)/2, X1=W(22,W(22,2)).
+- W residue law: tables for MG = 36, 720, 2520, 27720, 720720 all stabilise at JINF=4; W(j>=4,b) == 119 (b even) / 2 (b odd)
+  mod 720720; W(3,b): b=0 exact 119, b>=1 same parity law. wcheck.py: 453 direct big-int cases per modulus, 0 mismatches.
+- v2 validations (symsim_v2): rand 300/5000(killed: lit tape memory), m9mut 300: BAD 0; all 308,302 m9s halting leaves: HALT, exact sigma
+  matches 308,294 (1,263 with jumps), 8 representative halters HALT with symbolic sigma; top halters re-found:
+  W(3,3)+7 and W(4,0)+6. hugetest (v2) exmax/block: BAD 0.
+- v3/v4 additions: fold with offset seeding + downward absorption (front pushes fold too), symbol consolidation (>8 terms
+  -> fresh symbol, residue mod largest workable divisor of MG), requireLB in the preservation check, BLK accelerator
+  (Ca j b (blk a z) -> Ca (j+1) (iter a (W j) b) z, Coq BLK_iter_aux+CH_CA) with iterated-W residue orbit, deep
+  re-compression every 512 macro steps (periods <= 64), mini-sim loop claim only for words <= 14 cells.
+- wcheck (v3): W 453 + I 319 cases per modulus (36..720720): 0 mismatches.
+- 1000-machine class samples with v4: all CYCLE (OTHER 839 GEN-W-AFF + 161 GEN-AFF; LINJ 1000 GEN-W-AFF; NEARLINJ 602
+  GEN-W-AFF + 3 LIN-CH; norep 810 LIN, 79 LIN-CH, 60 ESCAPE, 39 GEN-AFF, 11 GEN-W-AFF, 1 BOUNDED).
+- 13:51 final validation suite on v4 (= symsim.exe) launched: val/suite_l1..4.sh -> val/s_*.txt
+- 13:51-14:20 v4 validation suite: ALL BAD 0 (rand 4000: 1219 lit-halters all matched; m9mut 3000: 2109 matched; m9free
+  3000: 1391; hold 3000: 256; halters 308,302 exact sigma 0 mismatches; wcheck 0; hugetests 6 runs 0 conflicts).
+- v4 grading (grade/hold_out_0*.txt): 144,277 holdouts -> 144,188 CYCLE, 89 BUDGET, 0 HALT, 0 UNDECIDED.
+  LINJ 14212 GEN-W-AFF + 14 BUDGET; NEARLINJ 602 GEN-W-AFF + 3 LIN-CH; OTHER 113623 GEN-W-AFF, 13495 GEN-AFF, 5 LIN,
+  75 BUDGET; norep 1812 LIN, 186 LIN-CH, 146 ESCAPE, 83 GEN-AFF, 20 GEN-W-AFF, 1 BOUNDED.
+- v5: multi-BLK (k BLKs at once, M(j,a,k,b)), BLK rephasing u v^n = w0^n u, Z-argument strengthening in the
+  preservation check. On the first 79 v4-BUDGET: 70 -> CYCLE GEN-W-AFF, 9 BUDGET left (irregular slowly-changing tails).
+- v5 validation suite launched (val5/), then full regrade with v5.
+- 14:20-15:00 v5 validation (val5/): ALL BAD 0 (rand 1219 halters, m9mut 2122, m9free 1366, hold 224 matched; halters
+  308,294 exact; wcheck 0; 6 hugetests 0 conflicts).
+- v5 final grading (final/): holdouts 144,258 CYCLE + 19 BUDGET, broken_mid 12,198 CYCLE + 173 BUDGET; 0 HALT, 0 UNDECIDED.
+  (--tlimit 30 s per machine added; v4's broken run had stalled on one machine.)
+- v6: signature only over the 16 runs nearest the head (trigger only) + CYCLE certificates may leave extra runs between
+  the matched prefix and the untouched block (not if that side's blank bottom was read). BUDGET 192 -> 182
+  (10 holdouts 0RB0LI family -> GEN-W-AFF-X). v6 validation suite launched (val6/).
+- remaining holdouts BUDGET (9): F1 = 1RB1RA_1LI1RC_0LD1LG_0RE1LD_---1RF_0LI0RA_1RA0LH_1LG1LH_{1LA,1LG,1LH,1RA}0LF
+  (engine with slowly changing irregular tail), F2 = ..._---1RF_1LB0RA_1RA0LH_1LG1LH_0RF0LI starts A,B,H (one big
+  jump, then an irregular pattern eating a 0^W gap; sigma <= 10). broken BUDGET: Collatz-like (x -> 25x/9 etc.)
+  and exact counters.
+- v6 validation (val6/): ALL BAD 0 (same suite).
+- FINAL (v6 = symsim_final6.exe, outputs final6/): holdouts 144,277: 144,268 CYCLE, 9 BUDGET, 0 HALT, 0 UNDECIDED.
+  broken_mid 12,371: 12,197 CYCLE, 174 BUDGET (164 macro budget + 10 time), 0 HALT. attention.txt lists the 183.
+  Holdout verdicts identical at MG = 36, 2520, 720720 (final6/mg*_hold_0*.txt).
+- Scaled HUGE harness (hugex/): 17,248 configs, 0 conflicts, 539 UNDECIDED (494 = OTHER at EXMAX 20: lb-21 symbol vs
+  exact ~40 comparisons, refusals). Block-mode sigma comparisons: 714 (298 broken + 188 norep + 228 OTHER), 0 mismatches.
+- Follow-up job started: BB(7)-champion engine accelerator + re-grade old BB9 slices (n1f0, c7m12, roots9, others).
+- Follow-up (old BB9 slices), 2026-10-17 evening:
+  * n1f0 = 394,166 machines (bb9_from_bb8/n1f0/part_*.txt, blank start A); dlscan3 census: 29,967 halted, 178 fitted.
+    symsim sample 300: 99 CYCLE, 24 HALT (trivial late halters, sigma<=1450, lit-confirmed), 177 BUDGET (irregular).
+  * c7m12 = 57,953 (bb9_from_bb8/c7m12/part_*.txt); fitted rows nested_detector/scans/c7m12/merged.tsv (787; 653 with the
+    record format R,B,P=11,...,S=111001). Sample 300: 127 CYCLE, 173 BUDGET.
+  * roots9 = 2,222 lines (bb9_quickcheck/roots9_holdouts_all.txt), fitted 639 (template R,G,...,b=3b+1,S=10101).
+    Partial 1024: 84 HALT (max sigma 42,143,299), 448 UNDECIDED (coefficient overflow; fixed in v8 -> symbols), rest.
+  * ktcheck.py: record rules R1-R3 hold literally for the champion/record and for fitted c7m12 machines; not for random
+    holdouts. Almost no fitted machine shares the record/champion slot set (1/787, 0/639, 0/178).
+  * v8: U residue law (ucheck.py: 657 cases x 5 moduli, 0 mismatches), Kt accelerator (R1ITER via P(k,r), CDP via
+    C(j,v,b)), per-machine Kt verifier (incomplete: prover misses transfer rounds), overflow->symbol consolidation,
+    affine rule acceleration (x -> a x + c, k-fold, symbol A(a,c,k,x)).
+  * sweep/ (cheap pass n1f0: symsim 20k + lit 2e7) running, launched 3 lanes (PIDs in pids.txt).
+  * Waiting for lead's choice between options A (fully sound verifier), B (literal-checked rules), C (affine accel).
+- v8 validation (val8/, Kt engine opt-in/off): ALL BAD 0 (roots9/c7m12 exmax300 hugetests, halters 308k, ucheck, wcheck,
+  rand 2000 (607 halters), m9mut 1000 (692), hold 1000 (73), roots9 block test (290 sigma comparisons), M9 exmax 1000).
+  acheck.py (affine-power residues vs Python): 400 cases x 5 moduli, 0 mismatches. Affine on/off exact comparison on the
+  tower-halter family: 13/13 exact sigmas equal.
+- roots9 sample (first 200, v8 --nokt): 27 HALT, 13 with tower-sized symbolic sigma, e.g.
+  1RB0RA_1LC1LF_1RD0LB_1RA0LE_1LI0LC_1RG1LD_1LC0RH_1RG1LF_---1LH: sigma = 4 X1 + 39, X1 = A(2,9,(X0-3)/2,183),
+  X0 = A(2,9,32761,215) (double exponential); 1RB0RA_1LC1LF_1RD0LB_1RA0LE_0LI0LC_1RG1LD_1LC0RH_1RG1RF_---0LD:
+  ~7 nested exponentials (tower height ~9). Far below f_w. Full roots9 grading with v8d launched (slices/roots9_v8.txt).
+- Kt accelerator end-to-end check (forced, --ktforce): BB(7) champion 1RB0RA_..._0RG0RF from blank -> HALT,
+  sigma = 6 X0 + 34 with X0 = C(10,2,0) = U_10(U_10(0)) = B: matches the known champion score 3 (2^^13 3) + 22 = 6B+34.
+  Record machine: runs the rebuild but BUDGET (the rebuild's transfer rounds are not accelerated by the generic prover).
+- 2026-10-17 late: lead chose (B) then (C). Template engine (v9c): dlscan3 template with champion maps (R1 2b+2, R2 a=2b+2
+  b=0, R3 2b+2+0k), d=3d+1, b=3b+beta, u in {01,10}, s=1, any P/S/Q. Strict literal grid check (plain macro steps, no
+  learned rules, sentinel rest; 288 cases): mismatch -> UNRULED. Jumps: R1 iterated (affine power 2^a(b+2)-2) and
+  CDP (C(j,v,b) = iter v (U j) b).  Checks: champion from blank -> sigma 6 X0 + 34, X0 = C(10,2,0) = B (exact known score);
+  redirect 0LA machine RULED with the roots9 template, first clear C(34,2,0) = bf (matches its Coq bf); its rebuild
+  is not accelerated (BUDGET) - rebuild transfer rounds remain a prover limitation.
+  Proof attempts now run until the start signature recurs (<= 4 periods) instead of a fixed macro count.
+  MG 38918880 (=2^5 3^5 5 7 11 13) validated by ucheck/acheck/wcheck (0 mismatches).
+- kg/: fitted.tsv (1559 unique fitted machines), backref (kg/fitted_br.txt), kgval (kg/val1.txt), kgrade lanes
+  kg/grade_0*.txt.  n1f0 sweep stopped after the symsim pass (lanes 00/01 sym done; lane 02 117k/131k), lit passes cut.
+
+== 2026-10-18 (B) post-clear analysis ==
+- backref (kg/fitted_br.txt, 906/1559, 55 UNREACHABLE) and kgval died silently ~22:48; restarted: kg/run_br2.sh -> kg/fitted_br2.txt
+  (rest of list), kg/run_val2.sh -> kg/val2.txt (kgval N=20 seed 11, progress lines '# machine RULED').
+- kgrade lane 00 done: 513 RULED / 7 KGSKIP; 375 HALT (373 one clear C(10,2,0): 6X0+32..35, 24X0+49..57; 2 tower halters without jumps), 145 BUDGET.
+- lane 02 paused at 251 rows (PID 19356 tree killed) -> resume with rows 252.. of kg/fitted_part_02.
+- symsim v10 (symsim_v10.exe): --tapeall N (print tape for non-halters), --jumpdump (print tape after each CDP clear + symbol descs).
+- post/kmom.exe: literal K-moment tracer (MACHINE Q STEPS EVERY BLOCKWORD|-), post/spec2cells.py, post/triage.py (X0:=n substitution,
+  n = X0 mod 2520 and +12; evidence only).
+- M1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0LH0RF_1RI0RE_0RG--- : after champion clear X0, phase 1 bouncer builds block
+  1(110101010)^(12X0+20); phase 2 = champion engine, each digit-list exhaustion decrements block by 1 and rebuilds from previous output
+  (n=6: (10)^8,(10)^16,(10)^40,...) => f_(w+1)-shape counter-controlled rebuild.  Synthetic k=0..3: counter exhaustion restarts phase 1
+  (no halt in 3e9) => looper, slot I1 never read (evidence).  Reported to lead 2026-10-18.
+- CORRECTION M1: with X0 := 6 the post-clear tape 1^3 (011)^12 (01)^(3X0+2) 1^2 0^2 A> is itself a K-config (zeros), and the template
+  fires C(88,2,0); the "phase 1 bouncer / phase 2 counter" seen literally is the inside of that CDP.  Rounds (triage2, X:=6 each round):
+  C88 -> C166 -> C244 (depth +13X per round).  Unbounded f_omega iteration, slot never read: f_(w+1)-shape looper, no counter.
+  symsim with symbolic X0 cannot do it because the (01)^(3X0+2) run is not tokenised (needs the bouncer/re-tokenisation).
+- L1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_1LC0RH_0LI1RF_0RF--- (roots9 LOOPER): counter (101010101)^(12X0+29), each jump
+  C(j, 2X+2, 0) with j+1 per jump, counter -1 per jump.  Synthetic c=0: new clear C(6,14,0) and new counter (010101011)^(12X0'-228):
+  restarts => looper (evidence).
+- --kgalt (alternative gadget S', grid per S') implemented in v11+, never RULED in tests (F2, M1); grids slow -> off in triage2.
+- MEMORY INCIDENT 2026-10-18 ~01:2x: lane 02b symsim_kgrade PID 27784 reached 17 GB on n1f0 machine
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_0RG1LD_0RI0LH_1RF---_0LA1LF; killed.  symsim_v12 (static build) has a global allocation cap
+  (--memcap MB, default 3000) -> UNDECIDED bad_alloc.  Lane 02 resumed as 02c with v12 --memcap 2500.  All new runs use v12.
+- kgval2 (20 machines + champion): BAD 0, 44 halts matched after jumps; 1 machine UNRULED.  backref done: 106 / 1559 UNREACHABLE.
+- triage2.py (post/): chained n-substituted rounds (X := residue mod 2520), lanes t2_out_00/01 over 602 RULED BUDGET rows with kj>=1.
+- H1 = 1RB0RA_1LC1LF_1RD0LB_1RA0LI_---0LC_1RG1LD_1LC0RH_1RG1LF_1LE1RI (roots9 NOBOUNDARY, + sibling H1=1LH): real run = X0=C(34,2,0)
+  then 33 clears C(32..0,2,0) parked as digits 10^(6X_i), then stuck (affine overflow).  triage2 round 1 (all X:=6) HALTs after
+  C(25..32,12,X) chain.  Depths j are fixed (~25-34), digits X-sized => sigma ~ f_35-iterates of C(34): far below fw2. Not a record.
+- 2026-10-18 triage2 DONE (602 RULED BUDGET rows with kj>=1; fwd+rev lanes, deduped; post/t2summ.py):
+  new clear every round (3 rounds): 413 (c7m12 116, n1f0 13, roots9 284) = unbounded f_omega-iterator loopers (evidence);
+  BUDGET with no further clear: 168 (c7m12 133 round0, roots9 33 round0 + 2 round1); NOJUMP 6, UNDECIDED 1 (roots9);
+  HALT 14 (post/t2_halters.txt): 10 roots9 C(33,2X+2,0) ~f_34(X0); 3 roots9 H1-type chain C(21..32,2X+2,X) after 33 parked
+  champion clears ~f_35-iterates; 1 c7m12 C(9,2X0+2,0) ~f_10(X0).  All fixed depth => far below fw2.  No f_omega-sized second clear.
+
+== 2026-10-18/19 symsim v13/v14 (three accelerators task; v12 kept intact) ==
+Step 1 (v13f): iterated affine / block maps.
+- AFFC: affine k-fold rules were refused when a congruence on the growing variable appeared (e.g. 2*x0+2 = 0 mod 2).
+  Now a congruence N = r (mod q) is admitted when x -> a x + c leaves it invariant: a_t (a_t-1) = 0 and sum a_t c_t = 0
+  (mod q) (N(f(x)) = N(x) mod q for every x); it is checked at the first application.
+- Proof-mode affine k-fold: proof symbol Z sub 'A' (A=a, J=c, K=k, B=x); LB by iterating min(lb k,128) times; residue
+  from the orbit of r -> a r + c mod MG indexed by k (k mod period when symbolic, requireLB(k, orbit length)).
+- ITER rules (proofRun): counters x_u -> x_u + delta_u (delta < 0 limits k), constant resets, ONE self map
+  x_v -> F(x_v) where F is a Lin over proof symbols (A/P/C/T, nonnegative coefficients = monotone) depending only on x_v,
+  constant resets and at most one increasing counter j (v14).  k-fold F^k(x0) = T(k, x0): orbit of iterates, each
+  abstracted by a fresh symbol (lower bound, residue mod MG), j by "j >= 64, residue unknown (mod 1)"; cycle detection on
+  (residue, saturated lb, j-abstraction); exact k indexes the orbit, symbolic k needs k >= orbit length and period | MG.
+  Soundness: every constructor's value (lower bound, residue) is a function of its arguments' (lower bound, residue)
+  and is monotone, so the abstraction covers all real iterates; constraints are re-checked at every abstracted iterate
+  (IterStop truncates k to the valid count).  Symbolic k also requires the growth witness F(y) >= y+1 (linear lower bound
+  alpha*y + beta via Bernoulli a^K >= 1 + (a-1)K, alpha >= 1).  Proof-mode ITER: proof symbol Z sub 'T' (rp = rule,
+  B = x, K = k, J = counter start) -> nested levels (tower, iterated tower, ...).
+- Plumbing: failed proofs roll back GS (no symbol leaks); bad_alloc inside a proof = failed proof; proof retry at
+  powers of two recurrences; orbit / result / affine-orbit caches with size caps; --rulecheck (AFF/ITER rule instances vs
+  literal cell-level runs), --itercheck (composition vs orbit abstraction).
+Step 2 (v14b, options --canon --multi; PKG proof-mode template jumps default on):
+- canonTop at the END of every macro step (main and proof mode): the exact small runs on top of each stack are
+  re-encoded by maximal periodic stretches (period 2..12, >= 3 copies) started at their minimal rotation; whole copies
+  next to the run below are merged into it.  Representation only (sound); touches the runs it rewrites.
+- tryMulti: chain step over p copies (p = 2..6) of a run's word when one copy does not return to the same state but p do;
+  n = p m + r (r = n mod p is a residue constraint in proofs).
+- PKG: template jumps R1/CDP accept proof arguments (zAffS / zCS proof symbols; d >= 4 and residues as constraints).
+- Result: M1 (faithful X0) now runs its rounds symbolically: C(88,2,0) -> C(12X0+94,2,0) -> C(12X0+12X1+100,2,0) ...
+  (with X := 6: 88 -> 166 -> 244, as triage2 found); 337 rounds in 3e5 macro steps from the faithful post-clear tape.
+Step 3 (v14c, option --dom): sound size ordering by provenance.  Each new global symbol X records dominance edges
+  X ->E Y meaning X >= 2^Y,   X ->L Y meaning X >= Y,
+added only when the inequality is a theorem about the constructor (all arguments are >= 0; "f >= Y" for an argument
+form f is accepted only when Y's coefficient in f is >= the denominator and every other coefficient and the constant are
+>= 0).  Rules (with justification):
+  D-A  X = A(a,c,k,x) = a^k x + c (a^k - 1)/(a - 1), a >= 2, c >= 0, x >= 1, k >= 1:  X >= a^k >= 2^k  -> E edges to k's
+       symbols;  a >= 1, c >= 0:  X >= x  -> L edges to x's symbols.
+  D-P  X = P(k,r) = 2^k (r+4) - 4, k >= 1 (symbolic k >= 120):  X - 2^k = 2^k (r+3) - 4 >= 3*2 - 4 > 0  -> E edges to k;
+       X >= r (2^k (r+4) - 4 >= r + 4 - 4)  -> L edges to r.
+  D-C  X = C(j,v,b) = U_j^v(b), v >= 1, with U_0(x) = 2^(2x+3) - 2, U_(j+1)(x) = U_j^(2x+2)(0) (BB9_record CDP):
+       Lemma: U_j(y) >= 2^y and U_j(y) >= y + 1 (induction on j: U_0 directly; U_j^m(0) >= m and
+       U_j^m(0) >= 2^(m-1), so U_(j+1)(y) = U_j^(2y+2)(0) >= 2^(2y+1) >= 2^y); U_j increasing; U_j(0) >= 2^j
+       (U_(j+1)(0) = U_j(U_j(0)) >= 2^(2^j) >= 2^(j+1)).  Hence X >= U_j(b) >= 2^b, X >= U_j(0) >= 2^j,
+       X = U_j(U_j^(v-1)(b)) >= 2^(v-1), X >= b  -> E edges to b, j, v-1; L edges to b.
+  D-W  X = W(2,b) = (3^(b+3) - 5)/2 >= 2^b -> E and L edges to b (only j = 2 exactly).
+  D-I  X = I(2,a,b) = W_2^a(b), a >= 1:  >= W_2(b) >= 2^b -> E and L edges to b.
+  D-T  X = T(k,x0) = F^k(x0) for an ITER rule with the growth witness F(y) >= y + 1:  X >= x0 + k -> L edges to x0, k.
+  D-O  X = O(x*kx + y*ky) (overflow of a nonnegative form):  X >= x (kx >= 1), X >= y (ky >= 1) -> L edges.
+  D-S  X = S(sum a_t Y_t + c)/D (consolidation, all a_t > 0):  X >= Y_t when a_t >= D and c >= 0 -> L edges.
+Query (sgnG on a mixed-sign form numerator sum a_i Y_i - sum b_j Z_j + c): if one positive Y (a >= 1) has a path to
+every negative Z_j with at least one E edge, then Y >= 2^(Z_j) for all j, so Y >= 2^M with M = max Z_j and the value is
+>= 2^M - B M + c (B = sum b_j, other positive terms >= 0).  With L0 = max lb(Z_j): g(M) = 2^M - B M + c is increasing for
+M >= log2(B) + 2 (2^M ln 2 >= B), so value > 0 when L0 >= log2(B) + 2 and g(L0) > 0 (L0 >= 120: 2^L0 dwarfs B L0 + |c|
+for B, |c| < 2^100).  The symmetric test decides "< 0".  Otherwise the comparison stays UNDECIDED.
+v14g (2026-10-19): --rulecheck records per-rule literal status (rc: PASS / FAIL / untestable; rcK = largest k checked)
+and the R line reports rcu=P/F/U[,KIND-status:n] over the rules USED on the main path.  Literal check = explicit-cell
+stepping from a small instance, head-relative comparison (blank margins free, nonzero count must match), sentinel
+0110 x 1000 on open sides.  Labels (rg14/summ.py): HALT / NONHALT only if rcu has F = U = 0; else HALT* / NONHALT* with
+the unchecked kinds.  Template jumps (R1/CDP) are grid-checked separately (kgval).
+Validation v14d --canon --multi --dom (val14/): rand 2000 BAD 0, m9mut 1000 BAD 0, hold 300 BAD 0 (PERM=60 per-machine
+wall cap: one hold machine sat > 2 h inside a single macro step, so --tlimit alone is not enough; validate.py PERM=),
+kgval BAD 0 (30 RULED / 1 UNRULED), hugetests roots9 exmax / c7m12 exmax / roots9 block BAD 0.
+ITER small-world literal checks (itsmall.py, its14/): 55,000+ machines (rand 33k, m9mut 21.5k, hold 5.6k) produced
+ONE ITER rule (k=1 PASS) and one untestable; LIN rules PASS at k=2 / 3 / >=4 by the hundreds, AFF PASS 10, FAIL 0.
+ITER rules of the regrade have F >= exponential with lower bounds ~1600 (e.g. F(x) = 4*A(2,6,(4x+6)/3,42)+12), so a
+literal k >= 2 instance has >= 2^2000 cells: out of reach.  No HALT / CYCLE verdict of the regrade uses an ITER rule.

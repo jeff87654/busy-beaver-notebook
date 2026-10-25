@@ -1,0 +1,26 @@
+X33 = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE  -- Coq formalizer report (x33-coq), 2026-10-22
+
+RESULT: the halting claim is FALSE. No Coq halting proof is possible. Work stopped per the brief.
+The machine does not halt where claimed. b3 is even, so the true exhaustion rebuilds instead of halting. x33-check's paper
+argument (bb7_x33check/notes.txt) extends this to "never halts". The lead has moved X33 to SETTLED.
+
+Coding: K(ds,a,b) = 1^dtop 0 ... 1^d0 0 1^a 0 1^b, with the head in A on the blank to the right. ds is nearest-first, and leading zero digits are blank.
+Rules (literal-checked, tools/sim.py, probe1.py; they agree with x33-check's independent C++ checks):
+  R1  K(ds,a+1,b)            -> K(ds,a,b+3)
+  R2  K(y+1::t,0,b)          -> K(y::t,b+2,1)
+  R3  K(0^k++y+1::t,0,b)     -> K(2^(k-1)++(b-2k+2)::y::t,2,1)   for k>=1, b>=2k  (odd b<2k: HALT)
+  E   K([],0,B): B odd -> HALT with B+3 ones;  B even -> K(2^(B/2-1)++[1;2],2,1)
+Clearing functions (counter after taking one unit off the digit at depth j):
+  U0 x = 3x+7;  U(j+1) x = U_j^(x-2j)(W_j 7);  W0 B = B, W(j+1) B = U_j(U_j(W_j B)).
+Parity: U0 flips. W_j 7 is odd for every j (two flips per level). So U(j+1) x ≡ 1 + (x-2j) ≡ x+1 (mod 2), and every U_j flips.
+Run: blank -> K([],0,64) (step 1850) -> K(2^31++[1;2],2,1) (step 4442) -> K(..,0,7)
+     -> b1 = U31(W31 7): even  -> b2 = U32 b1: odd  -> b3 = U32 b2: EVEN -> E rebuilds (no halt).
+Equivalent invariant: the total number of ones is even at every K moment (R1/R2/R3 each add 2; E keeps B's parity).
+Literal checks: tools/phi.py found the ones count even at all 1767 K-events in 3e6 steps from blank.
+tools/probe2.py checked U1(2), U1(3), U1(4) = 91, 280, 847 exactly (K([1],0,x) with a zero digit -> K([],0,U1 x)).
+Source of the error: rank7.py models borrow tail digits as 1 (dlscan2 'tail=1'). Literally they are 2s, which flips the
+claimed F_j parities. x33-check found the same thing independently (rank7.py:142).
+
+Files: tools/sim.py (literal K->K simulator), probe1.py (R3 thresholds, E), probe2.py (U1), phi.py (parity from blank).
+Coq: none written. coq/ holds only copies of BB72.v and Individual72.v. No coqc was launched, and pids.txt is empty.
+Possible follow-up (not done): a Coq NON-halting proof using the same rules plus the invariant (ones even, counter >= 2*depth).

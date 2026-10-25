@@ -1,0 +1,31 @@
+bb8_esc4 REPORT (2026-10-18)
+============================
+Machines (set8 rows s8_0RH_xxx0LC, xxx1LF, xxx1RD, s8_1RH_xxx0RF, xxx1RA):
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RH0LC_1RG1LD_0RG0RF_---0LC
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RH0LC_1RG1LD_0RG0RF_---1LF
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RH0LC_1RG1LD_0RG0RF_---1RD
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---0RF
+  1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_---1RA
+
+VERDICT: all five NEVER HALT.  Not record candidates.
+
+PROOF (rigorous, elementary).  The only undefined transition is H0.  H is entered only by E0 (= 0RH / 1RH); H1 goes to
+C, F, D, F, A respectively, never to E or H.  E is entered only by D1 = 1LE.  So whenever E reads 0, it is standing on
+cell q-1 where D, reading cell q, wrote 1 and moved left.  E0 writes 0/1 at q-1 and moves RIGHT onto cell q, which still
+holds that 1.  So H always reads 1, H0 is never executed, and the machine never halts (from any tape, in particular blank).
+(Contrast M8: E0 = 1LH moves LEFT, so H reads an unconstrained cell.)
+
+CHECK: hcheck.py (static transition scan + literal simulation from blank and four small Kt configs, 3e6 steps each):
+into E = [D1], into H = [E0], undefined = [H0]; 37 E0 events per machine, H read 0 never.  Output hcheck_out.txt.
+The w1 screen outcome "STOP 95 escalations=4" was the 3e9 step budget, not a halt.
+
+GENERALISATION (for the set8 screen; same argument, cases on H1 when E0 = bRH and H stands on cell q reading 1):
+  H1 not into E (or H):  never halts.
+  H1 = cLE: E is back on q-1, which holds b.  b = 1 (1RH): E1 = 0LC, the engine continues, H still only ever reads 1 -> never
+            halts.  0RH/1LE: E0 -> H reads 1 -> 1LE -> ... a 2-cell loop -> never halts.  0RH/0LE: H reads the 0 -> halts at
+            the FIRST exhaustion (champion-like, no escalation).
+  H1 = cRE (0RE, 1RE): E reads cell q+1, which is unconstrained; these are the only xRH rows where H0 can matter.
+  So of the 54 xRH rows in scr_w1/summary.tsv, only 0RH/0LE, s8_0RH_xxx1RE, s8_1RH_xxx0RE, s8_1RH_xxx1RE (and 0RH_0RE if
+  present) can halt at all; every other xRH STOP/END/RUNNING row is a proven non-halter.
+
+No processes launched; no other agents' folders touched.

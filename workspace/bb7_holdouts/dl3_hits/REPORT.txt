@@ -1,0 +1,119 @@
+dl3_hits REPORT  (BB(7) nested-detector hits, 2026-10-22)
+==========================================================
+Question: can any graded machine beat the BB(7) champion 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF
+(sigma = 3*(2^^13 3)+22, about 2^^^11-class: 12-digit list, doubling)?
+
+ANSWER: no record candidate. All 21 R4-SOME/REBUILD machines are settled at the rule level:
+  18 never halt (a parity / last-borrow invariant forces the non-halting branch at EVERY exhaustion), 3 are not
+  record class (additive counters k,l; fixed-depth m). The 6 CHAMPION rows are constant-slope counters.
+  The MULTI? sample (13 machines, all rule groups) confirms dlscan3's b<=k argument: the only halts are borrows whose
+  refill would be <= 0, i.e. b <= k-1, and real runs always have b >> k there. Nothing appended to OPEN_CANDIDATES.
+
+Important correction to the dlscan3 summary: most of these machines are NOT "parity-dependent halt at the first
+exhaustion with a small list". In the real run every one of the 18 rebuilds at its first exhaustion(s) a list whose
+length grows with the accumulator (f_(omega+1) behaviour: r/s/h/u reach a 423-digit tripling list after 6.4e5 steps,
+i 46 digits, p/q 11 digits, the MULTI? machine M4 20 digits). Had any of them halted at a later exhaustion it would
+have been a giant record (f_423 >> 2^^^11). They do not: the halting parity is excluded by an invariant.
+
+Method (tools in this folder, all idle priority, 1 core):
+  kview.exe  literal run; at each end event in a state, parse the tape as K(ds;a;b) in a template; print when the list
+             changes (start word optional).  kview2.exe = same with a free prefix (P='*').
+  kl.py / probe.py / vprobe.py / eprobe.py / egrid.py : literal K-level probes.
+  famcheck.py NAME SEED N : the fitted K-level rule set of a family checked against literal runs on random small
+             configurations (list up to 5 digits, zeros included, a up to 9).  fam1.py: same for r/s/h/u.
+  geneval.py : 2-adic evaluator of h-functions (written for parity questions; in the end not needed, every family has
+             a hand invariant).
+  ehalt.py   : which E(k;b) = K(0^k;0;b) (out.tsv template) halt, k<=10, b<=24.
+Codings: "P-inclusive" = dlscan's prefix P read as leading digits (110 = digit 2, 1110 = digit 3, 10 = digit 1); leading
+zero digits are blank and vanish. K-moments are the template-state end events with the b-run fixed (b=0, 1, 2, 3 or 6
+as noted). Rules: D = last digit decremented, Bk = borrow over k trailing zeros (refill, tail, new a), E = empty list.
+
+1. THE 21 R4-SOME / REBUILD MACHINES
+------------------------------------
+Rules were fitted on literal probes, then checked by famcheck.py / fam1.py on random small configurations
+(r/s/h/u 160+400 probes, i 60, a/b/c/t 50 each, d/f/o 50 each, e/g/p/q 220, n 40, j 40). Every miss is the
+unreachable edge "refill <= 0" (a <= 2 with k >= 3 trailing zeros); in a real run a is huge at such a borrow.
+
+ F1 (r,s,h,u; v-coding = every run 1^v 0, K-moment with the b-run fixed):
+    D [..,v+1;A] -> [..,v;3A+3]   Bk [..,y+1,0^k;A] -> [..,y,3A+3-2k,2^(k-1);2]   E [;A]: A odd HALT, A even -> [4,2^(3A/2-1);2]
+    Invariant Phi = A + sum(v) mod 2 (D and Bk change it by 2A+2). A rebuild gives Phi = 0 and at E Phi = A,
+    so A is even at every exhaustion: always rebuild.
+ F2 (i,a,b,c,t,j; P-inclusive d-coding): D a->3a+3; Bk refill 3a+3-2k, tail 2^(k-1), a:=2. E per machine:
+    i,a: a odd HALT, even -> [2^(3a/2+1)];  t: odd HALT, even -> [2^(3a/2)];  b: even HALT, odd -> [2,1,2^((3a-1)/2)];
+    c: even HALT, odd -> [1,2^((3a+1)/2)];  j: even HALT, odd -> [3,2^((3a-1)/2)].
+    Same invariant Phi = a + sum(d) mod 2. Every rebuild list and every blank-tape start has the Phi of the
+    non-halting branch (i,a,t: 0; b,c,j: 1).
+ F3 (d,f,o,n: D a->3a+4; e,g,p,q: D a->5a+6): D keeps a mod 2. B1 sets a:=15 (resp. 25). Bk (k>=2) sets a:=12
+    (resp. 20) with refill 3a+3-2k (resp. 5a+5-2k) and tail [2] or [3,2^(k-3),1]. E: a even HALT, a odd -> rebuild
+    [3,2^((3a-3)/2),1;12] (resp. [3,2^((5a-1)/2),1;20]). Every Bk (k>=2) and every rebuild leaves position 2 nonzero,
+    so the last borrow before any exhaustion is a B1: a is odd at every exhaustion, always rebuild.
+
+machine (tag)                                        grade    family            real start (blank tape, literal)             x/pass  first exhaustion                     order if next E halted   verdict
+1RB0LG_1RC1RB_0RD0RB_0LE1RD_0LD1LF_---1LA_1LC1LG (r)  REBUILD  F1 (R,E; B=6)     v[4;2] -> E A=282 -> [4,2^422] at 6.5e5      x3      A=282 even: rebuild, 423 digits      f_423                    NEVER HALTS (Phi)
+1RB0LG_1RC1RB_0RD0RB_0LE1RD_0LE1LF_---1LA_1LC1LG (s)  REBUILD  F1 (S=0110,B=2)   same K-trace as r                            x3      same                                 f_423                    NEVER HALTS
+1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1RA0LG_1LB1LG (h)  REBUILD  F1 (S=1,B=3)      same K-trace as r                            x3      same                                 f_423                    NEVER HALTS
+1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1LG0RB_1LC1LG (u)  REBUILD  F1 (L,C; B=2)     same K-trace as r                            x3      same                                 f_423                    NEVER HALTS
+1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA0LG_---0LE (i)  R4-SOME  F2 odd-halt       [2;2] -> E a=30 (556) -> [2^46;2] (8544)     x3      a=30 even: rebuild, 46 digits        f_46                     NEVER HALTS (Phi=0)
+1RB1RA_0LC0LF_0RD1LC_1RA1RE_0RF0RG_1LB1LF_---0RA (a)  R4-SOME  F2 odd-halt       E a=2 (17) -> [2^4;2]                        x3      a even: rebuild                      f_4                      NEVER HALTS (Phi=0)
+1RB1RA_0LC0LF_0RD1LC_1RA1RE_0RF1RG_1LB1LF_---0RA (b)  R4-SOME  F2 even-halt      [2,1,2,2;2] (140)                            x3      a odd: rebuild                       f_4                      NEVER HALTS (Phi=1)
+1RB1RA_0LC0LF_0RD1LC_1RA1RE_1RF1RG_1LB1LF_---0RA (c)  R4-SOME  F2 even-halt      E a=1 (10) -> [1,2,2;2]                      x3      a odd: rebuild                       f_3                      NEVER HALTS (Phi=1)
+1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_0LC0RB_1LC1LG (t)  R4-SOME  F2 odd-halt       E a=2 (42) -> [2^3;2]                        x3      a even: rebuild                      f_3                      NEVER HALTS (Phi=0)
+1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1RA1LG_---0LE (j)  REBUILD  F2 even-halt b=1  E a=3 (24) -> [3,2^4;2]                      x3      a odd: rebuild                       f_5                      NEVER HALTS (Phi=1)
+1RB1RA_0LC0LF_1RD1LC_0RF1RE_1LB0RG_1LE1LF_---0RA (d)  R4-SOME  F3 3a+4           E a=1 (9) -> [3,1;12]                        x3      a odd: rebuild                       f_2, then f_(w+1)        NEVER HALTS (last B1)
+1RB1RA_0LC0LF_1RD1LC_1LE1RE_1LB0RG_1LE1LF_---0RA (f)  R4-SOME  F3 3a+4           same as d                                    x3      same                                 same                     NEVER HALTS
+1RB1LA_1LC1RC_1LF0RD_---0RE_1RF1RE_0LA0LG_1LC1LG (o)  R4-SOME  F3 3a+4           same as d                                    x3      same                                 same                     NEVER HALTS
+1RB1LA_0RC1RD_1LD1LC_1LE0RF_0LA0LC_---0RG_1RE1RG (n)  REBUILD  F3 3a+4 (B=1)     [3,2,1;12] (295)                             x3      a odd: rebuild                       f_3                      NEVER HALTS
+1RB1RA_0LC0LF_1RD1LC_1LA1RE_1LB0RG_1LE1LF_---0RA (e)  REBUILD  F3 5a+6 (B=3)     E a=1 (11) -> [3,2^2,1;20]                   x5      a odd: rebuild                       f_4                      NEVER HALTS
+1RB1RA_0LC0LF_1RD1LC_1RA1RE_1LB0RG_1LE1LF_---0RA (g)  REBUILD  F3 5a+6           same as e                                    x5      same                                 same                     NEVER HALTS
+1RB1LA_1LC1RE_1RD1RC_0LA0LG_1LD0RF_---0RC_1LE1LG (p)  REBUILD  F3 5a+6           [3,2^9,1;20] (847), 11 digits                x5      a odd: rebuild                       f_11, base 5             NEVER HALTS
+1RB1LA_1RC1RE_1RD1RC_0LA0LG_1LD0RF_---0RC_1LE1LG (q)  REBUILD  F3 5a+6           same as p                                    x5      same                                 same                     NEVER HALTS
+1RB1RA_0RC0RG_0LD1RC_0LE1LG_1LB0LF_1LE1LF_---0RA (k)  REBUILD  additive          K(;n;0), n=2..6 at steps 221..94231          +1      counter round n -> n+1               exponential              NOT RECORD CLASS
+1RB1RA_1RC0RA_0LD0LF_0RE1LD_0RB1RF_---0LG_1LC1LG (l)  REBUILD  additive          same K-trace as k                            +1      same                                 exponential              NOT RECORD CLASS
+1RB1RA_1RC0RA_0LD0LF_0RE1LD_1RA1RF_---0LG_1LC1LG (m)  REBUILD  D 3a+5, B1 a:=9   [2,305;9;2] (38501)                          x3      E -> unary counter 1^(3a+2) + fixed  <= ~f_5 per outer cycle  NOT RECORD CLASS
+                                                                                                                                      inner list [2,~300,x] per unit
+
+Notes.
+* "order if next E halted" is the order had the next exhaustion halted; the invariant excludes it. F1 and F2 rebuild
+  lists grow linearly with the exhaustion value, so these are f_(omega+1)-type non-halters with the halting parity
+  excluded. r/s/h/u reach a 423-digit tripling list after 6.5e5 steps; i reaches 46 digits.
+* Blank-tape starts and first exhaustions are literal (kview, P-inclusive templates). The invariants rest on the
+  fitted rules: validated on random small configurations, not proved for all parameters.
+* dlscan3's chain letters misled: the chains reset b to b1 = 2..5 at every step, so "2:H 3:rrL" only says the halt is
+  parity dependent. The real parity is pinned by the invariant.
+
+2. THE 6 CHAMPION ROWS
+----------------------
+R1 0b+3 and R2 a=0b+3: the accumulator is reset to a constant and digits refill to constants, so the list is a
+fixed-radix odometer with additive growth per pass. Not record class.
+
+3. MULTI? SAMPLE (13 representatives covering all 12 rule groups of the 131 rows)
+---------------------------------------------------------------------------------
+multi_reps.txt lists them; multi_blank.txt has their blank-tape K-traces (3e8 steps).
+ehalt.py grid (ehalt_multi.txt): E(k;b) = K(0^k;0;b) in the out.tsv template, k = 0..10, b = 0..24, 3e6 steps each.
+Every halting cell has b <= k-1. Two exceptions: M10 (1RB1RA_0RC0LC_..., b coded with an offset) halts at b = k
+exactly, and the additive M12 (1RB1LD_0LB0LC_...) halts on a scattered set including b = k.
+Mechanism, worked out on M4 = 1RB---_1RC0RC_0LD0LE_1RA0LE_0RF1LC_1RG0RC_1RA1RE (20-digit list of 1s, doubling):
+dlscan's P = 1010 is P'=1 plus a digit 1, so E(k;b) is really a borrow over k zeros:
+  [..,y+1,0^k;0;b] -> [..,y,b+1-k,1^(k-1);1;1].
+The halt is the refill b+1-k reaching 0 (b = k-1). The true empty-list exhaustion [;a;1] -> [1^(2a+3);1;1] never
+halts (a = 1..12). In a real run, b at a borrow over k zeros is the output of clearing positions 1..k-1 by doubling
+steps, at least 2^(k-1)*4 > k, so the halt is unreachable. M4 and M13 (identical K-trace) are rule-level
+non-halters, the same type of argument as the 8-state 76450 family.
+Per group, b at the real exhaustions (blank-tape K-traces):
+  * R2 a=2b+2 / 2b+3 / 3b+3 with R1 1b+1 (doubling or tripling: M1, M3, M5, M7, M8, M11). First exhaustions are
+    [0^2;1534], [0,1;8189], [0,12;16401]; later ones come after 2^1534-scale passes. Lists have at most 6 digits.
+    b >> k by the doubling lemma.
+  * R1 1b+2 with R2 a=1b+2 / 1b+1 / 1b+0 (tripling or doubling: M2, M4, M9, M10, M13). [0^2;1534] -> [3068], and
+    20-digit lists of 1s with b >= 2^19 at the first borrow over the top. b >> k.
+  * R2 a=1b+1 with R1 1b+1 (additive: M6, M12). Passes add 1 (lists [1^n], n = 1,2,3,4,5,...). Not record class.
+No sampled MULTI? machine can halt through its b <= k exhaustion. The 20-digit M4/M13 type (f_20 class if it
+halted) is a non-halter by the refill argument.
+M-numbering = line order of multi_reps.txt (M1 1RB---_0LC0RA_..., M4 1RB---_1RC0RC_..., M13 1RB---_1RC1RA_0LD0LE_1LE0LE_...).
+
+4. OPEN_CANDIDATES
+------------------
+Nothing appended: no machine here is both unsettled and possibly record class. The machines whose halting is
+undecided (k, l, m, M6, M12) are additive or fixed depth.
+
+Files: notes.txt (log), kv_21.txt (K-traces of the 21), multi_blank.txt, ehalt_multi.txt, fam_abct.txt,
+famcheck.py, fam1.py, kview.cpp / kview2.cpp, kl.py, probe.py, vprobe.py, eprobe.py, egrid.py, ehalt.py, geneval.py.

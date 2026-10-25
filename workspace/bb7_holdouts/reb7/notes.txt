@@ -1,0 +1,34 @@
+2026-10-22 22:37 start reb7. pool (c): c_new_machines.txt = hits_triage7 rows not in dl3_triage7/machines.txt
+2026-10-22 22:42 dlscan3 on 250 new hits_triage7 rows -> dl3_c.tsv (LOOPER 104, REBUILD 22, MULTI? 15, W1-LOOPER 6, NOBOUNDARY 73, HALT? 17 ...). Plan: fit7.py (generic rule fitter via rk7 probe), eng7.py (residue engine, tables mod Q per level, periodicity in level), reb7.py driver (resumable jsonl).
+2026-10-22 23:37 full run launched: reb7.py pool7.tsv (1258 rows) shards 0/2,1/2 -> run_s0/1.jsonl (resumable: rerun same command). Engine v2 (levels U/W, marker staircase, modulus tracking, class branching). Controls OK except M8=T (flagged) and r=NOFIT.
+2026-10-23 00:00 BUG FOUND+FIXED: marker templates whose true exhaustion is at n=nE>=1 zero digits were modelled with a borrow as the exhaustion (false NEVER-HALTS). Now marker_scan finds nE, MB fitted above nE, pattern allows constant entries above the b-dependent one, start tables for b-dependent a. Old run moved to old/. Relaunched full run (v3) 2 shards; ~10-20 s/machine.
+2026-10-23 00:05 BUG 2 fixed: non-marker P-nonempty templates used E(n0) for every round; now E fitted per actual n (exact) or n=24/25 (huge, must agree). Relaunched v4.
+2026-10-23 00:15 TOOLS (reb7/):
+  fit7.py   rule fitter on rk7 probes: D (F0), R2 (A2,B2), Bk k=1..7 (+ tail pattern pre/[x]/head/mid*/end), marker scan
+            (K(0^n;0;b) kinds n=0..9 -> true exhaustion level nE, marker borrows MB n>nE), E per class mod p (b=60..107,
+            re-checked 300..347), template variants (P absorbed into digits) + recodings (s=u^j s', S=u^j S').
+  eng7.py   residue engine: levels U_j / W_i as tables mod Q (Q1=80640, Q2=483840), exact below 1e15, level period by exact
+            state recurrence, modulus tracking (values known mod a divisor of Q when cycles do not divide), staircase.
+  rounds7.py exhaustion rounds with class branching; exact V <= 3000 -> literal E probe.
+  reb7.py   driver (resumable jsonl), verdicts NEVER-HALTS(residue)[+Q2][+INV], HALT-REACHED, CLASS-DEPENDENT,
+            UNSETTLED(T/ERR), NOFIT, NOT-RECORD-CLASS(COUNTER/POLY).
+  fl7.exe   literal follow from a constructed config (prints list-length changes / halt). tfollow.py uses it on T rows.
+  summarize.py  verdict counts, families by signature (rules + E map), survivors.
+  CONTROLS (ct2.tsv): champion HALT@1, champ_231 HALT@1, X33/i/r/d/p NEVER (residue; X33/i/r also +INV), M8 = T at its
+            first exhaustion (post-exhaustion phase is a different structure: flagged, not dismissed).
+2026-10-23 00:25 v5 relaunch: E maps also probed from the natural predecessor K(0^n;1;b) (composite; rejected when it is a plain D step), a0/a1 disagreement flagged; growth class POLY via loose affine levels. v4 partial results (152 rows: 142 NEVER all marker with no halting E class, 10 UNSETTLED) in old/.
+2026-10-23 00:30 v5b: same semantics, fewer E probes (far window and per-n maps only with the chosen a0/a1 variant); resumed run_s0/1.jsonl
+2026-10-23 00:56 new tools: ffree.exe (free-prefix follow), xprobe.exe (cross-template probe), tinf.exe (post-E template inference), mrounds.py (multi-template rounds: when E leaves the template, the free prefix P' of the next K-moment defines template T'; cross maps per class, n-affine maps for huge n). Test: 1RB0RB_1RC1RE_... two-template cycle P=101 <-> P=-, every exhaustion rebuilds -> NEVER (multi).
+2026-10-23 01:58 MAIN RUN DONE (1258 rows): see summarize output; fam_main.tsv, surv_main.tsv
+2026-10-23 03:09 mr_main.jsonl: 51 T rows -> 35 NEVER(multi), 1 HALT-REACHED (1RB1RD_1LC0RD_0LG1LD_1RA0RE_1LF1LA_0LC1LE_---0LE: fixed-length conversion [V-2,1,1,1] then halt; ~6-arrow level, not record), 15 UNSETTLED = exhaustion creates an outer counter prefix (10)^k/(110)^k with k ~ n or b. growth.tsv: 540 NOFIT/NO-K rows: 523 LOW-GROWTH (additive params, a,b < 200 after 3e8 steps), 17 GROWS (subagent grows/: none record-relevant). Running: mr_rest (6 non-T unsettled), run8 (8-state side pool).
+2026-10-23 04:11 triage7 at 328/339: pool (d) = d_new_machines.txt (hits_triage7 rows not in dl3_triage7 or c) -> dlscan3 -> dl3_d.tsv
+2026-10-23 04:17 pool (d): pool7d.tsv (dl3_d rows, 860) -> reb7 run_d0/1.jsonl
+2026-10-23 04:25 echeck_never.tsv: 77 NEVER family reps, far-window literal E check at b~1000 (and 4000): 75 OK, 2 'mismatch' = literal probe budget T at b=4000 (expected lists of 6001-24001 digits), OK at b=1000. Subagents: grows/ (NOFIT growers: M1-M8 +1-per-exhaustion growers, halt configs only at b<=#zeros (unreachable); M9/M10 f_4 class, none record-relevant), counters/ (outer-counter families A/B/C: NEVER-HALTS). Pool (d) running.
+2026-10-23 05:10 triage7 finished (339/339, 1828 rows). pool (e) = last 32 rows -> dl3_e.tsv -> pool7e.tsv -> run_e.jsonl
+2026-10-23 05:42 REPORT.txt written (Write tool; bash heredocs with apostrophes fail in this harness). OPEN_CANDIDATES: N2 family appended (OPEN, low).
+2026-10-23 05:52 widened scope: rank_all 63/63 already in pool; prefilter hits_dl2_1M + sample1pct: 1691 new rows, all ungraded (no dlscan2/3 R1-R3 fit) -> template-free growth probe blk (blk_f_00/01.txt)
+2026-10-23 07:34 engine fixes: per-engine 300 s time budget (apply/orbit/level period/mid-run); exact rebuild counts > 20000 go through the periodic machinery (was an O(cnt) loop: hang on 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LG0LE_0RA---)
+2026-10-23 10:55 widened scope done: pool f (79 prefilter growers) settled (18 S1, 52 S4 NEVER incl. 12 proven translated cyclers, 9 OPEN-NOT-RECORD); final_all re-merged (1876 rows); REPORT updated.
+2026-10-23 10:56 final subagent reports merged: 9 OPEN (7 u=10/s=1 doubling-counter rows, 2 unclassified incl. u=110 row); 8-state 1RB0LE_0RC1LF_... already NGramCPS-proved. hand.tsv + final_all re-merged, REPORT corrected.
+2026-10-23 10:56 lead corrections applied: N2+mirror Coq-proved NEVER-HALTS (hand.tsv, final_all, REPORT); 8-state 1RB0LE_0RC1LF_... NGramCPS PASS; 7 u=10/s=1 rows listed as open, not record class. Done.
+2026-10-23 11:21 last 2 open rows classified (two/): u=110 row NEVER-HALTS(residue, relabel-derived template); 1RB0RD_0LC1RF_... NOT-RECORD-CLASS fixed depth (2-3 transfer blocks to 6.9e10 steps). REPORT/hand/final_all updated. Done.

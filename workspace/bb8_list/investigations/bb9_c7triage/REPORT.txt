@@ -1,0 +1,91 @@
+bb9_c7triage: triage of the c7-family screen hits (agent c7triage, Opus, 2026-10-21/22)
+=========================================================================================
+Inputs: bb9_redir/runs/c7_1undef_w150_cnt.tsv (1473 rows) + c7_multi_w150_cnt.tsv (694 rows), halt_redirect/c7/mf_out.tsv,
+bb9_redir/runs/s8r_F, cov_F.  Bar (lead, 2026-10-22): C7 = ..._0LI---_1LC0RA Coq-proved N > f_w^4(12B+27); BB(8): M8.
+
+0. VERDICT
+  * No machine found that clearly beats C7's proved bound except h003 (= OPEN "C7-0LI-1RI1RC"), which is at C7's level
+    (heuristically ~f_w^6(B)) with a class-independent top phase and an endgame that is macroscopically M8's.
+  * One new Y-type lead (S063, ~M8 + 3 levels, class-dependent entry), added to OPEN.
+  * No f_(w+1) candidate: every "unbounded rebuild loop" found is an exact arithmetic rebuild loop (k += 12R+c per round,
+    t constant, nothing counts down) = non-halting shape.
+  * No 8-state machine beats M8.  The t=0 bug affected ALL mf_out classes past stage 1; their re-screen gives no lead.
+  * World pitfall (sent to lead + c7-coq, now in OPEN): the real B is a tall 2-tower, B = R_* (6 mod 2520, 366 mod 3600,
+    116 mod 125, 9366 mod 22500).  F (--B 6) is unfaithful for B mod 25; W3 = --B 366 --cls 366 --mod 3600 is faithful mod
+    3600 and 125 and costs the same.  C7 follows its J1..J11 chain exactly only in W3.  I also flagged L0 = 8136900 mod 5^10
+    (not 23806525); c7-coq/c7-check had found the same and the halt stands.
+
+1. METHOD
+  Dedup: 405 distinct HALT traces (w150), 405 STOP/END traces.  Re-runs: F (B=6), W3 (B=366, primary), W2 (B=66) for the
+  top 20.  Tools: tools/qrun.py (2-core idle queue), tools/loopwatch.py (kills exact rebuild loops, period <= 6), summ.py,
+  cmp.py, tops.py, toptest.py/ttparse.py (--kt Top(K) starts), towres.py (R_* mod anything), h003_orbit.py (real 5-adic
+  orbit).  "Level" = one top-level clear whose depth is linear in a fresh tower accumulator (one f_w application).  Fake
+  worlds hide levels (fixed R), so levels were read from macro rules + 5-adic orbits, not from depth growth.
+
+2. RANKED TABLE (9-state unless noted)
+ #  machine / structure / level estimate / class-independent? / bar
+ 1  h003 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI---_1RI1RC (OPEN "C7-0LI-1RI1RC")
+      top map Top(K) = "0*2 7 1*K": K=1: (9K+60R+36)/5, K=4: (3K+60R-2)/5, K=3: (3K+60R+16)/5, K=0,2: exit -> M8 cascade -> H1
+      level ~f_w^6(B) (5 real tops + M8's final f_w); top phase class-independent (5-adic); endgame = M8's cascade (macro)
+      bar: C7's level (backup/rival), beats f3_0RC and M8
+ 2  C7 = h004 ..._1LH0LC_1RG1LD_0RG0RF_0LI---_1LC0RA: reference, Coq-proved > f_w^4 (current bar)
+ 3  S063 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0RI1LB_1RH---
+      M8's run, then a post-M8 top loop K=4: (3K+60R-7)/5, K=1: (9K+60R+26)/5; real residues 4,4,4 then 2 (unseen branch)
+      level ~f_w^5 (M8 + 3 tops); NOT class-independent (loop entered in F and W3, not W2); Y-type; halt never reached
+      bar: C7's proved bound only if class-robust
+ 4  s068 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0RH1RI_---1LB: same pattern, W3 only; low
+ 5  h011 = ..._0LH0LC_.._0LI---_0RA1RC / h012 = F3-1LC: F 4 tops, W3 2 tops then cascade; f_w^2..4, B-dependent; known, low
+ 6  h010 = ..._0LH0LC_.._0LI---_0LF1RC (OPEN "C7-0LI-0LF1RC"): W3 2640, 5988, cascade; ~f_w^2..3; differs F/W2/W3; below C7
+ 7  h108 = ..._1LH0LC_.._1LI---_0RB0RI: 2 fresh clears + halving pair cascade; f_w^2 (inner ~G_4(2B)); F = W3; below f3_0RC
+ 8  h120 = ..._0LH0LC_.._0LI---_0LA1RC: 2 fresh + M8-like cascade; f_w^2; F = W3; below f3_0RC
+ 9  h001 = ..._0LH0LC_.._1LI---_1RA1RI: f3_0RC twin (identical F/W2/W3 trace, E0 = 0LH); f3 level
+10  h005/h007 = ..._0RH0LI_0RB--- / _0RH1LI_0LC---: Y-type (= M8 in F, continue in W3); uncertifiable (theorem A)
+11  h031/h033 = ..._0RH0LI_1LC--- / _0RH1LI_0RC---: B-level + ~96R rebuild + pair cascade; ~f_w^2; halts F/W2, STOP W3
+12  s035-37, s055, s010, s078, s110 (STOP rows that halt in W3): <= 2 fresh levels; below f3_0RC
+    8-state: none above M8 (sec. 5).  Task-4 rows: none (sec. 4).
+
+3. h003 DETAILS (files: h003_orbit.py, runs/tt, runs/ttR, runs/m8tt, runs/hF|hW3|W2|W3)
+  * 60/60 --kt Top(K) starts follow the map (25 residues mod 25 at t=3 and t=9, mod-125 probes at t=6).  The fresh-R test
+    shows the 60R term is the FRESH accumulator (R=3966 fresh, old r=1100: 5001->56601, 5003->50597, 5004->50594).
+  * Real orbit (B = R = R_*, R_* = 935224366 mod 5^13): Top(11) -> 12B+27 -> residues 4,3,1,1 -> exit 0 (5 tops).  This
+    matches the other agent's OPEN entry (residues 1,4,3,1,1,0 counting Top(11)).
+  * Endgame: M8 and h003 started from the same exit Top(K) (K = 5000, 5002, 5005 at t=3; 7000, 7002 at t=9) run identical
+    cascades (same clears, same route) and both HALT H1.  h003 = M8 + 2 on the final list and ones + 3, in all five.  So
+    the cascade map and stopping branch are M8's (macro-identical; not bit-identical: E0 = 0LH, H0 = 0LI, I relay).  M8's
+    all-class endgame theorem should transfer with the +2 offset.  All 20 exit starts halt.
+  * Level vs C7: h003 ~ 5 fresh tops + M8's final f_w => heuristic f_w^6(B); C7 proved f_w^4, heuristic f_w^5..6.  No
+    proven ordering (the OPEN entry's "f_w^8(11)" counts intermediate clears as levels; I would not rely on it).
+
+4. TASK 4 (mf_out t=0 bug)
+  mf35g.follow rebuilds every stage's word as far + tokens + SUF with no (11111100)^t block, so every verdict decided after
+  stage 1 is unfaithful: LOOP 1377, MAXSTAGES 699, WIDE 121 (stage >= 2), HALT 309 (stage >= 2), TIME 535 (already redone).
+  The backref-filtered 1373 rows were re-screened with the w150 command (1.6 CPU-h).  HALT 309 -> still HALT (<= 1
+  level-up).  The exceptions t0037/38/0363/0200 are exact rebuild loops in F and W3 (w150's halt is a residue artefact:
+  R=66 is unfaithful mod 8 and 9).  MAXSTAGES -> 4 HALT (the same machines).  967 escalating STOP rows = 55 traces; W3
+  representatives: 51 exact rebuild loops + 3 period-8 rebuild loops + 1 count-up.  No lead.
+  Files: list_t4.txt, t4_summary.txt, t4_stopreps.txt, runs/t4*, loopkill.txt.
+
+5. TASK 3 (8-state, F world; M8 control ones 9866)
+  s8r_F 53 rows: halters max = M8-equivalent (9865/9866).  s8_1LH_1LF (ones 23075 in F) has one fresh level fed by a
+  depth-1 accumulator (< M8).  The 25 KILLED/RUNNING rows are exact rebuild loops (period 1-5, loopwatch) or reach no
+  second canonical moment in 6e9 steps (non-K run after exhaustion #1).  cov_F 573 rows: 61 old + 514 via a 4-jump
+  prefilter (runs/p8, p8_groups.txt): 209 tiny halts (ones <= 2323) and 305 non-halters in 25 signature groups.  Full
+  representative runs (runs/f8): rebuild loops, non-K stalls, and the M8-prefix covers (c18/c20/c41/c52 with E0 in
+  {0LC,1RD,1LF,1LG}) that reproduce M8 and continue 120-190 jumps without halting = the known Z-family shape.
+  No 8-state machine beats M8.
+
+6. TASK 2 (STOP rows, W3, 150-300 s)
+  135 reps: 10 halt (<= 2 levels; s061 = M8-equivalent), loops (3 killed + many arithmetic), 24 M8-prefix continuers
+  (Y-type), the rest END/STOP/KILLED with small or arithmetic growth.  Only s063/s068 show a fresh-R top loop (sec. 2).
+  s000/s001: identical traces; s001 (H = 1RD 1LC, I unreachable) cannot halt, so s000 never executed its only route to I.
+
+7. TOP-3 RECOMMENDATION
+  1. h003 (C7-0LI-1RI1RC): the backup/rival to C7.  Its top phase is fully 5-adic (class-independent) and its endgame is
+     M8's cascade with a +2 tail offset, so a Coq proof = C7-style branch lemmas (3 branches + exit) + M8's endgame
+     theorem.  Worth a dedicated agent for the exact level comparison with C7 (one level above C7 would make it the record).
+  2. S063: M8 + a post-M8 top loop (~f_w^5).  Settle which of M8's 9 endgame classes enter the loop (W2 did not).  A
+     class-robust sibling (entry not depending on the d-token) would beat C7's proved bound.
+  3. A systematic top-map search on h003's family (E0 = 0LH, H0 = 0LI, 36 x 36 I-slots, plus E0/H1 variants): fit each
+     machine's Top(K) branch maps with toptest.py starts (about 1 min each) and compute the real 5-adic orbit length with
+     h003_orbit.py.  A sibling with a longer real orbit (more tops) would dominate h003 and C7.  This is the only route
+     seen here toward many more omega levels at 9 states (an exit-free orbit would be f_(w+1)-shaped).

@@ -1,0 +1,108 @@
+{
+  "machine": "1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RZ0LC_1RG1LD_0RG0RF",
+  "snapshots": [
+    {
+      "steps": 8178,
+      "state": 0,
+      "head": 96,
+      "ones": 74,
+      "wordBeforeHead": "1110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010101011010011100",
+      "matchesB2": false,
+      "matchesB4": false,
+      "anyOnesAtOrRightOfHead": false
+    },
+    {
+      "steps": 8574,
+      "state": 0,
+      "head": 108,
+      "ones": 80,
+      "wordBeforeHead": "1110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010110101010111010101010101010101010101010011100",
+      "matchesB2": false,
+      "matchesB4": true,
+      "anyOnesAtOrRightOfHead": false
+    }
+  ],
+  "halts": [
+    {
+      "a": 0,
+      "k": 0,
+      "state": -1,
+      "steps": 29,
+      "ones": 10,
+      "sourceFormula": 9,
+      "observedFormula": 10
+    },
+    {
+      "a": 0,
+      "k": 1,
+      "state": -1,
+      "steps": 58,
+      "ones": 12,
+      "sourceFormula": 11,
+      "observedFormula": 12
+    },
+    {
+      "a": 0,
+      "k": 2,
+      "state": -1,
+      "steps": 87,
+      "ones": 14,
+      "sourceFormula": 13,
+      "observedFormula": 14
+    },
+    {
+      "a": 1,
+      "k": 0,
+      "state": -1,
+      "steps": 35,
+      "ones": 13,
+      "sourceFormula": 12,
+      "observedFormula": 13
+    },
+    {
+      "a": 1,
+      "k": 1,
+      "state": -1,
+      "steps": 88,
+      "ones": 15,
+      "sourceFormula": 14,
+      "observedFormula": 15
+    },
+    {
+      "a": 1,
+      "k": 2,
+      "state": -1,
+      "steps": 141,
+      "ones": 17,
+      "sourceFormula": 16,
+      "observedFormula": 17
+    },
+    {
+      "a": 2,
+      "k": 0,
+      "state": -1,
+      "steps": 41,
+      "ones": 16,
+      "sourceFormula": 15,
+      "observedFormula": 16
+    },
+    {
+      "a": 2,
+      "k": 1,
+      "state": -1,
+      "steps": 118,
+      "ones": 18,
+      "sourceFormula": 17,
+      "observedFormula": 18
+    },
+    {
+      "a": 2,
+      "k": 2,
+      "state": -1,
+      "steps": 195,
+      "ones": 20,
+      "sourceFormula": 19,
+      "observedFormula": 20
+    }
+  ]
+}

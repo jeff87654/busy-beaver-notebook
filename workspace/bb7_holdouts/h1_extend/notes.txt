@@ -1,0 +1,11 @@
+2026-10-23 21:38:14 start h1_extend. read groupA/groupC/REPORT/TOOLS/OPEN entry. Plan: first try CTL (ngcps2/ngann) to decide slot reachability.
+2026-10-23 21:38:38 launched ctlscan.py H1,c01,H2,c02 (python pid 221710) ngcps2 + ngann 2 1 (+mirror), TO 120s
+2026-10-23 21:55:12 CTL scan: all ngcps2 (to 16/16) and ngann 2 1 (to 10/10) FAIL for all 4 bases (spurious halts: H1 A/B sweep into blank; c01 B/A sweep). Literal 1e9 steps: H1 A1 only 97x, always E0 next (A1E1 never); c01 B1A never reads 1; H2 D1->G always reads 1. Halt slot of H2 is G0 (lead wrote F0). Launched exhaustion sweeps H1 T1/T2/T3 b<=500 (sweep.py)
+2026-10-23 22:04:25 control step1: champion K(0^n;0;b) n<=8 b<=40 all reach E0 (slot) -> exhaustion-sweep method detects a reachable slot. M8 from 5 such configs survives 3e9 steps (rebuild). H1 T1/T2/T3 b<=200 no halt (400k macro, through rebuild).
+2026-10-23 22:06:06 rbform_H1_T1.txt: rebuild from exhaustion T1 is exactly period 8 in b (4 end forms, N ~ 9b/8 items), b=1..110, no halt.
+2026-10-23 22:06:39 stopped my H1 _b sweep (PIDs 225446 driver, xs 129248/119152) at b~227/226: period-8 rebuild established, wider b not needed; H1_T3_b 201-232 appended to jobs_H2
+2026-10-23 22:09:08 c sweep too slow (600 q x 26 jobs ~3h): stopped my driver 226016 at p0 q<=265, p1 q<=141 (no halts); trimmed to jobs_c2.txt (q<=200 / <=120), chained after H2 sweep, then nmsweep (literal A1E1 counts).
+2026-10-23 22:10:06 rbform_H2_T1.txt: H2 rebuild = H1's exactly (period 8, same item counts, D/B for E/C).
+2026-10-23 22:52:56 H1/H2 exhaustion sweeps complete: H1 T1/T2/T3 b<=200 (+T1/T2 201-229, T3 201-232, T1 b<=60 at 300k) and H2 T1/T2/T3 b<=264: 1,792 configs total (H1 921, H2 792... see REPORT), 0 halts.
+2026-10-23 23:39:31 c01/c02 exhaustion sweeps done: 8700 runs, 0 halts. nmsweep running; launching champion children control (ctl.py kids 20000000).
+2026-10-23 23:55:32 all jobs done; REPORT.txt written; OPEN_CANDIDATES H1-class entry: update line appended (backup OPEN_CANDIDATES.backup.txt).

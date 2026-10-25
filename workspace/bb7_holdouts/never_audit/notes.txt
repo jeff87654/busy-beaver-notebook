@@ -1,0 +1,11 @@
+2026-10-23 19:49:45 start never_audit (Opus agent)
+2026-10-23 20:14:39 tools: src/lit.exe (literal), src/symsim.exe (bb8_resid symsim + --stopq patch), sym.py/fam.py, audit_f1.py; r audit: rules symbolic k<=30, Phi=sum+A mod2=0, odd exhaustion halts, even rebuilds
+2026-10-23T20:31:41 killed own pids 120416 104144 (slow ksteps: stopn=400); audit2 kstep now incremental stopn 3..800
+2026-10-23T20:32:43 killed own pid 118500 (detect2_all over all 555 rows too slow); switching to family representatives
+2026-10-23T20:59:14 killed own pids 118904 (m8_small after n0=11 sweep) 123184 (duplicate broad run)
+2026-10-23 21:33:48 killed own pid 112404 (deep.py slow U10 decode); restarting with int fast path
+2026-10-23 21:41:35 U110 coding added; 6 u=011/110 rows detected (det_extra.tsv), queued after deep
+2026-10-23T22:46:46 audit2: exact large-value fallback for probes (symbolic runs can skip K-moments via proved rules); digit decrement c in {1,2,3} per borrow (S4 outer-counter siblings borrow 2 units); OPEN rows to be rerun
+2026-10-23 23:26:57 f3check.py: dl3 F3 rows (d,e,f,g,n,o,p,q) CONFIRMED via projected parity P=A+c*d_last, last multi-zero borrow is B2
+2026-10-23 23:47:52 F141 (E-FAR-DIFF) 3 rows CONFIRMED after K-event fix (TF [2], z 0); rebuild form depends on X mod 4, no halting class
+2026-10-24 01:49:15 REPORT.txt written: no verdict broken; 160 CONFIRMED / 9 UNDECIDED / 4 NO-TEMPLATE of 173 audited

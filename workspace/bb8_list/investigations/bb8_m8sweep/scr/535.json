@@ -1,0 +1,1 @@
+{"i": 535, "m": "1RB1RD_0LC0LG_1LE1LD_1RA0RE_0RA0LF_1LC0RA_---1LB", "tmpl": "L,C,P=1,u=01,s=0,d=1d+0,b=2b+1,S=-", "cls": [95], "M": 60, "runs": [{"X": "E0", "s": 0, "c": 35, "v": "g0", "snap": {"step": 17, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "535_E0_c35_g0.txt"}], "time": 1.3}

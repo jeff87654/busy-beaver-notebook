@@ -1,0 +1,90 @@
+bb8_fw1_redirect REPORT (2026-10-22): one or two new states on the 18 seven-state f_(w+1)-type loopers
+======================================================================================================
+Question: can redirecting a reached transition of the dl3_hits loopers (F1 r,s,h,u / F2 i,a,b,c,t,j / F3 d,f,o,n,e,g,p,q)
+into a new state make them halt after several rebuilds?  Bars: BB(8) M8 (f_w^3(12) < sigma < f_w^3(13));
+BB(9) C7 (Coq, N > f_w^4(12B+27)); BB(10) n1 (f_(w+1)).
+
+ANSWER: NO RECORD CANDIDATE at 8 states or in the 9-state slice searched. Nothing was appended to OPEN_CANDIDATES.
+The best certified behaviour is ONE rebuild followed by a halt, from a rebuilt list of at most 18 digits (about f_18).
+A structural argument (section 2) explains why: in these engines a single redirect cannot keep a counter alive
+across exhaustions.
+
+1. MECHANISM (new; from runs on constructed exhaustion configurations)
+   An exhaustion E is the same walk as a borrow Bk. The walk moves left over zero digits, writes the tail, and spends
+   2 units of the accumulator per zero. E is the walk running out of accumulator before it finds a nonzero digit
+   (dl3's "refill <= 0" edge). The walk length, about 1.5A, is the rebuild. The leftover unit (A odd or even) picks
+   halt or rebuild.
+   Only 5 bases have a slot read ONLY at exhaustions: u F0 = t F0 (both give the same redirected machines), b E0 = c E0,
+   and j F0. In every other base, all slots are shared with the decrement/borrow engine (evmask.txt).
+
+2. FINITE-STATE ARGUMENT (applies whenever the redirect leaves the D/Bk engine intact)
+   Between two exhaustions the whole list is cleared, so the only thing carried to the next E is the accumulator A.
+   The only certifiable information about A is a residue fixed by the rules: the Phi parity invariant, or a 2-adic
+   fixed point such as the one below. The E outcome is therefore a deterministic map on finitely many residue classes.
+   So the number of rebuilds before a certified halt is bounded by the number of classes the gadget distinguishes:
+   at most 1 with parity. Any finer dependence that is not structurally fixed is class-dependent (the y1 lesson).
+   Requirements from an F1 base (first big E at A=282 -> 423 digits):
+     * beating M8 needs a halt at E4 or later, i.e. 3 or more rebuilds after the 423-digit one;
+     * f_(w+1) needs unboundedly many rebuilds.
+   A record would need persistent structure OUTSIDE the K-list. The screen looked for that as non-K exhaustion
+   outcomes and found only left-end counters.
+
+3. 8-STATE ENUMERATION (henum.exe; all 13 defined slots x 4 (write,move) x TNF branching of U,H0,H1; 18 bases)
+   Option (a), entering H through the never-reached undefined slot, gives 0 machines: H would be unreachable.
+   556,360 nodes. 169,524 halt from blank within 1e5 steps.
+   Blank outcomes (8e5 steps for F1, 2e5 for F2/F3), counting distinct machines:
+     runaway (span > 8 sqrt t) 282k | bounded cycler 26k | halt at >= 1e5 steps: 44 (max 656,657 steps, sigma 1295,
+     i.e. a halt at the first big E)
+   Engine-like leaves:
+     intact engine (D/Bk equal to the base on 15 test configs):  6,088.
+       4,457 never halt at E; 1,599 halt at the first E; 32 halt after 1 rebuild.
+     K-like modified engine with a Phi invariant:               5,429.
+       5,105 never halt at E; 214 have 0 rebuilds; 130 have 0-1 rebuilds plus a class cycle.
+     K-like modified engine without a mod-2 invariant:          4,423.
+       3,504 never halt at E. 919 halt in the E-map, but only 53 of those make a blank rebuild of 10 or more digits.
+       F3 bases among the 53 keep the odd last-borrow parity in small worlds. a and i clear their lists cheaply
+       (exponential per E). r/s/h/u/p/q give E -> 16..45 digits and are class-dependent at best.
+     non-K modified engine:                                     57,520 (48,785 distinct blank signatures).
+       Run to 1e6 steps: 25 halt (<= 853,976 steps, sigma <= 1447), 552 runaway, 34 cycler, the rest still running.
+       Inspected samples show additive left-end counters or translated growth (span about 1.4 sqrt t, lists of 2s
+       growing by one digit per pass).
+   The best 1-rebuild halter is u-based, 1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1LH0RB_1LC1LG_1LB0LH:
+     E[;12] -> [3,2^17;2], Phi odd -> halts at the next E. About f_18, far below M8.
+   The redirect can also make the 140-digit rebuild ..._1LG1RF_0LH0RB_1LC1LG_---0LF, but it rebuilds forever.
+
+4. 9-STATE SLICE (henum9.exe: E-only roots b E0, j F0, u F0; the new states H and I are entered only at exhaustions,
+   so the engine is intact; up to 3 further definitions among U,H0,H1,I0,I1)
+   Node counts: about 40k each for b and j, 47.7k for u.
+   Chain: at most 1 rebuild before a certified halt. One-rebuild halters have first rebuilds of 18 digits or fewer;
+   the j ones halt at E282.
+   Class-dependent leaves were settled with the RESIDUE ENGINE resid.py / chain9.py:
+     * The engine encodes the F1 rules as level maps Phi_j mod 2^16. It checks that every orbit period is a power of 2.
+     * It was validated against literal runs: [1,0;1] -> 282 and [2;5] -> 57.
+     * The Phi_j maps stabilise for j >= 500.
+   Q9 = 1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1LH0RB_1LC1LG_1LB0LI_---0LF (u base; H=1LB0LI, I=---0LF):
+     * E-map: odd A halts; even A -> [(1,0)^(3A/2+2); 1]. The real E at A=282 gives 850 digits.
+     * It halts at the next E iff the current A = 0 mod 4.
+     * Residue result: A_E2 = 18594 mod 2^16 (= 2 mod 4). Odd n then gives A_next = 18594 again: a 2-adic fixed point.
+     * So every exhaustion is even and it rebuilds forever: NON-HALTING (rule level; F1 rules, residue engine).
+   The other 14 class-cycle u leaves:
+     * 8 reach the same fixed point 18594 and never halt.
+     * 2 (H = 1RG0LI / 1LG0LI) halt at E2 after a 7-digit rebuild (tiny).
+     * 4 have no K-engine from blank.
+   Not done: MAXDEF=4, two-state gadgets on engine-sharing slots, and the r/s/h bases at 9 states. The section 2
+   argument covers every intact-engine variant, so any further search should target non-K persistent structure,
+   e.g. a counter parked behind a "00" gap that the E walk can reach.
+
+5. OPEN / NOT SETTLED
+   No record candidate.
+   The 53 no-invariant K-like 8-state leaves (noinv_leaves.txt) are not settled.
+     * They could halt only through a class-dependent parity.
+     * They would need 4 or more further exhaustions to beat M8, and 5-6 to beat C7.
+     * Each is either structurally fixed (F3 ones) or uncertifiable.
+     * They are not logged as OPEN candidates.
+   Rule-level, not Coq: the F1/F2/F3 rule sets are the dl3 fits validated on random small configurations.
+
+Files: bases.txt bcfg.py tprof.txt evmask.txt | henum.cpp/.exe, h_<base>_<slot>.tsv (+ .eng engine check, .inv
+invariants) | ana2.py -> ana2.txt, nonk_leaves.txt, noinv_leaves.txt, noinv_blank.tsv, cls53.txt, lr_rep.out |
+henum9.cpp, h9_*.tsv, ana9*.txt | resid.py resid2.py chain9.py (residue engine) | kmap/kmap2/kblank/kblank9/lrun/
+tdump/span .exe, edump.py small2e.py kv.py | notes.txt, pids.txt.
+Cost: about 370k tokens. CPU: about 6 core-hours at Idle priority (2 cores; the machine was heavily shared).

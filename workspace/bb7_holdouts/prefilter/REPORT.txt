@@ -1,0 +1,126 @@
+BB(7) holdout pre-filter for dlscan2 -- REPORT (agent "prefilter", 2026-10-22)
+==============================================================================
+All runs at Idle priority on a shared, heavily loaded machine (1-2 of my processes at a time), so wall times are
+noisy; "quiet" figures were taken when the load was lower. PIDs of everything launched: prefilter/pids.txt.
+
+SUMMARY
+- --skipdl works and is safe, but it saves almost nothing (~0.4% of templates, ~2% of time). dlscan's first pass only
+  covered 'u=1,s=0,P=-,S in {0,01,1},1d+0,1b+0' templates; nearly all u=1/s=0 templates dlscan2 infers have a prefix,
+  another suffix or a scaled encoding, so they are not covered.
+- pf7 (the real saving) passes 17.3% of the 1% sample (29,320 / 169,944), 15.4% of chunk c00100, 14.6% of s500,
+  17.7% of sample2000. Zero misses on every dlscan2-graded machine I could find: 722/722 graded first-pass hits,
+  38/38 cal+champion+h14, 2,885/2,885 graded 9-10 state machines from bb8_list, and every graded row of the lead's 1%
+  sample finished so far (6 rows, 8 of 17 files).
+- Estimated full triage: ~23% of the cost of plain dlscan2 on the whole list (about 70-95 CPU-h if plain dlscan2 is
+  the lead's 340 CPU-h).
+- Side finding: dlscan2 (1M/20k) on the 2,416 dlscan first-pass hits grades 722 of them:
+  CHAMPION 6, R4-SOME 34, HALT-SOME 54, CHECK 280, NOBOUNDARY 348 (prefilter/hits_dl2_1M.tsv, --all rows).
+  I have not looked at these further.
+
+1. dlscan2 --skipdl  (bb8_list/neighbors/dlscan2_skipdl.cpp -> dlscan2_skipdl.exe; dlscan2.cpp/.exe untouched;
+   patch script prefilter/patch_skipdl.py)
+-------------------------------------------------------------------------------------------------------------
+Definition of "covered" (read from dlscan.cpp): dlscan probed, per orientation, the base keys (state q, suffix) for
+every end shape its census saw (head on a blank, a 1 one or two cells inward, none outward; suffix "0" if the gap is
+one blank, "01" if the outermost run is a single 1, else "1"), with unit 1 / sep 0. A dlscan2 template is dropped iff
+  P empty, u=1, s=0, d=1d+0, b=1b+0, S in {0, 01, 1}, and that exact (orientation, q, shape) was seen by a
+  dlscan-style end event within the first 1,000,000 census steps (--dlsteps=, the first pass's census length).
+Why this is conservative: both programs then build the same probe tapes and stop at the same first family
+configuration (both parses split at every 0; the word starts at the first 1, so dlscan's leading-zero rejection never
+fires). R1/R2 are the same tests, and dlscan2's R3 (k=1 probes for >= 3 values of b) implies dlscan's "full", so a fit
+on a dropped template means dlscan already listed that machine with that full key. Condition: dlscan2's probe budget
+N <= 100,000 (dlscan's; otherwise --skipdl switches itself off with a warning). Residual difference: the per-probe
+parse work cap (dlscan 2e8 compared cells, dlscan2 4e8 scanned cells), relevant only for probes with > 2e8 parse work.
+dlscan's general (non-1/0) keys are NOT treated as covered (dlscan rejects a leftmost zero digit where dlscan2 strips
+it, and its top-3 choice depends on its own snapshots).
+The covered templates cannot be dropped before the costly part of inference: they come out of the same u=1/s=0 parse
+pass that also yields the uncovered prefix/suffix/encoding variants, and that parse loop is 91% of inference.
+Checks:
+- Without --skipdl the output is byte-identical to dlscan2.exe (cal set, --all).
+- cal (23 machines + BB(7) champion): all 24 grades unchanged with --skipdl (0-3 templates dropped each); the champion
+  stays CHAMPION. No cal machine loses its grade.
+- 2,416 first-pass hits: grade AND best template identical for all 2,416; 1,162 templates skipped.
+Speed (1M census / 20k probes, ms per machine, under load; the two runs side by side):
+  s500                    orig 133   skipdl 130   (392 of 105,473 templates skipped)
+  sample2000              orig 152   skipdl 150   (1,691 skipped)
+  1,000 pf7 survivors     orig 128   skipdl 124
+  quiet profile (100 machines): census 6.8 ms, inference 16 ms (parse loop 15), fits 8 ms = 32 ms/machine.
+
+2. pf7 pre-filter  (prefilter/src/pf7.cpp -> src/pf7.exe; the header comment documents the method)
+--------------------------------------------------------------------------------------------------
+The suggested reset signal (longest run drops >= 50% twice) does not work: in the champion and the cal machines the
+longest run never drops (R2 moves b's value into a), and per-slot resets are just as common in random holdouts
+(zero misses only at a 55-70% pass rate). What does separate them:
+  A digit-list engine spends most of its time in R1 phases. Seen at its tape end in a fixed state, the tape keeps the
+  same block structure while exactly one block (a) shrinks and exactly one (b) grows: a "clean transfer".
+Method: 300,000 steps from the blank tape; tape-end events as dlscan2's census2; one series per (end, state);
+snapshots every min(4*span, 1500) steps per series (work cap 2*steps cells); block = maximal period-1..3 stretch of
+>= max(2p,3) cells, found greedily from the head end. Clean step between consecutive snapshots of a series:
+  transfer:  same block count n >= 2, exactly one block longer, one shorter, the rest equal;
+  insertion: one block more, and removing one block leaves the old list with exactly one block shorter (list growth;
+             needed for champion descendants that append a digit per pass).
+CS = clean steps of the best series, CSN = that series' snapshot count. Verdict:
+  PASS iff halted within 300k, or CS >= 60, or (CS >= 20 and CS >= 0.7*(CSN-1)), or (span < 60 and CS >= 3).
+Clause 2 keeps slow-sweep machines with few snapshots (2 CHAMPION + 13 NOBOUNDARY 9-10 state machines needed it);
+clause 3 keeps the small-tape h14-type machines (span 20-50 after 300k steps; dlscan2 grades them NOBOUNDARY).
+Calibration (all with the final binary):
+  set                                           machines   PASS    misses
+  cal (23) + BB(7) champion + h14 (14)                38     38    0
+  first-pass hits graded by dlscan2                  722    722    0 (374 CHAMPION/R4-SOME/HALT-SOME/CHECK, 348 NOB)
+  first-pass hits, all                              2416   2415    -
+  bb8_list 9-10 state dlscan2-graded (ext)          2885   2885    0 (814 CHAMPION, 20 R4-SOME, 1 HALT?, 2050 NOB)
+  1% sample graded rows (8 of 17 files done)           6      6    0 (2 CHECK, 1 R4-SOME, 3 NOBOUNDARY)
+  random pass rate: s500 14.6%, sample2000 17.7%, chunk c00100 15.35% (7,675/50,000), whole 1% sample 17.25%.
+NOBOUNDARY/SAFE drops: none observed in any graded set (SAFE never occurred). Margins: on the large-span branch the
+lowest CS of a graded BB(7) hit is 86 (threshold 60); the slow-sweep clause rescued machines at fraction 0.80-0.98
+(threshold 0.7). At 100k steps the same rule missed 4 small-span NOBOUNDARY hits, so 300k is kept.
+Caveat: zero misses is empirical. dlscan2 grades by probes on constructed configurations, so a machine whose natural
+run never shows list behaviour could still be graded. The graded rate in random holdouts is ~1 per 10,000, so the
+finished 1% sample (~17 graded rows) is the main independent check. To re-check when it finishes:
+    cd C:\Users\jeffr\Downloads\bb8\bb7_holdouts\prefilter
+    python eval_sample.py
+  pf7 verdicts for all 17 sample files are already in prefilter/pf_sample/; any MISS line is a false negative.
+Speed: 300k steps ~3 ms/machine quiet (2.1 ms simulation, 0.8 ms snapshots); 6-12 ms under the heavy shared load
+  (1% sample + c00100: 220k machines in 2,005 s of wall time, one process).
+Why the pass rate cannot go much lower with a natural-run signal: the random passers are real counter/list engines
+  (traced examples: lists like [363 9 64 22 12] with one block shrinking linearly and one growing; 1-digit lists like
+  [238 43 12] -> [26 290 6]). dlscan2's templates just do not grade them; telling them apart needs dlscan2 itself.
+
+3. Driver  bb7_holdouts/triage7.py  (NOT started)
+------------------------------------------------
+Per chunk: pf7 -> pf7_out/c#####.tsv -> survivors/c#####.txt -> dlscan2_skipdl (1M census, 20k probes, --skipdl)
+-> dl2_out/c#####.tsv. Resumable (a file is done when its last line is '#summary'; temp files are renamed on
+success), Idle priority (imports idle.py, children get IDLE_PRIORITY_CLASS), PIDs appended to triage7.pids.
+Tested end to end on two small chunks in my scratchpad (TRIAGE7_ROOT override), including the resume path.
+    cd C:\Users\jeffr\Downloads\bb8\bb7_holdouts
+    python triage7.py run 2        # both stages, 2 workers
+    python triage7.py status       # pass rate and grades; writes hits_triage7.tsv
+    python triage7.py pf 2         # stage 1 only   (python triage7.py dl 2: stage 2 only)
+    python triage7.py stop         # kills only PIDs in triage7.pids that still run pf7/dlscan2_skipdl/python
+
+4. Cost estimate for the full list (16,949,557 machines)
+--------------------------------------------------------
+  pf7:             16.95M x 3 ms (quiet) .. 9 ms (loaded)                         = 14 .. 42 CPU-h
+  dlscan2_skipdl:  17.3% -> 2.93M survivors x 32 ms (quiet) .. 125-160 ms (loaded) = 26 .. 130 CPU-h
+  total:           40 .. 170 CPU-h, about 23% of plain dlscan2 on everything under the same conditions
+                   (16.95M x 32 .. 150 ms = 150 .. 700 CPU-h).
+  With the lead's 60-72 ms dlscan2 figure: ~53 CPU-h for stage 2 plus 15-40 for pf7, about 70-95 CPU-h;
+  with 2 Idle workers roughly 1.5-2 days.
+  Survivors are not more expensive for dlscan2 than random holdouts (124 vs 130 ms side by side).
+  Expected output: ~1 graded row per 10,000 holdouts in the sample, so ~1,500-2,000 graded rows overall
+  (mostly NOBOUNDARY/CHECK).
+
+5. Files (prefilter/)
+---------------------
+  src/pf7.cpp, src/pf7.exe      final pre-filter
+  src/pf7_explore_v5.cpp        reset-statistics version (not used; kept for the record)
+  src/explore.cpp/.exe          tokenised tape-end snapshots, for eyeballing a machine
+  patch_skipdl.py               builds neighbors/dlscan2_skipdl.cpp from dlscan2.cpp
+  run.py                        Idle-priority runner that records PIDs and wall times
+  analyze.py, eval2.py, eval_sample.py, evalrun.sh   calibration scripts
+  hits_dl2_1M.tsv, hits_dl2skip_1M.tsv   dlscan2 and --skipdl on the 2,416 hits (--all)
+  ext_graded.tsv                the 2,885 graded 9-10 state machines (machine, grade, halted)
+  pf_*_final.tsv, pf_sample/    pf7 outputs (final binary) for every calibration set and the 1% sample
+  notes.txt                     running notes
+Commands (final): pf7.exe INPUT OUTPUT 300000
+                  dlscan2_skipdl.exe INPUT OUTPUT 1000000 20000 --skipdl [--all]

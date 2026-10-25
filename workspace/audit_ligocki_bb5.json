@@ -1,0 +1,61 @@
+{
+  "configuration": {
+    "machine": [
+      "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA"
+    ],
+    "input": null,
+    "output": "audit_ligocki_bb5.json",
+    "workers": 1,
+    "timeout": 30.0,
+    "max_loops": 100000,
+    "block_size": 0,
+    "bf_loops": 1000,
+    "recursive": false,
+    "no_backsymbol": false,
+    "no_prover": false
+  },
+  "source_sha256": {
+    "Quick_Sim.py": "7e2d6e4bbda7149eca26b8e2c43af2e7cc9f078a33ee6e10c3cc9338732a9d48",
+    "Macro/Simulator.py": "ac90a7f5f0bb7e248ba765acbe874a71f4ad12e47134059d8e5801cce52f7048",
+    "Macro/Proof_System.py": "98c08aef68204a7936c0d19f0ab3f372fe508ac11c340d8eeb302699e4410cd3",
+    "Macro/Turing_Machine.py": "1ae7347da57a00d70038b5b35a3151a02bcb6f7be00e4f223b2736a8ca196fc7",
+    "Time_Limit.py": "6490c67cda130c2416de28ce2873d8cadce454e05235ca1115c625e9c80365a4"
+  },
+  "source_modified": false,
+  "results": [
+    {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+      "engine": "Ligocki Quick_Sim (unmodified)",
+      "options": {
+        "max_loops": 100000,
+        "block_size": 0,
+        "bf_loops": 1000,
+        "recursive": false,
+        "no_backsymbol": false,
+        "no_prover": false
+      },
+      "status": "halt",
+      "reason": "explicit_halting_transition",
+      "upstream_state": "Halt",
+      "loops": 334,
+      "steps": {
+        "kind": "integer",
+        "decimal": "47176870"
+      },
+      "ones": {
+        "kind": "integer",
+        "decimal": "4098"
+      },
+      "rule_moves": 11,
+      "chain_moves": 129,
+      "macro_moves": 194,
+      "rules_proven": 1,
+      "failed_proofs": 0,
+      "elapsed_seconds": 0.8439999999827705,
+      "upstream_log_tail": "BF: Searching for optimal block size\nBF: Least compressed tape at step 12310 : 11111111111111111111111111111111111111111111111111111111111111111111111111110010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010010011\nBF: Optimal tape compression block size 3 tape size 8\nBF: Searching for optimal mult for block size 3\nBF: * 1 18.029159519725557\nBF: * 2 11.73282217634916\nBF: * 3 8.733999001497754\nBF: Block Finder finished\n\nbest_block_size: 3\nelapsed_time_us: 96148\nleast_compressed_loop: 1000\nleast_compressed_tape_size_chain: 86\nleast_compressed_tape_size_raw: 200\nbest_compression_block_size: 3\nbest_compression_tape_size: 8\nbest_mult: 1\nbest_chain_factor: 18.0291595\n\n\n         Steps:                     Times Applied:\nTotal:   47_176_870                            334\nMacro:   1_183                                 194\nChain:   146_862                               129\nRule:    47_028_825                             11\nRules proven: 1\n  Level 1 rules: 1\nIterated rules proven: 0\nExponential rules proven: 0\nGeneral rules proven: 0\nCollatz rules: 1\nFailed proofs: 0\nProver num past configs: 8\nTape copies: 35\nElapsed time: 0.024936676025390625\n000^inf 1 Z> 01 001 001^4094 100^1 000^inf\nNum Nonzeros: 4_098 (4098)\n\nTuring Machine Halted\n\nSteps:    47_176_870 (47176870)\nNonzeros: 4_098 (4098)\n",
+      "upstream_log_truncated": false,
+      "process_returncode": 0,
+      "wall_seconds": 1.8589999999967404
+    }
+  ]
+}

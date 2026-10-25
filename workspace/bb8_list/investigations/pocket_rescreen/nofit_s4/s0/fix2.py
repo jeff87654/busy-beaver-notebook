@@ -1,0 +1,6 @@
+s=open('tv.cpp','rb').read().decode()
+s=s.replace("bool ev=false;","bool ev=false; static long long hist[2][8];")
+s=s.replace("if(p<mn){mn=p; if(side=='L') ev=true;}","if(p<mn){mn=p; hist[0][q]++; if(side=='L') ev=true;}")
+s=s.replace("if(p>mx){mx=p; if(side=='R') ev=true;}","if(p>mx){mx=p; hist[1][q]++; if(side=='R') ev=true;}")
+s=s.replace('printf("END %lld span %lld recL/R %lld\n",maxs,mx-mn+1,rec);','printf("END %lld span %lld recL/R %lld\n",maxs,mx-mn+1,rec); for(int sd=0;sd<2;++sd){printf("%c:",sd?\'R\':\'L\'); for(int k=0;k<8;++k) if(hist[sd][k]) printf(" %c=%lld",\'A\'+k,hist[sd][k]); printf("\n");}')
+open('tv.cpp','wb').write(s.encode())

@@ -1,0 +1,103 @@
+F5 / F89 REPORT: the two record-relevant BB(7) holdout rows the never_audit left UNDECIDED (2026-10-24, Opus agent)
+===================================================================================================================
+VERDICTS (none halts; nothing appended to OPEN_CANDIDATES)
+  F5  1RB1RG_0LC0LD_1RF0LD_0RE1LB_1LB0RF_0RA---_1RA1RD   NEVER-HALTS
+  F5  1RB1RE_1RC1RA_0LD0LE_1RF0LE_0RG1LC_0RB---_1LC0RF   NEVER-HALTS
+  F5  1RB0LD_0RC0RG_1LD0RG_0LE---_1LB1LF_1LE1LG_0LA1RB   NEVER-HALTS
+  F89 1RB0RE_0RC---_1LD0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE   NEVER-HALTS  (and its 3 reb7 siblings, which are relabels of F89)
+  Neither row is residue-gated.  F5 has one parity class that every rule preserves.  F89 has one class ("all digits odd")
+  that every rule preserves.  No rule in either rule set has a halting branch for any reachable parameter value.
+  Status: strong evidence, not Coq.  The rules are sound symbolic measurements (symsim) for every probed depth.  They are
+  checked literally at small values.  Coverage of all depths is by uniformity, and the safety lemma below is a paper proof.
+
+F5 (three siblings, one abstract machine)
+  CODING.  kl.exe tokens in unit "10": n = (10)^n, '.' = extra 0, '#' = extra 1.  K = M1 state D / M2 state E entering a
+    new cell on the left, M3 state G on the right (mirror).  Two blank cells lie between the head and the content.
+    State (A, L, c):  tape = (10)^A 0 (10)^d1 0 ... (10)^d_{p-1} 0 (10)^e 1 [ (10)^c 1 ].
+    The last digit e is attached to '#'.  The optional second segment c is the "marked list" the audit could not parse.
+    c = -1 means there is no second segment.
+    The K-traces of the three siblings from blank are identical (3e8 steps, 24527 K events; only the first blank event
+    differs).
+  RULES (j = number of leading zero digits before the source; all values even except e, c)
+    D    [A | d1>0, ..]          -> [A+2 | d1-1, ..]
+    Bj   [A | 0^j, s>=2, R]      -> [2 | 2^(j-1), A+4-2j, s-2, R]      (s ordinary or attached e)
+    Mj   [A | 0^j, 1#, c#]       -> [2 | 2^(j-1), (A+c+4-2j)#]        (merge; c=-1 form: (A+3-2j)#)
+    T0   [A | 0#, c#]            -> [2 | 2^((A+c+3)/2), 0#]           (rebuild)
+    Tk   [A | 0^k, 0#, c#]  k>=1 -> [2 | 2^(k-1), 1#, (A+c+2-2k)#]    (creates the marked list "1 # c #")
+  EXACT LITERAL THRESHOLD (thr.py, A = 2..2j+22, j = 1..12, 20, c in {-1,1,7}, 3 shapes, all 3 siblings): each rule over
+    j zeros holds iff A >= 2j.  B1, T0, T1, M1 never fail.
+  INVARIANTS ON THE REAL RUN
+    (P) Parity: A is even at every K-config (reset to 2, +2 per D).  Digits at positions >= 2 are even (refills are 2 or
+        A+4-2j; decrements are by 2).  c is odd.  e is odd, or 0 right after T0.  So every source is an even ordinary
+        digit >= 2 or an attached e >= 0, and T0 always has A+c+3 even.  No odd case is reachable.
+    (S) Safety: every event at depth j has A >= 2j.  This is a paper proof.
+        Lemma F: start from [2 | 2^(j-1), y, REST] with y >= 2 even at position j.  Every event while positions 1..j are
+        emptied has A >= 2*depth.  REST is untouched.  Positions 1..j empty with A = F_j(y) >= 2y + 4j - 2.  The proof is
+        by induction on j: a_0 = F_{j-1}(2) >= 4j-2 and a_{t+1} = F_{j-1}(a_t + 6 - 2j) >= 2 a_t + 6.
+        Any event E at depth j: let E* be the last earlier event of depth >= j.  After E* the prefix is [2 | 2^(j-1), y]
+        with y = 2, or y = A(E*)+4-2j >= 4.  So A(E) = F_j(y) >= 4j+2.
+    (R) Round structure: [2 | 2^N, 0#] -> T_N -> marked list -> N merges M_{N-1} .. M_1 (the list shrinks by one each)
+        -> e at position 1 -> D-run -> T0 -> [2 | 2^N', 0#] with N' = e+2 >> N.  It repeats forever with no halting rule.
+        The engine reproduces [2|2^2,0#] (step 165) -> [2|2^25,0#] (step 7205).  The level-26 exhaustion is T_25 from
+        [2|2^25,0#]: the marked-list round, not a halting class.
+  VALIDATION
+    lockstep: engine vs literal K-trace, 3e8 steps, each sibling: 24483 pairs, 0 misses (D, B1-B3, M1, T0, T2).
+    literal grid: random constructed configs, 900 runs.  Every mismatch is a below-threshold case (A < 2j); see thr_out.txt.
+    symbolic (symsuite.py -> symsuite_out.tsv): 1404 symsim runs, 0 bad.  Covers 3 siblings, depths j = 1..12, 16, 20,
+      25 and 31, and c in {-1, symbolic odd, 1, 3}.  Shapes: B with ordinary source, ordinary source 2 -> 0, attached
+      e even, odd and 3; M; T; T0; D (with e at position 1).  Symbols are mod 2 with A >= 2j+12, and each result is
+      compared to the engine at 3 substitutions.  Symsim never needed a finer residue, so no rule depends on A mod
+      anything beyond 2.
+    small configs (hs2.py -> hs2_M1.txt): 9360 configs (A 0..7, up to 3 digits 0..3, any '.'/'#' separators), 1e5 steps
+      each.  616 halt, and ALL of them have '#' directly after A, which is outside the grammar.  No config of the form
+      "A . ..." halts, odd A included.
+  REAL RESIDUE.  No class map is needed.  The only residue any rule reads is A mod 2, and A is always 0 mod 2.  The audit's
+    "odd classes -> marked list" is the Tk branch (k >= 1), the normal way every round proceeds.  It is not a residue
+    class: in the real run k equals the list length (25 at the first huge exhaustion).
+  WHAT COQ NEEDS
+    Parametric tape lemmas for D, Bj, Mj, Tk and T0, for all j, under A >= 2j.  Each is a shift lemma over (10)^n blocks
+    plus induction over the 2^(j-1) refill and 0^j blocks.  Then Lemma F as a big-step lemma by induction on (j, y), and a
+    round lemma [2|2^N,0#] ->+ [2|2^N',0#] with N' > N.  The concrete prefix is blank ->(7205 steps) [2|2^25,0#].
+    No residues and no huge-number arithmetic beyond parity are needed.  The style is busycoq end-game like T12a or N2.
+
+F89 (subagent, f89/REPORT.txt; independently spot-checked by me)
+  CODING.  The K-event is D on a new left cell.  K-config = 0 0 [1 (01)^d1] [1 (01)^d2] ... [1 (01)^dn].  The separator
+    comes BEFORE each digit and the last digit is unterminated, which is why no audit coding fit.  Value 1 = zero digit.
+    The alternate D-left events that start with 11 are intermediate.
+  RULES on all-odd lists (one rule applies to every odd list; every output is odd):
+    D [a,b,R] b>=3 -> [a+4,b-2,R];  B_k [a,1^k,d,R] d>=3 -> [1^k,a+4,d-2,R];  T_k [a,1^k] -> [1^(k-1),a+4];  S [x] -> [1^(x+2)]
+  REAL RUN: there is an even prelude, then the exact K-config [1^30] at step 4679.  After that the run is all-odd forever.
+  VALIDATION (subagent): lockstep 7746 events, 0 misses; literal grids 900, 0 misses; symsim 148 + 110 symbolic tests.
+    The 18 cases with symbolic k or S are UNDECIDED in symsim, not mismatches; the subagent's own sound shift-rule
+    simulator covers them with loop lemmas.  Small-config search: 4680 lists, none halt.
+  MY INDEPENDENT CHECK (f89_indep.py, own encoder/decoder, lit.exe): 150 random odd lists, 0 misses.  The blank-tape run
+    gives [1^30] at step 4679, then 7747 K events to 3e8 steps, all odd, 0 lockstep misses.
+  SIBLINGS: 1RB0LG_1LC0LE_..., 1RB0RD_1LC0LA_..., 1RB0RF_1RC0RE_... are F89 relabelled (two mirrored) and started in C, F
+    or D.  They reach the odd template ([3,3] at step 162 or [1] at step 13); lockstep 3e6 steps, 0 misses.  Same verdict.
+  WHAT COQ NEEDS: four tape lemmas K(l) ->+ K(rule l) for odd l (shift lemmas over (01)^n, (011)^n, 1^n and loop
+    inductions for B_k, T_k, S), the oddness invariant, and the 4679-step prefix.
+
+CONTROLS
+  (a) BB(7) champion: symsim from the exhaustion [0^1, X] and [0^11, X] (audit C1 coding, X symbolic mod 720 >= 1000)
+      reports HALT in all 12 classes tested (ctl_champ.py).  The symbolic tool does see a real halting exhaustion.
+  (b) Audit-CONFIRMED row F68 = 1RB1RE_0LC0LD_1RF0LD_1LE1LB_1RA1RG_1RE---_0RC0RF (size 28, same token grammar): the same
+      method re-confirms never-halting (subagent, ctl_f68/REPORT.txt).  Rules: borrow 1 unit, refill A+3-j, A odd.
+      Exact threshold A >= j-1, and below it the literal runs DO halt.  Lockstep 15448 pairs, 0 misses.  Symbolic 2029
+      cases, 0 bad.  Safety lemma A >= 2d+7.  So the tools do separate the halting below-threshold branch from the real
+      run.
+  (c) Marked list on constructed instances: Tk/Mj/T0-with-c were tested literally (grid.py, thr.py) and symbolically
+      (symsuite T/M/T0 with c symbolic), all 3 siblings, 0 bad above threshold.
+  F68 control found two parse bugs in symf5.to_config.  Both cause parse FAILURES only, never a false OK, and neither
+  shape occurs for F5 (far end starts with 1, A even).  F5's suite had 0 failures.
+
+GAPS
+  Not Coq.  F5's rules are symbolic for depths up to 31 and literal for small A; larger depths are extrapolated by
+  uniformity (as in the audit).  Lemma F and the round lemma are paper proofs.  F89 relies on the subagent's msim for
+  symbolic-k loop lemmas, cross-checked by symsim at literal a <= 21.
+
+COST: about 2 CPU-hours (symsuite ~40 min at Idle, small-config searches ~20 min, 3e8 literal runs ~15 min, subagents
+  ~0.3 h F89 + ~0.6 h F68 control).  Tokens: ~0.5M lead + ~0.45M subagents.
+FILES (bb7_holdouts/f5_f89/): kl.cpp/kl.exe/kl2.exe (token simulator; kl2 fixes a '.'-run compression bug), dec.py,
+  mt.py, f5eng.py (engine), lock.py + t1/t2/t3.txt (lockstep), grid.py, g2.txt, thr.py, thr_out.txt, symf5.py,
+  symsuite.py, symsuite_out.tsv, hs2.py, hs2_M1.txt, ctl_champ.py, f89_indep.py, notes.txt, pids.txt, f89/ (F89
+  subagent), ctl_f68/ (control subagent).

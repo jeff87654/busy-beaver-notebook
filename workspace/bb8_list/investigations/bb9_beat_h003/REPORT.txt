@@ -1,0 +1,143 @@
+bb9_beat_h003: can a 9-state extension of the champ_231/232-derived 8-state machines beat h003?
+=====================================================================================================
+Date: 2026-10-23.  Target: h003 ~ f_omega^7(12).  A positional machine that halts at the R-th
+exhaustion E_R scores about f_omega^R(20), so beating h003 needs R >= 7 (f_omega^6(20) < f_omega^7(12)).
+
+VERDICT
+-------
+1. No candidate is VERIFIED to beat h003.  Among all candidates whose round dynamics the current
+   tools can determine exactly, the best halt at E_3 (~f_omega^3(20)), the same level as the existing
+   BB9_champ20_3round.  Nothing exact reaches E_4.
+2. 231_0RH_1RG extensions (Architecture B) cannot beat h003, for a structural reason (section 3).
+3. One class is OPEN: 33 STD9-type machines (plus 1 Family-F2 machine) whose rebuilt digit list
+   contains copies of collapsed accumulators.  Their halting round depends on residues of tower values
+   that the existing macro simulators do not track.  The best family, ..._---1RI_1RA0LF and
+   ..._---1RI_0RE0LF (on 231 and 232), shows "E_8" with the default collapse cap.  That number is
+   an ARTIFACT: shifting the cap by multiples of 12 gives E_3, E_4, E_5, E_6 or E_8.  These machines
+   are not refuted, but not verified either.  This is the only route left that could plausibly reach
+   R >= 7 in the searched space.
+
+Claims from earlier work that are retracted (all artifacts):
+  - "E_7 halter" 1RB0RG_1RC1RB_0RD1LH_0LE0LH_0LF1LE_1RA1LF_0LD0RB_0LE0LI_1LG---: a bug in the old
+    Macro 4 (S_odd collapse).  With the macro removed the machine is an all-k K* rebuilder.
+  - "E_4, P=5" CS3..CS6 ..._0LE0LI_0LB---: came from sampling only k=1..9 and 20.  H occurs only at
+    k = 6, 18, 19, so the machine never halts once k is large.
+  - "12-round P=7" STD9 ..._1LD1LI_1LH---: the residue trajectory falls into a 2-cycle with no halt.
+  - STD9 ..._---1RI_0RA0RI "E_3": its tables depend on N (rejected by verify_strict_all).
+  - My own "E_8" from solve_nofit300.py: depends on the cap (see point 3 above).
+
+1. METHOD (new files in this directory)
+---------------------------------------
+Candidate pool: every MIXED_KH row that rebuilds at k=20 ("| k20=K") from
+  search_arch_a_d.tsv  (Arch A: CS1..CS7 C1->I, H1->I, dual-channel; Arch C: F1..F6; Arch D:
+                        Family X with an engine channel split into I; 14,281 evaluations)
+  std9_exact_231.tsv / std9_exact_232.tsv (STD9 lazy trees, C1->H, H->I, exact macros)
+  = 85 + 91 + 83 = 259 machines.
+  - strict_tables.cpp/.exe: run_c1_strict engine (from verify_strict_all.cpp: no Macro 4, odd-u_cap
+    parity fix, gap guard).  For k=1..72 (k=1..300 for unresolved rows) it simulates the round
+    exhaustion gadget at two even list lengths, N=2k+10 and N=2k+30, and records kind/dL/I.  It
+    requires N-independence.  verify_strict_all.exe was also run (verify_strict_all.out.txt).
+  - strict_tables_cap.cpp/.exe: the same engine with every collapsed accumulator u_cap shifted by
+    CAPX (12, 24, 120; and 0..144 for the open family).  A cell is ROBUST if kind, dL and I do not
+    change.  The collapse macros only promise u_cap == u (mod 12), so robust cells are the only ones
+    the tools determine exactly.  cap_classify.py writes cap_classify.out.txt.
+  - solve_rounds.py / solve_rounds2.py: exact multi-round solver.  The gadget table is periodic per
+    residue class, or affine (dL, I affine in t=(k-s0)/P).  The solver iterates
+    k_{r+1} = 3A_r + 1 - k_r + dL(k_r) and I_{r+1} = I_ev(k_r) + N_r (mod 2), with A_r residues
+    computed exactly (next section).  Starts from k_1 = 20, I_1 = 1.
+    Outputs: solve_rounds.out.txt, solve_rounds2.out.txt, solve_nofit300.out.txt,
+    diag_noperiod.out.txt, diag_nofit.out.txt.
+
+2. THE champ_231 ANALOGUE OF "LEFTMOST BOUNDARY ABSORPTION", AND WHAT IT DOES AND DOES NOT CAP
+-----------------------------------------------------------------------------------------------
+Every round of length >= 2 of the 7-state engine ends with a leftmost borrow B_1 followed by an E_0
+drain from a=1.  The leftmost digit is absorbed into 0^inf.  This gives
+      2*A_r + 3 = 5 * 3^(3x+2),   x = A_penult,   x == 1 - I_r (mod 2),
+and x has the same form.  So A_r mod m is a function of the single bit I_r = A_r mod 2, for every m.
+R(I,m) in solve_rounds.py computes it by a Carmichael-tower recursion.  It reproduces A == 1 (mod 5),
+A == 0/4 (mod 7), and A == 25/782 (mod 1024) for I = 1/0, and is consistent across all moduli.
+
+This is exactly the role Leftmost Boundary Absorption plays in perturb8: a_final is pinned to one bit.
+Here it does NOT give a flat E_3 ceiling, because the 9th-state gate reads a second variable, the
+digit count k_r (through the (10)^(2k-1) prefix).  For "positional" rebuilders (dL and I are
+eventually periodic or affine in k, and independent of collapse magnitudes), the round map is a
+finite automaton on (k_r mod Q, I_r).  The halting round is then bounded by the automaton's transient.
+Over all robust candidates the longest transient before H is 2 rounds (halt at E_3).  No robust
+machine reaches E_4.
+
+Robust statistics (cap_classify.out.txt):
+  arch_a_d: 30 alive (cycle without H), 17 halt at E_2, 4 halt at E_3
+  STD9-231: 22 alive, 13 halt at E_2, 12 halt at E_3, 5 with H only at small k (never halt)
+  STD9-232: 24 alive, 11 halt at E_2, 4 halt at E_3, 4 with H only at small k
+(The rest are R1_* rows: they halt at or diverge from round 1, or need k20 behaviour that is not K.)
+
+3. ARCHITECTURE B (231_0RH_1RG + state I): STRUCTURALLY BELOW h003
+---------------------------------------------------------------------
+MULTI_ROUND_PROOF.txt section 3.7: the C1=0RH / H1=1RG gadget does NOT preserve list length.  In
+Regime II, any huge N_r is absorbed by an (r+1)-slot base-5 Ackermann countdown with r ~ 18.  This
+leaves at most M + 19 slots, where M = (9*5^27 - 13)/4 ~ 1.7e19 is a machine constant.  So every round
+that starts after a 0RH/1RG exhaustion iterates only a fixed-level function.  Rounds 2-4 give
+A_4 ~ 3^^A_1 ~ f_2(f_omega(20)), not f_omega^4.
+The 9-state H0 -> I variants (test_arch_b.py, inspect_arch_b_deep.py: 32 eight-state and 288
+nine-state H0/I choices) do one of three things:
+  - halt within ~12,400 steps of the end of Round 4 (same score as 231_0RH_1RG); or
+  - heal [13,1,2^(3A_4+1)] into a clean K with ~3A_4 digits, giving one genuine f_omega round
+    (Round 5), then re-enter the 0RH/1RG gadget, which collapses the list again; Regime II then loops
+    without halting; or
+  - run past the iteration limit.
+Upper bound even if a later halt existed: f_c(f_omega(f_2(f_omega(20)))) with c a fixed constant,
+which is far below f_omega^2(21) and below M8, let alone h003.  A 2-transition state can heal only
+the one end-of-round configuration that reaches H0.  It cannot stop the 0RH/1RG list collapse in
+later rounds.
+
+4. THE OPEN CLASS: CAP-SENSITIVE REBUILDERS
+-------------------------------------------
+List: cap_sensitive_list.txt (33 machines).  Almost all are STD9 with C1=1RH or 0RH and the halt
+slot in H0 or I1, plus F2_0LH_0RE.
+Mechanism: in these gadgets a collapsed unary accumulator u (a tower value) is copied into the next
+round's digit list.  Shifting u_cap by CAPX shifts dL by CAPX/2 (k == 2 mod 3) or by CAPX
+(k == 1 mod 3).  Kind and I do not change (cap_r8.py).  So
+      dL_true(k) = dL_table(k) + sum_i (u_i - u_cap,i)/2,   with about k/3 collapses per gadget,
+and the next round's k mod Q depends on residues of the u_i modulo powers of 2 and 3 well beyond 12.
+The blocks being drained (e.g. r = 581 in the debug trace) are themselves derived from caps, so the
+true exponents are unknown too.
+Best family: 1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_{0LD,1LC}0RB_---1RI_{1RA,0RE}0LF.
+  Gadget: H iff k == 0 (mod 3), I_ev = 0 for k >= 5.
+  Halting round from solve_nofit300.py at each cap shift:
+      CAPX = 0: E_8 | 12: E_3 | 24: E_6 | 36: E_6 | 48: E_3 | 60: E_5 | 72: E_6 | 144: E_4
+  So the true halting round is undetermined by the current tools.
+Growth if such a machine did halt at E_R: at least f_omega^R(20), because k_{r+1} >= N_r ~ 3A_r.
+So an R >= 7 member would beat h003.
+
+To resolve: build a residue-exact simulator.  Represent every collapsed unary block by its exact value
+when small, or else by a residue vector mod L = 2^a 3^b 5 7 ... plus a "huge" flag.  Update it through
+E_0 (u -> 3^j (u+3) - 3, needing j mod lambda(L)), Borrow B_m, and the even_odd tower collapse (A-type
+residues from R(I, .)).  Then rerun strict_tables on the 33 machines.  Priority: the
+---1RI_{1RA,0RE}0LF family.
+
+5. BEST VERIFIED 9-STATE HALTERS (all cap-robust, N-independent)
+------------------------------------------------------------------
+Halt at E_3, score ~f_omega^3(20) (ties BB9_champ20_3round; does not beat h003):
+  Clone-split CS3..CS6 (P=10 affine law; H iff k == 3 mod 5; trajectory k%10: 0 -> 9 -> 8 = H):
+    1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LD0RB_0LE0LI_0LA---
+    1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LD0RB_0RG0LI_0LA---
+    1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_1LC0RB_0LE0LI_0LA---
+    1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LH0RB_0LE0LI_0LA---
+  STD9 (P=2; trajectory (k%2,I): (0,1) -> (0,0) -> (1,1) = H):
+    1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---0RI_1RF1LG
+    1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_0RB0RI_0LG---   (+ 14 siblings on 231 and 232
+    with I0 in {0RB,1RD,1LE,1RI} and the halt in I1 or as I0; see cap_classify.out.txt, ROBUST R=3)
+E_2 halters (~f_omega^2(20)): 41 robust machines.
+
+6. CAVEATS
+----------
+- The tables use the engine macros (Expand E0, Rule E_0, Borrow B_m, even_odd collapse) and assume
+  the collapse preserves u mod 12.  The cap-robustness test shows robust results do not depend on
+  u beyond mod 12.  The macros were checked bit-for-bit against literal simulation on the KKHKHK
+  test machine (search_std9_exact.exe, k=1..5).
+- Every family is assumed to start from champ_231's first exhaustion (k_1 = 20, I_1 = 1).  This holds
+  when state I is reached only through C1/H1 at exhaustion (STD9, CS, FX search templates).
+- Only the Arch A/C/D/STD9 search spaces of search_arch_a_d.cpp and search_std9_exact.cpp were
+  covered.  CLEAN_K / K_CASCADE lazy-tree leaves (all-K at sampled k) were not re-tabulated for
+  periods longer than the sampled k values.
+- Compute: every heavy binary sets IDLE_PRIORITY_CLASS internally; at most 2 processes ran at once.

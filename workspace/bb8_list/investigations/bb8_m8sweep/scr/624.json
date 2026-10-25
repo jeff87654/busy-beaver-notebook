@@ -1,0 +1,1 @@
+{"i": 624, "m": "1RB1RF_0RC0RA_0LD0LG_0LD1RE_1LE0LF_1LA0RB_1LC---", "tmpl": "L,F,P=1,u=01,s=0,d=1d+0,b=2b+1,S=10", "cls": [62], "M": 60, "runs": [{"X": "D0", "s": 0, "c": 2, "v": "g0", "snap": {"step": 3, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "624_D0_c2_g0.txt"}], "time": 1.6}

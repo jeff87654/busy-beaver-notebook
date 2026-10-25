@@ -1,0 +1,8 @@
+{
+  "steps": 2000000,
+  "F_entry_anchor_followed_by_1": {
+    "(6, 0)": 169,
+    "(4, 0)": 414
+  },
+  "counterexamples": []
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "candidate": 5,
+    "seed_steps": 30517,
+    "seed_head": -329,
+    "seed_normalized_ones": [
+      0,
+      1,
+      2,
+      330
+    ],
+    "expansion_steps": 30494,
+    "head_displacement": -324,
+    "next_normalized_ones": [
+      0,
+      1,
+      2,
+      330,
+      654
+    ]
+  },
+  {
+    "candidate": 6,
+    "seed_steps": 12631,
+    "seed_head": -209,
+    "seed_normalized_ones": [
+      0,
+      1,
+      212
+    ],
+    "expansion_steps": 12611,
+    "head_displacement": -205,
+    "next_normalized_ones": [
+      0,
+      1,
+      212,
+      417
+    ]
+  }
+]

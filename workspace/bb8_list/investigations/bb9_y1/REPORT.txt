@@ -1,0 +1,95 @@
+Y1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_0RA---   --  deep analysis (agent y1-deep, 2026-10-18)
+====================================================================================================================
+Y1 = M8 (8-state collapse of the BB(9) record C04) with H1 -> 0LI and a new state I = 0RA ---.
+Workspace: bb8_list/investigations/bb9_y1 (notes.txt = running notes + HANDOFF, runs/ = data, tools/).
+
+0. VERDICT
+----------
+OPEN. Y1's fate is decided by the same uncomputable data that decides C04's endgame class (the full base-5 orbit of the
+level-B cascade).  Unlike C04, the classes do NOT all behave alike:
+
+  (a) PROVED (given the Coq-verified M8/C04 halting configurations) + literally checked: in C04's classes
+      key 31 / rho = 0 and key 31 / rho = 4, Y1 halts ONE step after M8's halt, with sigma(Y1) = sigma(M8) - 1.
+      This is below the current BB(9) record C04 (sigma(C04) = sigma(M8)).
+  (b) In every other class Y1 continues past M8's halt point.  It then runs a sequence of ROUNDS.  Each round ends with a
+      top-level rebuild of a list of about 12R, i.e. one more f_omega escalation (sigma about f_omega^3, f_omega^4, ...).
+      At many points of each round Y1 may halt (an I1 read) or go on, depending on residues of cascade tokens and on
+      5-adic orbits of tower-sized lists.  Those residues are again uncomputable.
+  So Y1 CANNOT be certified as a record by the C04 method.  The only certifiable lower bound is the minimum over classes,
+  sigma(M8) - 1.  Whether Y1 halts at all is also undecided: heuristically it halts with probability 1 (every round has a
+  positive chance to halt), after a geometric-like number of escalations.  Never halting would need infinitely many rounds
+  that avoid every halt.  No invariant was found that forces this or excludes it.
+
+1. WHY CLASS-DEPENDENT: M8's HALTING TAPE
+-----------------------------------------
+From bb9_c04_coq (k31/K31_End.v Hc, fgh/EndU.v), every M8/C04 halting configuration has the form
+    Hc d s G l R n t = (1 >> (01)^d >> 1 >> (01)^s >> encl G >> 1 >> l)  <{{H}}  HR R n t
+(far-to-near tokens .. l .. G .. D(s) D(d), head in H on the final 1 of D(d)).  Y1: H1 = 0LI erases that 1 and I reads the
+first cell of (01)^d.  d = 0: I reads 1 -> HALT I1.  d >= 1: I0 = 0RA -> Y1 re-enters the engine.
+    key 31: rho=0 -> d=0 | rho=1 -> d=1 | rho=2 -> d=6R_E | rho=3 -> d=1 | rho=4 -> d=0      (rho = (P-35) mod 5)
+    key 37: d=7    key 43: d=9    key 49: d=3    key 55: d=8+6Rs
+Which key and which rho occur depends on the whole orbit of 36B+73 and on the cascade consumption Q (C04 REPORT sec. 3).
+That is not computable.  Heuristic weight of the d=0 classes is about 0.52 * 2/5, roughly 0.2.
+Literal check (runs/k31.txt, C04's validated key-31 worlds, P=300..304): P=300 (rho 0) and P=304 (rho 4): HALT I1 at
+step(M8)+1, ones 24713 vs M8's 24714.  P=301..303 continue.
+
+2. WHAT Y1 DOES WHEN d >= 1 (runs/t1.txt, val_cnt.txt, r366.txt, e2e1.txt)
+---------------------------------------------------------------------------
+Round structure seen in every continuing world:
+  (i)   Near-list cascade: the near list K (about P, i.e. about 12 R2 in the real run) shrinks K -> K+2 -> (3K-c)/5, with c =
+        30,33,21,34,37 for K mod 5 = 0..4 (the key-31 post-ESC sub-step) plus small-L deviations.  Each stage is a counter
+        mode with a counter of about 6R.  Each counter ending takes 3 or 5 from the nearest far token, writes new far
+        tokens of size about 6R, or opens a "2 z2" / "z2 0 2 z2" marker.  This is a new 5-adic orbit (uncomputable).
+  (ii)  With the near list empty, Y1 walks left at depth 0-3.  It absorbs or decrements every far token (R1 doublings,
+        depth-0 counters) until it reaches the top "0,0".
+  (iii) Top rebuild: a new near list of about 12R + O(1) (R = current accumulator, about f_omega^2 in round 1), or 4y+12R+15
+        when the top token y survives.  This is the next ESCALATION.  Then a C04-like top exhaustion follows (y tokens,
+        a parked list 1^(12R+c), a "0 2 z2" marker), with cascade, key endgame and ESC, as in C04 exh#2..endgame.
+  (iv)  That endgame ends at an M8-type D0 event.  d = 0 halts; otherwise the next round starts from (i).
+Halts were also seen in the middle of a walk (ii): a far token is counted down exactly to 0 next to another token, so H1
+reads it with a 1 on its left (H1EV left=101).  Example: runs/r366.txt k=192 and k=12/P=301 halt in round 2 at
+"... 2205 4 5 0".  In other worlds the halt comes right after the round-1 top rebuild ("0 1 6R' (k+8)|k" -> counter ->
+HALT I1; runs/t1.txt, e2e1.txt).
+Every H1 event is a potential halt.  A world has 20-40 of them per round (runs/*: H1EV lines).  Whether each reads 0 or 1
+depends on the residue (mod 3/5) of the token being counted down.
+
+3. RESIDUES (important for any further work)
+---------------------------------------------
+Every accumulator in these phases has 2R+4 = a tall tower of 2s, so R = Rinf (mod m) for any modest m (tools/towermod.py,
+same as B): R = 0 mod 6, 1 mod 5, 16 mod 25, 366 mod 3600, 9366 mod 22500.  The first worlds (R = 40/60/130) had R = 0 mod
+5 and took different branches at the top rebuild (12R+8 = 3 vs 0 mod 5).  Only R = 366 + 3600i worlds (runs/r366.txt) are
+residue-faithful mod 3600.  Beyond about the tower height in 5-adic digits, R's digits are effectively random, so round
+j's cascade orbit is uncomputable for every j.
+Fixed-R caveat: with a FIXED R the rounds repeat exactly ("0*2 7 |4400" recurring, runs/r366_k*_fixedR_cycle.txt, 1500+
+jumps, killed).  This is an artefact: really R_{j+1} >> R_j and each round has fresh residues.  It does show that a round
+can come back to the top without halting (the round-continue branch exists).
+
+4. SCORE
+--------
+Certified (all classes): sigma(Y1) >= sigma(M8) - 1 = sigma(C04) - 1.  Not a record.
+Conditional: in the d>=1 classes (about 80% heuristically) Y1 reaches the round-1 top rebuild in every world tested.  The
+rebuilt list is about 12R with R > the ESC accumulator, about f_omega(f_omega(12B+26)), so sigma > f_omega^3(12B) roughly.
+This was not shown for all classes: a mid-walk halt in round 1 is possible in principle (it happened in round 2).
+Unconditional heuristic: sigma = f_omega^(2+J)(about 12B) with J >= 0 random (J = 0 with weight about 0.2).
+
+5. RECOMMENDATION
+-----------------
+* Y1 (and its twin) cannot replace C04 as a certified BB(9) record.  Do not start Coq for Y1.
+* CORRECTION (round 2): no 9-state variant that keeps M8's 15 transitions beats M8 in every class.  H is entered only
+  from E0 = 1LH, so the cell right of H's head is always the 1 E wrote.  H1 = xLI reads 1 iff d = 0, so both I-slots are
+  used across classes and the halt fires at M8's point in some class.  H1 = xRI: I always reads E's 1, so the halt is
+  immediate or unreachable (y1-fable reached the same slot-counting conclusion).  Literal: all 288 F1 rows x 9 classes,
+  runs/f1screen.tsv (tools/f1screen.py, f1summ.py).  rho is free: no mod-5 coboundary up to 5^5 (tools/cobound.py); rho
+  uniform per key-31 predecessor (tools/keyrho_mc.py).
+* If Y1 is pursued anyway: (1) map all counter-ending / top-rebuild rules with residue-faithful R (366 + 3600i, with i
+  varied to randomize higher digits).  (2) Estimate the per-round continue probability.  (3) Look for an invariant (like
+  C04's parity) that pins the token residues at the H1 events.  None was found here; I did not search exhaustively.
+
+6. FILES
+--------
+tools/pkf7.cpp/.exe   pkf6 + --cnt (counter-mode jump JCNT, validated: identical event sequences/halts/ones vs literal in
+                      3 worlds, runs/val_cnt.txt) + --h1log Q (logs every H1 event with the 3 cells left of the head).
+tools/drive.py        json job runner (records real PIDs in pids.txt).  tools/events.py: event (non-counter) sequences.
+tools/compact.py, tools/towermod.py (copy).
+runs/k31.txt (key 31, all rho), t0/t1 (first class-b worlds, R unfaithful), val_cnt (JCNT validation), e2e1 (exh#2 start,
+realistic far context), r366.txt (residue-faithful halting worlds), r366_k*_fixedR_cycle.txt (fixed-R round cycle).

@@ -1,0 +1,102 @@
+[
+  {
+    "candidate": "C05",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_1LE0LE_1RH1RZ_1RH1RB",
+    "blank_seed_steps": 30517,
+    "cycle_steps": 30494,
+    "initial_head": -1,
+    "initial_state": "A",
+    "known_domain": {
+      "left": "negative_infinity",
+      "right_inclusive": 330
+    },
+    "initial_prefix": "1110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+    "initial_ones": [
+      0,
+      1,
+      2,
+      330
+    ],
+    "unknown_suffix_start": 331,
+    "read_bounds": [
+      -324,
+      7
+    ],
+    "write_bounds": [
+      -324,
+      7
+    ],
+    "terminal_marker_index": 330,
+    "terminal_marker_reads": 0,
+    "terminal_marker_written": false,
+    "final_head": -325,
+    "final_state": "A",
+    "head_displacement": -324,
+    "final_ones": [
+      -324,
+      -323,
+      -322,
+      6,
+      330
+    ],
+    "final_prefix": "1110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+    "final_prefix_start": -324,
+    "final_prefix_end_exclusive": 331,
+    "claims_checked": [
+      "Every read and write stays in the known half-line.",
+      "The known half-line equals the claimed expanded prefix with zero background.",
+      "The arbitrary suffix is neither read nor written, and its starting coordinate is unchanged.",
+      "Final state/head and tape are exactly the next expansion-family member."
+    ],
+    "status": "verified_finite_locality_certificate"
+  },
+  {
+    "candidate": "C06",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_0LC0LE_1RH1RZ_1RH1RB",
+    "blank_seed_steps": 12631,
+    "cycle_steps": 12611,
+    "initial_head": -1,
+    "initial_state": "A",
+    "known_domain": {
+      "left": "negative_infinity",
+      "right_inclusive": 212
+    },
+    "initial_prefix": "110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+    "initial_ones": [
+      0,
+      1,
+      212
+    ],
+    "unknown_suffix_start": 213,
+    "read_bounds": [
+      -205,
+      8
+    ],
+    "write_bounds": [
+      -205,
+      8
+    ],
+    "terminal_marker_index": 212,
+    "terminal_marker_reads": 0,
+    "terminal_marker_written": false,
+    "final_head": -206,
+    "final_state": "A",
+    "head_displacement": -205,
+    "final_ones": [
+      -205,
+      -204,
+      7,
+      212
+    ],
+    "final_prefix": "1100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+    "final_prefix_start": -205,
+    "final_prefix_end_exclusive": 213,
+    "claims_checked": [
+      "Every read and write stays in the known half-line.",
+      "The known half-line equals the claimed expanded prefix with zero background.",
+      "The arbitrary suffix is neither read nor written, and its starting coordinate is unchanged.",
+      "Final state/head and tape are exactly the next expansion-family member."
+    ],
+    "status": "verified_finite_locality_certificate"
+  }
+]

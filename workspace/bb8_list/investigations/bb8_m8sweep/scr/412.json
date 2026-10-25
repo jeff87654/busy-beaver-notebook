@@ -1,0 +1,1 @@
+{"i": 412, "m": "1RB1LF_0RC1RE_1LD1LF_0RB0LB_0LA0LG_1LC0LE_---0RA", "tmpl": "R,A,P=1,u=10,s=0,d=1d+0,b=1b+0,S=-", "cls": [188], "M": 60, "runs": [{"X": "E0", "s": 0, "c": 8, "v": "g0", "snap": {"step": 5, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "412_E0_c8_g0.txt"}], "time": 0.6}

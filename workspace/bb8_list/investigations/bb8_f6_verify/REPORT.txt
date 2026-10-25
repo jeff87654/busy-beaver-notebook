@@ -1,0 +1,92 @@
+bb8_f6_verify: F6 = 1RB0RG_1RC1RB_0RD0RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---1RG                                  2026-10-23
+=======================================================================================================================
+VERDICT: F6 NEVER HALTS (strong rule-level evidence, every rule validated literally). It is not a BB(8) candidate and does
+not threaten M8. Round 1 never ends. The real run enters an exactly periodic carry cycle about 8.4e18 ticks after
+champ_231's exhaustion and never reaches Round 2, so H0 is never read.
+Section 3.7 (Theorem F.6) of bb8_c231ext/MULTI_ROUND_PROOF.txt is wrong from its Regime II on. U_26 is odd, and an odd-U
+B=1 stage end is a clean CARRY (full countdown restart), not an expansion into 2-blocks. The "Round 2 mod-3 tail drain"
+is never reached.
+
+1. SETUP AND NOTATION (all literal)
+  Exhaustion tape (c231ext): X(n,N) = 0^inf (10)^(2n-1) 11 00 1 C>1 1 00 (1100)^N 1 0^inf, n=20, N = N_1 = 3a_f+1-n.
+  Tick moment: "... 110 [E>0] 1^u 00 1^r 00 ... 1" (state E on 0, left neighbours 110, right neighbour 1).
+  Left tokens, consumed one per tick from the head side:
+    P = 1100 (normal)
+    Q = an extra 1 + P, created by a carry (a "fat" token)
+  Right side (RSA) = block vector [b0,b1,...], with the sentinel 1 omitted.
+  Mid-stage tape used for constructed tests:
+    S(n;J;u,r,B) = (10)^(2n-3) (1100)^J 110 [E>0] 1^u 00 1^r 00 1^B 0000 1
+  This reproduces the real run exactly; for example S(2;3;3,20,51) gives the same K-output as X(2,20).
+
+2. ROUND 1 RULES (exact, validated by rcheck.py on every transition)
+  transfer_r1: X(n,N) -> after the 74-step loop (N-1 times), INIT [2,0,2,2] with left P^N (10)^(2n-3).
+  init     INIT [2,0,2,2] + PP        -> [3,9,0,2]
+  pretick  [u,r,0,2], r>=1, + P       -> [u+5,r-1,0,2]                       (+ Q: u+6)
+  preturn  [U,0,0,2] + PP             -> [3,2,U+5,0]                         (all-P stream: [48,0,0,2] -> [3,2,53,0])
+  tick     [u,r,B,0], r>=1, + P       -> [u+5,r-1,B,0]                       (+ Q: u+6)
+  turn     [U,0,B,0], B>=3, + PP      -> [3,U+7,B-2,0]
+  CARRY    [U,0,1,0], U odd, + token  -> right side 1^U becomes [1,0,2^M], M=(U+3)/2.
+           The 74-step transfer loop moves the M blocks left; the right side returns to INIT [2,0,2,2].
+           Left stream: P^J -> P^(M-1) Q Q P^(J-2).
+           Steps from the [U,0,1,0] tick moment to INIT = U^2+78U+567 (exact for 8 odd U from 101 to 7007).
+  (Even U at B=1 leaves a 2^M tail instead, e.g. U=18 -> [..,0,2^24]. This never occurs: see 3.)
+  From INIT, all-P stream: stage k starts at [3,R_k,B_k,0] with R_0=2, R_{k+1}=5R_k+10, so R_k=(9*5^k-5)/2, and
+  B_k=53-2k. The stage is R_k ticks plus a 2-token turnaround. Stage 26 has B=1 and ends in the CARRY.
+  K-output when the fuel ends (Regime I, N small): [2]^(n-2) + (RSA after N+1 tokens; the (10) prefix supplies one token).
+  If that token is the first half of a turn, the output is [3U+23, B-5, 0] instead.
+  Checked on the X(n,N) table for N=0..150. X(2,0) halts at 621. Formulas in 3.7 part 2 are right for N < ~8.4e18.
+  Corrections to 3.7 part 2:
+    - pre-stage [3+5(t-1), 10-t, 0, 2] precedes stage 0.
+    - stage 0 needs 13 tokens from INIT.
+    - the turnaround output is u=3 only for P tokens; a Q in a turn gives u=4.
+  Validation (literal; deviations appear only at fuel exhaustion, i.e. prefix effects):
+    - Round 1 X(n,N), n in {2,3,7}, 18 values of N up to 3500 (through stage 4): every transition matches.
+    - turn: U in {10003, 100003, 99998, 250001, 1000003} x B in {3,5,7,25,53,55,57}: all match.
+    - carry: odd U in {3,5,7,9,11,33,101,1003,3003,5005,10003,20001,30003}: all match, Q ticks included.
+    - rsim.py (exact rule-level simulator) equals the literal fuel-end state for 8 Round-1 runs and 4 runs through a carry.
+
+3. REAL RUN (rsim.py round1 10**40; any N >= T1+3 behaves identically)
+  R_26 = 6705522537231445310 (even; every R_k is even since R_0=2 and R_{k+1}=5R_k+10).
+  U_26 = 5R_26+3 = 33527612686157226553 is ODD, so the stage-26 end is a clean CARRY.
+  T1 = tokens from INIT to [U_26,0,1,0] = 13 + sum_{k<26}(R_k+2) + R_26 = 8381903171539306637.
+  The first carry needs N >= T1+3. N_1 = 3a_f-19 is at champ_231 scale (sigma > 3 up-arrow^20 3), far larger.
+  M = (U_26+3)/2 = 16763806343078613278, and M-1 = 2*T1+3.
+  After a carry the stream starts with P^(M-1) Q Q. The fresh countdown uses T1+1 tokens from that P block and carries again
+  with the SAME U. That carry rewrites the stream as P^(M-1) Q Q P^(T1+3) Q Q ...
+  Carries #2..#5 in rsim are identical in (U, M, stream top). By induction the cycle repeats forever:
+    - the stream grows by T1+3 P-tokens and 2 Q's per cycle;
+    - the Q's are never consumed;
+    - the (10) prefix is never reached;
+    - no K-moment ever occurs;
+    - no H0 (the only halt) is ever read.
+  Rounds / m_r mod 3: Round 2 is never reached, so m_2 is undefined. No invariant search was needed; the answer is
+  structural (the carry outpaces the countdown by a factor of 2).
+
+4. SIZE VS M8: not applicable (non-halting). F6 does not beat M8.
+  Evidence level: rule-level. Each rule is a uniform loop, checked literally at many sizes, including the carry step
+  polynomial. The cycle argument is exact integer arithmetic on those rules. No Coq was written.
+  A Coq non-halting proof would need the 6 rules above as shift/induction lemmas plus the cycle invariant.
+  Side check: 3.7's halting tape [E0]100 1^13 00 1 00 (1100)^K 1 does halt, but at 386K+3912 steps, not a constant
+  4,684. This is moot.
+
+5. CONTROLS
+  champ_231 from K(10;0^20) halts at step 6297 (as in c231ext).
+  X(n,N) Round 1 reproduced literally: 74-step transfer, absorption, countdown, n+2-block output.
+  Not done: M8 follower control. My tools are F6-specific tick automata; no M8 tool was built or needed.
+
+6. RECORD: OPEN_CANDIDATES.txt entry "F6-231_0RH_1RG" appended at the end of OPEN, status NON-HALTING (rule-level).
+  The lead may move it to SETTLED.
+
+COST: about 25 min CPU in total, single core, foreground (largest job: carry at U=30003, 276 s). No background processes left.
+  One stray lit.exe from a stopped task of mine had already exited (pids.txt).
+
+FILES (bb8_list/investigations/bb8_f6_verify)
+  lit.cpp/.exe   literal simulator; event modes e/h/x/s/f/t; compact tape spec "pat*k,..."; mode t stops at the 1st K-moment
+  kmo.cpp/.exe   literal sim printing K-moment block vectors
+  xrun.sh, xk.sh run from X(n,N) (lit / kmo)
+  mk.sh, mkl.sh  run from S(n;J;u,r,B) (kmo / lit)
+  tparse.py      tick moments -> left token stream + right vector
+  rcheck.py      checks every tick-moment transition against the rule table
+  rsim.py        exact rule-level simulator (modes round1 N, mid J u r B)
+  real_rsim.txt  real-scale carries; tabN.txt X(2,N) K-outputs; val_r1.txt, val_turn.txt, val_carry.txt, carry_steps.txt
+  notes.txt, pids.txt

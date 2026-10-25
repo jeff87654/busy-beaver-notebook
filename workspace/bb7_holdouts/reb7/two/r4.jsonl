@@ -1,0 +1,1 @@
+{"machine": "1RB0RD_0LC1RF_0LA1LD_1LE1LB_1LA0LG_0LA0RA_---0LE", "tmpl_in": "L,A,P=10,u=110,s=1,d=1d+0,b=1b+0,S=00", "fit_fail": ["L,A,P=10,u=110,s=1,d=1d+0,b=1b+0,S=00: D: no affine fit (90 bad)"], "verdict": "NOFIT", "time": 1.4}

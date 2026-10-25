@@ -1,0 +1,173 @@
+bb9_h003check: independent check of the BB(9) lead h003 = C7-0LI-1RI1RC          (checker agent h003-check, Opus, 2026-10-22)
+=======================================================================================================================
+h003 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI---_1RI1RC   (only undefined slot: H1)
+M8   = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---          (BB(8) record, Coq)
+Notation as in bb9_c7check: views far -> near, "1*k" counts the m-token, a CL moment "ctx X 1*k" clears X = 3v+1 at depth
+j = k-1 (R = iter v (U j) b, b = (r-2)/3), Top(K) = view "0*2 7 1*K".  U_j: 2U_j(x)+4 = 2^^(j+1)(2x+4) (^^ = Knuth ARROWS).
+
+0. VERDICT
+----------
+CONFIRMED (strong evidence, same standard as the C7/f3 checks; nothing here is Coq).  h003 halts in H1 in every class, with
+      sigma(h003) > f_w^6(12B+26) > f_w^7(12)                         (paper, from the measured phase rules)
+while C7 (the current bar) satisfies, from c7check's own phase rules,
+      sigma(C7) <= f_w(K6+4) <= f_w^5(5.4B+12) < f_w^5(12B+26)       (paper upper bound, derived here, sec. 6)
+so h003 is one FULL omega level above C7: sigma(h003) > f_w(sigma(C7)) on paper.  (M8 is f_w^2(12B+26..27) = f_w^3(12..13).)
+What is confirmed:
+  * first divergence from M8 at step 8110 (E0 at the far-left start of the first exhaustion); K0 = 12B+27 (Top at t=3).
+  * the three rebuild branches (K = 1, 3, 4 mod 5) EXACTLY, intermediate views included, with the R in K' = the LAST
+    (freshest) accumulator of the branch; exits K = 0, 2 mod 5; t -> t+3 per top.  Uniform in K (all residues mod 125,
+    K up to 30004), in t (3,6,9,12,15), and in R (classes 6 mod 120/360, odd residues 401/523/1000/777, R up to 7566).
+  * the real orbit [4,3,1,1,0] (own tower-residue code, stable at 5^20..5^120): 4 rebuilding tops, exit at K4 = 0 mod 5.
+  * the exit: h003's first D0f moment after the exit top equals M8's with y+1 (80/80 configs); from there on h003 runs
+    BIT-FOR-BIT like M8 (resync lemma, sec. 5.1) because no "bad" H event ever occurs: 0 in 399 exit runs that cover every
+    key (31, 37, 43, 49, 55), every ESC-depth residue, every key-31 sub-route (counter modes, nested counter, 2-clear form),
+    all 30 sub-step classes (L mod 5 x P mod 6), order-faithful accumulators (R_ESC >> P) and real-class reps (5^6, 5^7).
+    All 399 runs HALT H1.  No class-dependent peek is possible (sec. 5.4).
+Corrections to the claims:
+  * "final list = M8's + 2, ones = M8's + 3" holds only for class b (keys 37/43/49/55: 73/73 compared runs).  In key 31
+    the +2 in the parked list shifts the post-ESC class: 53 of 135 compared runs take a DIFFERENT key-31 sub-route than M8
+    started from the same top (both halt), 9 more differ by one extra counter token.  The right statement:
+    h003 = M8 run from M8's first D0f with y+1 (sec. 5.2), not "M8's route from the same top + 2".
+  * The OPEN entry's "score >= f_w^8(11)" is not justified (it counts intermediate clears as levels).  Honest count: 6
+    levels above 12B+26: f_w^6(12B+26) < sigma < f_w^6(12B+c), c small (sec. 6), i.e. ~ f_w^7(12..13).
+  * The OPEN entry's intermediate clears (K=4: K_a = (3K-27)/5 then K_a - 1; K=3: (3K-14)/5) are right; the R that enters
+    K' is the LAST clear's accumulator (R_d resp. R_c), which is >= 2R_a + 1 (sec. 3).
+
+1. TOOLS (all written here; the triage's tools were not used for any result)
+---------------------------------------------------------------------------
+hsim.cpp/.exe  literal byte-tape TM; the only jump is the champion CL (X = 1 mod 3, X >= 4 behind m = 1 and zero digits),
+               R from --R list then --Rdef; --cnt counter skip (after 3 identical rounds, C := 6 + C mod 3); logs every H0
+               event with left 0 ("H0L0"), every H0 with left 1 but 0 two cells right ("H0ODD"), every I0; --stoptop,
+               --canon, --e0.  Validated: literal clears X=4, j=0, b=0,1,2 give R = 6, 30, 126 = U_0(b); jump continuation
+               = literal continuation; the blank-tape B=R=366 run reproduces the triage (HALT H1, ones 45171).
+hsim2.exe      hsim + --d0 (D0f moments: t, L, P, y, s, far view).
+orbit.py       stable tower residues by CRT (2-part = 0, odd part via Carmichael recursion), checked against direct towers
+               (h = 5..11); real top orbit.   realcasc.py: real exit cascade prefix.
+topgrid.py + check_tg.py   Top(K) starts, exact check of every branch incl. intermediate views.
+exitsurvey.py, classify.py, cmpm8.py, d0cmp.py   exit/endgame surveys, route classes, M8 comparison, D0f comparison.
+
+2. DIVERGENCE FROM M8 AND THE FIRST TOP (question 1)
+---------------------------------------------------
+* The tables differ only in E0 (0LH vs 1LH) and H0 (0LI vs 1RG); I = 1RI 1RC is new.  H is entered only from E0.
+* From blank (J1 = CL "0*2 7 1*11" at step 2117) both machines are identical until step 8110, where E reads 0 at the
+  far-left start of the first exhaustion; H then reads 0 with a blank left cell: h003 runs H0 -> I0 I0 I0 (writes three 1s)
+  -> I1, M8 runs H0 = 1RG.  This far-left event occurs exactly once per top-level exhaustion (i0 = 3 each time).
+* First top: Top(K0), K0 = 12B+27, at t = 3, checked for B = 6, 366, 401, 1001, 1086, 1447, 2491 (it is branch 1 applied
+  to Top(11): (9*11+60B+36)/5).  Every top clear has b = 0 (r = 2).
+
+3. THE TOP MAP (question 2; runs/tg*.txt, 534 rows, 534 exact)
+-------------------------------------------------------------
+With R_a = the accumulator of the Top(K) clear (depth K-1, v = 2, b = 0), all views exact:
+  K = 1 mod 5:  Top(K) -> Top(K'),  K' = 12 R_a + (9K+36)/5
+  K = 3 mod 5:  -> "0 1 (6R_a+1) (Kb+8) 1*Kb", Kb = (3K-14)/5            [CL v=(Kb+7)/3, j=Kb-1, b=0      -> R_b]
+                -> "0 1 (6R_a+1) 1*(Kb+1)", r = 3R_b+2                   [CL v=2R_a,     j=Kb,   b=R_b    -> R_c]
+                -> Top(K'),  K' = 12 R_c + (3K+16)/5
+  K = 4 mod 5:  -> "0 1 (6R_a+5) 2 z2 (Ka+7) 1*Ka", Ka = (3K-27)/5       [CL v=(Ka+6)/3, j=Ka-1, b=0      -> R_b]
+                -> "0 1 (6R_a+4) (6R_b+10) 1*(Ka-1)"                     [CL v=2R_b+3,   j=Ka-2, b=0      -> R_c]
+                -> "0 1 (6R_a+4) 1*Ka", r = 3R_c+2                       [CL v=2R_a+1,   j=Ka-1, b=R_c    -> R_d]
+                -> Top(K'),  K' = 12 R_d + (3K-2)/5
+  K = 0, 2 mod 5: exit (sec. 5).  Every top: t -> t+3.
+Grids (always 4 distinct R per run): tg2 K=1000..1124 (all residues mod 125) t=3; tg3/tg5 K=1000..1049, 2003..2027,
+4400..4424, t=6,9,12; tg4 K=3000..3049 with R = 401,523,1000,777, t=3,12; tg_fresh (R permuted: shows WHICH R enters K');
+tg_big K=30001,30003,30004,30009 with R = 3966,7566,4686,5406, t=3 (4/4; the t=12 rows were stopped).
+Level: the top clear is at depth K-1 and K' >= 12 R_a in every branch (R_c >= R_b + 2R_a, R_d >= R_c + 2R_a + 1, since
+each U application adds >= 1), so K' >= 12 U_(K-1)(U_(K-1)(0)): depth linear in the previous accumulator, one f_w per top.
+
+4. THE REAL ORBIT (question 3; orbit.py)
+---------------------------------------
+Every accumulator is (T-4)/2 with T a pure 2-tower of huge height, so all equal R* mod anything: R* = 366 mod 3600,
+935224366 mod 5^13, 5059528974366 mod 2^5 3^4 5^14 (= Res.v's rho), 6 mod 2520.  K0 = 12R*+27; each top consumes one 5-adic
+digit.  Residues K0..K4 mod 5 = 4, 3, 1, 1, 0 at precision 5^20, 5^40, 5^80, 5^120 (identical); K4 = 88608900 mod 5^12
+(= 25 mod 125); K4 odd and = 0 mod 3, so L0 = 3K4-2 is odd and = 1 mod 3 (M8's cascade invariants).  The branch decisions
+need only B, R mod 5^5; K's parity and class mod 3 do not depend on R (12R = 0 mod 12).
+World check: B = R = 2491 (= R* mod 5^5) from blank: tops 29919 (t3, =4) -> 47843 (t6, =3) -> 58601 (t9, =1) -> 135381
+(t12, =1) -> exit Top(273585) at t=15, exactly the predicted path (runs/e2e_2491.txt; stopped at the exit top to save CPU).
+
+5. THE EXIT AND THE ENDGAME (question 4)
+---------------------------------------
+5.1 Resync lemma (exact, by hand).  At an E0 event at cell e with H's cell h = e-1 holding 0:
+      M8:   E0 (e:=1) H0 (h:=1) G1 (e:=0) F1 (e+1:=1) D0 (e:=1) A1 (e+1:=0)  -> A at e+2
+      h003: E0 (e:=0) H0 (h:=0) I1 (h-1:=1) C0 (h:=1) D0 (e:=1) A1 (e+1:=0)  -> A at e+2
+    identical configuration after 6 steps iff T[h-1] = 1 and T[e+1] = 1.  If H reads 1 both halt (ones differ by 1).  All
+    other E0 events ("bad": left cell 0, or T[e+1] = 0) are the only places where h003 and M8 can differ, so a stretch with
+    no bad event is bit-for-bit M8.
+5.2 The exit top.  From Top(K), K = 0 or 2 mod 5: the far-left event (bad, deterministic, class-independent, at the start
+    of the exit exhaustion), then the first D0f moment D0f(t+1, 3K-1 ones, P = 2, y, s = 1, l): h003's equals M8's with
+    y+1 (same t, L, P, s, far side); at the next D0f h003's P = M8's P + 2, rest equal.  80/80 configs (K = 1000..1049
+    exits, t = 3, 15, R = 126, 366; runs/d0cmp.txt).  Cascade start L0 = 3K-2 with M8's sub-step map (every grid exit).
+5.3 After the first D0f: zero bad events (hence h003 = M8 from D0f(.., y+1, ..)) and HALT H1 in all of:
+      es1   334 exits K = 505..2995 (K = 5 mod 10 and 7 mod 10), t = 15, R = 366   keys 31:150 49:145 37:23 55:13 43:3
+      es2    51 targeted exits (keys 43 x8, 55 x11, 37 x12, 31 x12, 49 x8)
+      es4    11 order-faithful exits, R_ESC = 7566..12606 >> P ~ 4400 (all route types)
+      es3     3 real-class reps K = 62025, 155775 (= K4 mod 5^6, mod 6), 249525 (mod 5^7): cascade starts follow the real
+              prefix (exh1 r=3,1,stop; exh2 r=1,4,stop; ...) to the precision limit, then keys 37, 49, 31; HALT H1.
+    Coverage: keys 31/37/43/49/55; ESC-depth mod 5 all five for 31/37/49/55 and 0,1,2,4 for 43 (class b has one route
+    shape: ESC, counter 6 -> 3 -> 0, HALT); key 31: 41 distinct post-ESC signatures incl. the 4-clear class, the counter
+    modes, the 2-extra-clear form and the nested second counter; all 30 sub-step classes (L mod 5 x P mod 6; 182 D0f
+    moments in 16 runs).  Counter rounds were skipped only after three identical observed rounds without bad events.
+    M8 comparison (cmpm8.py, 135 K, same start): see the correction in sec. 0.
+5.4 No early halt, no peek.  H is entered only from E0; before the exit every H event is the far-left event (H reads 0)
+    or a resync event (all top runs: no halt); the only halt is M8's own halt point (H reads 1) of the bit-identical run.
+    The far side l is never revisited after the first D0f (M8's endgame lemmas are universally quantified over l), so the
+    far-left difference is never read.  h003 is M8 from a D0f with L odd, L = 1 mod 3, P ~ 12R_e >> 60, y >= 1, so
+    M8's all-class Coq endgame (casc_stepP, casc_key incl. k31_end: every key, every P mod 6, every rho) covers every
+    class h003 can be in.  The Y1 peek theorem does not apply: h003 does not reproduce M8 up to M8's halt, it halts exactly
+    where M8-from-its-own-config halts.
+
+6. SCORE (question 5)
+--------------------
+g(j) := (f_w(j)-4)/2 <= U_j(x) (U_closed and f_w(m) <= 2^^(m+1) 4, as in c7check sec. 6).
+Lower bound for h003:
+  K_(i+1) >= 12 R_a >= 12 g(K_i - 1) = 6 f_w(K_i - 1) - 24   so  K_(i+1) - 1 >= f_w(K_i - 1),  i = 0..3,  K0 - 1 = 12B+26;
+  exit: R_e = U_(K4-1)^2(0) >= g(K4-1); parked P = 12R_e + O(1) - (<= 14 per sub-step, O(log K4) sub-steps); ESC depth
+  P'' >= 11 R_e (C04 REPORT sec. 4, valid since h003 = M8 there); M8's halting tape has ones >= 6 Rl + 2 with
+  Rl >= iter 2 (U (P-21)) 0 (k31_end / class-b statements); hence
+  sigma(h003) >= 6 g(P'') >= f_w(P'') >= f_w(11 g(K4-1)) >= f_w^2(K4-1) >= f_w^6(12B+26) > f_w^7(12)  (f_w 12 < 12B+26: Coq).
+Upper bound for h003 (same rules; iter(v,U_j,x) <= f_(j+3)(2x+4+v) and 2^^k n <= f_(k+1)(n)): K_(i+1) <= f_w(K_i + 4),
+  the exit adds M8's two levels (c04-upper), so sigma(h003) < f_w^6(12B+c), c small (not computed).
+Upper bound for C7 (c7check sec. 3 rules: K2 = (27B+43)/5, K3 = 12R1+K2+4, K4 = (27R2+3K3+10)/5, K5 = 12R3+K4+4,
+  K6 = (27R4+3K5+44)/5, counter 2R5+4 rounds R' = iter(2R+2, U_(K6-3), 0), exit R10 = iter(2R9+3, U_(K6-4), 0),
+  sigma = 24 R10 + O(K6)): every clear has R <= f_w(max(j+3, 2b+4+v)), so R1 <= f_w(K2+1), R2 <= f_w(K3+2),
+  R3 <= f_w(K4+1), R4 <= f_w(K5+2), R5 <= f_w(K6+2); the counter gives R9 <= f_(K6+1)(6R5+12), R10 <= f_w(K6+3);
+  sigma(C7) <= 25 R10 <= f_w(K6+4); with K_(i+1) <= f_w(K_i+3) and c f_w(m) + d <= f_w(m+1):
+  sigma(C7) <= f_w^5(K2+3) <= f_w^5(5.4B+12).
+Comparison: sigma(h003) > f_w^6(12B+26) = f_w(f_w^5(12B+26)) > f_w(sigma(C7)); also far above C7's Coq bound f_w^4(12B+27).
+Rigour: the inequalities are routine paper arguments.  NOT proved: the phase rules themselves (h003: all of them; C7: its
+upper bound uses c7check's measured rules; Coq has only C7's lower bound).  Nothing heuristic in the level count (each
+counted level is a clear whose depth is at least the previous accumulator; intermediate clears are not counted).
+
+7. COQ-READY SPEC (question 6)
+------------------------------
+Auxiliary machine (the C7/f3 X-trick): X3 = C04 with E0 = 0LJ, J = 0LK/---, K = 1RK/1RC (h003's H -> J, I -> K,
+  G -> C04's I):  X3 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LJ0LC_0RG1LD_0LH1LH_1RI---_0RI0RF_0LK---_1RK1RC  (11 states).
+  h003 <-> X3 simulation as bb9_c7_coq/c7/Sim.v.  Champion rules, CDP clears and init_reach (c0 -->* the J1 moment, 2117
+  steps, E0-free) reuse verbatim.  Res.v (rho mod 2^5 3^4 5^14) gives every residue needed (orbit: mod 5^5; parity; mod 3).
+New machine lemmas (mexp on the X3 table; far side = the "0 0" frame; t free):
+  T1  K = 1 mod 5: Kt([1]^K ++ [0;0]; 1; 3R+2; t) -->+ CL moment Top(12R+(9K+36)/5) at t+3   [contains the far-left I0 sweep]
+  T3  K = 3 mod 5: -> CL "0 1 (6R+1) (Kb+8) 1*Kb" (t+3), Kb = (3K-14)/5; CDP; "0 1 (6R+1) 1*(Kb+1)" r = 3R_b+2; CDP (v = 2R);
+      -> Top(12R_c+(3K+16)/5)
+  T4  K = 4 mod 5: -> "0 1 (6R+5) 2 z2 (Ka+7) 1*Ka"; CDP; "0 1 (6R+4) (6R_b+10) 1*(Ka-1)"; CDP; "0 1 (6R+4) 1*Ka" with
+      r = 3R_c+2; CDP (v = 2R+1); -> Top(12R_d+(3K-2)/5)
+      (parametric in K inside its class mod 5 and in R; the I0 sweep is a fixed 3-cell event; the post-CDP rebuild phases
+       look E0-free like C7's phase B, check with the generator)
+  TX  exit, K = 0 mod 5 (the real one; K = 2 mod 5 analogous): Kt([1]^K ++ [0;0]; 1; 3R+2; t) -->+
+      D0f(t+1, 3K-1, 2, y_M8(R)+1, 1, l0) (C04's TOPENTRY target with y+1), then the first top-level sub-step for
+      L0 = 3 mod 5 to the second D0f with P = 12R+c+2 (C04 only has L0 = 4 mod 5: this TOP1 variant is NEW).
+  CASCADE + ENDGAME: C04's G_sub2..5, G_stop, G_entry, Step.casc_stepP, G_pfx*, G_end, CBtail, K31 lemmas contain E0
+      events, so as compiled they do not hold for X3.  Regenerate them with the same generator scripts on the X3 table: by
+      the resync lemma the X3 trajectories are C04's with E0/J/K instead of E0/H/I and the SAME step counts, so the
+      generated scripts should replay unchanged (no new proof design).  Then Cascade.cascade_from_start and the endgame
+      with L0 = 3K4-2 (odd, 1 mod 3 by Res.v) and Pm from TX.
+  ORBIT: K0 = 12Bx+27 (T1 on Top(11)), then T4, T3, T1, T1, TX at t = 3, 6, 9, 12, 15 with residues from Res.v.
+  SCORE: the lower chain of sec. 6; reuse c04-bound's ScoreK (ones >= 6Rl+2, Rl >= iter 2 (U (P-21)) 0) and fgh/Headline
+      (f_w 12 < 12Bx+26).
+Size: T1/T3/T4/TX are four C7-sized top lemmas (closest models: C7Top, C7PhB, C7Entry in bb9_c7_coq/x/dev); the
+  cascade/endgame regeneration is C04-sized compute (C04: M_sub2 3560 s, K_e1 8760 s) without new design.
+
+8. FILES, OPEN POINTS
+---------------------
+Folder bb8_list/investigations/bb9_h003check: notes.txt (dated), pids.txt, REPORT.txt, tools of sec. 1; runs/: w366*.txt
+(blank, B=R=366), tg_fresh/tg2/tg3/tg4/tg5/tg_big.txt (top grids), d0cmp.txt, d0tally_raw.txt, es1_h003.txt +
+es1_classes.txt, es1_M8.txt (135 rows), es2_h003.txt, es2_M8.txt, es3_real.txt, es4_ord.txt, e2e_2491.txt.
+Open: Coq (sec. 7); the top lemmas and the L0 = 3 mod 5 exit entry are checked empirically only; exit runs reach
+K <= 2.5e5 and R <= 12606 only; the counter-mode skip assumes round uniformity (as in C04/C7); h003's upper constant c.

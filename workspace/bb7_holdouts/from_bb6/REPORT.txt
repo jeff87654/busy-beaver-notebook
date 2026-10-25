@@ -1,0 +1,198 @@
+from_bb6: 7-state machines from 6-state bases + 1 new state (the M8 recipe one level down)      2026-10-23
+================================================================================================================
+VERDICT: NEGATIVE (both the +1-state construction and the deep 6-state scan). No 7-state machine built from a 6-state base plus one state comes anywhere near champ_231
+(sigma > 3^^^...^3 with 20 arrows, about f_omega(20)). Nothing was added to OPEN_CANDIDATES.txt.
+  * Pool (a): the 22,069 embedded 6-state rows contain no digit-list (Ackermann or rebuild) engine. dlscan2 grades none
+    of them. Only the 663 current BB(6) holdouts have an unknown status. The other rows are decided by bbchallenge:
+    known halters (16 of the top-20 BB(6) halters are in the pool) or proven non-halters.
+  * Pool (b): all 20 tables from the wiki's BB(6) top list were checked. The champion, #2 and #3 were checked against
+    stated facts. Their engines are fixed-depth Collatz/exponential machines (10^^x, or pentation for the champion).
+    4,560 extensions were followed in faithful small worlds. The best halters are "one more base round", about
+    10^^(x+1) or 2^^^6, at most f_5. That is below f_omega(20) by about 15 hyperoperation levels.
+  * Control: M8 is reproduced (yes). It is the only shape of record. In the champion jump world, the identical
+    enumeration of the old BB(7) champion + H finds M8 and its 4 twins as the only 2-escalation halters.
+
+POOL (a): EMBEDDED 6-STATE HOLDOUTS
+  Extracted:   22,069 rows of bb7_holdouts/chunks with G = "------" (pool6.txt). triage7's pf7 run passed 3,239 of them
+               and dlscan2 (1M/20k) graded NONE of the 3,239 (no row in hits_triage7.tsv or dl2_out).
+  BB(6) holdout list of 16 Oct 2026 (mxdys, 663 machines, wiki "Holdouts" page; dl_bb6/): all 663 are in pool6.
+               The other 21,406 rows are decided by bbchallenge. (Corrected: an earlier draft said "all proven
+               non-halting".) They split into two kinds:
+               - Proven non-halters: their undefined slots are never reached, so a redirect never halts.
+               - Known halters whose runtime exceeds the BB(7) enumerator's limit, including the champion, #2 and #3:
+                 these are (b)-type bases. The top 20 were covered in (b). The 14 halters found in the deep scan have
+                 sigma <= 1.6e6.
+               Pool with unknown status = 663.
+  Ackermann-class count: 0.
+    - dlscan2 on all 663 (not only the 126 pf7 passers): census 1M/20k --all and census 10M: zero grades
+      (dl2_h663.tsv, dl2_h663_10M.tsv). rank7 and reb7 need dlscan2 templates, so they have no input. No size ranking
+      is possible, and no row qualifies as a "first exhaustion of Ackermann class" or a rebuilder.
+    - Template-free growth probe (evo.exe, 14 log-spaced snapshots up to 3e8 steps; evo_h663_3e8.txt):
+      ENGINE? 95 | GROWLIST 211 | OTHER 237 | SMALL 120.
+      ENGINE? means the block count is stable and >= 3, the top block grows >= 5x, and the top blocks drop at least
+      twice. The BB(7) champion and champ_231 both pass it at 3e7. It is a loose filter: by eye the top ENGINE? rows
+      are irregular digit strings (cryptid-like) or periodic counters, and none has a clean level list.
+    - (c) Known 6-state Ackermann loopers: none found. A wiki search finds none, the holdout lists carry no class labels,
+      and dlscan2 finds none.
+  Construction for (a): not applicable. A redirect of a holdout's undefined slot changes nothing unless the holdout
+    halts. None of the 663 is known to halt, and none has a list engine that could support the M8 effect.
+
+DEEP 6-STATE SCAN (lead/user addition, 2026-10-23/24; deep6/, final6.tsv; no pf7 prefilter)
+  Pool: the 22,069 embedded rows plus the 20 top-list halters with their halt slot set to undefined (ctl6.txt): 22,089.
+    16 of the 20 halters are already pool rows.
+  Tools, all run on every row:
+    - dlscan2, census 2e7, 2e4 probes, --all
+    - dlscan, census 2e7, 1e5 probes
+    - nlp7 pilot, then nlp7f full at 1e7 macro steps --k2 (10x the BB(7) scan)
+    - small-instance halting probe at K=2 and at the pilot K (2e6 macro steps)
+    Candidates (3,065 rows: FR>0, or SRs>=10, or FAST) also got --life at 1e7 and the small probe at 2e7. The 1,162
+    small-probe halters also got --life at 1e7. HT ran on FR>0 rows with D>=4, at 5e7.
+  Template counts:
+    dlscan2: 14,050 rows have at least 1 inferred template, and 0 are graded (no CHAMPION, R4-SOME, HALT?, HALT-SOME,
+      CHECK or NOBOUNDARY).
+    dlscan: 22,089 rows with keys, full 0, partial 0.
+    So rank7 and reb7 have no input: there are no templated rows and no rebuilders.
+  nlp7 counts:
+    FR>0 69 | SRs>=10 2,151 | FAST (>= 1e10.8 base steps in 1e7 macro) 1,107 | small-probe HALT 1,162 | D>=4 280.
+    Natural HALT 14.
+    Calibration at 1e7 macro: the BB(7) champion gives nat 11.53, FR 12; champ_231 gives nat 12.65, FR 22, SRs 18.
+  Tiers (final6.tsv): 1 (FR>0 and D>=4) 10 | 2 (FR>0, small-halt) 12 | 3 (other FR) 47 | 4 (small-halt, D>=4) 37 | 5 rest 2,932.
+    HT (list hierarchy) is 0 for every tier-1 row. Every f_omega row in the BB(7) scan had HT >= 2. Most FR values are
+    powers of 2 (binary counters on slow, unaccelerated runs, nat ~7.9).
+  Halters:
+    - The 14 natural HALTs have exact macro-simulation sizes (ms.exe): sigma 2.6e5 to 1.53e6, 6.5e10 to 4.1e12 steps
+      (deep6/nathalt_sizes.txt). None is one of the 663, so all are already decided by bbchallenge. They are small and
+      not records.
+    - No BB(6) record candidate. A new record can only come from the 663 holdouts, because bbchallenge knows every
+      decided halter and the champion is the largest of them. In the 663 the scan found:
+        * 0 dlscan or dlscan2 fits;
+        * 0 natural halts;
+        * 4 FR>0 rows, all slow (FR 7-25);
+        * 1 row in tier 4, 1RB1RA_0LC1RF_0LD1LD_1LE1LC_0RB0RA_---1RE: a list of digits 4^j-1 (3, 15, 63, ...)
+          promoted level by level, D=194, small probe halts. This is an exponential-class counter with no refilled
+          digit and no hierarchy.
+      Eyeballed 663 rows show base-4 or base-2 counters and irregular cryptid strings.
+      Nothing was added to OPEN_CANDIDATES.
+  Loopers (decided, non-halting or unknown-size rows that are not in the top-20 halter list). The "best +1 bases" by
+  structure; none is Ackermann/f_omega by the pipeline's criteria (HT 0, no rebuild seen):
+    1RB1RA_1LC1LE_0LD0LB_0RA0RF_0LC0RA_1RD---  (+ twin 1RB---_0RC0RA_1RD1RC_1LE1LF_0LB0LD_0LE0RC)
+      This is the only champion-like engine. Its list is [162 (7 in the twin) | 4 | 4 | slow digit 212] plus an (a,b)
+      pair that moves at x1.5 per pass. The refilled digit is FR 671. It is a fixed list of about 4 levels: f_4 to f_5
+      class at most.
+    Long unary lists (tower type, items consumed one at a time; the L1 lesson from the BB(7) scan):
+      - 43,599 items: 1RB0LA_0LC---_1LE0RD_1RC0RA_1LF1LC_0LA0LB (+ 1RB1RC_ twin, + 1RB0RE_1LC0RA_1LD1LB_.. with 43,595)
+      - 14,207 items: 1RB1RA_0RC0RF_0LD0RC_1LE1LD_1RA0LC_0RA---
+      - 7,355 items: 1RB---_0LC0LE_1RC1LD_1RE1RF_1LB0RD_0LF0RA
+      - 2,635 items: 1RB---_1RC0RF_1RD1RB_1RE0RA_1LF1LB_1RD0LE (and 2 relabels)
+      Each is about x^^(list length) if it halted, which is below the BB(6) champion.
+    These never reach their undefined slot, so a slot redirect does nothing. A +1 state would have to redirect a DEFINED
+    transition: a halting peek, as M8's H is of F (tool: src/triples.cpp). Not done: no row qualifies as f_(omega+1).
+  Positive controls:
+    - dlscan and dlscan2 do NOT grade the BB(6) champion, Kropitz's machine, or any of the 20 top halters. They are not
+      digit-list engines, so no size can be estimated from a template.
+    - nlp7 flags Kropitz and #4-#6, #10, #11, #13, #15-#18 as FAST. The small probe halts Kropitz and 6 others at K=2.
+      #11, #16, #17 and #18 reach tier 4 (D 11,366 / 336 / 176 / 73).
+    - The champion and #2 are slow under nlp7 (binary counter) and the probe misses them at K=2-6.
+    So the deep scan reliably finds digit-list (Ackermann) engines but can miss champion-type (binary counter or
+    Collatz) halters. Their size cannot be ranked with these tools.
+  Verdict: NEGATIVE. No Ackermann-class 6-state machine (halting or looping), and no new BB(6) record candidate.
+  Cost: 19:43-00:43, 2 Idle lanes, about 8 CPU-h on a heavily loaded shared machine. That is more than planned: the 2e7
+  censuses and the 10x full budget were each about 1-2 h.
+
+POOL (b): PUBLISHED TOP 6-STATE HALTERS (wiki.bbchallenge.org/wiki/BB(6), table in tops6.txt)
+  Verification by literal simulation (src/vchamp3.py, worlds_k3.py, haltcfg.exe):
+    #1 champion 1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE (mxdys, 10^^10^^10^^8.1, between 2^^^5 and 2^^^6):
+       the exact tape of S1(3,7,2,6,63) (wiki start config) is reached at step 27965 (state E, head on the last cell of
+       LC(a,0)). Rst0 holds: every one of 450 grid configs S1(len0,0,0,a,b) halts at B1 within 70-160 steps.
+    #2 1RB1LC_1LA1RE_0RD0LA_1RZ1LB_1LD0RF_0RD1RB (mxdys, 10^^11010000), using wiki coding 1 (reversed):
+       (a,b,H3) halts at D0 after 33+8a+6b steps on all 72 grid points. Natural (a,b,H1) configs halt only in some
+       mod-3 classes, after up to 1.1e7 steps, as the wiki's a%3 loop says.
+    #3 Kropitz 1RB0LD_1RC0RF_1LC1LA_0LE1RZ_1LF0RB_0RC0RE (10^^15.6): from the blank tape, C(5)=1 0^5 11 0^5 C>
+       appears at step 45 and C(35) at step 551. This matches the rule C(4k+1) -> C((3^(k+3)-11)/2).
+       C(4k) halts at D1 for k=1..6.
+    #4-#20: each table runs from the blank tape, and its natural configurations halt at its single 1RZ slot (generic
+       worlds below). They were not checked against a stated number.
+  Engines: all are fixed depth. The champion has one binary counter LC, a mod-3 counter m, and two unary values a, b
+    (each Inc does b -> 2^b-1, each Rst1 adds one 2^^). Rounds are decided by mod-3 luck. #2 and #3 are exponential
+    Collatz maps with 1/3 or 1/4 halting odds per step, and the rest are 10^^x or below. None has a list whose length
+    sets the arrow level, which is what M8 needed: the old BB(7) champion has 11 levels.
+  Construction (src/enum7.py): halt slot -> {0,1}{L,R}G, G0/G1 = halt or {0,1}{L,R}{A..G}, at least one halt.
+    That gives 4 x 57 = 228 machines per base and 4,560 in all. G is only reachable through the redirect, so there
+    are no TNF duplicates.
+  Worlds (pre-halt configurations, run literally to their real halt):
+    rule worlds: champion 450 S1(len0<=6, 0, 0, a<=14, b in {0,1,3,7,15}); #2: 82 (H3 grid + natural H1 halts);
+    #3: C(4k), k=1..6.
+    generic worlds (all 20): 24 blank-tape snapshots up to 1e8 steps. Long blocks are shrunk to small sizes, keeping
+    residues mod 4 or 6 (3 variants) or randomizing them (21 variants). The shrunk configs are run at most 3e6 steps,
+    and the halting configurations are kept: 5-439 per base (wg/).
+    At the halt the head always sees the same local window in every world of a base (e.g. champion 01001011[1]1...).
+    So G's first read is fixed and does not depend on the parameters.
+  Follow: ext.exe, literal, 2e6 steps per (machine, world). Episodes = uses of the redirected slot more than 4 world
+    lengths apart. The 89 LOOP machines of the champion were re-run 2e7 steps on 42 worlds with b <= 1, where rounds
+    stay feasible.
+  Outcome per base (summary_b.tsv). IMM = G halts at once (score = base + O(1)). SOON = halt within the first episode.
+  REHALT = halt after >= 2 episodes. LOOP = no halt within the budget. Ratio = best sigma / world base sigma.
+    base  worlds  IMM  SOON  REHALT  LOOP  best ratio     base  worlds  IMM  SOON  REHALT  LOOP  best ratio
+    b1     450    120   19     2*     87     1.19         b11    318   124    6     1     97    14.30
+    b2     141    120   17     0      91     1.20         b12     27   128    7     0     93     1.00
+    b3      57    124    9     3      92     8.92         b13     11    70   19     7    132    16.60
+    b4       7    124    4     1      99     1.01         b14     12   124   24     3     77     4.93
+    b5      13    124    4     0     100     1.00         b15    387   120    8     4     96  1051 (base sigma 3)
+    b6      13    124    4     0     100     1.00         b16    439   124    6     1     97    40.09
+    b7      12     74    9    18    127    25.09         b17     96   124   10     0     94     3.04
+    b8       6    124   19     0      85     1.10         b18    428   124    6     1     97    41.76
+    b9       6    124   19     0      85     1.15         b19    174   124   14     0     90     3.42
+    b10     24    124    6     0      98     1.01         b20    204    70   28    27    103     6.83
+    (* b1's 2 REHALT rows re-hit B1 within a few steps: SOON-equivalent, ratio <= 1.14.)
+  LOOP machines (b1, looked at by tape dumps): the redirect leaves an S1-form tape (LH LC.. prefix, growing b block),
+    and the base engine resumes a new round. At later Rst0 events G sees the same local window, so its decision
+    repeats: every episode either loops or repeats the non-halting branch. 4 machines are in-place loops (ones ratio 1,
+    3e5-1e6 episodes). At 2e7 steps with b <= 1, none of the 89 LOOP machines halted after a rebuild.
+  Size estimates for halters: IMM and SOON give the base score plus at most x1.2, or plus a fixed factor.
+    REHALT means the base engine ran one or two more rounds and the gadget then halted. Small-world ratios are 3-1051.
+    At the real scale that is at most one extra iteration of the base's step map: 10^^(x+1) for #2-#20, and one more
+    2^^ round, about 2^^^6, for the champion. Even unboundedly many rounds of these engines stay below hexation.
+    f_omega(20) needs about 20 arrows.
+  Why it fails (cf. bb8_c231ext): the M8 effect needs a base whose exhaustion leaves a huge accumulator AND an engine
+    whose depth is set by a list length that the gadget can rebuild from that accumulator. No published 6-state halter
+    has such an engine, and no 6-state holdout shows one (dlscan2 zero, evo no level lists). One extra state can add
+    rounds of a fixed-depth engine, not levels.
+
+CONTROL (positive): M8 REPRODUCED: YES
+  The same enumerator (enum7.py) applied to the old BB(7) champion's E0 gives 260 8-state rows. This is exactly
+  collapse_search's set8. The rows were run in cfollow3.exe's champion jump world (R=66, 1e9 steps; o_m8ctl_R66.txt):
+    halters with 1 escalation 165, with 2 escalations 8, with >= 3 escalations 0.
+    The 2-escalation rows are M8 = ..._1LH0LC_..._1RG--- (Ks 11 -> 817, 3284 ones in this world), its twins 0RB---,
+    0RE--- (1LH) and 0RC---, 1RD--- (0LH) with 3283-3284 ones, plus 3 small rows (Ks 11 -> 12).
+    This matches collapse_search/notes.txt (set8 world R=66).
+  Caveat: the 6-state bases were followed by the literal ext.exe, because the jump world is specific to the champion
+    engine. A literal follower would show M8 as a LOOP (its 2nd round is f_omega(b)), so LOOP rows are the place an
+    M8-type machine would hide. That is why the LOOP rows were inspected (above). Their resumed engine is the
+    fixed-depth base engine, not a rebuilt list.
+
+COST
+  Wall time about 1.5 h (18:15-19:40). At most 2 Idle-priority processes (one short exception: a 1-minute non-idle
+  haltcfg test, stopped). Total about 2.5 CPU-hours: g6 0.9 h, evo 0.6 h, ext champion + loop 0.3 h, control 0.15 h,
+  stage_b 0.7 h, dlscan2 0.05 h. Tokens: moderate. All PIDs are in pids.txt. Two runs were stopped early to save time
+  (my own PIDs, logged):
+    g6 on pf7-PASS stopped at 620/3239 rows, replaced by evo (249 rows done before it was refocused on the 663).
+    g6 on pf7-FAIL stopped at 7,907/18,830 rows (decided rows; irrelevant to slot redirects).
+
+FILES (bb7_holdouts/from_bb6/)
+  notes.txt, pids.txt, REPORT.txt
+  pool6.txt (22,069), pf_pass.tsv / pass.txt / fail.txt, h663.txt + h663_7.txt (current BB(6) holdouts), dl_bb6/ (downloads)
+  g6_pass_3e8.tsv, g6_fail_3e7.tsv (partial), evo_h663_3e8.txt (+ evo_h663_cls.txt, eng663.txt), evo_h663_1e9_part.txt,
+    evo_pass_1e8_part1.txt, dl2_h663.tsv, dl2_h663_10M.tsv
+  tops6.txt (20 wiki tables), w_champ.txt, w_champ_b01.txt, w_k2.txt, w_k3.txt, wg/ (generic worlds, ext lists per base)
+  ext_champ.txt, o_champ_2e6.tsv, cls_champ.tsv, loop_champ.txt, o_champ_loop_2e7.tsv, cls_champ_loop.tsv
+  o_b2..o_b20.tsv, cls_b2/b3.tsv, summary_b.tsv, stage_b.log
+  ext_m8ctl.txt, o_m8ctl_R66.txt (control)
+  deep6/: deep.py, post6.py, collect6.py, extra.py, shows.py, k6.py; ch/ (chunks), dl2/ dl/ pil/ full/ small/ small20/ life/ ht/,
+    final6.tsv (ranked), nathalt_sizes.txt, shows32.txt (snapshots of the 32 FAST+structure rows), top32.txt, ctl6.txt
+  src/: g6.cpp (growth probe), evo.cpp + evo_cls.py (snapshot evolution and ENGINE? filter), feat.py, ext.cpp (extension
+    follower; EXT_DUMP=1 prints the final tape), haltcfg.cpp (run to halt, print the halting config), snap.cpp +
+    shrink.py + genw.py (generic worlds), enum7.py, mkin.py, cls.py, summ.py, stage_b.py, tm.py, vchamp3.py,
+    worlds_champ.py, worlds_k3.py, triples.cpp (peek-variant tool, unused), cfollow3.exe and dlscan2.exe (copies)
+  run.py, runevo.py, q.py (Idle-priority runners and queue)
+
+FOLLOW-UP (not done): halting-peek variants of decided loopers (see DEEP 6-STATE SCAN, Loopers).

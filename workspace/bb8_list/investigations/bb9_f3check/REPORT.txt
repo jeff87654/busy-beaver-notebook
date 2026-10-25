@@ -1,0 +1,144 @@
+bb9_f3check: an independent check of the BB(9) candidate f3_0RC                (checker agent, Opus, 2026-10-19)
+====================================================================================================================
+f3  = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI---_0RC1RF    (only undefined slot: H1)
+M8  = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---           (BB(8) record, Coq: bb8_resid/coq_m8 + bb9_c04_coq)
+twin f3_1RD = ..._0LI---_1RD1RF: the same views and the same ones count in the B=6 world (checked; nothing else done on it).
+
+0. VERDICT
+----------
+CONFIRMED as strong evidence, with one correction to y1-fable's bookkeeping.  No flaw found that could stop a proof.
+  * f3 halts in every one of M8's nine endgame classes, and from the cascade entry on it is step-equivalent to M8.
+  * Correction: the cascade start is L0' = (108 R''+47)/5, where R'' is the accumulator that feeds the FIRST top
+    rebuild (the near list 12R''+11).  It is not a function of R2'.  The parked list is 12 R2'+8 (12 R2'+11 in the
+    Coq D0f convention), with R2' = iter 2 (U (12R''+10)) 0.  In the R=366 world R'' = R2', so the two look the same;
+    worlds with R'' != R2' separate them (section 3).  The score claim is unaffected: the ESC clear depth is
+    12 R2' - O(L0'), so sigma(f3) > f_w(f_w(12 R''+O(1))) with R'' >= 2B, which is above M8's Coq upper bound
+    f_w(f_w(12B+27)).
+  * Gap to a proof (nothing open on the evidence side): the three pre-cascade phases have been checked over grids of
+    their parameters but not proved, and the cascade/endgame machine lemmas have to be regenerated for f3's table.
+    Recommended Coq route in section 6.
+
+1. TOOLS (all mine, written from scratch here; y1-fable's pkf7/pkf8 were not used for any result below)
+---------------------------------------------------------------------------------------------------------
+wsim.cpp/.exe  Literal byte-tape simulator.  It has one jump, the record's clearing rule R0.3 applied ONLY in its exact
+               form  Kt(ctx, X, 1^k; 1; r; t) -> Kt(ctx, 1^(k+1); 1; 3R+2; t)  (m = 1, d_1..d_k = 1, X = 1 mod 3, X >= 4).
+               A multi-digit suffix is cleared one digit at a time, each with its own R.  pkf clears the whole suffix with
+               one R; that differs only in the R values.
+               --R a,b,.. gives the R of each clear in order, --Rdef the rest.  --cnt is optional counter acceleration
+               (R4.c): only after two literal rounds with the same (k, X), C falling by 3 and no H0-left-0 event, it sets
+               C to 6 + C mod 3, and the last rounds run literally.  Counter rounds never enter H (H0one = H0zero = 0 in
+               every literal round), so skipping rounds hides no f3/M8 difference.
+               Logs: every read of 0 in state H whose LEFT cell is 0 ("H0L0", the only place f3 and M8 can differ), counts
+               of the others, every D0f moment (--d0: L, P, y, s in the Coq D0f convention, L = sketch L + 1), the halting
+               token D(d), and the ones count.  --kt starts from a constructed Kt configuration (tokens, gaps zN).
+lit.cpp/.exe   Two machines in lockstep from the blank tape, no jumps.  Reports the first differing step and any H visit.
+orbit.py       My model of the cascade map (g, consumption 3/11/4/6/6, key, rho = (P_key-35) mod 5).
+sweep.py, summ.py, grids.sh, launch.py, towres.py (power-tower residues).
+
+2. f3 AGAINST M8 FROM THE BLANK TAPE
+------------------------------------
+2.1 Local fact.  f3 differs from M8 only in H0 (0LI instead of 1RG) and the new state I.  When the cell left of the head is 1,
+    H0=0LI, I1=1RF, F0=1RG end in the same tape and position as M8's H0=1RG, in state G and 2 steps later.  So f3 = M8 until the
+    first H0 event with a 0 to the left.  H is entered only through E0.
+2.2 Literal lockstep (lit.exe, no jumps): identical for 3e9 steps, H never entered.  This is the champion's clearing that computes
+    B, which never reads E0.
+2.3 World runs (B=6, R=366: m8_w6.txt, f3_w6.txt).  Both reach J1 (the clear giving B) at step 2117.  The first H event of
+    either machine is the H0 at world step 8111: the far-left start of M8's first exhaustion, left cell 0.  f3 diverges there
+    (I0 = 0RC) and nowhere earlier.  My M8 run reproduces y1-fable's M8 control (HALT H1, ones 9866, class key 31/rho 4).  My
+    f3 run reproduces y1-fable's f3 (HALT H1, ones 18287).  The second divergence is the far-left start of the second
+    top-level exhaustion.  After that, no H0 event with a 0 to the left occurs, in this run or in any run below.
+
+3. THE PIPELINE OF f3 (each phase checked over a parameter grid, runs/grid_*.txt)
+--------------------------------------------------------------------------------
+  P0  blank ->* Kt(1^10,7; 1; 2; 0) ->CL Kt(1^11; 1; 3B+2; 0)                  (same as M8; 2117 steps)
+  P1  exhaustion #1, I0 path:  Kt(1^11; 1; 3B+2; 0) ->* Kt(0, 1, 6B-2, 13, 1^4; 1; 2; 3)
+        holds for every B in {1..10, 12, 13, 17, 100, 366, 2526, 3966} (runs/grid_exh1.txt), with exactly one
+        H0-left-0 event (the far-left start) and two H0-left-1 events.
+  P2  two clears:  13 (depth 4, b = 0) -> R_a;  then 6B-2 (depth 5, b = R_a) -> R'' = iter (2B-1) (U 5) R_a  (>= 2B)
+        -> Kt(0, 1^7; 1; 3R''+2; 3)
+  P3  top rebuild:  Kt(0, 1^7; 1; 3R+2; 3) ->* Kt(0, 0, 7, 1^(12R+10); 1; 2; 3)  for R'' = 1..7, 10, 16, 41, 366, 3966
+        (runs/grid_top.txt).  H is never entered in this phase.
+  P4  clear on 7 at depth 12R''+10 (b = 0) -> R2' = iter 2 (U (12R''+10)) 0 -> Kt(0, 0, 1^(12R''+11); 1; 3R2'+2; 3)
+  P5  exhaustion #2, I0 path (the top-level entry):
+        Kt(0,0,1^(12R''+11); 1; 3R2'+2; 3) ->* D0f(t=4, L=36R''+38, P=2, y=6R2', s=1)            [M8's ATE has L=3N+14, y=6R+2]
+        ->(top-level sub-step, L_sketch = 36R''+37 = 3 mod 5 when R'' = 1 mod 5)
+          D0f(t=7, L = L1'+1, P = 12R2'+11, y = (L1'+17)/3, s = 0),   L1' = (108R''+47)/5
+      Checked on all 70 grid points with R'' = 1 mod 5 (R'' in {1,6,11,16,21,41,66,91,116,366} x R2' in {6,7,8,9,10,50,366}):
+      0 mismatches (runs/grid_exh2.txt).  Also checked on the full world runs with (R'', R2') = (366,366), (366,3966) and
+      (3966,366).
+      This is M8's exhaustion #2 with 36B+73 -> 36R''+37 and R2 -> R2'.  After it the first cascade value is
+      L1' = (108R''+47)/5 (= 0 mod 5 when R'' = 16 mod 25, which is the real residue: an immediate stop, the "J5 form"
+      Kt(0,0, A, 1^(12R2'+8), 0,2,z2, X, 1^(k'-1); 1; 2; 9) with A = (L1'+26)/3, k' = (L1'-25)/5, X = k'+7).
+      Distinct-R worlds: (R''=366, R2'=3966) gives the same orbit (1578 / A = 2647) and parked 47600 = 12*3966+8.
+      (R''=3966, R2'=366) gives L1' = 85675 = (108*3966+47)/5 and parked 4400.  So L depends on R'', P on R2'.
+  P6  M8's cascade and endgame (section 4).
+  Real residues (towres.py): every clear of depth >= 4 gives R = 13338366 mod 18144000 (so 366 mod 3600, 6 mod 2520).  B is
+  the same.  Hence R'' = 1 mod 5 and = 16 mod 25 (the U_5 output, 2R''+4 = 2^^6(..) = 36 mod 50).  L_start = 36R''+37 is odd
+  and 1 mod 3, so by the parity invariant every key lies in {31,37,43,49,55}.
+
+4. CLASS COVERAGE: f3 = M8 FROM THE CASCADE ENTRY, ALL NINE CLASSES (sweep/, sweep_P4400_summary.txt)
+-----------------------------------------------------------------------------------------------------
+Start = the J5 form with ctx "0 0 A", A = (L1'+26)/3, parked 4400, t = 9.  L1' ranges over values = 25 mod 30, chosen by
+orbit.py to hit every (key, rho); 3 starts per class, 27 starts, f3 and M8 run from each.  Result: in all 27, f3 and M8 both
+HALT in H1 with the SAME ones count; f3 shows zero H0-left-0 events; the predicted (key, rho) equals the observed key and
+P_key; the halting token is the Coq table's (31/0,31/4: d=0; 31/1,31/3: d=1; 31/2: d=6R=2196; 37: 7; 43: 9; 49: 3;
+55: 8+6R=2204).  A second sweep with long orbits (L1' = 200005..271945, 16 cascade steps with several stops, one start
+per class, sweep_long.log) gives the same result in all 9 classes: 36 starts in total, all f3 = M8.  Full world runs add:
+(366,366) key 49, (366,3966) key 49, (3966,366) key 31/rho 2.  All halt.
+So the claim "exactly M8's cascade" holds.  The token lists have M8's shape: the cascade family
+Kt(ctx, A, 1^P, 0,2,z2, X, 1^(k-1); 1; 2; t), and at entry the D0f form of M8's ATE with (L+3, y-2).
+Coq invariant: M8's reachP needs P >= Pm + L.  At entry P = 12R2'+11 and L ~ 21.6 R'' << R2', so Pm = 12R2'+11-L1' works,
+and the invariant is preserved (L drops by >= 17 per step for L >= 60, P by <= 11).
+
+5. THE THREE QUESTIONS
+----------------------
+(a) Early halt?  No, in every phase that was checked.  H1 is the only undefined slot and H is entered only from E0.  Clears
+    never read E0 (the champion's rules; lockstep check 2.2).  The literal phases P1, P3 and P5 were followed over the grids
+    above with no H1 read.  The cascade and endgame are M8's (section 4).  Remaining risk: P1, P3 and P5 are checked on
+    grids, not proved.  They are uniform in every grid, including non-real residues (P1 for every B >= 1, P3 for every
+    R'' >= 1).
+(b) Class forcing by R2'?  It is not needed.  All nine classes halt (section 4) and the real class is never used.  R2' only
+    sets the parked length (rho), and R'' only sets the orbit.  The one residue fact used is R'' = 1 mod 5, to choose the
+    top-level step lemma.  It is a theorem about U_5 outputs.
+(c) Same cascade?  Yes (section 4).  The bookkeeping correction is in section 0.
+
+6. RECOMMENDED COQ ROUTE (reuse bb9_c04_coq + bb8_resid/coq_m8)
+--------------------------------------------------------------
+ 1. Machine lemmas for f3's table.  Re-run the C04 generators (bb9_c04_coq/gen: gen_step.py, gen_grp.py, mexp) with f3's
+    table for every group used from the cascade entry on: G_rules (R1-R3), G_sub2..5, G_stop, G_entry, G_end, CBtail,
+    G_p14_*, G_p20_*, k31's K_rf/K_x/K_e1/K_e2.  Same statements (D0f, Kt, Hc); only the step counts change, because each
+    M8 H0 step is 3 f3 steps.  If some H0 event read an abstract left cell, the symbolic executor would stop there; the
+    sweep says this does not happen.  This is preferable to a simulation proof: a "guarded" f3-M8 simulation would need the
+    left cell of every H0 event in the abstract C04 lemmas.
+ 2. New prefix lemmas (three parametric groups, each like C04's 51-stage R1):
+      EXH1-I0 : Kt(1^11;1;3b+2;0) -->* Kt(0,1,6b-2,13,1^4;1;2;3)          for all b >= 1
+      TOP     : Kt(0,1^7;1;3R+2;3) -->* Kt(0,0,7,1^(12R+10);1;2;3)        for all R >= 1     (no H at all)
+      ATE-I0  : Kt(0,0,1^(12R+11);1;2+3S;3) -->+ D0f 4 (36R+38) 2 1 (6S) l0    for all R, S (l0 = the far-left side)
+    plus the top-level sub-step for L = 3 mod 5 at s = 1 (M8's reach_top used residue 4).  C04's G_top is the template.
+ 3. Clears: the record's CL lemma (CDPx/CHx in Step.v) twice for P2 and once for P4.  R'' = iter (2b-1) (U 5) (iter 4 (U 4) 0)
+    (check the iteration counts against the CL lemma's d+1 convention: X = 3d+4 gives d+1 iterations).
+ 4. Arithmetic: R'' mod 5 = 1 (Euler on the tower, as Resid.v does for Bx).  L_start = 36R''+37 is odd and = 1 mod 3.  Feed
+    Cascade.cascade_from_start with reach := f3's D0f family and Pm := 12R2'+11 - L1'.
+ 5. Score: EndU's lower half with R2 Bx -> R2' and depth_ge_R2 -> K >= R2'.  Then N > f_w(f_w(12R''+12)).  R'' >= 2B (each U
+    iterate increases), so N > f_w(f_w(12B+27)) > every M8 halting count (coq_m8 m8_fgh_bracket).  The upper bound is not
+    needed for the record claim.
+ Effort: comparable to C04's dev (the generated groups dominate, about a day of Idle CPU), plus the three new groups.
+
+7. FILES (bb8_list/investigations/bb9_f3check)
+---------------------------------------------
+REPORT.txt, wsim.cpp/.exe, lit.cpp/.exe, orbit.py, sweep.py, summ.py, grids.sh, launch.py, towres.py, pids.txt,
+m8_w6.txt, f3_w6.txt (B=6/R=366 worlds), f3_RA.txt (R''=366,R2'=3966), f3_RB.txt (R''=3966,R2'=366), bpar_B366.txt,
+runs/grid_exh1.txt, runs/grid_top.txt, runs/grid_exh2.txt, sweep/*.txt + sweep_P4400_summary.txt (27 starts x 2 machines),
+faith25200.txt (world with every accumulator = 7566 = real residue mod 25200; status in section 8).
+
+8. FAITHFUL WORLD mod 25200 (B = R_a = R'' = R2' = all R = 7566)
+---------------------------------------------------------------
+DONE.  Every accumulator = 7566 (the real residue mod 25200: mod 3600 AND mod 7, which the 366 worlds do not match).
+Literal apart from 11 R0.3 clears; no counter acceleration was used.
+  J2/J3  "0 1 45394 13 1*5"   (6B-2 = 45394)
+  J4     top rebuild "0*2 7 1*90803" (12R''+11)
+  H0-left-0 events: exactly two, the far-left starts of exh#1 and exh#2 (world steps 2.07e9 and 5.57e10)
+  D0     L=272414 = 36R''+38, P=2, y=45396 = 6R2', s=1;  then L=163436 = L1'+1, P=90803 = 12R2'+11, y=54484 = (L1'+17)/3
+  J5     "0*2 54487 1*90800 0 2 z2 32689 1*32682"  (A = (L1'+26)/3, k' = (L1'-25)/5)
+  cascade 98041 -> 58831 -> ... -> 109 -> key 55 (orbit.py predicted key 55), ESC on 1^90685 with C=6, then the counter
+  HALT H1 at world step 4.198e11, ones 502574, halting token d = 45404 = 8 + 6R (key 55's Coq ending), H0zero = 0 after exh#2.

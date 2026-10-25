@@ -1,0 +1,1 @@
+{"i": 550, "m": "1RB1RD_1RC0RA_1LA0LF_0RB0LE_0RF0LE_1LC0LG_---1RF", "tmpl": "L,F,P=1,u=01,s=0,d=1d+0,b=2b+1,S=0", "cls": [94], "M": 60, "runs": [{"X": "D0", "s": 0, "c": 34, "v": "g0", "snap": {"step": 13, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "550_D0_c34_g0.txt"}], "time": 1.2}

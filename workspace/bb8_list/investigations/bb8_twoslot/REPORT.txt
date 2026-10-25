@@ -1,0 +1,136 @@
+bb8_twoslot REPORT -- two-change 8-state neighbourhoods of the strongest 7-state engines (agent twoslot8, Opus, 2026-10-24)
+=========================================================================================================================
+STATUS: PARTIAL (stopped at the lead's wrap-up request).
+  * Base (a) and base (c), engine-intact children: DONE, NEGATIVE.
+  * Base (b) champ_231/232: stage 1 and jump battery done; world follower built and validated; world trees NOT run.
+  * Diverged (engine-modified) children of all bases: NOT screened (see UNFINISHED).
+  * Nothing appended to OPEN_CANDIDATES.txt.  No record candidate.
+
+1. SPACE
+  Parent = base table with 1 or 2 of its 14 slots changed (32 actions with targets A..H, or halt), with at least one changed
+  slot pointing to the new state H.  H's two slots are lazy (TNF-style): branched over halt + 32 actions when first read;
+  halt-only if no other halt could remain.  Base (c) = M8 with exactly one of its 16 slots changed (no new state).
+  (a) BB(7) champion 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF : 21,896 parents
+  (b) champ_231 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB        : 21,896 parents
+      champ_232 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB        : 21,896 parents
+  (c) M8 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---         : 480 parents
+
+2. PIPELINE
+  Stage 1 (tools/tslit.exe, src/tslit.cpp): literal blank-tape lockstep against the base's (write,move) trace for 1e7 steps,
+    lazy branching on H.  Leaf S = same trace for 1e7 steps (engine intact in level 0); X = diverged; H = halted.
+  Jump battery: tools/batt.exe with battery1.txt (3780 small Kt configs, tail t = 0..6, 10 far contexts, JCL/JR1 shapes);
+    tools/batt231.exe with battery231b.txt (208 Kc configs) for champ_231/232.  Child vs base lockstep inside the jumped
+    region only (trace cut at the jump target).  Tried from every candidate canonical state (clone splits), lazy reads
+    branched.  This validates that the follower's jumps are the child's real behaviour.
+  World follower (a)/(c): pkf8t (from bb9_topmap_all) in W2 (--B 66 --cls 66 --mod 150), driven by tools/wtree.py with TNF
+    branching on lazy slots.  tools/pkf8q.exe = pkf8t + --qset (canonical moment in a clone state); md5-identical on M8.
+  World follower (b): tools/c231f.exe (src/c231f.cpp) with the Coq rules R1ITER and CDP (C231_rules2.v, C231_clear.v).
+    Exact while < 1e9, else a representative R.  --fixed: R = max(RC, m+1) rounded into 39 mod 81, so 2R+3 = 0 mod 3^5.
+  Halt reachability (tools/haltreach.py): static state reachability, then bb8_resid backref_s at depth 40.
+  Escalation count (tools/rank.py): a clear with k >= 300 that exceeds the previous clear's k by >= 100.
+
+3. CONTROLS
+  * POSITIVE CONTROL PASSED.  M8 was rediscovered from base (a) as tree leaf a0231.H01RG (E0 = 1LH, H = 1RG ---).
+    W2 skeleton 11 817 168 12 753 445x151 446x2, HALT H1, ones 3284, 2 escalations: M8's two rebuilds, halt at the 3rd
+    exhaustion.  Its 4 known twins (E0/H0 = 0LH/1RD, 0LH/0RC, 1LH/0RE, 1LH/0RB; bb8_resid list) give the same skeleton.
+  * NEGATIVE CONTROL PASSED.  The set8 Q5 four-escalation rows (E0 = xRH, H0 = halt; e.g. ..._0RH0LC_.._---0LC) run as
+    escalating loopers (11 3x2 779x10 781x4 782 ...).  They are not flagged; haltreach/backref finds their halt UNREACHABLE.
+  * Z1/Z2 (OPEN, probable loopers) reappear inside my space (E0 = 1LF / 0LC with G0 -> 0RH, H = ---0RF).  They follow
+    M8's trace, keep escalating, and do not halt in 5e9 W2 steps (a0228, a0188).  This matches the y1-deep verdict.
+  * c231f: champ_231 halts at its exhaustion with ones = 2b+7 (the Coq formula).  c231ext family X (C1 = 0LH, H = ---1RB)
+    rebuilds 1^(b-19) forever.  0RH/1LE and 1LH/1LC halt in round 1, as in bb8_c231ext.
+  * batt: the champion and M8 PASS.  A 3e4 step cap per config gives the same verdicts as 3e5 on a 400-row sample.
+
+4. RESULTS
+  Stage 1 counts           S (engine intact)   X (diverged)   H (halted before divergence)
+    (a) champion                 357             210,939          11,656
+    (b) champ_231                465             184,029           9,434
+    (b) champ_232                459             183,486           9,311
+    (c) M8 one-slot               64                 394              22
+  S-parent shapes: set8 itself (E0 -> xLH/xRH); clone splits (H = a copy of D/F/G/A/B/C on one entry, the original's slot
+  freed); the halt slot E0 (C1) freed with a guard halt in the clone's rare slot (Z-type G splits, F1/D-clone splits).
+  Battery on the 421 S parents of (a)+(c): 346 PASS.  68 fail only at cfg 24 (JR1 m=3, r=0).  7 fail at t = 1 but keep
+  E0 = halt, so they stop at the champion's exhaustion (<= champion).  (b): 431/465 and 425/459 PASS; all FAILs are at b = 0.
+
+  World tree (a)+(c): 1637 leaves (runs/wac.tsv; ranking in runs/wac_rank.txt).
+    Halters by escalation count:
+      0 esc: 385 (BB(7)-champion level at most)
+      1 esc: 0
+      2 esc: 7 = M8 + 4 twins + 2 base-(c) copies, all with M8's exact skeleton and ones 3283/3284
+      >= 3 esc: NONE
+    1245 non-halting leaves: 956 NOHALT_STATIC (no halt slot in a reachable state), 189 NOHALT_BACKREF, 100 POSSIBLE.
+    The 100 POSSIBLE rows got deep W2 runs (runs/deep1.tsv, 99 done; maxt 5e9, 30 tops, wall 150 s):
+      * 7 halt, all with 0 escalations (11 12x134, then H1).
+      * Arithmetic rebuild loopers (K' = K + 12R + c with t constant, e.g. 807 1603 2399 ...).  In 30 tops the step is
+        coprime to 25, so every residue mod 25 is visited without an exit; W2 is faithful mod 25.  Non-halting shape.
+      * Q5-type escalators and Z-type M8-continuers (E0 in {0LC, 1LF, 1RC, 1LC, 1RE, 1LA, 0LA, 0RA, 0LF, 0RB, 1RG, 1LG}):
+        no halt within budget.
+      * a0230 (E0 = 1LG, G0 = 0RH, H = ---0RF) is the only unresolved row of note.  It runs a shrinking counter cascade
+        (764x123 461x123 ... 50x123, END at 2000 jumps) and its halt is POSSIBLE.  It has 1 escalation before the cascade,
+        so even a halt there is far below M8.
+      * The rest stop early in W2 without any big clear (0 escalations).
+  Survivors by round count (halting, (a)+(c)): round <= 1: 392; 2 escalations: M8 family only; >= 3: none.
+  ANSWER for (a) and (c), engine-intact children: NEGATIVE.  No machine beats M8.  Nothing halts after >= 3 rounds, and no
+  2-round halter has a larger first list than M8: all 2-round halters have M8's 817 = 12B+25 in W2.
+
+5. WHY (short)
+  Every slot of the champion is an engine slot, so a second change keeps the engine only as a clone split or a guard.  The
+  battery shows that no child with E0 -> H plus one more change alters a jumped (clearing/R1) context.  These children
+  therefore differ from set8 rows only in the literal exhaustion processing, where H is the only free state.  That is the
+  set8 situation, whose best row is M8.  The extra freedom (E0 freed by a clone split) yields only the Z mechanism (halt
+  when G crosses 00), arithmetic rebuild loops, or round-1 halts.
+
+6. CPU
+  About 13 core-hours at Idle priority: stage 1 ~0.2 h, an aborted full-budget stage-1 run 1.5 h, batteries ~0.6 h,
+  world tree ~6.5 h, deep runs ~4.5 h.  All own PIDs are in pids.txt; none are left running.
+  Note: early pkf8t launches opened console windows; the lead patched launch.py/wtree.py (creationflags 0x40|0x08000000).
+
+7. UNFINISHED / NEXT STEPS (exact commands, run from this folder; launch via tools/launch.py)
+  (1) Diverged (X) parents.  A child that diverges in level 0 but keeps the champion's rules has a different START and
+      could give "M8 with a larger first list".  Screen them with the battery (lazy branching, qset), then send PASS rows
+      to the world tree:
+        tools/batt.exe 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF 3e4 tools/battery1.txt runs/a1_X.txt > runs/batt_a1X.txt
+        tools/batt.exe 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF 3e4 tools/battery1.txt runs/c1_X.txt > runs/batt_c1X.txt
+        tools/batt231.exe 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB 3e5 tools/battery231b.txt runs/b231_X.txt > runs/batt_b231X.txt
+        tools/batt231.exe 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB 3e5 tools/battery231b.txt runs/b232_X.txt > runs/batt_b232X.txt
+      Sample: 15/400 base-(a) X parents PASS, all of them A0-changed starts; about 4 s per 400 rows.  Then:
+        grep PASS runs/batt_a1X.txt | awk '{print "x"NR, $2}' > runs/wx.lst
+        WEXE=pkf8q.exe python tools/wtree.py runs/wx.lst runs/wx.tsv runs/wx 3 25 --qset <qset> --B 66 --cls 66 --mod 150 --needk 2e7 300 --jumps 200 --maxt 3.5e8 --maxtops 4 200 --view 150
+      (qset per row from its PASS line.)  X parents that FAIL the battery are not champion-rule engines.  A dlscan2 pass
+      (../../neighbors/dlscan2.exe LIST OUT 1000000) on the ones that survive 1e6 steps would cover other Ackermann engines.
+  (2) Base (b) world trees: 924 S parents in runs/wb.lst.  Rerun batt231 v2 first to get the qset for clone splits:
+        tools/batt231.exe <base> 3e5 tools/battery231b.txt runs/b231_S.txt > runs/batt231_v2.txt      (and the same for 232)
+        WEXE=c231f.exe python tools/wtree.py runs/wb.lst runs/wb.tsv runs/wb 3 30 --fixed --rc 100 --cls 39 81 --maxt 1e9 --jumps 400 [--qset ..]
+        KESC=60 DK=40 python tools/rank.py runs/wb.tsv
+      Run a second world with the other parity (--cls 120 162 vs 39 162), because a_f's parity is not tower-stable (c231ext).
+  (3) Rerun the (a) S rows whose battery qset is not {B} with pkf8q --qset.  First run tools/batt.exe on runs/ac_S.txt.
+  (0) deep1b (99/100 rows done; the driver resumes and skips finished ids):
+        python tools/launch.py deep1c -- python -u tools/wtree.py runs/deep1.lst runs/deep1.tsv runs/deep1 3 150 --B 66 --cls 66 --mod 150 --jumps 2000 --maxt 5e9 --maxtops 30 200 --view 150
+      Check first that tools/wtree.py contains creationflags=0x40 | 0x08000000 (grep 0x08000000 tools/wtree.py).
+  (4) a0230 =1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LG0LC_1RG1LD_0RH0RF_zzz0RF: give it a longer W2 run (jumps 2e4) to see whether
+      its shrinking cascade ends in a halt.  At most a 1-escalation halter, not a record.
+
+7b. CLONE-SPLIT / QSET BLIND SPOT (found and fixed mid-run)
+  A clone-split child can reach the canonical moment in its clone state.  For base (a) that is H with H0 = B0's move; for
+  champ_231 it is F or H with E0's move.  pkf8t and c231f only jumped in the base's state (B, resp. E), so such children
+  ran literally and stalled.  The battery also started in the wrong state, which failed them spuriously.
+  Fix:
+    * src/pkf8q.cpp = pkf8t + --qset; the state is kept across a jump.  It gives md5-identical output on M8.
+    * c231f takes --qset.
+    * batt and batt231 try every candidate start state whose 0-slot makes the base's Q0 (write,move), and print "PASS ... qset=XY".
+  Status: the (a)/(c) world tree ran BEFORE the fix.  Rows whose K-state is not B may have stalled in W2, mostly as STOP_NEEDK
+  rows.  The rerun is item (3).
+  OPEN_CANDIDATES.txt: nothing appended (no machine with strong evidence of >= 3 rounds then halt).
+
+8. BLIND SPOTS
+  * All X (diverged) children of all bases are unscreened (item 1).  This is the main open part of the task.
+  * Base (b) world behaviour is unscreened (item 2).
+  * W2 is a fixed-R world (faithful mod 150).  2-escalation halters were not rechecked in W3.  Arithmetic loops are judged
+    by "all residues mod 25 visited without an exit".
+  * The battery covers finite local contexts (t <= 6, small r).  68 S parents fail only at JR1 with r = 0; they were run
+    anyway, and none is an escalating halter.
+  * Budget-limited lazy leaves keep unread slots (zzz).  Their halt reachability rests on backref alone (depth 40).
+
+FILES: NOTES.md (log), pids.txt, src/ (tslit, batt, batt231, c231f, pkf8q), tools/ (exes, wtree.py, rank.py, haltreach.py,
+launch.py, batteries), runs/a1.txt b231.txt b232.txt c1.txt (stage 1), runs/*_S.txt *_X.txt, runs/wac.tsv wac_rank.txt
+wac_reach.tsv deep1.tsv (world results), runs/batt2_*.log batt231.log batt232.log (batteries).

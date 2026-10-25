@@ -1,0 +1,1 @@
+{"i": 703, "m": "1RB1RG_1LC0LC_1RA1LD_0RE1LB_---1RF_0RE1LA_0RF1RC", "tmpl": "L,C,P=-,u=110,s=10,d=2d+0,b=2b+0,S=111", "cls": [12], "M": 60, "runs": [{"X": "A0", "s": 0, "c": 12, "v": "g0", "snap": {"step": 0, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "703_A0_c12_g0.txt"}], "time": 1.0}

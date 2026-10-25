@@ -1,0 +1,153 @@
+reb7 REPORT: rebuild-then-halt triage of the BB(7) holdout rebuilders (2026-10-23)
+=====================================================================================
+ANSWER: NEGATIVE. No 7-state machine in the pool rebuilds its digit list and then halts at a record level.
+  1797 seven-state rows were classified (all rebuild-family grades of dl3_hits, dl3_triage7, the 1RB1LA set and the
+  WHOLE finished BB(7) scan: the hits_triage7.tsv rows not yet run through dlscan3 were run now, pools c/d/e).
+  Every row ends in: NEVER-HALTS 762 | NOT-RECORD-CLASS 1003 (915 low growth, 81 polynomial/additive, 7 counter /
+  fixed depth / f_4) | HALTS 32, all small or already known (below). No alert was sent to main.
+  N2 = 1RB0RC_1RC0RA_1LD0LB_1LE0LA_0LF---_1RC0LG_1LF1LA and its mirror 1RB1RE_1LC0RA_1RF0RD_1LC0LE_1LD0LC_1RG0RE_0RB---
+  (appended to OPEN_CANDIDATES by reb7) are now PROVED NEVER-HALTS in Coq (agent n2-decide, segment parity invariant:
+  bb8_list/proofs/BB7_N2_1RB0RC.v and BB7_N2m_1RB1RE.v, check.py PASS, re-run by the lead; OPEN_CANDIDATES has the
+  SETTLED update).
+  8-state side pool (23 rows, bar M8): no multi-rebuild halter; H8 halts small (below); no row unsettled.
+
+UPDATE (widened scope, 2026-10-23 later): rank_all.tsv rows were all already in the pool; sample1pct +1 row;
+  prefilter/hits_dl2_1M.tsv: 1690 rows not in the pool, all WITHOUT any dlscan2/dlscan3 fit (also with a 2e7 census).
+  Template-free growth probe: 1611 bounded (longest periodic block <= 100 cells after 3e8 steps: counters), 79 grow.
+  The 79 (pool7f.tsv): 18 NEVER-HALTS via reb7 with the nearest pool sibling's template; counters subagent (pf/):
+  33 NEVER-HALTS (inferred templates + reb7, CHECK-type rebuilders), 12 PROVEN translated cyclers after their 2nd
+  exhaustion (an escalation re-codes the unary block with a log-type counter, then cycles: period ~8.4e6, shift 16),
+  7 NEVER-HALTS strong evidence (tape surgery -> same cyclers; caveat: surgery changes y, and y-independence of the
+  cycler was checked only on the proven representative), 7 open rows and 2 classified at the end (below):
+    open, likely translated cyclers, not record class (doubling counter, exhaustion ~1e15 steps) -- 7 u=10/s=1 rows:
+      1RB1RF_1LC0RB_0LE1LD_1RB0LG_1LF0LB_1RA0RC_---1LC
+      1RB0LG_1LC0RB_0LD1LA_1LE0LB_1RF0RC_1RB1RE_---1LC
+      1RB1RF_1LC0RB_0LE1LD_1RB1LG_1LF0LB_1RA0RC_---0RE
+      1RB1LD_1LC0LE_1RD0RA_1RE1RC_1LF0RE_0LB0LG_---0LA
+      1RB0RE_1LC1LE_1LD1LB_1RE0LF_1RF0LE_0RA0LG_---1LA
+      1RB0RE_1LC1LE_1LD1LB_1RA0LF_1RF0LE_0RA0LG_---1LA
+      1RB0RE_1LC1LE_1LD1LB_1LA0LF_1RF0LE_0RA0LG_---1LA
+    (siblings of the 12 proven translated cyclers; tape surgery inconclusive for these 7);
+    The 2 rows outside that family, classified at the end (two/; literal runs + template-free probe):
+      1RB0LF_0RC0LG_1LD1RE_0RC---_1LA0RB_1RG0RD_1LE0RF (u=110 runs): NEVER-HALTS(residue)+Q2. It is an exact relabel
+        (mirrored, other start state) of 4 pool machines that never halt (e.g. 1RB0LC_1LC0RE_0LG0RD_1RA0LE_1LD0LF_0LG---_
+        1RF1LA). With the relabel-derived templates L,G,P=11,u=110,s=0,S=110 and L,F,P=11,u=011,s=0,b=2b+0,S=0 the
+        pipeline fits D b->b+2 (resp. b+1), R2 a=b+1 (resp. 2b), borrows with 1-tails, and an exhaustion that always
+        rebuilds a list ~V long ([0,0,1^V] / [0,1^(2V)]), no halting class; lockstep 0 misses, random 7/7. An
+        f_(omega+1)-type looper that never halts.
+      1RB0RD_0LC1RF_0LA1LD_1LE1LB_1LA0LG_0LA0RA_---0LE: NOT-RECORD-CLASS (fixed depth). Literal snapshots up to
+        6.9e10 steps: tape = 1111 (011)^A [0] (011)^B (101)^C plus a constant (011010)^1949 tail; the 2-3 blocks are
+        transferred into one another (additive, +5 per unit: [0,0,779] -> b=3902), the block count stays 2-3 from 1.7e7
+        to 6.9e10 steps, and the span grows like t^0.47 (680k cells). Fixed number of counters, no list growth: at most
+        about f_3, far below the champion. Halting not decided (no halt within 7e10 steps).
+    None of the 9 is record-relevant; nothing appended to OPEN_CANDIDATES.
+  Correction: the 8-state row 1RB0LE_0RC1LF_1LD0RD_0LA---_1LA1RG_1RB1RF_0RH0LG_1RE1LD is NOT unsettled: it is an
+  NGramCPS PASS with a Coq file (bb8_list/investigations/bb8_m7_0RB0LC_ctl/ngcps_results.tsv).
+  The 39 small-block CHAMPION/HALT-SOME NOFIT rows were settled individually (grows/ TASK4): exponential-time
+  counters, 1e10 literal steps each without halt, span 50-157 cells (sigma <= span ~ log steps): NOT-RECORD-CLASS.
+  Totals now (final_all_verdicts.tsv, 1876 rows): NEVER-HALTS 833 (incl. N2 + mirror, Coq-proved) |
+  NOT-RECORD-CLASS 1004 | HALTS small/known 32 | open, likely translated cyclers, not record class 7. Engine fixes: 300 s time budget per evaluation; long exact rebuild counts via the periodic path.
+
+HALTS FOUND (all below the champion, none record class)
+  BB(7) champion, its twin 1RB0RA_1LC1LF_0LD0LB_1RE0LB_1RA---_1RG1LE_0RG0RF, champ_231, champ_232: halt at the FIRST
+    exhaustion in every class (known; reproduced as controls).
+  1RB1RD_1LC0RD_0LG1LD_1RA0RE_1LF1LA_0LC1LE_---0LE (dl3 LOOPER): 4-position marker list [0,0,3,13]; its exhaustion
+    converts the marker into a top digit: [V-2,1,1,1] in the prefix-free template (FIXED length 4, not a growing
+    rebuild), whose exhaustion always halts. HALT at the 2nd exhaustion, class-robust; size about 3^^^^(3^^4)
+    (5-6 arrows), far below the champion (13 arrows).
+  1RB1RF_1RC0RF_1LD1LA_0LE1LE_1LG0LA_1RE0RC_---1LC: 3-digit champion-like list, halts at the 1st exhaustion (level ~3).
+  1RB1RG_1LC0LC_1RA1LD_0RE1LB_---1RF_0RE1LA_0RF1RC: one literal small rebuild [13,0,0] (at b=12), then the next
+    exhaustion halts in every class: about 2^^^13 (level ~3-4).
+  25 HALTS-SMALL (subagent analyses, S4): A1/A2/B1 (rank/f3) and 22 siblings/relabels from the finished scan:
+    A1/A2 relabels halt at the 2nd exhaustion (level ~3); the A-prime variant (E1 differs) halts in round 2,
+    about 3^^(3e14); B1 siblings (identical rules) end in [0,0] -> HALT, at most triple exponential; the "R7" rows
+    (1RB1RE_1LC1LB_...) halt at every exhaustion, about 3^3^120. All bounded depth (ABSORB rule [..,z,0,0;a] = [..;a+z+2]).
+  8-state H8 = 1RB1RG_0LC1LH_1LD1RC_---0LE_0RF0LA_0RA1LH_1RA0RC_1RA1LF: marker list of 11 positions; its exhaustion
+    rebuilds [1,0^10] with accumulator 0 (the huge accumulator is discarded: a fixed-size rebuild), whose exhaustion
+    halts in every class. HALT at the 2nd exhaustion with the size of a fixed ~11-level champion-like run: far below M8.
+
+METHOD (tools in this folder; everything at Idle priority, at most 2 cores; PIDs in pids.txt)
+  S1 reb7.py (per machine, resumable jsonl):
+    fit7.py: rules fitted from literal probes (rk7.exe); nothing taken from dlscan2 params:
+      D (a,b)->(a-1,F0 b); R2 last digit -1, a:=A2(b), b:=B2(b); borrows over k=1..7 zeros with the REAL tails
+      (entries affine in b, refill x(b,k)), extrapolated by a tail pattern pre/[x]/head/mid*/end (checked up to k=12 on
+      random configs); small-b behaviour of every borrow recorded (thresholds, halts).
+      Template variants: dlscan prefix absorbed into digits; recodings s=u^j s2, S=u^j S2 (this fixed the F1 machine r).
+      Marker prefixes (568 rows with P=1 etc.): marker_scan of K(0^n;0;b) finds the TRUE exhaustion level nE (levels
+      n>nE are marker borrows that shrink the list: a staircase W_n..W_(nE+1)); marker borrows fitted like borrows.
+      Exhaustion map per residue class of b (b=60..107, re-checked at 300..347): HALT / rebuilt list pre+mid^cnt+suf
+      with counts affine in t=(b-c)/p / other; also probed from the natural predecessor K(0^n;1;b) (composite) when
+      K(0^n;0;b) is not a natural K-moment; disagreements flagged.
+      Checks: lockstep against the literal blank-tape trace (3e8 steps / 3000 K-configs), 80 random literal configs
+      (60% forced borrows with k<=12, marker borrows).
+    eng7.py: residue engine for the fitted rules. Levels U_j (borrow over j-1 zeros) and W_i (marker borrows) as tables
+      mod Q (Q1=80640, Q2=483840), exact integers below 1e15, eventual periodicity in the level index by EXACT state
+      recurrence, modulus tracking (a value known only mod a divisor of Q when a cycle length does not divide Q),
+      staircases with CRT candidates. rounds7.py: exhaustion rounds from the last literal K-config (exhaustions with an
+      exact accumulator <= 3000 are run literally), class branching when a residue does not determine the class
+      (Y1-type situations would show up as CLASS-DEPENDENT; none occurred). Linear invariant search (a, b, sum ds,
+      len ds mod 2,3,4,6) including the rebuild map.
+  S2 mrounds.py: exhaustions that leave the template: ffree.exe (free-prefix follower) finds the prefix P2 of the next
+    K-moment; template T2 = T with P = P2 gets its own rules/engine/exhaustion map; cross maps T->T2 per class
+    (xprobe.exe), n-affine maps for huge list lengths; states (template, V mod Q, n) explored; loop = repeated state
+    (or repeated (template, V) with an n-independent step).
+  S3 template-free growth for rows the fitter cannot model (NOFIT/NO-K): literal K-trace in the dlscan template and
+    blk.exe (longest periodic block and span after 3e6/3e7/3e8 steps). Bimodal: <= 100 cells (counters, odometers,
+    additive engines; dlscan R1 slope 0 or R2 a=b+1) -> NOT-RECORD-CLASS(LOW-GROWTH); 16000-28000 cells (like the
+    champion) -> S4.
+  S4 two Opus subagents (counters/, grows/) for families my tools could not model: outer-counter families (a prefix of
+    size ~b or ~n created at the exhaustion) and growing NOFIT rows (absorb rules, segment codings, +1-per-exhaustion
+    growers). Abstract maps validated against literal runs (100-400 random configs each + blank-tape traces).
+  Far-window literal check (echeck.py): one representative per NEVER family (77); exhaustion probed literally at the
+    visited classes near b=1000 and b=4000 against the fitted class rule: 75 OK; 2 probe-budget timeouts at b=4000
+    (expected lists of 6001-24001 digits), both OK at b=1000.
+
+CONTROLS (ct2.tsv; rerun after every engine change)
+  BB(7) champion: exhaustion halts for every class -> HALT@1.  champ_231: HALT@1.  X33, dl3 i, r (F1), d (F3),
+  p (F3 5a+6): NEVER-HALTS (residue; X33/i/r also by the Phi invariant).  M8 (8 states): flagged "exhaustion leaves
+  the template" (its post-exhaustion phase is the 5-adic cascade, not a digit list in the same coding) -> survivor,
+  NOT dismissed.
+  LIMITATION: the pipeline does NOT reproduce M8 as "rebuild then halt in every class"; an M8-like 7-state machine would
+  surface as an unresolved T survivor. All 7-state T survivors were resolved (S2/S4) and none had an M8-like
+  escalation. The 8-state calibration row 1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RH1LG_0RG1LD_0RH0RF also stays T here
+  (it is Coq-proved non-halting: proofs/BB8_m7_1RB0RA_1RH1LG.v).
+  Bugs found by the controls/tests and fixed during the run (affected runs discarded, see notes.txt): marker templates
+  with the true exhaustion at nE >= 1 (a borrow was taken for the exhaustion: false NEVER), per-n exhaustion maps for
+  prefixed templates, composite exhaustion probes, staircase from an exact value.
+
+RESULTS BY STAGE (final_all_verdicts.tsv; families in final_all_families.tsv, 371 rule/exhaustion signatures)
+  S1 rule fit + residue: NEVER-HALTS 630, POLY 81, HALT@1 6.  Almost all NEVER rows: the TRUE exhaustion has NO halting
+     class at all (it always rebuilds, typically a list of 1s of length ~2V+2 or ~V); the only halting events are
+     borrows / marker borrows at b below a linear threshold (b <= ~k), unreachable because b at a borrow over k zeros
+     is a tower in k. 9 non-marker rows exclude a halting class by residue (X33-type parity; invariant found).
+  S2 multi-template: NEVER-HALTS 71 (prefix switches P=101 <-> P=-, marker absorbed and recreated), HALT 1 (above).
+  S3 growth: LOW-GROWTH 915.
+  S4 subagents: NEVER-HALTS 61 (outer-counter families A/B/C and siblings, +1-per-exhaustion growers M1-M8/N1 and
+     siblings, NB/CK families; N2 + mirror now Coq-proved), HALTS-SMALL 25, NOT-RECORD-CLASS 7 (binary counters, f_4 rebuilders
+     M9/M10 and a sibling, dl3 m).
+  Grades in the pool: LOOPER 599, NOBOUNDARY 537, HALT? 287, MULTI? 145, REBUILD 119, CHAMPION 27, R4-SOME 27,
+     W1-LOOPER 26, HALT-SOME 21, MULTI 8, CHECK 1. The dlscan3 MULTI rows (b>k-confirmed halts in its b-reset chains)
+     are A1/A2/B1-type small halters or never halt in the faithful analysis.
+
+8-STATE SIDE POOL (pool8.tsv = rank8 rows + 1 fw1_hosts row + the M8 control; run8.jsonl, mr8.jsonl)
+  NEVER-HALTS 15, POLY 1, H8 halts small (above), 1 literal small halter (1RB0RB_0LC1RE_1LH1RD_..., halts within
+  3e8 steps), 1 low growth, M8 and the calibration row T (see controls), and
+  1RB0LE_0RC1LF_1LD0RD_0LA---_1LA1RG_1RB1RF_0RH0LG_1RE1LD: NEVER-HALTS, NGramCPS PASS with a Coq file
+  (bb8_list/investigations/bb8_m7_0RB0LC_ctl/ngcps_results.tsv). No 8-state row is unsettled.
+
+LIMITATIONS
+  Rules are fitted and checked on literal probes (lockstep, random configs, far windows), not proved. The residue engine
+  is exact given the rules; in the huge phase it assumes b >> k at every borrow (thresholds are linear in k, b is a
+  tower). Class maps are assumed to persist beyond b ~ 1000 (checked to 4000 where the budget allowed). LOW-GROWTH is
+  literal evidence (bounded accumulators after 3e8 steps), not a proof that no late f_omega phase exists. (The N2 family,
+  earlier only "no halting configuration found", is now Coq-proved non-halting.)
+
+FILES
+  reb7.py fit7.py eng7.py rounds7.py mrounds.py (pswitch.py = first 2-template prototype) final.py summarize.py
+  echeck.py tfollow.py growth.py p2.py; fl7.cpp ffree.cpp xprobe.cpp tinf.cpp (+ .exe), blk/blk.cpp; kt.py.
+  Pools: pool7.tsv (1258), pool7d.tsv (522), pool7e.tsv (17), pool_all.tsv, pool8.tsv; dl3_c/d/e.tsv (dlscan3 on the
+  new hits_triage7 rows).  Results: run_s0/1.jsonl, run_d0/1.jsonl, run_e.jsonl (S1), mr_main/mr_rest/mr_d/mr_e.jsonl
+  (S2), growth.tsv + blk/blk_*.txt (S3), hand.tsv (S4 verdicts), counters/ and grows/ (subagent notes and tools),
+  echeck_never.tsv, final_all_{verdicts,families,survivors}.tsv, controls (ct2.tsv, ct2_out.jsonl), notes.txt, pids.txt.
+  Rerun after a new scan: dlscan3 on new rows -> pool tsv -> reb7.py POOL OUT --shard i/2 -> mrounds.py OUT OUT2 --all
+  -> blk.exe on NOFIT rows -> final.py.

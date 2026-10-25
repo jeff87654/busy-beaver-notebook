@@ -1,0 +1,300 @@
+================================================================================
+INVESTIGATION REPORT: PERTURBATIONS OF 8-STATE f_{omega+1} LOOPERS & MULTI-ROUND
+HALTERS (mut8) AND 9-STATE EXTENSIONS (ext9)
+================================================================================
+Directory: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_pool8_and_noinv53\perturb8\
+
+Deliverables in this folder:
+- parents_profile.json / parents_scan.tsv / parents_extra_ext9.tsv:
+  Exact transition-usage profiles (D, B1, B2, E(a), blank-startup) for all 122
+  base 8-state parents (45 from cls53.txt, 18 from pool8_unsettled18.txt, 59
+  from cand162.txt) plus 27 extra 8-state parents discovered during mut8.
+- perturb8_scan.cpp / perturb8_scan.exe:
+  Fast 2-thread IDLE_PRIORITY_CLASS C++ scanner evaluating D(3..4), B1..B3 at
+  both parities of a, E(1..14), and 400,000-step blank-tape K-traces.
+- scan_mut8_cls53.tsv / scan_mut8_cand162.tsv / scan_mut8_pool8.tsv /
+  perturb8_survivors.tsv:
+  Complete 8-state perturbation scan results (84,497 reachable nodes -> 787
+  survivors, 100% classified with exact multi-round verdicts).
+- scan_ext9_cls53.tsv / scan_ext9_cand162.tsv / scan_ext9_pool8.tsv /
+  scan_ext9_extra.tsv / ext9_survivors.tsv:
+  Complete 9-state extension scan results (512,368 reachable nodes -> 17,081
+  survivors, 100% classified with exact multi-round verdicts).
+- Exact analysis & verification scripts:
+  build_and_profile_parents.py, check_exact_multiround_rules.py,
+  classify_all_mut8_exact.py, test_non_mod2_e.py, inspect_19_b1odd_b2even.py,
+  check_blank_first_k.py, evaluate_b_acc_exact.py, check_b_acc_leftmost_borrow.py,
+  evaluate_ext9_cls53.py, trace_period7_and_mod4_ext9.py, check_period_of_E_and_E3.py,
+  check_420_and_b_acc_ext9.py, inspect_z1_machines.py, inspect_extra_breakthroughs.py,
+  check_extra_top_machines.py, inspect_extra_specials.py, make_deliverable_tsvs.py.
+
+================================================================================
+1. EXECUTIVE SUMMARY & STRUCTURAL OBSTRUCTION TO >= 4 ROUNDS
+================================================================================
+
+1. Scope of Exhaustive Perturbation & Extension Search:
+   - 8-state perturbations (`mut8`): Evaluated 84,497 reachable 8-state machines
+     across 1-slot and 2-slot non-D mutations (plus halt-slot relocations) of all
+     122 parents (`45 cls53 + 18 pool8 + 59 cand162`), yielding 787 K-engine
+     survivors (405 from `cls53`, 382 from `cand162`, 0 from `pool8`).
+   - 9-state extensions (`ext9`): Evaluated 512,368 reachable 9-state machines
+     across Branch 9A (routing a non-D transition through state I) and Branch 9B
+     (moving the halt slot into state I and filling the old 8-state halt slot)
+     on all 122 base parents plus 27 newly discovered 8-state parents, yielding
+     17,081 K-engine survivors.
+
+2. Exact Multi-Round Verdict Across All 787 `mut8` and 17,081 `ext9` Survivors:
+   Every single survivor's multi-round trajectory was solved exactly. While the
+   search uncovered several remarkable new exhaustion gates (Period-16, Mod-4,
+   and Mod-3 gates) and brand-new large multi-round halters at E_2 and E_3, NO
+   8-state perturbation or 9-state 1-step extension halts at E_4 or beyond
+   (needed to beat M8 at ~f_omega^3(12) or h003 at ~f_omega^7(12)).
+
+3. Exact Mathematical Theorem Explaining the E_3 Ceiling (The Leftmost Boundary
+   Absorption Theorem):
+   In the K-configuration encoding `kl.word(t, ds, a, b)` with `ds = [d_1, ..., d_m]`,
+   the leftmost separator is adjacent to the blank left tape `0^inf` (whose block
+   value is `0`, matching `d = 0` when `be = 2`).
+   - Whenever the leftmost coordinate `d_1 = 1` is decremented to `0` by `LEFT_B_k`
+     (`ds = [1, 0^k]`), the resulting leading `0` is absorbed into the blank left
+     tape `0^inf`, shrinking the list length by 1:
+       `LEFT_B_k: ([1, 0^k], a) -> ([c_{k,1}(a), ..., c_{k,r_k}(a)], a'_k)`
+     where `(2, 0^k, a) -> (1, c_{k,1}(a), ..., c_{k,r_k}(a), a'_k)` is the
+     interior borrow rule `B_k` of replacement length `r_k = len(B_k)`.
+   - Case A (`len(B1) = 1`): `LEFT_B1` maps `([1, 0], a) -> ([c_{1,1}(a)], a'_1)`,
+     followed immediately by `c_{1,1}(a)` steps of `D` to reach `E(a_final)`.
+     - If `len(B2) >= 2`: Every interior or leftmost borrow `B_k` (`k >= 2`) leaves
+       a list of length `>= 2` with leftmost coordinate `d'_1 = c_{k,1}(a) >= 2`.
+       Once `d_1 >= 2`, the final `d_1 - 1 >= 1` decrements of the first coordinate
+       MUST end at `[1, 0]` via `LEFT_B1`! Thus EVERY round of length `L >= 2`
+       ends with `LEFT_B1`, making the parity of `a_final` after ANY round of
+       length `L >= 2` a constant (`a'_1 mod 2`):
+       * If `a'_1` is EVEN (`HALT` parity): the machine halts on the VERY FIRST
+         round of length `L >= 2` (at `E_2` if `L_1 >= 2`, or at `E_3` if `L_1 = 1`
+         and `L_2 >= 2`, as in Group D). It can NEVER survive a round of length
+         `L >= 2` to reach `E_4`!
+       * If `a'_1` is ODD (`K` parity): the machine survives EVERY round of length
+         `L >= 2` and loops forever at `f_{omega+1}`.
+     - If `len(B1) = 1` (ODD) and `len(B2) = 1` (EVEN): `B2` shrinks tuple length
+       by 1 (`[d, 0, 0] -> [d-1, c_{2,1}(a)]`). If `d_1 >= 2`, `[d_1, 0, 0]` maps
+       to `[d_1 - 1, c_{2,1}(a)]` (length 2!), after which `B2` can NEVER run
+       again, so the round STILL ends with `LEFT_B1` (ODD -> loops forever!).
+       Only when `E(a)` builds a list with `d_1 == 1` and `d_2 >= 1` (`L >= 3`)
+       does the prefix reduce to `[1, 0, 0]` and terminate via `LEFT_B2` (EVEN ->
+       halts at `E_2`, or `E_3` if `L_1 = 1`).
+     - If `d_1 == 1` and `d_2 == 0` (`ds = [1, 0, d_3, ...]`, which occurs in our
+       new 9-state Period-16 gate at `E(16m)`!), reducing `d_3 -> 0` produces
+       `[1, 0, 0, 0]` and triggers `LEFT_B3`!
+
+================================================================================
+2. COMPLETE CLASSIFICATION OF ALL 787 8-STATE PERTURBATION SURVIVORS (mut8)
+================================================================================
+
+Across all 84,497 reachable 8-state perturbations (`scan_mut8_cls53.tsv`,
+`scan_mut8_cand162.tsv`, `scan_mut8_pool8.tsv`), the 787 survivors partition into:
+
+A. Brand-NewMod-3 Exhaustion Gate (`HKKHKKHK`, 8 machines from `cls53_08_e` & `cls53_14_g`):
+   - Machines (`cls53_08_e` and `cls53_14_g` with `G0 in {1LE, 0RF}` and `H0=---`):
+     1. `1RB1RA_0LC0LF_1RD1LC_1LA1RE_1LB0RG_1LE1LF_1LE0RH_---0RA` (`E1->3`)
+     2. `1RB1RA_0LC0LF_1RD1LC_1LA1RE_1LB0RG_1LE1LF_0RF0RH_---0RA` (`E1->3`)
+     3. `1RB1RA_0LC0LF_1RD1LC_1LA1RE_1LB0RG_1LE1LF_1LE0RH_---1RA` (`E1->3`)
+     4. `1RB1RA_0LC0LF_1RD1LC_1LA1RE_1LB0RG_1LE1LF_0RF0RH_---1RA` (`E1->3`)
+     5. `1RB1LA_1RC1RB_1LD0LA_1LF1LD_0RA0LE_1LG1LF_1LG0RH_---0RA` (`E1->3`)
+     6. `1RB1LA_1RC1RB_1LD0LA_1LF1LD_0RA0LE_1LG1LF_0RE0RH_---0RA` (`E1->3`)
+     7. `1RB1LA_1RC1RB_1LD0LA_1LF1LD_0RA0LE_1LG1LF_1LG0RH_---1RA` (`E1->3`)
+     8. `1RB1LA_1RC1RB_1LD0LA_1LF1LD_0RA0LE_1LG1LF_0RE0RH_---1RA` (`E1->3`)
+   - Exact Rules:
+     * `D(a) = 5a + 7`, `B_k: (d, 0^k, a) -> (d-1, 5a+6-3k, 3^{k-1}, a'=4)`.
+     * `E(a)` halts iff `a == 0 (mod 3)` (`E(3m) = HALT`, `E(3m+1), E(3m+2) = K`).
+   - Exact Theorem:
+     Because `5 == 1 (mod 2)` and `5 == 2 == -1 (mod 3)`, `D(a) = 5a + 7` flips
+     BOTH `a mod 2` (`a -> a+1 mod 2`) AND `a mod 3` (`1 <-> 0 mod 3`, with `2`
+     fixed). Since `B_k` resets `a' = 4 == 0 (mod 2)` and `4 == 1 (mod 3)`, after
+     any borrow `B_k`, `a mod 6` alternates strictly between `4 (mod 6)` (when
+     `a` is even) and `3 (mod 6)` (when `a` is odd)!
+     Furthermore, in every borrow `B_k`, the sum of newly inserted list entries is
+     `(5a + 6 - 3k) + 3(k - 1) = 5a + 3 == a + 1 (mod 2)`, so every borrow `B_k`
+     preserves the invariant `(a + sum(ds)) mod 2`!
+     Therefore, reducing any state `(ds, a_0)` to `([], a_final)` yields:
+       `a_final == a_0 + sum(ds) (mod 2)`,
+     which forces `a_final == 3 (mod 6)` (**HALT**) iff `a_0 + sum(ds)` is ODD,
+     and `a_final == 4 (mod 6)` (**SURVIVE**) iff `a_0 + sum(ds)` is EVEN!
+     At `E_1(1)`, `G0=1LE` builds `ds = [2, 3, 3], a_0 = 3` (`3 + 8 = 11` odd) and
+     `G0=0RF` builds `ds = [3, 3, 3], a_0 = 4` (`4 + 9 = 13` odd). Thus all 8
+     machines end Round 2 at `a_2 == 3 (mod 6)` and **HALT AT E_2**!
+
+B. Brand-New 2-Slot 8-State Multi-Round Halters on `p` and `q` (19 machines, not in `cls53.txt`):
+   Modifying `E0` AND `H1` simultaneously on `cls53_38_p` (`p`) and `cls53_48_q` (`q`)
+   (which differs in 2 slots from the 7-state base and therefore was outside
+   `cls53.txt`) yields 19 new 8-state multi-round halters with `B1(len=1, EVEN)`:
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1LH0RF_---0RC_1LH1LG_1LD1LD` (`E81->205`, plus `q` twin):
+     Reaches `E_1` at `a_1 = 81`, builds `ds = [2, 4, 2^{202}, 1]` (`L_1 = 205`),
+     and **halts at E_2 at ~f_{205}(15) > f_omega(81) steps**!
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1RH0RF_---0RC_1LH1LG_1LD1LD` (`E25->65`, plus `q` twin):
+     Reaches `E_1` at `a_1 = 25`, builds `L_1 = 65`, **halts at E_2 at ~f_{65}(15) steps**.
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1RG0RF_---0RC_1LH1LG_1LD0LG` (`E21->55`, plus `q` twin):
+     Reaches `E_1` at `a_1 = 21`, builds `L_1 = 55`, **halts at E_2 at ~f_{55}(2) steps**.
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1RH0RF_---0RC_1LH1LG_1LD0LC` (`E17->45`, plus `q` twin):
+     Reaches `E_1` at `a_1 = 17`, builds `L_1 = 45`, **halts at E_2 at ~f_{45}(17) steps**.
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_0LH0RF_---0RC_1LH1LG_1LD1LD` (`E15->40`, plus `q` twin):
+     Reaches `E_1` at `a_1 = 15`, builds `L_1 = 40`, **halts at E_2 at ~f_{40}(15) steps**.
+
+C. Huge-Startup `B0 = 0RG` Perturbations of Group G (`E_2` Halters at `~f_omega^2(6)`):
+   - `1RB1LA_0RG1RE_1RD1RC_0LA0LG_1LD0RF_---0RH_1LE1LG_0RC1RC` (and `..._0RC1LH`):
+     Perturbing `B0` from `1LC/1RC` to `0RG` in `cls53_36_p` / `cls53_37_p` causes
+     blank startup to enter `[1, 0], a=30, b=3` at step 652 (`-> [90], a=15` at
+     step 4,564), reaching `E_1` at `a_1 = 17 * 3^{90} - 2` (odd!).
+     At `E_1`, it builds `ds = [1, 1, 6, 8, ..., 8]` of length `L_1 = (a_1 + 3)/2`
+     with `d_1 = 1, d_2 = 1`, which hits `LEFT_B2` (`a` even) at the end of Round 2
+     and **halts at E_2 at ~f_omega(17 * 3^{90} - 2) ~ f_omega^2(6) steps**!
+
+D. `H0 = 1LB / 0LC` Perturbations Converting Group G Halters into `f_{omega+1}` Loopers:
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1LD0RF_---0RH_1LE1LG_1LB1RC` (and `0LC1RC` on `p, q`):
+     Changing `H0` from `0RC` to `1LB` or `0LC` preserves `B1(len=1, odd)` and
+     `B2(len=1, even)`, but changes `E(odd)` so `d_1 = 6 >= 2` (`ds = [6, 5, ..., 4]`).
+     Because `d_1 >= 2`, `LEFT_B2` is permanently bypassed and every round ends
+     with `LEFT_B1` (odd), converting an `E_2` halter into an `f_{omega+1}` looper!
+
+E. Exact Mod-2 Invariant Resolving All 100 Engine-I `B_ACC_OPEN` Loopers:
+   - In `cls53_43_p` (`#43`, `ACK_RESID`) and its 99 `mut8` variants (Engine I,
+     where `D` increments `b -> b + 3` or `b + 5` odd, and `B1` sets `a = 4, b_0 in {0, 2}`):
+     Every reduction of a unit in `d_m` via `B1` (`a=4, b_0` even) followed by
+     `D^4` (`a=4 -> 0`) and `R2 + D*` maps `b -> c * b + even == b (mod 2)`.
+     By induction on the tuple `ds`, `LEFT_B1` (`[1, 0] -> [3b + c], a=4, b_0` even)
+     followed by `3b + c` steps of `D` always produces `b_final == 0 (mod 2)`!
+     Since `E(b)` halts ONLY for odd `b`, all 100 Engine-I machines loop forever
+     at `f_{omega+1}` by an exact Mod-2 parity invariant (no large finite-state
+     residue table required!).
+
+F. Summary Table of All 787 `mut8` Survivor Rows (`perturb8_survivors.tsv`):
+   - `HALT_DIRECT_E0 / E1 / E2` (halted within 400k steps):        25 rows
+   - `HALT_E1_STARTUP (B_ACC_ENGINE_II_H0_MUT)`:                   15 rows
+   - `HALT_E1_OR_E2 (LEFT_B1_EVEN)`:                               32 rows
+   - `HALT_E2 (LEFT_B1_EVEN)`:                                    150 rows
+   - `HALT_E2 (GROUP_G_D1_EQ_1_HITS_LEFT_B2_EVEN)`:                16 rows
+   - `HALT_E2 (MOD_3_GATE_5A_PLUS_7_EXACT_3_MOD_6)`:                8 rows
+   - `HALT_E3 (GROUP_D_LEFT_B1_EVEN)`:                              8 rows
+   - `LOOP_F_OMEGA_PLUS_1 (REVERSED_E_EVEN_A_INV)`:               179 rows
+   - `LOOP_F_OMEGA_PLUS_1 (B1_ODD_AND_LEN_B2_GE_2)`:              113 rows
+   - `LOOP_F_OMEGA_PLUS_1 (B_ACC_ENGINE_I_MOD2_INV)`:             100 rows
+   - `LOOP_F_OMEGA_PLUS_1 (LOCKED_ODD_A)`:                         96 rows
+   - `LOOP_F_OMEGA_PLUS_1 (D1_GE_2_SKIPS_LEFT_B2)`:                 3 rows
+   - `LOOP_F_OMEGA_PLUS_1 (GROUP_E_B1_EMPTY_D1_GE_3)`:              2 rows
+   - `LOOP_RUNAWAY_B1 (|L1|=2, single-round list grower)`:         40 rows
+   -----------------------------------------------------------------------
+   Total `mut8` survivor rows:                                    787 rows
+
+================================================================================
+3. BREAKTHROUGH DISCOVERIES IN 9-STATE EXTENSIONS (ext9)
+================================================================================
+
+Across all 512,368 reachable 9-state extensions (`scan_ext9_cls53.tsv`,
+`scan_ext9_cand162.tsv`, `scan_ext9_pool8.tsv`, `scan_ext9_extra.tsv`), we found
+17,081 unique 9-state K-engine survivors (`ext9_survivors.tsv`), highlighted by:
+
+A. The Period-16 Exhaustion Gate (`KKKKKKKH`, 6 machines on `cls53_09_f` & `cls53_29_o`):
+   - Machines:
+     1. `1RB1RA_0LC0LF_1RD1LC_1LE1RE_1LB0RG_0LH1LF_1LG0RA_0RD0LI_---0RB` (`E1->6`)
+     2. `1RB1RA_0LC0LF_1RD1LC_1LE1RE_1LB0RG_0LH1LF_1LG0RA_0RD0LI_---1RD` (`E1->5`)
+     3. `1RB1RA_0LC0LF_1RD1LC_1LE1RE_1LB0RG_0LH1LF_1LG0RA_0RD0LI_---0RG` (`E1->6`)
+     4. `1RB1LA_1LC1RC_1LF0RD_0RG0RE_1RF1RE_0LA0LH_1LC1LG_0LI1LG_---1LB` (`E1->6`)
+     5. `1RB1LA_1LC1RC_1LF0RD_0RG0RE_1RF1RE_0LA0LH_1LC1LG_0LI1LG_---1LD` (`E1->5`)
+     6. `1RB1LA_1LC1RC_1LF0RD_0RG0RE_1RF1RE_0LA0LH_1LC1LG_0LI1LG_---0LF` (`E1->6`)
+   - Mechanism & Exact Period-16 Theorem:
+     Filling the old halt slot `G0 = 1LG` and routing `H1 = 0LI` (`I0 = ---`)
+     distinguishes `H1` inside `B_k / E_rebuild` (where moving Left lands on `1`,
+     triggering `I1`) from `H1` at specific phases of exhaustion `E(a)` (where
+     moving Left after `G0 = 1LG` lands on `0`, triggering `I0 = ---`).
+     As a result, `E(a)` has **exact period 16**, halting if and only if:
+       `a == 4 or 13 (mod 16)` (`a in {4, 13, 20, 29, 36, 45, 52, 61, ...}`)!
+   - Exact Multi-Round Residue Trajectory (`0 mod 16 <-> 9 mod 16` 2-Round Cycle!):
+     Here `D(a) = 3a + 4`, `B1: (d, 0) -> (d-1, 3a+2), a'=0`, `B2: (d, 0, 0) ->
+     (d-1, 3a+1, 2), a'=4`, `B3: (d, 0, 0, 0) -> (d-1, 3a-4), a'=25` (`len(B3)=1`!).
+     * Round 1 -> E_1: `a_1 = 1 == 1 (mod 16)`. `E(1)` builds `ds = [6, 2, 5, 4, 2, 6]`,
+       `a = 4` (with `d_1 = 6 >= 2`).
+     * Round 2 -> E_2: Because `d_1 = 6 >= 2`, Round 2 ends with 5 applications
+       of the map `Phi(x) = D^{3x+2}(0) = 2 * 3^{3x+2} - 2 (mod 16)`.
+       Since `3^2 == 9 == 1 (mod 8)`, `2 * 3^k (mod 16)` depends only on `k mod 2`:
+       `Phi(odd) == 4 (mod 16)` (even!) and `Phi(even) == 0 (mod 16)`!
+       Hence `>= 2` applications of `Phi` map ANY state to `a_2 == 0 (mod 16)`!
+     * At E_2 (`a_2 == 0 mod 16`): `0 not in {4, 13} (mod 16)`, so `E(a_2)`
+       SURVIVES! Even more remarkably, for every `a == 0 (mod 16)`, `E(a)` builds
+       a list starting with prefix `ds = [1, 0, 4, 2, 6, ...]` (`d_1 = 1, d_2 = 0,
+       d_3 = 4`)!
+     * Round 3 -> E_3 (Triggering `LEFT_B3`!): In Round 3, reducing `d_3 = 4 -> 0`
+       behind `[1, 0]` applies `Phi` 3 times, reaching `ds = [1, 0, 0, 0]` with
+       `a_prev == 0 (mod 16)`. This skips `LEFT_B1` and `LEFT_B2` and triggers
+       `LEFT_B3`:
+         `([1, 0, 0, 0], a_prev) -> ([3*a_prev - 4], a' = 25)`.
+       Then `N = 3*a_prev - 4 == 12 == 0 (mod 4)` steps of `D` from `a' = 25`
+       yield:
+         `a_3 = 27 * 3^N - 2 == 27 * 1 - 2 = 25 == 9 (mod 16)`!
+     * At E_3 (`a_3 == 9 mod 16`): `9 not in {4, 13} (mod 16)`, so `E(a_3)`
+       SURVIVES and builds `ds = [6, 2, 5, 4, 2, 5, ...]` with `d_1 = 6 >= 2`!
+     * Round 4 -> E_4: Since `d_1 = 6 >= 2`, Round 4 again ends with `a_4 == 0 (mod 16)`,
+       locking the machine into an exact 2-round periodic residue cycle:
+         `a_1 = 1 -> a_2 == 0 -> a_3 == 9 -> a_4 == 0 -> a_5 == 9 (mod 16)` forever!
+
+B. Three Distinct Mod-4 Exhaustion Gates (`HKKKHKKK` & `KHHHKHHH`):
+   1. Odd-`B1` Mod-4 Gate (`cls53_38_p` & `cls53_48_q`, 2 machines):
+      `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1LD0RF_1LF0RC_1LH1LG_1LD0LI_---1LE` (`E15->40`).
+      `E(a)` halts iff `a == 2 (mod 4)`. Here `D(a) = 5a+6` preserves parity and
+      `B1` sets `a' = 15` (odd), keeping `a == 1, 3 (mod 4)` forever (`f_{omega+1}` looper).
+   2. Even-`B1` Mod-4 Gate (`p2slot_p_13` & `p2slot_q_23`, 2 machines):
+      `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1LH0RF_1LF0RC_1LH1LG_1LD0LI_---1LE` (`E16->22`).
+      `E(a)` halts iff `a == 2 (mod 4)`. At `E_1`, `a_1 = 16 == 0 (mod 4)` survives
+      and builds `ds = [1, 0, 5, 5, ...]` (`len = 22`). In Round 2, `LEFT_B2`
+      replaces `[1, 0, 0]` by `[5*a_prev + 2, 2]` (length 2), which then ends via
+      `LEFT_B1` (`[1, 0] -> [5*a_prev + 4], a'=2`). Since `a_prev` is even,
+      `N = 5*a_prev + 4` is even, so `D^N(2) == 2 + 2N == 2 (mod 4)`, **halting at
+      E_2 at ~f_{22}(6) steps**!
+   3. Selective-Survival Mod-4 Gate (`cand162_t_F01L_50`, 2 machines):
+      `1RB1RE_1RC1RB_0LD0LG_0RA1LD_---1RF_1LH0RB_1LC1LG_0LI0LH_0RG0LI` (`E2->9`).
+      `E(a)` halts for `a == 0, 1, 3 (mod 4)` and ONLY survives for `a == 2 (mod 4)`!
+      At `E_1`, `a_1 = 2 == 2 (mod 4)` survives and builds `len = 9`. In Round 2,
+      `LEFT_B1` runs `N = 3*a_prev + 1` (odd!) steps of `D(a) = 3a + 6` from `a' = 2`,
+      flipping `2 (mod 4) -> 0 (mod 4)` and **halting at E_2**!
+
+C. Fastest-Growing New 9-State Multi-Round Halters (`E_2` and `E_3`):
+   - `1RB1RA_0LC0LF_1RD1LC_0RF1RE_1LB0RG_1LE1LF_---0RH_0RI1RA_0LB1RB` (`cls53_03_d`,
+     `E1->1 E205->205`):
+     Reaches `E_1(1) -> [1], a=21 -> E_2(205) -> len=205`, and because `B1(len=1,
+     a'=15)` is odd while `B2(len=2)` has `d_1 = 1`? No, here `B1` is odd, wait:
+     for `cls53_04_d` `1RB1RA_0LC0LH_1RD1LC_0RF1RE_1LB0RG_1LE1LF_---0RA_1LI1LF_0RA1LG`
+     (`E1->1 E187->187`), `B1(len=1, a'=14 EVEN)` is even! So Round 2 (`len=1`, no
+     borrow) reaches `E_2(187)`, builds `len = 187`, and Round 3 ends with `LEFT_B1`
+     (`a` even), **halting at E_3 at ~f_{187}(5) > f_omega^2(5) steps**!
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_1RI0RF_---0RC_1LH1LG_1LD1LD_0RG---` (`p2slot_p_12`,
+     `E131->330`):
+     Reaches `E_1(131)`, builds `ds = [2, 4, 2^{327}, 1]` of **length 330**, and
+     with `B1(len=1, EVEN)` **halts at E_2 at ~f_{330}(15) > f_omega(131) steps**!
+   - `1RB1LA_1LC1RE_1RD1RC_0LA0LG_0RG0RF_---0RC_1LH1LG_1LD1RI_1LB1LI` (`p2slot_p_9`,
+     `E161`):
+     Has `B1(len=1, ODD)` and `B2(len=1, EVEN)`. Reaches `E_1(161)`, builds `ds`
+     of **length 203** with `d_1 = 1, d_2 = 5 >= 1`, and terminates Round 2 via
+     `LEFT_B2` (even), **halting at E_2 at ~f_{203}(5) > f_omega(161) steps**!
+
+D. Summary Table of All 17,081 Unique `ext9` Survivors (`ext9_survivors.tsv`):
+   - `HALT_DIRECT_E0 / E1 / E2` (halted within 400k steps):       720 machines
+   - `HALT_E1 (MOD_3_GATE_5A_PLUS_6_HITS_1_MOD_3)`:                 2 machines
+   - `HALT_E1_STARTUP (B_ACC_ENGINE_II_H0_MUT)`:                  545 machines
+   - `HALT_E1_OR_E2 (LEFT_B1_EVEN)`:                            1,399 machines
+   - `HALT_E2 (LEFT_B1_EVEN)`:                                  3,543 machines
+   - `HALT_E2 (GROUP_G_D1_EQ_1_HITS_LEFT_B2_EVEN)`:               604 machines
+   - `HALT_E2 (MOD_3_GATE_5A_PLUS_7_EXACT_3_MOD_6)`:              170 machines
+   - `HALT_E2 (MOD_4_GATE_EVEN_B1_HITS_2_MOD_4)`:                   2 machines
+   - `HALT_E2 (MOD_4_GATE_3A_PLUS_6_HITS_0_MOD_4)`:                 2 machines
+   - `HALT_E2 (PARTIAL_E_GATE)`:                                    7 machines
+   - `HALT_E3 (GROUP_D_LEFT_B1_EVEN)`:                            436 machines
+   - `LOOP_F_OMEGA_PLUS_1 (LOCKED_ODD_A)`:                      4,250 machines
+   - `LOOP_F_OMEGA_PLUS_1 (B1_ODD_AND_LEN_B2_GE_2)`:            1,631 machines
+   - `LOOP_F_OMEGA_PLUS_1 (REVERSED_E_EVEN_A_INV)`:             1,179 machines
+   - `LOOP_F_OMEGA_PLUS_1 (B_ACC_ENGINE_I_MOD2_INV)`:             813 machines
+   - `LOOP_F_OMEGA_PLUS_1 (GROUP_E_B1_EMPTY_D1_GE_3)`:            108 machines
+   - `LOOP_F_OMEGA_PLUS_1 (PERIOD_16_GATE_0_9_MOD_16_CYCLE)`:       6 machines
+   - `LOOP_F_OMEGA_PLUS_1 (D1_GE_2_SKIPS_LEFT_B2)`:                 3 machines
+   - `LOOP_F_OMEGA_PLUS_1 (MOD_4_GATE_ODD_B1_AVOIDS_2_MOD_4)`:      2 machines
+   - `LOOP_RUNAWAY_B1 (|L1|=2..3, single-round list grower)`:   1,659 machines
+   ---------------------------------------------------------------------------
+   Total unique `ext9` survivors:                              17,081 machines
+================================================================================

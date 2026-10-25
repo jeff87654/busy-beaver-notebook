@@ -1,0 +1,356 @@
+{
+  "profile": "full",
+  "warning": "Candidates are rule fragments checked on finite instance sets. pass_bounded is not a proof for arbitrary block lengths, and no blank-tape initialization or BB lower bound is claimed.",
+  "records": [
+    {
+      "experiment": "transfer1_offset0_nright",
+      "n_states": 2,
+      "train_instances": 10,
+      "holdout_instances": 11,
+      "status": "exhausted",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 205,
+        "evaluations": 702,
+        "branches": 204,
+        "max_depth": 3,
+        "elapsed_s": 0.01600000006146729,
+        "prunes": {
+          "expected halt, got checkpoint": 68,
+          "expected halt, got loop": 10,
+          "expected halt, got overflow": 18,
+          "expected checkpoint, got halt": 92
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "transfer1_offset0_nright",
+      "n_states": 3,
+      "train_instances": 10,
+      "holdout_instances": 11,
+      "status": "candidate",
+      "partial_table": "0RB1RB_1RC1LB_0RZ0LA",
+      "completed_table_arbitrary_fill": "0RB1RB_1RC1LB_0RZ0LA",
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 1323,
+        "evaluations": 4572,
+        "branches": 1322,
+        "max_depth": 6,
+        "elapsed_s": 0.030999999959021807,
+        "prunes": {
+          "expected halt, got checkpoint": 236,
+          "expected halt, got loop": 73,
+          "expected halt, got overflow": 110,
+          "expected halt, got timeout": 3,
+          "expected checkpoint, got halt": 706,
+          "wrong checkpoint tape": 99,
+          "expected checkpoint, got loop": 8,
+          "expected checkpoint, got overflow": 1
+        }
+      },
+      "bounded_verification_of_partial_table": {
+        "status": "pass_bounded",
+        "checked": 36
+      }
+    },
+    {
+      "experiment": "transfer1_offset1_nright",
+      "n_states": 3,
+      "train_instances": 10,
+      "holdout_instances": 11,
+      "status": "exhausted",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 9549,
+        "evaluations": 21431,
+        "branches": 9548,
+        "max_depth": 5,
+        "elapsed_s": 0.5,
+        "prunes": {
+          "expected halt, got checkpoint": 2132,
+          "expected halt, got overflow": 2578,
+          "expected halt, got loop": 993,
+          "expected checkpoint, got halt": 2804,
+          "wrong checkpoint tape": 256,
+          "expected checkpoint, got overflow": 83,
+          "expected checkpoint, got loop": 56,
+          "expected halt, got timeout": 50
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "transfer1_offset1_nright",
+      "n_states": 4,
+      "train_instances": 10,
+      "holdout_instances": 11,
+      "status": "candidate",
+      "partial_table": "---1RB_0RB1RC_1RD1LC_0RZ0LA",
+      "completed_table_arbitrary_fill": "1RZ1RB_0RB1RC_1RD1LC_0RZ0LA",
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 4536,
+        "evaluations": 11066,
+        "branches": 4535,
+        "max_depth": 7,
+        "elapsed_s": 0.2649999998975545,
+        "prunes": {
+          "expected halt, got checkpoint": 588,
+          "expected halt, got overflow": 1077,
+          "expected halt, got loop": 458,
+          "expected checkpoint, got halt": 1574,
+          "expected halt, got timeout": 14,
+          "wrong checkpoint tape": 323,
+          "expected checkpoint, got loop": 108,
+          "expected checkpoint, got overflow": 162
+        }
+      },
+      "bounded_verification_of_partial_table": {
+        "status": "pass_bounded",
+        "checked": 36
+      }
+    },
+    {
+      "experiment": "counter2_offset1_nright_free",
+      "n_states": 4,
+      "train_instances": 8,
+      "holdout_instances": 14,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 60001,
+        "evaluations": 121014,
+        "branches": 60000,
+        "max_depth": 7,
+        "elapsed_s": 4.969000000040978,
+        "prunes": {
+          "expected halt, got checkpoint": 11575,
+          "expected halt, got overflow": 21439,
+          "expected halt, got loop": 5921,
+          "expected checkpoint, got halt": 16184,
+          "expected halt, got timeout": 128,
+          "expected checkpoint, got overflow": 1167,
+          "expected checkpoint, got loop": 149,
+          "wrong checkpoint tape": 432
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_offset1_nright_free",
+      "n_states": 5,
+      "train_instances": 8,
+      "holdout_instances": 14,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 60001,
+        "evaluations": 105495,
+        "branches": 60000,
+        "max_depth": 9,
+        "elapsed_s": 6.030999999959022,
+        "prunes": {
+          "expected halt, got checkpoint": 9495,
+          "expected halt, got overflow": 26806,
+          "expected halt, got loop": 7520,
+          "expected checkpoint, got halt": 11780,
+          "expected halt, got timeout": 222,
+          "wrong checkpoint tape": 512,
+          "expected checkpoint, got overflow": 974,
+          "expected checkpoint, got loop": 185
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_offset1_nright_free",
+      "n_states": 6,
+      "train_instances": 8,
+      "holdout_instances": 14,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 60001,
+        "evaluations": 122544,
+        "branches": 60000,
+        "max_depth": 11,
+        "elapsed_s": 6.358999999938533,
+        "prunes": {
+          "expected halt, got checkpoint": 6325,
+          "expected halt, got overflow": 20674,
+          "expected halt, got loop": 7794,
+          "expected checkpoint, got halt": 15132,
+          "expected halt, got timeout": 184,
+          "wrong checkpoint tape": 2256,
+          "expected checkpoint, got overflow": 3977,
+          "expected checkpoint, got loop": 1499,
+          "expected checkpoint, got timeout": 8
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_offset1_nright_successor_sketch",
+      "n_states": 6,
+      "train_instances": 8,
+      "holdout_instances": 14,
+      "status": "exhausted",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 3249,
+        "evaluations": 5061,
+        "branches": 3248,
+        "max_depth": 11,
+        "elapsed_s": 0.1880000000819564,
+        "prunes": {
+          "expected halt, got checkpoint": 1601,
+          "expected halt, got overflow": 915,
+          "expected halt, got loop": 125,
+          "expected checkpoint, got halt": 464,
+          "wrong checkpoint tape": 28
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_offset1_nright_successor_sketch",
+      "n_states": 7,
+      "train_instances": 8,
+      "holdout_instances": 14,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 120001,
+        "evaluations": 237900,
+        "branches": 120000,
+        "max_depth": 13,
+        "elapsed_s": 9.155999999959022,
+        "prunes": {
+          "expected halt, got checkpoint": 34915,
+          "expected halt, got overflow": 29830,
+          "expected halt, got loop": 6167,
+          "expected checkpoint, got halt": 26182,
+          "wrong checkpoint tape": 11528,
+          "expected halt, got timeout": 40,
+          "expected checkpoint, got loop": 893,
+          "expected checkpoint, got overflow": 6693
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_consuming_doubling_offset1_nright_free",
+      "n_states": 5,
+      "train_instances": 17,
+      "holdout_instances": 12,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 60001,
+        "evaluations": 113900,
+        "branches": 60000,
+        "max_depth": 9,
+        "elapsed_s": 6.375,
+        "prunes": {
+          "expected halt, got checkpoint": 9432,
+          "expected halt, got overflow": 27503,
+          "expected halt, got loop": 7516,
+          "expected checkpoint, got halt": 11100,
+          "expected halt, got timeout": 223,
+          "wrong checkpoint tape": 576,
+          "expected checkpoint, got overflow": 951,
+          "expected checkpoint, got loop": 194
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_consuming_doubling_offset1_nright_free",
+      "n_states": 6,
+      "train_instances": 17,
+      "holdout_instances": 12,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 60001,
+        "evaluations": 117439,
+        "branches": 60000,
+        "max_depth": 11,
+        "elapsed_s": 6.672000000020489,
+        "prunes": {
+          "expected halt, got checkpoint": 6167,
+          "expected halt, got overflow": 21306,
+          "expected halt, got loop": 7616,
+          "expected checkpoint, got halt": 14552,
+          "expected halt, got timeout": 188,
+          "wrong checkpoint tape": 2416,
+          "expected checkpoint, got overflow": 4004,
+          "expected checkpoint, got loop": 1592,
+          "expected checkpoint, got timeout": 8
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    },
+    {
+      "experiment": "counter2_consuming_doubling_offset1_nright_free",
+      "n_states": 7,
+      "train_instances": 17,
+      "holdout_instances": 12,
+      "status": "node_budget",
+      "partial_table": null,
+      "completed_table_arbitrary_fill": null,
+      "rounds": 1,
+      "added_instances": [],
+      "stats": {
+        "nodes": 60001,
+        "evaluations": 109308,
+        "branches": 60000,
+        "max_depth": 13,
+        "elapsed_s": 7.969000000040978,
+        "prunes": {
+          "expected halt, got checkpoint": 5895,
+          "expected halt, got overflow": 23907,
+          "expected halt, got loop": 9505,
+          "expected checkpoint, got halt": 12512,
+          "expected halt, got timeout": 274,
+          "wrong checkpoint tape": 1616,
+          "expected checkpoint, got overflow": 2601,
+          "expected checkpoint, got loop": 1798,
+          "expected checkpoint, got timeout": 8
+        }
+      },
+      "bounded_verification_of_partial_table": null
+    }
+  ]
+}

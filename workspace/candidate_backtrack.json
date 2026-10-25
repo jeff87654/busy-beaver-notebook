@@ -1,0 +1,38 @@
+[
+  {
+    "candidate": "C03",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0RA0LD_0LC0RG_1RH1RZ_0RG0RE",
+    "result": {
+      "success": false,
+      "halted": false,
+      "max_steps": 61,
+      "max_width": 24898,
+      "num_nodes": 71721
+    },
+    "elapsed_seconds": 11.297000000020489
+  },
+  {
+    "candidate": "C05",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_1LE0LE_1RH1RZ_1RH1RB",
+    "result": {
+      "success": false,
+      "halted": false,
+      "max_steps": 23,
+      "max_width": 29921,
+      "num_nodes": 56584
+    },
+    "elapsed_seconds": 9.202999999979511
+  },
+  {
+    "candidate": "C06",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_0LC0LE_1RH1RZ_1RH1RB",
+    "result": {
+      "success": false,
+      "halted": false,
+      "max_steps": 23,
+      "max_width": 22471,
+      "num_nodes": 42004
+    },
+    "elapsed_seconds": 7.936999999976251
+  }
+]

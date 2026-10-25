@@ -1,0 +1,80 @@
+C04 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_0RG1LD_0LH1LH_1RI---_0RI0RF   (only halt: H1)      bb9-parked2, 2026-10-17
+Notation: Kt ds m r t = 0^inf D(d_n)..D(d_1) D(m) (10)^r 11 (11111100)^t 1001 B> 0^inf, D(x) = (10)^x 1  (as BB9_record_1RB0RA.v);
+Kg = digit form (token 3d+1, m = 3a+1, r = 3b+2).  Token lists far -> near.  "1^k" = k zero digits D1.
+
+STATUS: OPEN, judged Collatz-hard (cryptid-like).  Not a G candidate.  Beats fw2 only if it halts after >= 2 escalations (unproven).
+
+1. Start = the BB(9) record's B (solid)
+   - First 12 K-moments from blank: same token sequence as the record (C04 Kg(0^10 2) at step 2369, record at 2149).
+   - cmprule.py: 941 random digit-form configs with a nonzero digit -> same next K-moment (0 mismatches); the 59
+     mismatches are all exhaustion configs (all digits 0), where the gadgets differ.
+   - => C04 reaches Kg(0^11) [] 0 B 0 with 2B+4 = arrow(13,2,3).  towermod.py: B = 1 mod 5, 6 mod 2520, 8 mod 11.
+   - Every deep-clear accumulator R has 2R+4 = a tall tower of 2s, hence R = B modulo any fixed modulus.
+
+2. Exhaustion #1 (literal, b = 0,1,2,7,100..104,616,2491):
+   Kt [0,0,1^11] 1 (3b+2) 0  ->*  Kt [0,0,7,1^(12b+24)] 1 2 3        (k2 = 12B+25 incl. m)
+   CDP (record rule, every t): -> Kt [0,0,1^n] 1 (3R2+2) 3,  n = 12B+25,  2R2+4 = arrow(12B+26,2,4).
+
+3. Exhaustion chain = base-5 Collatz map (decoded; lchain.py; 0 mismatches for L > 60 on 400 top-level n and 40 n /
+   120 steps in the post-J3 context)
+   The zero list becomes a D0 run of length L0 (moments '| 0*L | m=0 r=0', t += 3 per sub-step), then
+       L = 1 mod 5: L -> (3L+32)/5      L = 2: (3L-46)/5      L = 3: (3L-64)/5      L = 4: (3L-52)/5
+       L = 0 mod 5: STOP -> digit X = z+8 behind z = (L-30)/5 zero digits  (the next JCL clears it)
+   L0 = 3n-2 for exhaustion #2 (prefix [0,0]);  L0 = 3n-5 for exhaustion #3 (post-J3 prefix), n = ones of the list.
+   Small L (< ~60) behaves differently (size endgame: merge into the parked list, an R1 jump, or at top level H1).
+   Each sub-step leaves a token (approx 3/5 of the previous one) and a separator (2, 4, 6 or "4 5").
+   Needs the accumulator >= ~5 (a small R truncates the chain).
+
+4. Exhaustion #2, real class (n = 36167 mod 5^9 = 1792 mod 5^5; literal on n = 1792, 4917, 20542, 36167, 114292):
+   L: 108499 -> 65089 -> 39043 -> 23413 -> 14035 (=0): stop after 4 sub-steps.  Result before the J3 clear (t=18):
+     [0,0, y1,4, y2,6, y3,6, y4, 1^(12R2-10), 0, 2, z2, X, 1^k3]   y1=(3n+9)/5  y2=(9n-3)/25  y3=(27n-259)/125
+     y4=(81n-152)/625  k3=(243n-32331)/3125 (pkf count incl. m)  X=k3+7.  R2 affects only the parked list length.
+
+5. Parked token and list; counter
+   - Each exhaustion converts its accumulator R into a parked token 6R+9 (checked R3 = 300..2000: structure unchanged)
+     and the first one parks the zero list 1^(12R2-10).
+   - The token just left of the near region is decremented by 3 per exhaustion (232 -> 229, 80 -> 77): a counter.
+
+6. Symbolic run of the cascade on the real residues (chainsym.py, B mod 5^200 from towermod.py)
+   chain #2: stop after 4 sub-steps (matches literal);  chain #3 (real k3): stop by RESIDUE after 8 sub-steps;
+   chains #4..#46 also stop by residue (0..21 sub-steps each); the 200 known digits run out at chain #47.
+   ASSUMPTION: L0 = 3(z+1)-5 for every later chain (validated only in the #3 context).
+   => (a) the terminal of exhaustion #3 is a residue stop (a digit behind a near list z ~ 0.6^8 * 3/5 * k3), NOT the
+      parked list; (b) J4 clears that near list, not 1^(12R2-c).  The cascade continues ~ log(B)/log(~10) levels,
+      each shrinking the near list ~10x and costing the counter 3; log B << B, so the counters do not run out here.
+
+7. Order-faithful world (pkf4 --rk F --rc C: R = C + F*cleared depth, keeps R3 << R2 << ... ; F=10, C=2000/4000)
+   From the post-J3 config of the n = 1792 class (mod 5^5 only): exhaustion #3 ends by residue (z=39), exhaustion #4
+   runs to small values and ACTIVATES the parked list (k = 12R2-39) = the second escalation (sigma >= f_w(f_w(12B))).
+   Endgame survey (endg.py, 200 small z in that context): 115 residue stops, 78 parked-list activations, 7 R1, 0 HALT.
+
+8. Why the halt is not residue-decidable
+   - The level-1 cascade ends only when the near list is SMALL; its small values are (3^S/5^T)*B + c, i.e. they depend
+     on the LEADING digits of B (B = (arrow(13,2,3)-4)/2), not on residues.  The endgame there decides between a
+     further residue stop, an R1 route, a parked-list activation (escalation) or (in some contexts) H1.
+   - After an escalation the next level's cascade needs ~ log(12 R2) exhaustions, which is >> every B-scale counter
+     (-3 per exhaustion), so the counters run out mid-cascade and the reload / digit-decrement / halt rules come into
+     play.  Those happen only at sizes no simulation can reach.  The old B=6 / g6 / small worlds that "halted at H1"
+     had R3 > R2 and B-scale counters ~60, so their halts are artefacts.
+   - Conclusion: C04 halts iff a nested counter/cascade process on astronomically large, specific integers ends in an
+     H1 endgame.  No proof route; likely f_(w+1)-shape if it never halts, >= f_w(f_w(12B)) if it halts after level 2.
+
+9. Lower bound (conditional)
+   If C04 halts after the level-2 escalation: sigma > f_w(f_w(12B)) > f_w(f_w(465009)) (fw2), with m = 12B.
+   If it halts before that (only possible via a level-1 endgame halt, 0/200 in the survey): sigma ~ f_w(12B) < fw2.
+
+Tools (bb9_parked): ktr.exe (src/ktr.cpp, literal K-moment tracer, --kt with x*k and zN), pkf3.exe / pkf4.exe (pkf +
+--kt start; pkf4 adds --rk/--rc), towermod.py, c04res.py, mkph3.py, exh.py, exh3.sh, etab.sh, lchain.py, endg.py,
+chainsym.py, cmprule.py, c04probe.sh.  Data: runs/etab_*.txt, runs/lchain*.txt, runs/endg_ctx4.txt, runs/long/C04_*.
+
+10. Partial outputs for follow-up work (all my processes are stopped; pids2.txt is accurate)
+   - runs/long/C04_rk3_c2000.txt and C04_rk3_c4000.txt (pkf4 --rk 10 --rc 2000/4000, from the post-J3 config of the
+     n=1792 class, parked list 1^59990): J1 = the exhaustion #3 residue stop (near list 39), J2 = the parked-list
+     activation (k=59961, R = 601610 / 603610).  Killed in the level-2 exhaustion (converting r ~ 1.8e6 into the new
+     parked list; no J3 after ~1.7e10 / 3.1e10 steps).  Restart from the J2 config (pkf4 --kt ... --dumpj) if needed.
+   - runs/endg_ctx4.txt: 200 endgames (z = 20..219) in the level context (endg.py).
+   - runs/lchain_1000_1400.txt, runs/lchain3_1000.txt: L-sequences that validate the chain map in both contexts.
+   - runs/etab_200_1200.txt, runs/etab_1200_3200.txt: top-level exhaustion results E(n), R2=100.
+   - Literal costs: plain literal exhaustion is ~ n * R2 (the accumulator -> parked-list conversion); lkf.py with
+     --kt --noprover --xcap 40 (history now bounded) is the macro alternative but was still slow at R2 ~ 3.6e4.
+   - chainsym.py is the fastest route for item 6: extend it with the size-endgame rules once they are decoded.

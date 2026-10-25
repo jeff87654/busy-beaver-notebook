@@ -1,0 +1,1 @@
+{"i": 361, "m": "1RB0RG_1LC1LE_0LD0LB_0RA1LD_0LC0RF_0LG0RF_1RA---", "tmpl": "R,G,P=1,u=01,s=0,d=1d+0,b=1b+0,S=0", "cls": [189], "M": 60, "runs": [{"X": "E0", "s": 0, "c": 9, "v": "g0", "snap": {"step": 22, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "361_E0_c9_g0.txt"}], "time": 0.9}

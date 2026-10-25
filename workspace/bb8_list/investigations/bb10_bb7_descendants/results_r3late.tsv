@@ -1,0 +1,7 @@
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI1RE_---1RJ_0RA0RJ	R3-C28-E8-........H	RESULT UNCLEAR-T stages=2 full_cycles=0 level=0 history=[('J', 'block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI1RE_---0RJ_1LB1RJ	R3-C28-E8-........H	RESULT UNCLEAR-T stages=2 full_cycles=0 level=0 history=[('J', 'block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI1RE_---0RJ_1LB1RC	R3-C28-E8-........H	RESULT UNCLEAR-RULES stages=2 full_cycles=0 level=0 history=[('J', 'block', False), ('RULES-FAIL',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI1RE_---0RJ_1RD1RJ	R3-C28-E8-........H	RESULT UNCLEAR-T stages=2 full_cycles=0 level=0 history=[('J', 'block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RI0LC_1RG1LD_0RH0RF_0RI0RF_---0RJ_0LB0RC	R3-C28-E8-........H	RESULT FAIL no period for R1: JJJJJJJJJJJJJJJJJJJJJJ
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI1RE_---0RJ_0LB0RH	R3-C28-E8-........H	RESULT UNCLEAR-T stages=3 full_cycles=0 level=0 history=[('J', 'block', False), ('J', 'a-block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI1RE_---1RJ_1RD0RJ	R3-C28-E8-........H	RESULT HALT stages=4 full_cycles=0 level=0 history=[('J', 'block', False), ('J', 'block', False), ('J', 'a-block', False), ('H', '4*R1+2*R2+6158')] ones=4*R1+2*R2+6158

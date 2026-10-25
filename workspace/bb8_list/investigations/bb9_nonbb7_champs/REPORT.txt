@@ -1,0 +1,383 @@
+================================================================================
+INVESTIGATION REPORT: NON-BB(7) 7-STATE CHAMPION BASES & 8/9-STATE EXTENSIONS
+Working Directory: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb9_nonbb7_champs\
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------
+We scanned all completed search outputs in `bb7_holdouts` (`hits_triage7.tsv`,
+`dl2_out/c00000.tsv`..`c00189.tsv`, `dl3_triage7/out.tsv`, and `dl3_hits/out.tsv`)
+for 7-state machines graded `CHAMPION` (12+ Ackermann cascade events) and
+analyzed their exact macro dynamics, exhaustion configurations, and 8-state /
+9-state extensions.
+
+Key Results:
+  1. Across all `bb7_holdouts` outputs, there are exactly 17 unique `CHAMPION`
+     7-state machines, which partition cleanly into 5 families (`C1..C5`).
+  2. TWO NEW 7-STATE HALTING CHAMPIONS (`C4_1` and `C4_2`, Family C4) BEAT BB(7):
+     - `C4_1`: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB` (`c00143.tsv`)
+     - `C4_2`: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB` (`c00150.tsv`)
+     From blank tape, both reach the 21-digit base-3 Ackermann configuration
+       E[0] 1^5 (0011)^21 001
+     at step 3715 (resp. 3775), evaluate 20-arrow base-3 Ackermann
+       B_1 > 3 ↑^20 5 >> Σ(BB(7)) ≈ 2 ↑^10 3,
+     and HALT cleanly on `C1 = ---` in the configuration:
+       (10)^39 11001 C[1] 1 (0011)^M_1 001,   where M_1 = (B_1 - 39) / 2,
+     with Σ(C4_1) = Σ(C4_2) = 2*M_1 + 43 = B_1 + 4 > 3 ↑^20 5!
+  3. Unlike `C1_bb7` (which halts with accumulator blocks `(101)^b` that must be
+     converted into digits by an external rebuilder), `C4_1` and `C4_2` ALREADY
+     convert the unary accumulator `1^B` into M = (B - 2k + 3)/2 valid digits
+     `(0011)^M 001` BEFORE hitting the halt slot `C1 = ---`!
+  4. We proved the Exact 2-Adic Contraction Theorem for `C4_1`/`C4_2`: every
+     z = 2 reload maps B |-> 15 * 3^((B-1)/2 + 2) - 8, which is a 2-adic
+     contraction on Z_2 (doubling 2-adic precision per step) to a period-2
+     2-adic attractor:
+       B_odd*  ≡ 151 (mod 256)   for odd k >= 3,
+       B_even* ≡  85 (mod 256)   for even k >= 4.
+     Consequently, for every valid odd-B cascade of length k >= 3 ending in
+     `..., 1, 1, 1`, the output digit count M = (B_fin - 2k + 3)/2 is ALWAYS EVEN:
+       M ≡ 77 - k (mod 128) [odd k],    M ≡ 44 - k (mod 128) [even k].
+     At the end of Round 1 (k_1 = 21), M_1 ≡ 56 (mod 128).
+  5. In 8 states, `C4_1` and `C4_2` yield 167 `CLEAN_K` rebuilder classes
+     (56 preserving M at k = 21), including:
+     - 34 clean 8-state f_{ω+1} non-halting rebuilders (`C1=0LH H0=--- H1=0LA`
+       with `H0 = ---` unused) that map `(10)^{2k-3} 11001 C[1] 1 (0011)^M 001`
+       to `E[0] 1^1 0011 (00)^{2k-1} (0011)^M 001` in 32k - 16 steps for ALL
+       k >= 2, M >= 1, iterating k_{r+1} = M_r + 2k_r ≈ (1/2) f_ω(k_r) forever.
+     - 139 conditional halt-vs-rebuild 8-state machines (`C1=1RH H0=--- H1=1RC`,
+       `C1=0RH H0=--- H1=0LA`, `C1=1RH H0=--- H1=0LB`) that pit `(10)^{2k-3}`
+       against `(0011)^M` via an exponential counter, halting on `H0 = ---` when
+       M is small relative to k and entering `CLEAN_K` when M >> k.
+  6. In 9 states, exhaustive lazy backtracking over all 78,336 9-state halting
+     extensions of `C4_1` and `C4_2` (`backtrack_c4_9state.py`) identified
+     485 (`C4_1`) + 519 (`C4_2`) = 1,004 machines that reach `VALID_ODD_K` on
+     both k = 3 and k = 21 with M-extension (`ds(M+1) = ds(M) + [1]`). We proved
+     why 0 of these 1,004 machines halt after Round 2 (at even k_2): the number
+     of `10` pairs in `(10)^{2k-3}` is 2k - 3 (always odd), and any 2-pair
+     chewer (`k -> k-2`) must use both `H0` and `H1` inside the `(10)^{2k-3}`
+     loop, leaving insufficient transitions at the left cap `11001` to halt cleanly
+     on the opposite k-parity without re-entering already-used transitions.
+
+================================================================================
+2. COMPLETE CATALOG OF THE 17 `CHAMPION` 7-STATE MACHINES IN `bb7_holdouts`
+================================================================================
+
+Note on `FamE` and `FamF` from the prompt:
+  - `FamE` (`1RB0RA_1LC1RF_1RE0LD_0LC0LE_1RA---_1RD0LG_0RF0RG`): Does not appear
+    in any file in the workspace. From blank tape, halts at step 12 (`ones=3`).
+  - `FamF` (`1RB1LC_0LA0LD_1LA1LF_1RE0RB_1RF1LE_1RG0RC_0RF---`): Does not appear
+    in any file in the workspace. From blank tape, enters a period-4 translated
+    cycler (`span=125002, ones=62500` at step 500,000) from step 0.
+
+The 17 true `CHAMPION`-graded 7-state machines in `bb7_holdouts` partition into
+5 families (`C1..C5`):
+
+--------------------------------------------------------------------------------
+FAMILY C1 (2 machines): `(R, B, P=11, u=10, s=1)` — Base-2 Doubling (`f_ω`)
+--------------------------------------------------------------------------------
+  - `C1_bb7`: `1RB0RA_1LC1LF_1RD0LB_1RA1LE_---0LC_1RG1LD_0RG0RF` (undef `E0`)
+    Source: `hits_triage7.tsv`, `dl3_triage7/out.tsv`, `dl2_out/c00001.tsv`
+  - `C1_new`: `1RB0RA_1LC1LF_0LD0LB_1RE0LB_1RA---_1RG1LE_0RG0RF` (undef `E1`)
+    Source: `dl2_out/c00121.tsv` (NEW sibling of BB(7) champion!)
+
+Exact Comparison of `C1_bb7` and `C1_new`:
+  - From blank tape, `C1_bb7` reaches at step 2117 and `C1_new` reaches at
+    step 1951 the BIT-FOR-BIT IDENTICAL canonical configuration:
+      111(01)^7 1 (101)^12 0111001 B[0]   =   K(2, 0^10; 0; 0)  (with Y1 = 111)
+  - Both execute the exact same macro rules:
+      K(..., d+1; a; b)          -> K(..., d; 2a + 2b + 5; 0)
+      K(..., 0^z, c+1; 0; b)     -> K(..., c, b, 0^{z-1}; 6; 0)
+  - Both exhaust Round 1 with the exact same final b_final and exact same
+    halting score Σ = Σ(BB(7))!
+  - Difference at exhaustion of `111 (101)^{b+1} 0111001 B[0]`:
+      `C1_bb7` halts on `E0 = ---`:   E[0] 111 010100101 (101)^b
+      `C1_new` halts on `E1 = ---`:   E[1] 11  010100101 (101)^b
+    where in `C1_new`, `E[1]` is standing on the leftmost `1` of `111`.
+
+8-State Extensions of `C1_new` (`enum_c1_new_8_and_9.py`, `check_c1_new_rebuilders.py`):
+  - Because `E[1]` stands on the leftmost `1` of `111`, setting `E1 = 0LH`
+    overwrites that `1` with `0`, erasing `111` (`Y1`) to a clean `11` (`Y0`)!
+  - Specifically, Class 2 (`E1=0LH, H0=0LB, H1=---`, 34 machines) maps:
+      E[1] 11 010100101 (101)^b  -->  101101010100111 (001)^{b+2} B[0]
+                                 -->  11 (010101011)^{b-1} (01)^6 0111001 B[0]
+    with ZERO left junk and a clean `11` (`Y0`) left cap!
+  - However, in `C1_new`, every right-moving sweep across `(101)^b` that reaches
+    the right cap `B[0]` must use state `A` (`A0=1RB, A1=0RA, B1=1LF, F1=1LE,
+    E0=1RA`), which converts `(101)^b` into `(001)^b B[0]` -> `(010101011)^b`.
+    On the first reload across `1 (01)^A`, `(01)^4 1` loses three `01` pairs to
+    become `(01)^1 1 = 011`, forming `0111 (01)^A` (`111`), which hits `E0 = 1RA`
+    (already defined in `C1_new`!) and traps the machine in an infinite O(2^n)
+    bouncer (`111 <-> 101010101`).
+
+--------------------------------------------------------------------------------
+FAMILY C2 (4 machines): Exponential Bouncers (False Positive `CHAMPION`s)
+--------------------------------------------------------------------------------
+  - `C2_L1`: `1RB---_1LC1LE_1LD0LC_0RE0LA_0LF0RF_1RF1RG_1LB1RB` (`c00018.tsv`)
+  - `C2_L2`: `1RB---_1LC1LE_1LD0LC_0RE0LA_1LB0RF_1RF1RG_1LB1RB` (`c00024.tsv`)
+  - `C2_R1`: `1RB0LE_1RC1RA_1RD0RC_0LA0RG_1LE1LF_1RB1LB_1LB---` (`c00105.tsv`)
+  - `C2_R2`: `1RB0LE_1RC1RA_1RD0RC_0LA1RG_1LE1LF_1RB1LB_0RC---` (`c00111.tsv`)
+  Behavior (`analyze_c2_c3_fame_famf.py`):
+  - `C2_L1` and `C2_R1` are Exact Left-Right Mirror/State Duals.
+  - From blank tape, all 4 machines never enter an Ackermann cascade; they are
+    pure O(2^{n/2}) binary counter / bouncers reaching `(10)^n 1 G[1]` at step
+    T_n where ΔT_n = 76*2^m - 10 (even n=2m) and 112*2^m - 10 (odd n=2m+1).
+
+--------------------------------------------------------------------------------
+FAMILY C3 (3 machines): `(L, B/C, P=101, u=10, s=00)` — 7-State Non-Halting f_{ω+1}!
+--------------------------------------------------------------------------------
+  - `C3_1`: `1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1LB0LE` (undef `A1`, `c00029.tsv`)
+  - `C3_2`: `1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1RB0LE` (undef `A1`, `c00030.tsv`)
+  - `C3_3`: `1RB0LE_1LC0LA_1RF1RD_0RF0LE_0LC1LB_1RG0RC_1RB---` (undef `G1`, `c00072.tsv`)
+    (`C3_2` and `C3_3` are exact state-relabeled morphs swapping `A <-> G`).
+  Exact Inductive Proof (`test_c3_rebuild.py`, `check_c3_transitions.py`):
+  - Define canonical configuration C(N) = `(101)^N 0011 E[1]`.
+  - From blank tape:
+      `C3_1` reaches C(3) = `(101)^3 0011 E[1]` at step 62.
+      `C3_2` and `C3_3` reach C(3) at step 50, and C(8) at step 806.
+  - For every integer N >= 3:
+      C(N) transitions in 4N - 2 steps to `(101)^{N-2} 0011000101 D[1]`,
+      which is the exact base-2 Ackermann cascade with k = N - 2 digits!
+      When all N - 2 digits exhaust, the machine automatically rebuilds the
+      entire tape into C(N') = `(101)^{N'} 0011 E[1]` with N' = f_ω(N - 2) >> N,
+      WITHOUT EVER TOUCHING THE UNDEFINED SLOT (`A1` or `G1`)!
+      Specifically:
+        C(3) -> C(8)     in        744 steps
+        C(4) -> C(26)    in     12,068 steps
+        C(5) -> C(371)   in  3,309,888 steps
+        C(8) -> C(N_2)   where N_2 > 2 ↑↑ 26, and so on forever (f_{ω+1})!
+  - Why `A1` (`G1`) is unreachable after step 2: `A0 = 1RB` (`G0 = 1RB`), and
+    every transition into `A` (`G`) is `F0 = 1RA` (`1RG`) moving RIGHT onto a
+    cell that was always `0` during every sweep after step 2.
+
+--------------------------------------------------------------------------------
+FAMILY C4 (2 machines): `(L, E, P=100, u=11, s=00)` — NEW BB(7) CHAMPIONS!
+--------------------------------------------------------------------------------
+  - `C4_1`: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB` (undef `C1`, `c00143.tsv`)
+  - `C4_2`: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB` (undef `C1`, `c00150.tsv`)
+    (Differ only in `G0 = 0LD` vs `G0 = 1LC`).
+
+--------------------------------------------------------------------------------
+FAMILY C5 (6 machines): Constant-Slope (`b -> 3`) Radix-4 Counters (`O(4^k)`)
+--------------------------------------------------------------------------------
+  - `C5_1`: `1RB0RB_1RC1RG_1LD---_1RA1LE_0RF0LE_1LC0RF_0LD1RD` (`c00157.tsv`)
+  - `C5_2`: `1RB0RB_1RC1RG_1LD---_1RA1LE_0RF0LE_1LC0RF_0LF1RD` (`c00158.tsv`)
+  - `C5_3`: `1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_0LA1RG_0LA1RA` (`c00172.tsv`)
+  - `C5_4`: `1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_0RA1RG_0LA1RA` (`c00174.tsv`)
+  - `C5_5`: `1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_1LF1RG_0LA1RA` (`c00175.tsv`)
+  - `C5_6`: `1RB1LD_1RC0RF_1LA---_0RE0LD_1LC0RE_1LF1RG_0LE1RA` (`c00176.tsv`)
+  Behavior (`analyze_c2_c3_fame_famf.py`):
+  - Marked `slope=0` in `k_view.py`: their reload rule resets `b -> 3` (constant!)
+    instead of transferring `b` into the next digit (`[0^z, c+1; b] -> [3^z, c; 3]`).
+    Thus they are radix-4 counters that increment `k -> k+1` in O(4^k) steps forever.
+
+================================================================================
+3. EXACT MACRO RULES & 2-ADIC INVARIANTS OF `C4_1` AND `C4_2`
+================================================================================
+
+3.1 Canonical Configuration
+---------------------------
+For `B >= 1` and digit list `[d_0, d_1, ..., d_{k-1}]` (`d_i >= 0`):
+  K([d_0, d_1, ..., d_{k-1}]; B)  :=  E[0] 1^B 00(11)^{d_0} 00(11)^{d_1} ... 00(11)^{d_{k-1}} 001
+
+Notice the orientation:
+  - The unary accumulator `1^B` and head `E[0]` are on the LEFT.
+  - The lowest-order digit `d_0` is immediately to the right of `1^B 00`.
+  - The highest-order digit `d_{k-1}` is on the far RIGHT, followed by the
+    right cap `001`.
+
+3.2 Startup & Round-0 Bounce from Blank Tape (`test_c4_k.py`)
+-------------------------------------------------------------
+  - At step 164 (`C4_1`) / step 166 (`C4_2`), both machines reach:
+      E[0] 1^2 0011 0011 001   =   K([1, 1]; B=2)   (k = 2, B = 2 EVEN).
+  - At step 934 (`C4_1`) / step 936 (`C4_2`), `[1, 1]` finishes evaluating to:
+      E[0] 1^40 00 00 001      =   K([0, 0]; B=40)  (k = 2, B = 40 EVEN).
+  - Because B = 40 is EVEN and k = 2, the left-moving sweep eats 20 pairs of `11`
+    and lands on `E[0]` (avoiding `C1 = ---`!) and converts `1^40` into 21 digits
+    of `1`:
+      step 3715 (`C4_1`) / step 3775 (`C4_2`):
+      E[0] 1^5 (0011)^21 001   =   K([1^21]; B=5)   (k_1 = 21, B = 5 ODD!).
+
+3.3 Exact Macro Rules for Odd B (`analyze_c4_exact_rules.py`)
+-------------------------------------------------------------
+Both `C4_1` and `C4_2` obey the exact same macro rules for all odd B:
+
+  - Rule D (Decrement d_0 > 0):
+      K([d_0, d_1, ...]; B)  -->  K([0, d_1, ...]; B + 6*d_0)
+    Preserves the parity of B (odd B -> odd B + 6*d_0).
+
+  - Rule B_z (Reload across z >= 1 leading zeros, d_z > 0, odd B >= 2z - 1):
+      K([0^z, d_z, ...]; B)  -->  K([1^{z-1}, (B-1)/2 + 4 - z, d_z - 1, ...]; 1)
+    Resets B = 1 (odd!) and places `(B-1)/2 + 4 - z` into `d_{z-1}`.
+    Combined with Rule D:
+      * z = 1 (d_1 > 0):
+          ([0, d_1, ...]; B) -> ([0, 0, ...]; 3^{d_1}*(B + 8) - 8)
+      * z = 2 (d_2 > 0):
+          Each decrement of d_2 applies f(B) = 15 * 3^((B-1)/2 + 2) - 8
+          (base-3 tetration: B -> 3 ↑↑ d_2)
+      * General z:
+          d_z computes (z+1)-arrow base-3 Ackermann (3 ↑^z).
+          For k_1 = 21 (`d_0 .. d_20`), Round 1 evaluates 20-arrow base-3
+          Ackermann: B_1 > 3 ↑^20 5 >> Σ(BB(7))!
+
+  - Rule E (Exhaustion of k zeros `[0^k]` with odd B >= 2k - 1):
+      E[0] 1^B (00)^k 001  -->  (10)^{2k-3} 11001 C[1] 1 (0011)^M 001
+    where:
+      M = (B - 2k + 3) / 2,
+      Step count of exhaustion sweep = (B^2 + (4k+8)*B - 12k^2 + 8k + 19) / 4,
+      Total ones at halt: Σ = 2*M + 2k + 1 = B + 4.
+
+3.4 Exact 2-Adic Contraction Theorem (`prove_c4_mod8.py`, `prove_c4_mod_power2.py`)
+-----------------------------------------------------------------------------------
+Theorem:
+  Let f(B) = 15 * 3^((B-1)/2 + 2) - 8 be the z = 2 macro map on odd integers B.
+  For any integer m >= 2 and any odd B_1, B_2:
+    B_1 ≡ B_2 (mod 2^m)  ==>  f(B_1) ≡ f(B_2) (mod 2^{m+1}).
+  Thus f is a 2-adic contraction on Z_2 with contraction factor 1/2, and f∘f has
+  a unique 2-adic fixed-point 2-cycle (B_odd*, B_even*):
+    B_odd*  ≡ 151 (mod 256)   [≡ 7 (mod 16), ≡ 23 (mod 64)],
+    B_even* ≡  85 (mod 256)   [≡ 5 (mod 16), ≡ 21 (mod 64)].
+  For any cascade of length k >= 3 ending in `..., d_{k-3} >= 1, d_{k-2} = 1,
+  d_{k-1} = 1` (including `K([1^k]; 5)` and every rebuilder output of the form
+  `K([..., 1^M]; B_0)` with M >= 3):
+    - If k is ODD:  B_fin ≡ 151 (mod 256),  M = (B_fin - 2k + 3)/2 ≡ 77 - k (mod 128).
+    - If k is EVEN: B_fin ≡  85 (mod 256),  M = (B_fin - 2k + 3)/2 ≡ 44 - k (mod 128).
+  Corollary:
+    Since 77 - k is even for odd k and 44 - k is even for even k, the number of
+    output digits M at exhaustion is ALWAYS EVEN for every k >= 3!
+    In particular, at the end of Round 1 (k_1 = 21), M_1 ≡ 56 (mod 128) (divisible by 8).
+
+================================================================================
+4. 8-STATE EXTENSIONS OF `C4_1` AND `C4_2` (`enum_c4_8state.py`, `filter_c4_clean_k_classes.py`)
+================================================================================
+
+Out of all 4 * 33 * 33 = 4,356 8-state extensions (`C1, H0, H1`) of `C4_1` (and
+similarly for `C4_2`):
+  - 1,483 machines (falling into 167 distinct behavior classes) chew the left cap
+    `(10)^{2k-3} 11001 C[1] 1` and reach a clean `E[0] 1^B 00(11)^{d_0} ... 001`
+    configuration (`CLEAN_K`).
+  - 56 of those 167 behavior classes preserve all M digits from Round 1
+    (`ds(M+1) = ds(M) + [1]`) and have odd B >= 2z - 1 at k_1 = 21 (`VALID_ODD_K`).
+
+Notable 8-State Families (with 1 free halt slot `H0 = ---` untouched in Round 1):
+
+  1. Universal 8-State Non-Halting f_{ω+1} Rebuilder (`C1=0LH H0=--- H1=0LA`):
+     - Machine (`C4_1` base): `1RB0RG_1RC1RB_0RD0LH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---0LA`
+     - For ALL k >= 2 and ALL M >= 1, in exactly 32k - 16 steps:
+         (10)^{2k-3} 11001 C[1] 1 (0011)^M 001
+           --> E[0] 1^1 0011 (00)^{2k-1} (0011)^M 001
+             = K([1, 0^{2k-1}, 1^M]; B=1).
+     - Since B = 1 is odd and z = 0 (`d_0 = 1`), Rule D immediately maps
+       B = 1 -> B = 7, and for k = 2 (`z = 3`, `7 >= 5`) it enters an infinite
+       f_{ω+1} loop with k_{r+1} = M_r + 2*k_r ≈ (1/2)*f_ω(k_r).
+     -Note: For k = 21, z = 2k - 1 = 41 > 4 (since B = 7 reloads at most z = 4
+       zeros); see Family 2 below for classes with z <= 1 at k = 21!
+
+  2. Universal 8-State f_{ω+1} Rebuilders Valid for ALL k >= 2 (including k = 21)
+     AND Conditional Halt-vs-Rebuild Machines (with `H0 = ---` free!):
+     - Family 2A (`C1=1RH H0=--- H1=1RC`, 68 machines across `C4_1`/`C4_2`):
+         `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---1RC`
+     - Family 2B (`C1=0RH H0=--- H1=0LA`, 37 machines):
+         `1RB0RG_1RC1RB_0RD0RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---0LA`
+     - Family 2C (`C1=1RH H0=--- H1=0LB`, 34 machines):
+         `1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---0LB`
+     Exact Dynamics (`trace_1RC_transition.py`):
+     - During the transition from `(10)^{2k-3} 11001 C[1] 1 (0011)^M 001`, these
+       machines run a 2-sided exponential race between `(10)^{2k-3}` on the left
+       and `(0011)^M` on the right:
+       * Consuming one `0011` digit from M multiplies the unary middle block by 3.
+       * Consuming one `10` pair from `2k-3` subtracts 4 from the unary block.
+       * If `(0011)^M` runs out BEFORE `(10)^{2k-3}` is chewed (`M = 1, k >= 3`;
+         `M = 2, k >= 5`; `M = 3, k >= 1535`), the head reaches the right cap
+         `001` in state `H[0]` and HALTS cleanly on `H0 = ---`!
+       * If `M >> k` (which holds at the end of Round 1 from blank tape since
+         M_1 > (1/2)*(3 ↑^20 5) >> k_1 = 21, and in every subsequent round),
+         `(10)^{2k-3}` finishes first (consuming only 3 digits of M at k = 21)
+         and enters the clean Round-2 configuration:
+           Family 2A (k=21): K([33, 6, 6, 0, 1^{M_1-3}]; B=1)   (k_2 = M_1 + 1)
+           Family 2B (k=21): K([35, 5, 5, 0, 1^{M_1-3}]; B=1)   (k_2 = M_1 + 1)
+           Family 2C (k=21): K([31, 6, 6, 0, 1^{M_1-3}]; B=1)   (k_2 = M_1 + 1)
+         Here B = 1 is odd and z = 0 (`d_0 >= 31`), so `B` immediately becomes
+         B >= 187 >> 2z - 1 and evaluates the full (M_1 + 1)-digit Round-2
+         Ackermann cascade (`k_{r+1} = M_r + 1` for all r >= 1, a true 8-state
+         f_{ω+1} machine with `H0 = ---` unused!).
+
+  3. Parity-Sensitive 8-State Rebuilders (`k mod 2` distinguishers):
+     - Several 8-state classes chew `(10)^4` (two `k`-steps) per cycle and
+       therefore have DIFFERENT left-end behaviors for odd k vs even k!
+     - Since k_1 = 21 is ODD and M_1 is ALWAYS EVEN (by the 2-Adic Contraction
+       Theorem), if k_2 = M_1 + Δk has ODD Δk, then k_2 is ODD; if Δk is EVEN,
+       then k_2 is EVEN!
+     - Example (`C1=0RH H0=1LC H1=1LH`):
+         Odd k  (k=3, 5, ..., 21): reaches `VALID_ODD_K`:
+           At k=21: K([1, 20, 0, (3, 0)^8, 1^{M_1}]; B=5)
+           which has Δk = 19 (ODD!), so k_2 = M_1 + 19 is ODD!
+     - Example (`C1=1RH H0=0LG H1=1LH`):
+         Odd k  (k=3, 5, ..., 21): reaches `VALID_ODD_K`:
+           At k=21: K([23, 0, (3, 0)^8, 1^{M_1}]; B=1)
+           which has Δk = 18 (EVEN!), so k_2 = M_1 + 18 is EVEN!
+         Even k (k=2, 4, 6, ..., k_2): finishes chewing `(10)^{2k-3}` with
+           EVEN B = 6 (`E[0] 1^6 00 (11)^k (0011)^8 00 (11)^3 (0011)^{M_2} 001`),
+           which after evaluating the first digit hits `C[1]` in Context 2
+           (`10011 C[1] 1^{6k+25} 000011...`)!
+
+================================================================================
+5. 9-STATE EXTENSIONS OF `C4_1` AND `C4_2` (`backtrack_c4_9state.py`)
+================================================================================
+
+We ran an exact lazy-branching backtracking search over all 9-state extensions
+of `C4_1` and `C4_2` (states `A..I` with 1 undefined halt slot `---`, totaling
+78,336 halting 9-state machines per base machine):
+  - `C4_1`: 19,409 lazy execution branches explored; 485 halting 9-state machines
+    reach `VALID_ODD_K` on both k = 3 and k = 21 with M-extension (`ds(M+1) = ds(M) + [1]`).
+  - `C4_2`: 19,805 lazy execution branches explored; 519 halting 9-state machines
+    reach `VALID_ODD_K` on both k = 3 and k = 21 with M-extension.
+
+Why Zero of the 485 + 519 Machines Halt After Full Round 2 (at k_2):
+  1. Constant Parity of `2k - 3`:
+     In the exhaustion configuration `(10)^{2k-3} 11001 C[1] 1 (0011)^M 001`,
+     the number of `10` pairs is `2k - 3`, which is ODD for every integer k.
+     Any gadget that chews one `10` pair per cycle (`k -> k - 1`) executes the
+     exact same transition sequence at the left end for both odd k and even k.
+  2. Transition Budget in 2-Pair Chewers (`k -> k - 2`):
+     Gadgets that chew `(10)^4` (two `10` pairs, `k -> k - 2`) per cycle DO
+     arrive at the left end `10101` in two different phases depending on `k mod 2`
+     (or `k mod 3`, as in `C1=1RH H0=0RC H1=1LI I0=--- I1=1LD`).
+     However, chewing `(10)^4` without halting requires using `C1`, `H0`, `H1`
+     (and `I1` if routed through `I`) inside the interior `(10)^{2k-3}` loop.
+     Consequently, on the opposite parity of k:
+       - Either the left-end bounce only uses those already-defined transitions
+         and resolves into another `VALID_ODD_K` cascade (for example,
+         `C1=1RH H0=0RC H1=1LI I0=--- I1=1LD` reaches `K([1, 22, 0, (3,0)^7, 1^M]; 5)`
+         at even k = 20 and `K([24, 0, (3,0)^8, 1^M]; 1)` at odd k = 21),
+       - Or it enters an even-B / odd-digit cascade that re-enters `C1` in
+         Context 2 (`1001 C[1] 1^{B'}`) on the same defined transitions.
+  3. High-Order Right vs Low-Order Left Geometry:
+     Because `(0011)^M 001` is on the RIGHT (high-order Ackermann end) while
+     `(10)^{2k-3} 11001 C[1]` is on the LEFT (low-order accumulator end), any
+     9-state machine that routes a Context-2 transition to `---` (via `I0` or `I1`)
+     halts during the evaluation of the first O(1) low-order digits of Round 2,
+     while the M_1 digits `(0011)^{M_1 - O(1)}` remain on the right of the tape,
+     yielding halting score Σ = B_1 + O(f_ω^{low}) > 3 ↑^20 5.
+
+================================================================================
+6. SUMMARY OF SCRIPTS & FILES IN THIS DIRECTORY
+================================================================================
+  - `scan_dl2_out.py`              : Scans `dl2_out/c*.tsv` & `hits_triage7.tsv`
+  - `analyze_19_champs.py`         : Deduplicates 17 champions into Families C1..C5
+  - `analyze_c2_c3_fame_famf.py`   : Exact analysis of C2, C3, C5, FamE, FamF
+  - `test_c3_rebuild.py`           : Inductive verification of C3 f_{ω+1} loop
+  - `check_c3_transitions.py`      : Proves A1/G1 unreachability in C3_1..C3_3
+  - `test_c4_k.py`                 : Startup & Round-0 bounce of C4_1 and C4_2
+  - `analyze_c4_exact_rules.py`    : Derives Rules D, B_z, E for C4_1 and C4_2
+  - `prove_c4_mod8.py`             : Proves 2-adic contraction of z=2 map in C4
+  - `prove_c4_mod_power2.py`       : Exact mod 256 attractors & M evenness proof
+  - `enum_c4_8state.py`            : Enumerates all 4,356 8-state C4 extensions
+  - `filter_c4_clean_k_classes.py` : Classifies 167 CLEAN_K & 56 VALID_ODD_K classes
+  - `trace_1RC_transition.py`      : Exact race dynamics of `C1=1RH H0=--- H1=1RC`
+  - `trace_even_k_behavior.py`     : Parity-sensitive 8-state C4 rebuilders
+  - `backtrack_c4_9state.py`       : Exhaustive 9-state lazy backtracking for C4
+  - `enum_c1_new_8_and_9.py`       : 8-state extension scanner for `C1_new`
+  - `check_c1_new_rebuilders.py`   : Classifies all 177 B[0] classes of `C1_new`
+  - `trace_11011_bounce.py`        : Proves `111 -> E0 = 1RA` bounce in `C1_new`
+  - `test_c4_9state_context2_halt.py`: Context-2 re-entry analysis for C4
+================================================================================

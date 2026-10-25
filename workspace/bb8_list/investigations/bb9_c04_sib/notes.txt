@@ -1,0 +1,87 @@
+bb9_c04_sib notes (agent c04-sib, started 2026-10-17)
+Task: C04 neighbourhood search for 3+ escalations / larger 2-escalation siblings. See lead message.
+Tools copied: pkf4/pkf5/ktr/tmsim/chain_model/pk.sh/launch.sh/cmprule/towermod/backref_s.py (sources in src_deep, src_upper).
+[obs1] C04 from blank: before first E0 read the used slots are all except E0,H1 (pkf4 used= at J1/J2). So every gadget slot
+       (F0 G0 G1 H0 I0 I1) is used in normal (champion-emulating) mode; changing any of them breaks the engine. The
+       engine-preserving neighbourhood with this gadget = {E0 = X, H1 = halt}, 36 X (X=--- is the record).
+[obs2] backref on alpha-gadget E0 variants: H1 reachable only for E0 in {0LG,1LG,0LH,1LH,0RH,1RH,1RG}.
+       0RH/1RH/1RG: HALT H1 at the first exhaustion (step 10601 with B=7, ones ~6B) -> omega-level 1, dominated.
+       C01 (0LG): faithful world (B=7, R=20+k): exh#1 -> counter 6B+3 next to digit list 7 1^12 (FIXED depth 12);
+          counter mode: CL depth 12, counter -3 per CL; at 0 -> list 1^(12R+16) cleared (escalation), then new counter
+          6R'+3 with depth 12R+17, ... = f_(w+1)-shape grow loop (depth_{n+1} ~ 12*R after 2R'+1 clears of depth_n). No halt seen.
+       C02 (1LG): exh -> "0 1 (6R+4) 1^(k+3)" / "0 0 7 1^(12R+k+4)": grow loop, depth 15 -> 439 -> 443 -> 6003 -> 6007.
+       C03 (0LH): 11 -> 101 -> 16103: grow loop (12R+c every exhaustion).
+       => in the alpha family C04 is the only E0 value that halts after an escalation. (runs/C01_f1.txt, C02_f1.txt)
+[obs3] fam504.tsv = 14 two-free-slot CHAMPION rows of n1f0 (bb9_n1f0_complete/champ_rows.tsv) x 36 E0; backref_s.py depth 60:
+       107 KEEP (g00 36, g01 7, g02-04 3 each, g05 7, g06 5, g07 4, g08 4, g09 4, g10 7, g11 10, g12 7, g13 7).
+       Screen world w1 = --B 126 --rk 1 --rc 20 (B = 6 mod 120), screen.py -> runs/scr_w1/summary.tsv.
+[obs4] beta gadget (g00: G=1RH0LG H=0RF1RI I=1RG---) E0=0LC/0LG/1LF/1RD reproduce C04's exhaustion #1/#2 exactly
+       (k = 1537, 546 in w1) but halt at I1 inside a cascade exhaustion. In the REAL class start (Kt(0,0,1^n;1;152;3),
+       n = 1792, 4917 = real class mod 5^5) g00_0LC halts DURING exhaustion #2 after one r=4 sub-step (token 1077 5 644
+       where C04 writes 1077 4 645), ones ~ R2-scale => sigma ~ f_w(12B), one escalation, BELOW C04.
+       bad_alloc (tape runaway, translated cyclers) for g00 0LD 1LE 1RF.
+[obs5] standard-template (pkf6) families DONE in w1: g00 (36) + g01 (7) + g02 (3). No HALT with >= 2 escalations except C04.
+       g00 halters: <= 1 escalation (0LC 0LG 1LF 1RD = C04-like cascade halting at I1; 1RC/1RG = 3-4 clears at depth 12B+c; rest J1-J3).
+       Loopers (clean f_(w+1)-shape, far region constant '0*2 7 1^k' / '0 (6R+7) 1^k', no counter): a_0LG(C01, counter
+       6R+3 reloaded per period), a_0LH(C03), a_1LG(C02), g00 0LB 0RA 1LB 1LD 1LH 1RB 1RE.  g02: halt G0 at J1.
+[obs6] g03-g13 are u=01 templates (35-digit engines, first list k=35 => first accumulator B' = clear depth 35 >> B!).
+       pkf6 cannot parse them; zfg6.exe = zfg + --rk/--rc/--rpow/--rcap (order-faithful). Screen z1 = --R0 126 --rk 1 --rc 20.
+       pkf6 --nocl --nojr1 now skips the K-moment parse (was quadratic). Literal screen of alpha 1-slot engine mutants (245): runs/scr_lit.
+[obs7] u=01 rows (g03-g13, 61 KEEP) screened with zfg6 in z1 (runs/scr_z1): NO escalation anywhere.
+       - 1-exhaustion halts (ones ~ 24.8*R0, i.e. sigma ~ 25 B', B' = clear at depth 35): g03 0LF/0LG, g04 0LF, g05 all 7,
+         g06 0LH/0RH/1LH/1LI, g07 4 (E0->I, I undefined), g10 7, g11 10, g12 7, g13 7.
+       - countdown structures (depth 35 -> 32/33 -> 31 -> 30 -> 29..., ~2R clears per depth, no list built from an accumulator):
+         g03_1LG g04_1LG g06_0LI g08_0LI g08_1LH g09_0LI g09_1LH g09_1LI (END at 300 jumps). Best case if they halt ~ f_40(B'), << C04.
+       - g08_1LI (=lead C30): depth +10 per 2 clears (35,44,54,...,834), R-independent: f_w-shape counting UP, no escalation.
+       - g08_0LH / g09_0LH: after J1 a binary-counter-like right gadget feeds the accumulator linearly (width ~1.2e-2*steps,
+         36M cells at 3e9 steps), parked 1^(12B+7) untouched: likely non-halting counter; no K-moment in 3e9 steps.
+       - g04_0LG: STOP at J2.
+[obs8] alpha 1-slot engine mutants (E1 F0 G0 G1 H0 I0 I1, 245): literal 2e8 steps: 53 halt (max sigma 190), rest STOP;
+       STOP ones re-screened with jumps in runs/scr_m1w (CL validity NOT guaranteed for broken engines).
+[obs9] g07 extension (n1 engine A-H + I, 288 = E0 in {0LI,0RI,1LI,1RI} x (I0|I1 halt) x 36): runs/scr_z1 (g07x_*), z0.
+       Escalating rows: 2-escalation loopers with a fixed per-period frame reset (0RI_I0h_0LD/0RE/0RH, 1LI_I0h_0LC/1LF/1RD,
+       1RI_I0h_0RC/1LD/1RB: depths 35,116x4,1577x4,20570 in z0; far '8 0' reset each period), counter-mode rows (1451x4 1449x24 ...),
+       and X1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0RI0LC_0RG1LD_1RH1LG_1LC0RG_---0RA (+ equivalents E0=1LI/I1=0RF,1RA; E0=1RI/I1=1LA).
+[obs10] X1 in n1 B-form (msim.exe = literal + n1 CLR jump; probe.py = one event): events (P any prefix):
+       H  [1^(n+1)|a] -> [2,1^(2a+4),0,1^n|6] ;  [2,1^M,0,1^n|6] -> [2,1^(M-2),0,5,1^(n+2)|4]
+       [2,1^M,0,2,1^n|a] -> [2,1^(M-2),0,a+1,1^2,0,1^n|6] ; [P,T,1^2,0,1^n|6] -> [P,T-3,2,0,5,1^(n+2)|4]
+       [P,T,2,0,2,1^n|a] -> [P,T-4,2,0,a,1^3,0,1^n|6] ; [P,X,1^3,0,1^n|6] -> [P,X-3,2,1,0,5,1^(n+2)|4]
+       [P,T,2,1,0,2,1^n|a] -> [P,T-3,2,1,0,a+2,1,0,1^n|6] ; [P,X,1,0,1^n|6] -> [P,X-4,2,0,6,1^(n+1)|4]
+       [P,X,2,0,0,1^n|a] -> [P,X-3,2,1,0,a+2,1^(n-1)|4] ; [P,X,2,1,0,0,1^n|a] -> [P,X-3,3,1,a,1^(n+1)|4]
+       KEY: [P,T,2,0,X,0,1^n|a]: a > 2X+c (REAL regime) -> [P,T-6,2,0,a-4-2X,1^7,0,1^(2X+n-1)|6];
+            2X > a: halving branch / irregular non-B-form process (X=48..50,a=100: no B-form in 3e10).
+       All linear-rep worlds are in the wrong branch; grow world (A'>2*width) right branch but x12 per event (cost).
+[obs11] symx1.py = symbolic B-form simulator (affine forms over accumulator symbols; ASSUMPTION newer symbol >> all older
+       combos; events learned by probe.py on order-respecting instantiations, fitted affinely, verified by a 3rd run;
+       rules cached by window signature). Run sym2 (runs/sym2.txt). First levels (real regime):
+       key events EV11/EV19: [P,T,(frame),X,0,1^n|a] -> [P,T',a-2X+c,1^7,0,1^(2X+n-1)|6] (escalation: depth -> 2X+n).
+       Frames left behind per level: '3 1^4' (later '3 1^2 0'), 'S9-6', ...; S2-6 -> S2-8 once. Stack seems to GROW by a
+       frame per level (looper-like) unless later levels consume the left frames. Watching.
+[obs12] sym2 (X1) to EV34 = 3.5 levels: level map is SELF-SIMILAR. Each level: key event [..,T,3,1^4,Y,2,1,0,X,0,1^n|a] ->
+       [..,T,3,1^2,0,Y,a-2X-3,1^7,0,1^(2X+n-1)|6] (depth -> 2X+n, X ~ accumulator of the previous level = one f_w step),
+       then ~7 events push frames; the frame 'S-2S'+7 3 1^2 0 S''-6' is left behind per level and NEVER revisited.
+       Far region (2 1^(2S1) 0 S2-8 ...) static since level 1. => X1 = f_(w+1)-shape LOOPER (strong evidence at model
+       level; assumption newer >> older); I0 never read. NOT a candidate.
+[obs13] symq: g07x 0RI_I0h_1RC and 1RI_I0h_0RH (equal traces): n1-like round: parked 1^(2S1) converted into 6/9 tokens,
+       each 9 consumed by 3 CLRs at depth ~2S1 (A -> U_{2S1}^{A/3}), list -2 per 9 => ~f_w(2B') per round; what happens
+       at round end (re-park the huge A = second escalation?) UNRESOLVED (instantiation broke: S1 too small vs constants;
+       small literal round S1=30 ended in a depth-3 counter). 1LI_I0h_0RA, 1RI_I0h_0LE, 1RI_I0h_1RE: instantiation artefacts
+       (SHAPE-CHANGE), unresolved. 0RI_I0h_0LD: looper (z0: fixed '8 0' reset). All my processes stopped (pids.txt FINAL).
+[obs14] backref (runs/br_x1.txt): X1 (E0=0RI) and twin E0=1RI/I1=1LA: I0 UNREACHABLE (depth 2). Invariant: E entered only by
+       D1=1LE (writes 1 at p+1, moves to p); E0 = xRI moves back onto that 1 => I always reads 1. Holds for EVERY g07
+       completion with E0 in {0RI,1RI}: I0-halt rows never halt, I1-halt rows halt at the first E0 read. Closes X1 and
+       g07x 0RI_I0h_1RC/1RI_I0h_0RH/1RI_I0h_0LE/1RI_I0h_1RE/0RI_I0h_0LD.
+       E0=1LI twins (I1=0RF,1RA): backref UNDECIDED (depth 37); symx1 on 1LI/0RF (runs/sym_tw1.txt): event map IDENTICAL to
+       X1 through 2.5 levels (same tokens), no HALT in any probe => same self-similar looper (model-level evidence).
+       Still open (low): g07x_1LI_I0h_0RA (instantiation artefact, 1RC-like round structure).
+[obs15] C01/C02/C03 halting variants: alpha gadget has only E0, H1 as exhaustion-only slots; all 36 E0 tried; any other
+       slot change breaks the engine; outer loops residue-self-similar => no engine-preserving halting variant.
+HANDOFF: msim.exe TM [--start "toks|A"] [--C --F --P --W] = literal + n1 CLR jump (rep policy); probe.py "toks|A" [TM] = one
+       event; symx1.py --tm TM = symbolic real-regime run (events learned + cached). Event table: obs10, obs12, runs/sym2.txt.
+[obs16] Gap condition for the E0=1LI twins (I0 read <=> E reads 0 at p with cell p-1 = 0): msim4.exe = msim + per-event E0CTX
+       (E0 reads, min distance to left tape end, #left neighbour 0, #cell p-2 = 0); probe.py honours PROBE_EXE.
+       symx1 real-regime runs on both twins (runs/sym_tw2.txt I1=0RF, sym_tw3.txt I1=1RA), 26 events each (to level 3):
+       ~11k E0 reads, left neighbour 0 NEVER (left0=0 everywhere), min distance to the left end 113 cells; many reads have
+       p-2 = 0 (pattern 0 1 [E]) but I reads the 1. In the B-form token grammar '00' only occurs at the left blank end,
+       which E0 never approaches (the far region is static). With the self-similar level map => twins never halt
+       (model-level evidence). X1 family CLOSED.

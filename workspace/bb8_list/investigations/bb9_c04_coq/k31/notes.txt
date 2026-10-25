@@ -1,0 +1,21 @@
+=== HANDOFF (keep current; read this first) ===================================================================
+AGENT: c04-k31 (key-31 endgame, started 2026-10-17 night). Lead = team-lead; main dev owner = c04-coq2.
+FOLDER: bb9_c04_coq/k31/ (own files only).  gen/ = copy of ../gen (generator), outputs go to k31/*.v.
+BUILD: python k31/gen/coqc_idle.py k31/FILE.v [timeout]   (Idle priority; -Q dev Dev, -Q k31 K31; PIDs -> k31/pids.txt)
+SPEC: scratchpad/k31/REPORT_k31.txt (validated key-31 rule set).
+STATE (2026-10-18 07:20): DONE. Full build passes (K_rf K_x K_e1 K_e2 K31_Abs K31_Mach K31_End; bash k31/build.sh).
+  K_e1 8760 s, K_e2 3439 s, Mach 80 s, End 70 s.  Print Assumptions k31_end = Closed under the global context (also the
+  10 Mach restatements).  T_* stubs deleted.  Interface agreed with c04-coq2 (they Require K31.K31_End).
+  Theorem k31_end : forall t P s y l, 35 <= P -> exists c Rl, D0f t 32 P s y l -->* c /\ halted tm c /\
+    iter 2 (U (P - 21)) O <= Rl /\ (forall Ll, l = Ll *> const 0 -> exists N, ones c N /\ 6 * Rl + 2 <= N).
+  Frozen dev imports: Base G_rules Abs Lift Step (+ Step's deps).
+GENERATION: k31/gen: try_e1.py E / try_e2.py RHO / try_x.py NAME (explore -> tree_*.pkl), grp_{rf,e1,e2,x}.py,
+  python gen_grp.py GROUP -> k31/K_GROUP.v ; val_items.py GROUP (literal validate.reaches on random values: all 0 bad).
+PITFALL: explorer 'target' = canon-equal, but finish_norm needs the same run ORDER (E2_0 had R-run/w-run swapped ->
+  'No applicable tactic' at the final finish_norm). Fix = write the target in the explorer's order (compare tree['end']).
+==================================================================================================================
+
+2026-10-17 setup: copied gen/*.py into k31/gen; wrote k31/gen/coqc_idle.py (k31 copy, pids to k31/pids.txt).
+- Task 1 (free far side for R2/R3/CDP): Step.v already has Kx/lftx with far end e and `good e` = 1.. or 00..,
+  Kx_R2/Kx_R3 use R2z/R3z for the 00 case, CDPx takes good e.  So the z2-gap far side is ALREADY covered (to confirm with
+  c04-coq2); nothing to regenerate unless a rule reads past the gap.

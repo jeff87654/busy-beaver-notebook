@@ -1,0 +1,12 @@
+2026-10-22 start: task = 9-state f_(w+1) counter gadget on dl3 7-state bases. Reading reports.
+2026-10-22 read dl3_hits/REPORT, bb8_fw1_redirect/REPORT, selector.md, bb9-fw1-search memory. Tools: tm.py look.py micro.py snap.py slotuse.py width.cpp.
+- r (F1) literal: E-walk = transport of the accumulator run toward MSD frontier (run 1^(2A) moves left 1 cell/iter, emits 110 digits behind). Walk iteration slots C0 D1 D0 E1 F1 A1 G1 G0; look-ahead C reads cell p-2 left of run: C0 continue, C1 = borrow found. E-end detected at run's right end (A0/E0 rebuild, F0 = halt). i (F2): same transport (emits 00 1 pre-digits then converts). d,p (F3): mirror image (A on the left, list right, MSD frontier right).
+- all three families v-coded (u=1,s=0): every binary word beyond the MSD parses as digits -> any parked counter is a digit (borrow), cannot be told apart locally.
+- W1-LOOPER rows (4, dl3_triage7): span ~ sqrt(t) up to 1e9 steps (e.g. 51729 cells at 1.07e9) -> polynomial growth, not record class. Dropped.
+- IDEA: MULTI? M4-type (P'=1 prefix marker recognised by walk; E = walk reaches marker, rebuild [1^(2a+3)] maybe in place) = BB13-like separator geometry. Checking.
+2026-10-22 design phase done for the 18 bases: NEGATIVE (PLAN.md sec 1). parked.py/lsdpark.py literal checks. Next: LOOPER pool geometry screen (PLAN.md sec 3).
+2026-10-22 geo screen of 573 pool machines (LOOPER/REBUILD/MULTI from dl3_hits+dl3_triage7) started: geo_aa.tsv geo_ab.tsv (2 idle procs, pids in pids.txt)
+2026-10-22 geo screen done (geo_all.tsv, 573 machines, 2.7e8 steps each): 489 one-sided with a STATIC MSD end (nl or nr = 0 after 2^20 steps), 16 small drift (mostly ~20-cell counters; 2 two-sided F-like rebuilds R,B,P=100), 68 small growth, 0 halts.
+- E-probe (kmom.exe from constructed K(0^4;0;6)) on 1RB---_0LC0RG_1LE1LD_1LC0LB_0RF1RD_1RB1RD_1RE0RA: MSD end fixed through several rebuilds (BB13-like static separator).
+- Static-P consequence: a counter beyond P can only be decremented at its far end (sweep out, erase, sweep back) or by moving P; the looper does neither, so gadget needs sweep (2 states) + inversion hook + builder (>= 3-4 states). Inner-side 'wall copies' P^n idea needs a builder too. No 2-state design found; pool route left as recommendation.
+- W1-LOOPER (4): sqrt-width, dropped. PIDs: geo 12612, 18752 (finished).

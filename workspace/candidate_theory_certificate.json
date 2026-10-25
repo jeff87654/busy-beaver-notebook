@@ -1,0 +1,177 @@
+{
+  "machines": {
+    "C07": {
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RB_0LA1LF_1RG0LE_1RH1RF_1LC1RZ",
+      "blank_prefix_steps": 43,
+      "H_recurrence": "(n,k) -> (2*n-1,k+1) for n=1 mod4,n>=5",
+      "macro_steps": "(2*n+7)*(n+1)/2",
+      "verdict": "nonhalting_by_inductive_recurrence"
+    },
+    "C08": {
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RF_0LA1LF_1RG0LE_1RH1RF_1LC1RZ",
+      "blank_prefix_steps": 43,
+      "H_recurrence": "(n,k) -> (2*n-1,k+1) for n=1 mod4,n>=5",
+      "macro_steps": "(2*n+7)*(n+1)/2-2",
+      "verdict": "nonhalting_by_inductive_recurrence"
+    }
+  },
+  "gadget": [
+    {
+      "step": 0,
+      "head": 0,
+      "state": "E",
+      "read": 0
+    },
+    {
+      "step": 1,
+      "head": -1,
+      "state": "A",
+      "read": 0
+    },
+    {
+      "step": 2,
+      "head": 0,
+      "state": "B",
+      "read": 0
+    },
+    {
+      "step": 3,
+      "head": -1,
+      "state": "A",
+      "read": 1
+    },
+    {
+      "step": 4,
+      "head": -2,
+      "state": "A",
+      "read": 0
+    },
+    {
+      "step": 5,
+      "head": -1,
+      "state": "B",
+      "read": 1
+    },
+    {
+      "step": 6,
+      "head": 0,
+      "state": "C",
+      "read": 0
+    },
+    {
+      "step": 7,
+      "head": 1,
+      "state": "A",
+      "read": 0
+    },
+    {
+      "step": 8,
+      "head": 2,
+      "state": "B",
+      "read": 1
+    },
+    {
+      "step": 9,
+      "head": 3,
+      "state": "C",
+      "read": 0
+    },
+    {
+      "step": 10,
+      "head": 4,
+      "state": "A",
+      "read": 1
+    },
+    {
+      "step": 11,
+      "head": 3,
+      "state": "A",
+      "read": 1
+    },
+    {
+      "step": 12,
+      "head": 2,
+      "state": "A",
+      "read": 0
+    },
+    {
+      "step": 13,
+      "head": 3,
+      "state": "B",
+      "read": 1
+    },
+    {
+      "step": 14,
+      "head": 4,
+      "state": "C",
+      "read": 1
+    },
+    {
+      "step": 15,
+      "head": 3,
+      "state": "D",
+      "read": 0
+    },
+    {
+      "step": 16,
+      "head": 2,
+      "state": "E",
+      "read": 1
+    },
+    {
+      "step": 17,
+      "head": 1,
+      "state": "F",
+      "read": 1
+    },
+    {
+      "step": 18,
+      "head": 0,
+      "state": "E",
+      "read": 1
+    },
+    {
+      "step": 19,
+      "head": -1,
+      "state": "F",
+      "read": 0
+    },
+    {
+      "step": 20,
+      "head": 0,
+      "state": "G",
+      "read": 1
+    },
+    {
+      "step": 21,
+      "head": 1,
+      "state": "F",
+      "read": 0
+    },
+    {
+      "step": 22,
+      "head": 2,
+      "state": "G",
+      "read": 1
+    },
+    {
+      "step": 23,
+      "head": 3,
+      "state": "F",
+      "read": 0
+    },
+    {
+      "step": 24,
+      "head": 4,
+      "state": "G",
+      "read": 1
+    },
+    {
+      "step": 25,
+      "head": 5,
+      "state": "F",
+      "read": 0
+    }
+  ],
+  "finite_checks": 978
+}

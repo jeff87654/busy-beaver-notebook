@@ -1,0 +1,9 @@
+{
+  "cases": [
+    {"name": "BB7 champion", "tm": "1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RZ0LC_1RG1LD_0RG0RF", "result": "holdout", "expected": "holdout", "nodes_processed": 1, "elapsed_seconds": 0.0946713, "passed": true},
+    {"name": "right-moving loop", "tm": "1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RZ", "result": "nonhalting", "expected": "nonhalting", "nodes_processed": 1, "elapsed_seconds": 1.04e-05, "passed": true},
+    {"name": "BB4 champion padded to seven states", "tm": "1RB1LB_1LA0LC_1RZ1LD_1RD0RA_0RA0RA_0RA0RA_0RA0RA", "result": "halting", "expected": "halting", "nodes_processed": 1, "elapsed_seconds": 1.23e-05, "passed": true}
+  ],
+  "all_passed": true,
+  "note": "The BB7 champion surviving the filters is a calibration result, not a new halting proof."
+}

@@ -1,0 +1,15 @@
+repo-tidy notes (crash-safe log)
+2026-10-22 start. worktree C:\Users\jeffr\Downloads\repotidy_wt branch repo-tidy from origin/main 78bd08e.
+PLAN.md written. No moves (see plan). No Coq builds needed.
+Waiting condition: lead message that PR #30 (bb9-f3) and C7 PR merged -> then rebase + BB9 content + open PR.
+2026-10-22T11:27:33-07:00 phase A commit 1c4afe5: dir READMEs BB8/10/12/13/14/43/PA, ZF table+credits, titles, BB8-record notes, M8 agent names. Deferred (touched by pending PRs): BB9/*, coq.yml, README.md
+2026-10-22T11:28:59-07:00 README draft at repo_tidy/README.draft.md (BB9 rows TODO; fix: comparisons bullet explicit, ZF/PA layout wording). Waiting for lead merge message.
+2026-10-22T11:29:29-07:00 lead approved plan; n1 wording restored, note dated (commit bdf0fa8). Waiting for merge msg.
+2026-10-22T12:20:40-07:00 user decisions: BB9/verify stays (banner only), no n1 CI job, separate PR ci-narrow (worktree C:\Users\jeffr\Downloads\cinarrow_wt) after #30 merges and before C7 PR: .github changes no longer run all jobs.
+2026-10-22T12:22:54-07:00 ci_narrow.py ready (tested on main, bb9-f3, bb9-c7 coq.yml). repo-tidy: BB9 old-record banner committed 88494df. Waiting for #30 merge.
+2026-10-22T14:17:38-07:00 PR #31 (ci-narrow, a00d04f) opened.
+2026-10-22T15:15:23-07:00 PR #33 (repo-tidy, 65056f9) opened.
+2026-10-22T15:21:37-07:00 PR #33: README files in BB8/ZF/PA/BB13/BB14/BB43 selected whole-dir jobs (bb8-m8 etc. running, run 39863572679). Asked lead: let run / cancel / follow-up md-exclusion. PR body blanked briefly by a failed script, restored with corrected CI text.
+2026-10-22T15:28:25-07:00 PR #33 head 72d5e9e: md exclusion (predicate-quantifier every + brace unions), tested with node harness (0 mismatches); run 39865019378: only changes ran, all 14 proof jobs skipped. Tools: tools/ci_mdexclude.py, pf/test.js in scratchpad.
+2026-10-22T15:31:21-07:00 PR #33 head 98e9b50: zf253.yml paths ['ZF/**','!**/*.md']; no ZF253 run at new head; Coq proofs run 39865377597 only changes. Old ZF253 run 39863572746 (65056f9) still in progress.
+2026-10-22T15:32:21-07:00 DONE. PR #31 (narrow CI) and PR #33 (repo tidy + .md exclusion in coq.yml and zf253.yml) merged; #33 = 0345a6c. Stale zf253 run cancelled by lead. Worktrees repotidy_wt, cinarrow_wt left in place.

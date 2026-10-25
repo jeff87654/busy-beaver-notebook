@@ -1,0 +1,337 @@
+================================================================================
+INVESTIGATION REPORT: 8-STATE UNSETTLED BLOCK-5 GROWER (LEAD 8-1) AND
+53 NO-INVARIANT 8-STATE K-LIKE LEAVES (LEAD 8-3)
+Directory: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_pool8_and_noinv53
+================================================================================
+
+EXECUTIVE SUMMARY
+-----------------
+1. PART A (Lead 8-1: Unsettled Growing 8-State Machine from reb7/pool8.tsv):
+   Machine: 1RB0LE_0RC1LF_1LD0RD_0LA---_1LA1RG_1RB1RF_0RH0LG_1RE1LD
+   - Verdict: NEVER-HALTS (Polynomial-growth base-3 counter + block-5 unary
+     accumulator, Theta(sqrt(t)) tape span; ALREADY has a verified Coq proof of
+     non-halting in bb8_list/proofs/BB8_ng_1RB0LE0RC1LF1LD0RD0LAxxx1LA1RG1RB1RF0RH0LG1RE1LD.v).
+   - Why fit7.py returned NOFIT: Its dlscan template L,A,P=-,u=10,s=0,d=3d+2,b=1b+0,S=010101
+     is never entered on the blank tape (nK = 0). Instead, the machine operates
+     as a pipelined ternary (base-3) counter on the left end coupled to a
+     linearly growing unary tail of 5-bit blocks (00101)^m on the right end.
+   - Asymptotic growth: After N counter increments, the unary tail has length
+     m = Theta(N) blocks of 5 bits (exact value m_k = (3^(k+1) - 3)/2 at the
+     k-th digit overflow 2^k), while the counter has k = Theta(log_3 N) digits.
+     Each non-carry increment performs two full sweeps across the tail of length
+     5m, taking Theta(m) steps, so:
+       t(m) = Theta(m^2),   span(t) = 5m + O(log t) = Theta(sqrt(t)).
+     At t = 1.3e10 steps, m ~ 3e4 blocks (~1.5e5 cells), matching reb7/REPORT.txt.
+   - Unused transitions & 1-transition neighbors: Only D1 = --- is unused (all
+     15 other transitions are exercised by step 35). Testing all 15 * 31 = 465
+     single-transition perturbations (keeping D1 = ---) up to 10^7 steps shows
+     115 halters with a maximum halting time of 348 steps (15 ones, G1 -> 0RB),
+     205 translated cyclers, and 145 non-halting cyclers/counters. None is a
+     record-class halter.
+
+2. PART B (Lead 8-3: 53 Unsettled 8-State K-Like Leaves Without a Mod-2 Invariant):
+   Source: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_fw1_redirect\cls53.txt
+   All 53 machines are 100% resolved into exact closed-form families:
+   - 30 / 53 NEVER HALT:
+     * 20 machines (Groups A1, A2, E, F, H, I) are f_{omega+1} non-halters
+       governed by the exact invariant a == 1 (mod 2). Every borrow B_k sets
+       the accumulator a_k to an odd integer (or in Group E, B_1 maps
+       a -> 3a + 4 and B_k for k >= 2 sets a_k in {3, 5} odd), and every
+       decrement D maps a -> 3a + 4 or 5a + 6 (preserving a mod 2). Thus every
+       exhaustion E(A) is reached with A odd, which rebuilds with odd a and
+       never halts. (invchk.py missed this invariant because it only tested
+       sum(ds) mod 2 and (a + sum(ds)) mod 2, not a mod 2 alone.)
+     * 1 machine (#43, 1RB1LA_0RH1RE_1RD1RC_0LA0LG_1LD0RF_---0RC_1LE1LG_0RE1RG)
+       is an f_{omega+1} non-halter resolved by reb7.py's 2-adic residue engine
+       (mod 80640 and mod 483840), which proves it loops in the rebuild class
+       b == 0 (mod 2) at every exhaustion E_r (r >= 2).
+     * 9 machines have modified D or B_1 rules that bypass Ackermann recursion
+       entirely and run forever in lower growth classes:
+       - 1 tetrational / tower-of-3 (f_4) non-halter (#22, where B_1 shrinks
+         the list by 1 per step while mapping a -> 3a + 4, keeping A_r odd).
+       - 4 exponential (4^r) non-halters (#15, #50, #51, #52, where D consumes
+         pairs of 2s directly, mapping L_{r+1} = 4*L_r + 16 with A = 4 even).
+       - 2 exponential (3^r) non-halters (#00, #16, where D consumes 2s directly,
+         mapping A_{r+1} = 3*A_r + 18, always even).
+       - 2 quadratic (t^2) non-halters (#01, #02, where A_r = 3r - 2 == 1 mod 3
+         forever, avoiding the halting class 0 mod 3).
+   - 23 / 53 HALT AT f_omega (ACKERMANN) SCALE IN 2 OR 3 ROUNDS:
+     * 19 machines HALT AT ROUND 2 (E_2):
+       - Group B (15 machines: #17..#21 [n], #31..#35 [o], #40..#42, #44, #45 [p],
+         all with blank trace E45->45):
+         Reach E_1(45) -> K([3, 2^44]; 3; B_0 - 1) and halt at the 2nd exhaustion
+         E_2(A_2) with A_2 == 9358 (mod 49152) even at scale ~ f_omega(45).
+       - Group G (4 machines: #36, #37 [p], #46, #47 [q], with blank trace E21->19):
+         Reach E_1(21) -> K([1, 1, 6, 8^16]; 10; 5) and halt at the 2nd exhaustion
+         E_2(A_2) with A_2 even at scale ~ f_omega(19).
+     * 4 machines HALT AT ROUND 3 (E_3):
+       - Group C (1 machine: #03 [d], 1RB1RA_0LC0LF_1RD1LC_0RF1RE_1LB0RG_1LE1LF_---0RH_0LB1RA,
+         blank trace E1->1 E25->19):
+         Reaches E_1(1) -> K([1]; 7) -> E_2(25) -> K([1, 6, 5^17]; 6) (length 19)
+         and halts at the 3rd exhaustion E_3(A_3) with A_3 even at scale ~ f_omega(19).
+       - Group D (3 machines: #05 [d], #12 [f], #26 [o], blank trace E1->1 E73->55):
+         Reach E_1(1) -> K([1]; 23) -> E_2(73) -> K([2, 5^53, 4]; 23) (length 55)
+         and halt at the 3rd exhaustion E_3(A_3) with A_3 even at scale ~ f_omega(55).
+   None of these 23 halters reaches the 9+ rounds of the BB(8) champion
+   1RB0RB_0LC1RE_1LH1RD_0RE1RA_1LF1LC_1LG1RC_1RA1LG_---0LE, as their exhaustion
+   chains terminate at Round 2 (E_2) or Round 3 (E_3).
+
+================================================================================
+PART A: EXACT ANALYSIS OF 1RB0LE_0RC1LF_1LD0RD_0LA---_1LA1RG_1RB1RF_0RH0LG_1RE1LD
+================================================================================
+
+1. Coq Certificate of Non-Halting
+---------------------------------
+The machine already has a machine-checked Coq proof of non-halting in:
+  C:\Users\jeffr\Downloads\bb8\bb8_list\proofs\BB8_ng_1RB0LE0RC1LF1LD0RD0LAxxx1LA1RG1RB1RF0RH0LG1RE1LD.v
+using `NGramCPS_correct` with window parameters (nL, nR) = (14, 14), |LS| = 169
+left 14-grams, |RS| = 16384 right 14-grams, and |C| = 4,182,370 local states.
+In Particular, the only undefined transition `D1 = ---` is provably unreachable
+from the blank tape.
+
+2. Bulk Gliders, Block-5 Tail, and Ternary Counter Encoding
+-----------------------------------------------------------
+Define two bulk words in {0, 1}* relative to the left-moving head L = [E0] and
+the right-moving head R = 01 [E1]:
+  - Symbol 0: `01` on the left of L/R, and `01` on the right of L/R (2 bits).
+  - Symbol 1: `011` on the left of L/R, and `001` on the right of L/R (3 bits).
+
+Lemma A.1 (Bulk Identity Transduction & Right-End Reflection):
+  (a) Left sweep (L = [E0]):
+        01 [E0]  ---(2 steps)---> [E0] 01
+        011 [E0] ---(7 steps)---> [E0] 001
+      Thus L sweeps left across any word in {01, 011}*, converting each 011 -> 001
+      and 01 -> 01. Crossing one 5-bit block `01101` = (1, 0) takes 7 + 2 = 9 steps.
+  (b) Right sweep (R = 01 [E1]):
+        01 [E1] 01  ---(8 steps)---> 01 01 [E1]
+        01 [E1] 001 ---(3 steps)---> 011 01 [E1]
+      Thus R sweeps right across any word in {01, 001}*, converting each 001 -> 011
+      and 01 -> 01. Crossing one 5-bit block `00101` = (1, 0) takes 3 + 8 = 11 steps.
+  (c) Right-boundary reflection (R hitting blank tape 00...):
+        01 [E1] 00 ---(5 steps)---> 011 [E0] 01 ---(7 steps)---> [E0] 00101
+      Every time R reaches the blank right boundary, it reflects into L = [E0]
+      and appends one 5-bit block `00101` = (1, 0) to the right end of the tape
+      (increasing the tape span by +2 cells).
+
+Theorem A.2 (Recurrent Left-End Configuration Template & Ternary Counter Rules):
+  From left-end record L#5 (step 477) onward, whenever the head steps off the
+  left end of the tape in state E (`[E0]` at a new left record), the tape has
+  the canonical configuration:
+    K(c_1, c_2, ..., c_k; m) = [E0] 010100101001 d_{c_1} d_{c_2} ... d_{c_k} (00101)^m
+  where:
+    - `010100101001` = (0, 0, 1, 0, 1) is a fixed 12-bit left header,
+    - each ternary digit c_i in {0, 1, 2} (least significant digit c_1 on the
+      left, most significant digit c_k on the right) is encoded as:
+        d_0 = 0101001 = (0, 0, 1)  (7 bits: two 0-words and one 1-word),
+        d_1 = 01001   = (0, 1)     (5 bits: one 0-word and one 1-word),
+        d_2 = 001     = (1)        (3 bits: zero 0-words and one 1-word),
+    - (00101)^m is the right-end unary accumulator of m blocks of 5 bits (each
+      consisting of one 1-word `001` and one 0-word `01`),
+    - during multi-digit carries, an 8-bit carry marker G = `01010001` ripples
+      rightward one digit slot per local left-end bounce.
+
+  The exact macro transitions on K(c_1, ..., c_k; m) are:
+  (1) Non-carry increment (c_1 in {0, 1}):
+        K(c_1, c_2, ..., c_k; m) ---> K(c_1 + 1, c_2, ..., c_k; m + 2)
+      Deletes one `01` from d_{c_1} (d_0 -> d_1 or d_1 -> d_2) and performs two
+      full round-trips of R to the right boundary and back, appending two
+      5-bit blocks `00101` to the tail (m -> m + 2, delta_span = +8 cells).
+  (2) Interior carry of length r (1 <= r < k, c_1 = ... = c_r = 2, c_{r+1} in {0, 1}):
+        K(2^r, c_{r+1}, ..., c_k; m) ---> K(prefix_r, c_{r+1} + 1, ..., c_k; m)
+      Purely local reflection at the left end (never reaches the right end;
+      m is unchanged). Specifically:
+        r = 1: K(2, c_2, ...; m)       --188 steps--> K(0, c_2+1, ...; m)
+        r = 2: K(2, 2, c_3, ...; m)    --2 bounces--> K(1, 0, c_3+1, ...; m)
+        r = 3: K(2, 2, 2, c_4, ...; m) --3 bounces--> K(2, 0, 0, c_4+1, ...; m)
+        r = 4: K(2^4, c_5, ...; m)     --4 bounces--> K(1, 1, 0, 0, c_5+1, ...; m)
+        r = 5: K(2^5, c_6, ...; m)     --5 bounces--> K(2, 1, 0, 0, 0, c_6+1, ...; m)
+  (3) Top-digit overflow carry (r = k, c_1 = ... = c_k = 2):
+        K(2^k; m) ---> K(prefix_{k+1}; m - 1)   (k -> k + 1, m -> m - 1)
+      The carry marker G ripples across all k digits and absorbs one `00101`
+      block from the unary tail (m -> m - 1) to create the new top digit d_{k+1} = 0.
+      Verified overflow moments from the blank tape:
+        k = 1 (step    815): K((2,), 3)             -> K((1, 0), 2)
+        k = 2 (step   3851): K((2, 2), 12)          -> K((2, 0, 0), 11)
+        k = 3 (step  26675): K((2, 2, 2), 39)       -> K((1, 1, 0, 0), 38)
+        k = 4 (step 215047): K((2, 2, 2, 2), 120)   -> K((2, 1, 0, 0, 0), 119)
+        k = 5 (step 1.84e6): K((2, 2, 2, 2, 2), 363)-> K((1, 2, 0, 0, 0, 0), 362)
+        k = 6 (step 1.63e7): K((2^6), 1092)         -> K((2, 2, 0, 0, 0, 0, 0), 1091)
+      At the k-th overflow K(2^k; m_k), the tail length satisfies the exact formula:
+        m_k = (3^(k+1) - 3) / 2   (m_1=3, m_2=12, m_3=39, m_4=120, m_5=363, m_6=1092).
+
+3. Exact Conservation Law & Asymptotic Growth Rate
+--------------------------------------------------
+Every digit d_c (c in {0,1,2}) contains exactly ONE 1-word (`001`), and every
+tail block `00101` contains exactly ONE 1-word (`001`). Thus the total number
+of 1-words outside the header is k + m:
+  - Non-carry step: delta_k = 0, delta_m = +2  => delta(k + m) = +2.
+  - Interior carry: delta_k = 0, delta_m = 0   => delta(k + m) = 0.
+  - Overflow carry: delta_k = +1, delta_m = -1 => delta(k + m) = 0.
+In epoch k, there are (3^k + 1)/2 non-carry increments, so delta_m = 2*(3^k + 1)/2 - 1 = 3^k.
+Since each non-carry step sweeps twice across the tail of length 5m in 40m + O(k)
+steps, the step count at tail length m is:
+  t(m) = (10 + o(1)) * m^2,   m(t) ~ sqrt(t / 10),   span(t) ~ 5 * m(t) ~ (5 / sqrt(10)) * sqrt(t).
+
+================================================================================
+PART B: COMPLETE RESOLUTION OF THE 53 NO-INVARIANT 8-STATE K-LEAVES (cls53.txt)
+================================================================================
+
+1. Summary of Verdicts (53 / 53 Resolved)
+-----------------------------------------
+  * 20 machines: NEVER-HALTS (f_{omega+1}, exact invariant a == 1 mod 2)
+  *  1 machine:  NEVER-HALTS (f_{omega+1}, 2-adic residue loop mod 80640/483840)
+  *  1 machine:  NEVER-HALTS (Tetrational / tower-of-3, B_1 shrinks list by 1)
+  *  4 machines: NEVER-HALTS (Exponential 4^r, D consumes pairs of 2s directly)
+  *  2 machines: NEVER-HALTS (Exponential 3^r, D consumes 2s directly)
+  *  2 machines: NEVER-HALTS (Quadratic t^2, A_r = 3r - 2 == 1 mod 3 forever)
+  * 19 machines: HALTS AT ROUND 2 (E_2) at f_omega scale (15 in Group B, 4 in Group G)
+  *  4 machines: HALTS AT ROUND 3 (E_3) at f_omega scale (1 in Group C, 3 in Group D)
+  ------------------------------------------------------------------------------
+  Total: 30 NEVER-HALT, 23 HALT (19 at Round 2, 4 at Round 3).
+
+2. Theorem B.1 (20 f_{omega+1} Non-Halters via Exact Invariant a == 1 mod 2)
+----------------------------------------------------------------------------
+In `bb8_fw1_redirect/invchk.py`, only the two invariants Phi_0 = sum(ds) mod 2
+and Phi_1 = (a + sum(ds)) mod 2 were tested. For the following 20 F3-family
+leaves, the redirected transition modifies the borrow tail L_k (changing its
+length mod 2 or digit sum mod 2, which breaks Phi_0 and Phi_1), but preserves
+the F3 accumulator parity invariant:
+  Phi_acc(ds, a) = a mod 2 == 1.
+Specifically:
+  (i)   Decrement D/R2 maps K(X, d+1; a) -> K(X, d; 3a + 4) (in tags d, f, n, o)
+        or K(X, d; 5a + 6) (in tags p, q), both of which satisfy f(a) == a (mod 2).
+  (ii)  Every borrow B_k (k >= 1) sets the new accumulator a_k to an ODD constant
+        (or in Group E, B_1 maps a -> 3a + 4 == a mod 2 and B_k for k >= 2 sets
+        a_k in {3, 5} odd):
+        - Group A1 (#04, #11, #23, #25):
+            D: a -> 3a + 4
+            B_{3m+1}: L = [3a+1-6m, (3,2,5)^*, 4/6], a_k = 1  (odd)
+            B_{3m+2}: L = [3a-1-6m, (3,2,5)^*, 3/5], a_k = 3  (odd)
+            B_{3m+3}: L = [3a-3-6m, (3,2,5)^*, 2/4], a_k = 15 (odd)
+            E(2m): HALT | E(2m+1): K([3, (2,5)^(m-1), 2, 4]; a_0 = 15) (odd)
+        - Group A2 (#06, #07, #08, #13, #14, #24, #27, #28):
+            D: a -> 3a + 4
+            B_1: L = [3a+1], a_1 = 5 (odd)
+            B_{3m+1} (m>=1): L = [3a+1-6m, 3, 2, (5,2)^(m-1)], a_k = 7 (odd)
+            B_{3m+2}: L = [3a-1-6m, 3, (2,5)^m], a_k = 3 (odd)
+            B_{3m+3}: L = [3a-3-6m, (3,2,5)^*, 2/4], a_k = 15 (odd)
+            E(2m): HALT | E(2m+1): K([3, (2,5)^(m-1), 2, 4]; a_0 = 15) (odd)
+        - Group E (#09, #29):
+            D: a -> 3a + 4
+            B_1: K(X, d+1, 0; a) -> K(X, d; 3a + 4) (shrinks list by 1, preserves odd a)
+            B_{2m} (m>=1): L = [3a+2-4m, 5^(m-1)], a_{2m} = 3 (odd)
+            B_{2m+1} (m>=1): L = [3a-4m, 5^(m-1)], a_{2m+1} = 5 (odd)
+            E(2m): HALT | E(2m+1): K([3, 5^m_E]; a_0 in {3, 5}) (odd)
+        - Group F (#10, #30):
+            D: a -> 3a + 4
+            B_{3m+1}: L = [3a+2-6m, (4,3)^m, 4, 2] (B_1: [3a+2]), a_k = 9 (odd)
+            B_{3m+2}: L = [3a+1-6m, (4,3)^m], a_k = 5 (odd)
+            B_{3m+3}: L = [3a-2-6m, (4,3)^(m-1), 4, 2] (B_3: [3a-2]), a_k = 21 (odd)
+            E(2m): HALT | E(2m+1): K([2, (4,3)^(m-1), 4, 2]; a_0 = 21) (odd)
+        - Group H (#38, #48):
+            D: a -> 5a + 6
+            B_1: L = [5a+4], a_1 = 3 (odd)
+            B_2: L = [5a+1], a_2 = 23 (odd)
+            B_{2m+1} (m>=1): L = [5a+6-2k, 3, 5^(m-1)], a_k = 5 (odd)
+            B_{2m+2} (m>=1): L = [5a+4-2k, 3, 5^(m-2), 4] (B_4: [5a-2, 2]), a_k = 33 (odd)
+            E(2m): HALT | E(2m+1): K([1, 3, 5^*...]; a_0 in {5, 33}) (odd)
+        - Group I (#39, #49):
+            D: a -> 5a + 6
+            B_k (k>=1): L = [5a+6-2k] + [1, 3, 1, 3, ... (k-1 terms)],
+                        a_k = 1 (k odd) or 3 (k even) (all odd)
+            E(2m): HALT | E(2m+1): K([1, 1, (3,1)^*...]; a_0 in {1, 3}) (odd)
+  (iii) Because L_k never ends in 0 (except B_1 in Group E where a -> 3a + 4
+        grows), every borrow is followed by at least one D/R2 step before the
+        next borrow, so a >> 2k + 3 at every borrow and no small-a anomaly is
+        ever triggered. Thus a == 1 (mod 2) holds at every K-moment forever,
+        every exhaustion E(A) has A odd, and all 20 machines never halt.
+
+3. Theorem B.2 (4 Round-3 f_omega Halters: Group C [#03] and Group D [#05, #12, #26])
+-------------------------------------------------------------------------------------
+  (a) Group D (#05 [d], #12 [f], #26 [o] — blank trace E1->1 E73->55):
+      - Rules:
+          D:   K(X, d+1; a) -> K(X, d; 3a + 4)
+          B_1: K(X, d+1, 0; a)   -> K(X, d, 3a; 14)                 (|L_1| = 1, a_1 = 14 EVEN)
+          B_2: K(X, d+1, 0^2; a) -> K(X, d, 3a - 2; 16)             (|L_2| = 1, a_2 = 16 EVEN)
+          B_k (k>=3): |L_k(a)| = 2 * floor((k-1)/2) >= 2, a_k in {23, 25} (odd).
+          E(A): halts iff A is even; for A = 1 -> K([1]; 23); for A = 73 -> K([2, 5^53, 4]; 23).
+      - Proof of Halt at Round 3 (E_3):
+        On the blank tape, E_1(1) builds the 1-element list K([1]; 23), which
+        uses no borrows and reduces in 1 step of D to E_2(73). Then E_2(73)
+        builds K([2, 5^53, 4]; 23) of length n = 55 >= 2.
+        Because |L_k(a)| >= 1 for all k >= 1 and its first entry 3a + 3 - 2k > 0,
+        a list of length n >= 2 cannot reach length 0 without passing through
+        length 1 (`K([x]; a')`). The ONLY transitions from length >= 2 to
+        length 1 are B_1 on K([1, 0]; a) (since |L_1| = 1) and B_2 on
+        K([1, 0, 0]; a) (since |L_2| = 1); all B_k with k >= 3 leave a list of
+        length |L_k| >= 2. Both B_1 and B_2 set the accumulator to an EVEN
+        integer (a' in {14, 16}), and the remaining x steps of D (a -> 3a + 4)
+        preserve a == 0 (mod 2) down to K([]; A_3). Thus A_3 is EVEN, and all
+        3 machines in Group D HALT at Round 3 (E_3).
+
+  (b) Group C (#03 [d] — blank trace E1->1 E25->19):
+      - Rules:
+          D:   K(X, d+1; a) -> K(X, d; 3a + 4)
+          B_1: K(X, d+1, 0; a)   -> K(X, d, 3a; 15)     (|L_1| = 1, a_1 = 15 ODD)
+          B_2: K(X, d+1, 0^2; a) -> K(X, d, 3a - 1; 6)  (|L_2| = 1, a_2 = 6 EVEN, shrinks list by 1)
+          E(A): halts iff A is even; for A = 1 -> K([1]; 7); for A = 25 -> K([1, 6, 5^17]; 6).
+      - Proof of Halt at Round 3 (E_3):
+        On the blank tape, E_1(1) -> K([1]; 7) -> E_2(25) -> K([1, 6, 5^17]; 6)
+        (length 19, all digits >= 1, with leading digit d_1 = 1).
+        Starting from any positive-digit list [d_1, ..., d_n], D and B_1 only
+        create 0s at the last two positions (`[..., d, 0]` or `[..., d, 0, 0]`),
+        and B_2 replaces `[..., d, 0, 0]` by `[..., d - 1, 3a - 1]` (shrinking
+        the list length by 1 and leaving at most one zero in the penultimate
+        slot). Thus B_k (k >= 3) is never reached, and the leading digit d_1 = 1
+        is untouched until the list shrinks to length 3 as `[1, 6, X] -> ... ->
+        [1, 0, X'] -> [1, 0, 0]`. At `[1, 0, 0]`, B_2 fires and produces
+        `K([3a - 1]; 6)` (length 1, a_2 = 6 EVEN). Then 3a - 1 steps of D
+        preserve even a to E_3(A_3) with A_3 even, so #03 HALTS at Round 3 (E_3).
+
+4. Theorem B.3 (19 Round-2 f_omega Halters: Group G [4] and Group B [15])
+-------------------------------------------------------------------------
+  (a) Group G (#36, #37 [p], #46, #47 [q] — blank trace E21->19):
+      - Rules:
+          D:   K(X, d+1; a) -> K(X, d; 5a + 6)
+          B_1: K(X, d+1, 0; a)   -> K(X, d, 5a + 2; 25) (|L_1| = 1, a_1 = 25 ODD)
+          B_2: K(X, d+1, 0^2; a) -> K(X, d, 5a; 8)      (|L_2| = 1, a_2 = 8 EVEN, shrinks list by 1)
+          E(A): halts iff A is even; on blank tape reaches E_1(21) -> K([1, 1, 6, 8^16]; 10; 5).
+      - Proof of Halt at Round 2 (E_2):
+        Exactly as in Group C, since |L_1| = |L_2| = 1, only B_1 and B_2 fire
+        on `[1, 1, 6, 8^16]` (length 19, d_1 = 1), shrinking the list from the
+        right down to length 3 (`[1, 1, 0, 0] --B_2--> [1, 0, 5a] --D^(5a)--> [1, 0, 0]`),
+        where B_2 fires on `[1, 0, 0]` to produce `K([5a']; 8)` (length 1, a_2 = 8 EVEN).
+        Then 5a' steps of D (a -> 5a + 6) preserve even a to E_2(A_2) with A_2
+        even, so all 4 machines in Group G HALT at Round 2 (E_2).
+
+  (b) Group B (15 machines: #17..#21 [n], #31..#35 [o], #40..#42, #44, #45 [p] — E45->45):
+      - Exact 2-Accumulator Rules (in terms of r = a mod 2 and U = 2a + b_rel - r,
+        where b_rel = b - (B_0 - 1) in {0, 1, 2}):
+          D:   K(ds; a + 2; b_rel) -> K(ds; a; b_rel + 4)  (conserves r and U)
+          Phi_0 (R2 on K(X, d+1; U, r)):
+            (U, r) |-> (U', r') = (2U + 8 - r - ((U + 1) mod 2), (U + 1) mod 2)
+          B_1: K(X, d+1, 0; U, r) -> K(X, d, U; a'=4, b'_rel=1-r)  => (U_0, r_0) = (9 - r, 0)
+          B_k (k>=2): K(X, d+1, 0^k; U, r) -> K(X, d, U+2-2k, 3, 2^(k-2); a'=3, b'_rel=1-r)
+                      => (U_0, r_0) = (6 - r, 1)
+          E: K([]; U, r) rebuilds iff (U, r) == (even, 0) or (even, 1), and
+             HALTS iff U is ODD (i.e. (a, b_rel) is (even, 1) or (odd, 2)).
+      - Proof of Halt at Round 2 (E_2):
+        On the blank tape, all 15 machines reach E_1(45) and rebuild the length-45
+        list K([3, 2^44]; a=3, b_rel=0).
+        Under Phi_0, U' + r' = 2U + 8 - r == -(U + r) + 2 (mod 3).
+        After ANY borrow B_1, the starting state is (U_0, r_0) = (9 - r, 0), which
+        has U_0 + r_0 = 9 - r in {8, 9} == {2, 0} (mod 3). Since the map
+        x |-> -x + 2 (mod 3) swaps 0 <-> 2 and fixes 1, every iterate
+        (U_n, r_n) = Phi_0^n(9 - r, 0) satisfies:
+          U_n + r_n in {0, 2} (mod 3)   (NEVER 1 mod 3).
+        In particular, every output (U_1, r_1) = Phi_1(U, r) of level 1 has
+        U_1 + r_1 in {0, 2} (mod 3). On the other hand, Phi_1(U, r) = Phi_0^U(9 - r, 0)
+        lands on an EVEN U_final (the only rebuild state on the 3-cycle of Phi_0)
+        IF AND ONLY IF U + r == 1 (mod 3)!
+        Since `[3, 2^44]` has length 45 >= 3, the state (U, r) reaching the
+        final `[1, 0]` is in the image of Phi_1, so U + r in {0, 2} (mod 3)
+        (specifically, the 2-adic residue engine mod M = 98304 gives the exact
+        stabilized value U_final == 18717 mod 98304, r_final = 0, i.e.,
+        A_2 == 9358 mod 49152 even, b_rel = 1). Therefore, E_2(A_2) HALTS at
+        Round 2 on all 15 machines!
+================================================================================

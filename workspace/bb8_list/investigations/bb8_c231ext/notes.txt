@@ -1,0 +1,29 @@
+2026-10-23 01:03 start bb8_c231ext: 8-state halt-redirect extensions of champ_231/232 (C1 -> new state H).
+2026-10-23 01:10 exhaustion tape (both bases, literal): K(a;0^n) -E-> 0^inf (10)^(2n-1) 11 00 1 C>1 1 00 (1100)^(3a+1-n) 1 0^inf.
+   C reads 1 with 1 on both sides -> H always reads 1 on entry -> the 256 machines with H1 = halt halt at once (sigma ~ 6a+7).
+2026-10-23 01:15 resid.py: a_f = g(w), g(w) = f^(3w+2)(1) = (5*3^(3w+2)-3)/2. g FLIPS parity (g(w) odd iff w even), so a_f mod 2
+   is NOT tower-stable: it depends on the B1-chain length parity (recursive through the whole run). Only 2a_f+3 = 0 mod 3^K is
+   stable. A level-table engine would be needed for parity classes; not needed in the end (no outcome depends on a's residues).
+2026-10-23 01:20 scan1 (256 nontrivial, n=20, a=21,22,23,30, 1e7 steps): H0 83 | no K-moment 118 | K-moment 55.
+2026-10-23 01:50 end0cls: the 118 no-K machines = 114 leftward bouncers (span ~ sqrt(t), list untouched) + 4 in-place loops
+   (C1<->H1). Non-halting, list abandoned.
+2026-10-23 01:55 halters: best sigma = 12a-29 (6 machines 1RH/xxx), most 6a+c: all ~champ level.
+2026-10-23 01:30-02:30 emap (55 K machines, n=1..60) + probes:
+   CLEAN family X (7 H-variants x 2 bases: 0LH/1RB,0RH/0LA,1LH/1LF,1LH/1RF,1RH/0LB,1RH/1LF,1RH/1RC):
+     K(a;0^n) -> K(c; p, q, .., 0, 1^(3a-2-n)); head digits = positional code of n (one more digit each x1.5-2 of n);
+     checked n<=60 all, sampled to 1542: always rebuilds, H0 never read (H entered ~2n or ~n^2 times per exhaustion).
+     => infinite rebuild, non-halting.
+   1RH/1RE x2: K(a;0^n) -> K(4n+3; 0, 1^(3a-2n)) for all n<=600 (a>=n; smaller a was a test artefact). Non-halting.
+   0LH/0LA x2: K(1; 0^(2n+1), 1^..) violates the Bk precondition; no halt in 2e9.
+   0RH/1LE, 0RH/1RD, 1LH/1LC (x2): halt within one sweep of the first rebuild (1LH/1LC: odd n halts in the gadget,
+     even n rebuilds with left junk then halts). ~champ level.
+   Remaining 31 (junk/marker): the gadget leaves an odd-length block ("flagged digit" = digit + extra 1). The engine treats it
+     as a normal digit (decrements keep the flag); the flagged-zero borrow refills it (~3A, flag kept, may move left); the
+     final exhaustion K(A;0^j,[1],0^z) fires the gadget again and the next list carries MORE flags (0LH/1RC, 0LH/0RE:
+     odd=[16:x 45:x]). 1LH/0LA,0LD: odd n -> left bouncer, even n -> flagged rebuild. No H0 read in any probe.
+2026-10-23 02:40 controls: champ_231 halts at the predicted step (K(10;0^20): 6297 = 48a^2+192a+137-28n); old champion halts at
+   its exhaustion under fl7 (n=0..3, b=40..60); E0=1LH,H=1LH--- runs off the tape (negative); M8 does not halt at the
+   exhaustion and pkf8 (W2 world, B=66) shows its first top-level rebuild (top 817, as in topmap's control), then the cascade.
+2026-10-23 02:45 no unused transitions in champ_231/232 before the exhaustion (13/13 used): no free-transition variants.
+2026-10-23 02:50 VERDICT 8-state: no extension beats M8; no extension halts after a rebuild round. Nothing for OPEN_CANDIDATES.
+   REPORT.txt written. Background PIDs 84047, 84424 (scan1/emap drivers) finished.

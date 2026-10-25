@@ -1,0 +1,223 @@
+Y1 and the 9-state extensions of M8: what can and cannot be certified          (agent y1-fable, Fable, 2026-10-18)
+=====================================================================================================================
+Y1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_0RA---    (M8 with H1 -> 0LI and a new state I = 0RA ---)
+M8 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---           (8-state collapse of the BB(9) record C04)
+Workspace bb8_list/investigations/bb9_y1_fable (notes.txt, runs/, tools/).  Sources of truth used: the Coq development
+bb9_c04_coq (k31/K31_End.v Hc, fgh/EndU.v, fgh/CascU.v casc_stepU, dev/Step.v reach_top, dev/Orbit.v gstep), the C04
+reports (bb9_c04_deep, bb9_c04_upper), y1-deep's REPORT (bb9_y1) and bb8-resid's F1 screen.
+
+0. VERDICT
+----------
+(1) Y1 cannot be certified, and neither can any sibling: THEOREM A (section 2) shows that no 9-state machine that
+    reproduces M8's computation up to M8's halting configuration halts with sigma > sigma(M8) in every endgame class.
+    Y1 is the best possible shape: it continues in the classes with d >= 1 (about 78%) and halts with sigma(M8) - 1 in
+    the classes key 31 / rho in {0, 4} (d = 0).
+(2) The class is not pinned by any invariant of the kind that saved C04 (section 3).  LEMMA B: for every modulus m there is
+    no function Q on Z/m with Q(g(L)) - Q(L) = h(L mod 5) except h = 0 (each branch of the cascade map g has a fixed point
+    mod m).  Monte Carlo with the exact Coq accounting: among starts that agree with the real start 36B+73 modulo
+    M = 2^12 3^6 5^6 7 11 13 17 19 23 29 31 all nine classes occur, rho is uniform within key 31, and the d = 0 classes
+    have weight 0.20-0.22 (runs/mc_class.txt).  Deciding the real class is equivalent to a middle-digit problem for 2^T in
+    base 5 with T = 2^^12 3 (section 3.4): decidable in principle, hopeless in practice.
+(3) What is left (section 5): a 9-state machine on M8's engine beats M8 certifiably iff its all-class LOWER bound exceeds
+    M8's Coq upper bound f_w(f_w(12B+27)).  It need not halt class-independently.  The only slot-budget-compatible way to
+    get that with M8's cascade and endgame intact is to change the TOP-LEVEL rebuilds only (family F3: H0 = 0LI, I1 = 1RF,
+    I0 free), because in M8's run the cell left of H at an H0 event is 0 exactly at the far-left exhaustion starts.
+    Screen results: see 5.3 [in progress].
+
+1. M8's HALTING CONFIGURATIONS AND Y1 (Coq facts)
+-------------------------------------------------
+K31_End.Hc d s G l R n t = (1 >> [0;1]^^d *> 1 >> [0;1]^^s *> lftx G (1 >> l)) <{{H}} HR R n t, spatially
+    ... l G  (10)^s 1  (10)^d [H:1]  1111 0 (10)^(6R+2) 0 (101)^(n+2) (11100100)^t 101 0^inf
+i.e. the head is in H on the last 1 of the token D(d); E0 = 1LH has just written the 1 to its right.  Every class of
+C04/M8 (Coq, EndU.v: key31U route0..route4, key37U, key43U, key49U, key55U) ends in such a configuration with
+    key 31: rho = 0: d = 0 | rho = 1: d = 1 | rho = 2: d = 6 R_E | rho = 3: d = 1 | rho = 4: d = 0      (rho = (P-35) mod 5)
+    key 37: d = 7 | key 43: d = 9 | key 49: d = 3 | key 55: d = 8 + 6 R_s.
+Facts used below: (F1) the cell RIGHT of the head is 1 in every class;  (F2) the cell LEFT of the head is 0 iff d >= 1
+(it is the final 1 of D(s), s >= 2, when d = 0);  (F3) H is entered only by E0 = 1LH (no other M8 transition targets H),
+so at every H1 event the right neighbour is the 1 that E just wrote.
+Y1: H1 = 0LI erases the head cell and I reads the left neighbour: d = 0 -> I1 undefined -> HALT with sigma(M8) - 1;
+d >= 1 -> I0 = 0RA -> A reads the erased cell, A0 = 1RB restores it: Y1 continues as "state B on the cell right of M8's
+halting head".  (Literal: y1-deep runs/k31.txt, P = 300..304.)
+
+2. THEOREM A (no faithful 9-state extension of M8 is class-robust)
+-------------------------------------------------------------------
+Let V be a 9-state machine whose computation from the blank tape coincides with M8's up to M8's halting configuration,
+in the sense that V contains M8's 16 defined transitions (up to renaming) and reaches Hc in a state X reading 1 at the
+moment M8 halts, in every class.  Then V does NOT satisfy "sigma(V) > sigma(M8) in every class".  More precisely V is one of:
+  (i)   never halts (in any class);  (ii) halts in every class with sigma(V) <= sigma(M8);
+  (iii) halts immediately with sigma(V) <= sigma(M8) in the d = 0 classes and continues in the d >= 1 classes (Y1's type);
+  (iv)  halts immediately with sigma(V) <= sigma(M8) in the d >= 1 classes and continues in the d = 0 classes.
+Proof.  Slot budget: V has 18 slots; the 16 M8 transitions occupy 16 of them (two M8 states cannot share a V-state since
+no two M8 states act alike, and a V-state that clones an M8 state in some contexts costs its two slots there), so V has
+exactly two further slots I0, I1 plus the slot X1 that M8 leaves undefined.  V halts only through an undefined slot, and
+an undefined slot among the 16 would stop the M8 computation early; so exactly one of X1, I0, I1 is undefined.
+  * X1 undefined: V = M8 up to an unused state: (ii) with equality.
+  * X1 = w D Q with Q an M8 state (including X itself): I is never entered (no M8 transition targets I), so the undefined
+    slot is unreachable: (i).  (Q = X: X1 = wRX sweeps right over E's 1s forever or, with w = 0, erases to the right and
+    then X0 = 1RG re-enters the engine without a halt slot; X1 = wLX reads d-dependent cells but again I is unreachable.)
+  * X1 = w R I: by (F1)/(F3) I reads 1 at every entry.  If I1 is undefined: V halts at once in every class with
+    sigma(M8) + (w - 1) <= sigma(M8): (ii).  Else I0 is undefined and I1 = w' D' Q'.  Q' = I, D' = R: sweeps right over the
+    1s and halts at the first 0 (no new 1 written: (ii)).  Q' = I, D' = L: reads w; w = 0 halts at once, w = 1 sweeps
+    left over 1s and halts at the first 0, at most one cell further ((ii)).  Q' an M8 state: I is re-entered only via X1
+    (by (F3) always reading 1), so I0 is unreachable: (i).
+  * X1 = w L I: by (F2) I reads 0 in the d >= 1 classes and 1 in the d = 0 classes.  The undefined slot is I0 (then (iv):
+    the d >= 1 classes halt at once with sigma(M8) + w - 1) or I1 (then (iii): the d = 0 classes halt at once with
+    sigma(M8) + w - 1).                                                                                               QED
+Remarks.  (a) The d = 0 classes (31/0, 31/4) are Coq-proved to be M8's endgames for those (key, rho); whether the REAL run is
+in one of them is the uncomputable question of section 3, so (iii) can never be upgraded.  (b) Ties (sigma = sigma(M8)) are
+not records.  (c) bb8-resid's 288-machine F1 screen (H1 -> I) is consistent with the theorem: every xRI row either halts
+immediately (ones 24964 = M8) or runs on without a halt; xLI rows split by d.  y1-deep's suggestion to prefer right-moving
+H1 = xRI extensions is therefore void: they cannot halt.  (d) The theorem does not depend on how Y1 behaves later: in the
+d >= 1 classes Y1 may do anything (y1-deep: rounds of further escalations with class-dependent halts), it is already lost
+in the d = 0 classes.
+
+3. THE CLASS QUESTION: WHY NO INVARIANT CAN DECIDE IT
+-----------------------------------------------------
+3.1 Exact dependence (Coq).  The level-B cascade is one orbit of gstep(L) = (3L + c_{L mod 5})/5, c = (-100, 32, -46, -64,
+-52) for L mod 5 = 0..4, from L1 = gstep(L0), L0 = 36B + 73 (Step.v).  At L1 the parked count is P = 12 R2 + 11 (reach_top)
+and one g-step consumes 3 / 11 / 4 / 6 / 6 parked zeros for L mod 5 = 0 / 1 / 2 / 3 / 4 (CascU.casc_stepU).  The key is the
+first orbit value < 60 (in {31,37,43,49,55} by parity and mod 3); for key 31 the route is rho = (P - 35) mod 5 (K31_End).
+With R2 = 1 mod 5:  rho = (3 - sum_i cost(r_i)) mod 5 over the orbit from L1 to the key.  So the class is a function of the
+residue sequence r_i = L_i mod 5, and r_i is determined by L1 mod 5^(i+1): given r_0..r_(i-1), r_i is a bijective function of
+the i-th base-5 digit of L1.  Hence EVERY residue sequence is realised by some start, and the orbit of the real start is
+pinned only through the exact value of B = (2^^13 3 - 4)/2: its first k residues through B mod 5^k (computable for any k by
+iterated Euler, towermod), the rest not.  The orbit has about log_(5/3)(36B) = 1.36 T steps, T = 2^^12 3.
+
+3.2 LEMMA B (no additive residue invariant).  Let m >= 2 and let Q : Z/m -> A (any abelian group) and h : Z/5 -> A satisfy
+Q(g(L)) - Q(L) = h(L mod 5) for all L >= 60.  Then h = 0.
+Proof.  Write m = 5^k m' with gcd(m', 5) = 1.  (a) k = 0: for each r the branch x -> 5^(-1)(3x + c_r) is a well-defined map
+on Z/m' and has a fixed point, namely the solution of 2x = c_r (mod m'), which exists because every c_r is even (and 2 is
+invertible when m' is odd).  Taking L in that class with L = r mod 5 (CRT) gives h(r) = Q(fix) - Q(fix) = 0.  (b) k >= 1:
+for x in Z/m and its five lifts x' = x + j 5^k m' (j = 0..4) the images g(x') = g(x) + 3 j 5^(k-1) m' run through all classes
+mod m that are = g(x) mod 5^(k-1) m', and all have Q(g(x')) = Q(x) + h(r).  Every class mod m is such an image (3x + c_r = 5y
+is solvable in x for every y, and the solution automatically has x = r mod 5), so Q is invariant under translation by
+5^(k-1) m', i.e. Q factors through Z/(5^(k-1) m').  Induct down to k = 0.                                             QED
+Consequence: no quantity of the form (P + a L + b t + ...) mod m, and no automaton that only accumulates a group element per
+residue read, can relate rho (an additive residue functional of the orbit) to anything computable about the start.
+(C04's parity invariant is NOT a counterexample: there h = 0 and Q = L mod 2 is a conserved quantity, which constrains the
+key set but says nothing about the sum of costs.)
+
+3.3 Monte Carlo in the real residue class (mc_class.py, runs/mc_class.txt).  Starts L0' = L0 (mod M), M = 2^12 3^6 5^6
+7 11 13 17 19 23 29 31 (B's residues from towermod), 20000 samples each with 80, 300 and 1500 decimal digits, exact
+accounting of 3.1.  Every one of the nine classes occurs in every size; key 31 has 0.50-0.55 total weight split evenly
+over rho = 0..4; the d = 0 classes have weight 0.204, 0.218, 0.219.  (The real orbit's first 5 steps are fixed by 5^6;
+they do not matter.)  So within everything that is computable about B by residues, Y1's outcome is 78/22.
+
+3.4 What deciding the class would take.  L0 = 18 * 2^T + 1 with T = 2^^12 3.  After n steps 5^n L_n = 3^n L0 + S_n with S_n a
+signed sum of 3^(n-1-i) 5^i c_(r_i); the key is L_n at the first n with L_n < 60, n = 1.36 T.  Knowing the class means knowing
+L0 mod 5^n up to the equivalence "same orbit tail", i.e. essentially the base-5 digits of 2^T at positions up to 1.36 T
+(3.2 T bits), where 2^T itself has T bits: there is no reduction of the exponent (T < 4 * 5^(n-1)), and no method is known
+to produce a middle base-5 digit of a power of 2 without computing all lower digits.  Hence: decidable in principle (it is a
+fixed integer), not decidable by any known means, and by 3.2 not decidable by residue invariants of any modulus.
+
+3.5 Consequences for Y1.  Certified: sigma(Y1) >= sigma(M8) - 1 (all classes), and sigma(Y1) > sigma(M8) iff d >= 1.
+Y1 is a BB(9) record with heuristic probability about 0.78 and cannot be certified.  In the d >= 1 classes y1-deep found
+rounds of further escalations (each round a top rebuild of ~12R, f_w^3, f_w^4, ...) with class-dependent halts inside each
+round (every H1 event is a potential halt, decided by residues of tower-sized tokens); even conditional on d >= 1 the
+number of escalations is not computable, and the halting itself is only heuristic (probability 1).  No Coq target exists.
+
+4. THE REAL OBSTRUCTION, IN ONE SENTENCE
+----------------------------------------
+M8's halting head sits on the last 1 of a class-dependent token D(d) with d = 0 in two of the nine classes, and a 9-state
+extension has exactly one new decision (I's first read): left of the head it reads d, right of it it reads a constant 1
+that leaves no halt slot.  Any certifiable improvement must therefore diverge from M8 BEFORE its endgame.
+
+5. BEATING M8 WITHOUT KNOWING THE CLASS
+---------------------------------------
+5.1 Criterion.  M8's score satisfies f_w(f_w(12B+26)) < sigma(M8) < f_w(f_w(12B+27)) (Coq, EndU bracket), and the whole
+endgame analysis of C04/M8 covers every class.  A machine V on the same engine with the same marker exhaustions (hence the
+same sub-step rules R2, the same endgame tables R3/R4) but a LARGER second escalation has K' = 12 R2' - 10 - Q' with
+R2' >> R2, so its all-class lower bound f_w(K'+1) exceeds f_w(f_w(12B+27)) regardless of which class it ends in.  Its
+halting proof is C04's proof with a different exhaustion-#1/#2 lemma.  This is the only kind of certifiable 9-state record on
+M8's engine that the slot budget permits.
+
+5.2 The slot budget and the H0 contexts.  Besides the 13 champion slots and E0, a 9-state machine has H0, H1, I0, I1, of which
+exactly three are defined.  M8's halt H1 must stay undefined (an M8-like D0 endgame is the only halting mechanism we can
+prove), so H0, I0, I1 are defined and I must be entered from H0.  H0 = xRI makes I read E's 1 and I0 dead; H0 = 1LI cannot
+be made faithful (no X1 = 1RG exists); H0 = 0LI with I1 = 1RF reproduces M8's H0 = 1RG whenever the cell left of H is 1 (I
+keeps the 1, F0 = 1RG rewrites H's cell and lands in G on E's cell, as M8 does in one step).  Literal H0 log of M8's whole
+run in the small faithful world (pkf8 --h0log H, runs/m8_B6.txt): the cell left of H at an H0 event is 0 exactly twice,
+at the two far-left (top-level) exhaustion starts (steps 8111 and 6788301); at all 20 other H0 events (marker exhaustions,
+rebuild-internal and tail-region events) it is 1.  [To be re-checked in class-b and rho 1-3 worlds, runs/ctl_*.]
+So F3 = { H0 = 0LI, I1 = 1RF, I0 in 36 options } changes M8 only at top-level exhaustions (#1, #2 and later tops);
+I0 = 0RF is M8 itself.
+
+5.3 F3 screen (runs/f3_B6/summary.tsv, world --B 6 --cls 366 --mod 3600 --cnt: B = 6 mod 2520 and R = 366 mod 3600 are the
+real residues; M8 control: key 31 route rho 4, HALT H1 at step 4.5e8, ones 9866, zeros 11 97 12 4374 2617 2617 2616 2616).
+36 rows (2026-10-19): 17 HALT H1, 19 loop or time out (300 s).  f3_0RF (= M8) and f3_1LG reproduce M8 exactly.  Beyond M8:
+f3_0RC = f3_1RD (section 7: parametric, beats M8 in every class), f3_1LC (two extra tower rebuilds in the B = 6 world, but
+B = 11/16/21/26 give five different traces: its first phase already depends on an orbit of 6B-ish lists, i.e. on B's
+uncomputable tail; low priority), f3_1LF (second escalation smaller than M8's).
+
+5.4 Other families (not screened here).  F4 = H0 = 0LI, I0 = 0RF, I1 free (faithful top, modified markers): changes the
+cascade constants and the endgame; its second escalation equals M8's, so it beats M8 only if its own endgame adds a level,
+and it needs a complete new endgame analysis.  F2 (E0 -> I, bb8-resid's TNF from blank) are new machines with their own
+cascades.  For any of them the certification criterion is 5.1: an all-class lower bound above f_w^2(12B+27).
+
+6. FILES
+--------
+REPORT.txt (this), notes.txt (log + handoff), mc_class.py + runs/mc_class.txt (3.3), tools/pkf8.cpp/.exe (pkf7 + --h0log),
+tools/launch.py, tools/screen_f3.py, f3_list.txt, runs/m8_B6.txt (M8 control with H0/H1 events), runs/f3_B6/ (screen).
+
+7. F3-0RC: AN M8-ENGINE MACHINE THAT BEATS M8 IN EVERY CLASS (2026-10-19)
+---------------------------------------------------------------------------
+    f3_0RC = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI---_0RC1RF    (twin f3_1RD: I0 = 1RD, identical trace)
+M8 with H0 = 0LI, H1 = --- (the only undefined slot), I0 = 0RC, I1 = 1RF.  Where M8 does H0 = 1RG, f3_0RC moves to the cell
+left of H: if it is 1 (every marker exhaustion, every rebuild-internal and tail-region H0 event) I1 = 1RF puts F on H's cell,
+F0 = 1RG rewrites it and lands in G on E's cell: M8's step in three.  If it is 0 (the far-left blank, i.e. a TOP-LEVEL
+exhaustion) I0 = 0RC takes over.  Data: runs/f3_B6/f3_0RC.txt, runs/param/p0RC_*.txt (B = 6, 11, 16, 21, 26, 36, 61, 76,
+96, 126 with R = 366 mod 3600; B = 6 with R = 3966 mod 7200; B = 6 with the order-faithful policy R = 20 + k), all
+HALT H1 after the same sequence of phases; pkf8 "used" sets show which slots each phase uses.
+
+7.1 Phases (view notation of the C04 reports; "1*k" counts the m-token).
+ P0  Level 0 = the champion's run to Kt(1^11; 1; 3B+2; 0) (identical to M8: first H0 at step 8111 in both).
+ P1  Exhaustion #1 (top level, I0 fires):  Kt(1^11; 1; 3B+2; 0) ->* [0 1 (6B-2) 13 | 1*5 ; r = 2], t = 3
+     (cells: 0^inf 11 0 1 D(6B-2) D(13) (101)^5 ...), checked for all 10 values of B.  Then CL (b = 0) of the digits 4 (near)
+     and 2B-1 (far) at pkf depth 7:  R'' with 2R''+4 = (G_8)^(2B-1)(G_7(6)) >= G_9(2B) = 2^^9 (2B)   [upper.txt L2, L3].
+ P2  Champion rules only (no E0 in the segment): [0 1 1*8 ; 3R''+2] ->* [0,0, 7 | 1*(12R''+11) ; 2], t = 3: the list is
+     12R''+11 for R'' = 366, 3966 and 27 (the rk world: 335 = 12*27+11).  Then CL of the digit 7: 2R2'+4 = G_(12R''+12)(4).
+ P3  Exhaustion #2 (top level, I0 fires) on n = 12R''+12 zeros (incl. m) with accumulator 3R2'+2, t = 3:
+     L00 = 3n+1 = 36R''+37, one g-sub-step with r = L00 mod 5 (REAL: R'' = 1 mod 5 => r = 3, y = (L00+7)/5 = (36R''+44)/5,
+     L1 = (3L00-64)/5 = (108R''+47)/5), then L1 = 0 mod 5 (REAL: R'' = 16 mod 25 => 108R''+47 = 0 mod 25) => top-level STOP:
+         [0,0, A, 1*(12R2'+8), 0,2,z2, X | 1*(k'-1) ; 2],  t = 9,  A = y+3 = (36R''+59)/5,  k' = (L1-25)/5 = (108R''-78)/25,
+         X = k'+7.
+     Checked: R'' = 366 (A = 2647, parked 4400, X = 1585, k' = 1578) and, in the r = 4 branch of the rk world (R'' = 27,
+     not the real branch), L00 = 1009 -> 595 -> stop with X = 121, k' = 114, A = 207 = y+3, exactly as the chain predicts.
+ P4  CL of X 1*(k'-1) -> R3, and the cascade starts at L0' = 3k'-5 = (324R''-359)/25 in the context
+     [0,0, A, 1*P, 0,2,z2 | ...] with P = 12R2'+8: M8's cascade family.  In the B = 6 world the y tokens 948 2 566 2 338 6
+     202 4 120 6 70 6 40 6 22 4 12 are exactly (L+d_r)/5 along the orbit 4729 -> 2827 -> 1687 -> 1003 -> 589 -> 343 -> 193
+     -> 103 -> 49, the ending is key 49's "4 12 4 6 7" -> "6 7|" -> counter 6 -> 3 -> 0 -> HALT H1 (M8's class b).
+ Only two far-left H0 events occur in the whole run (P1 and P3); every later H0 has a 1 on its left.
+
+7.2 Residues (paper; Coq: Abs.v arrow_mod5, arrow_pow2, U_closed).  Every accumulator produced by a clear of depth >= 2 has
+2R+4 = arrow(k, 2, n) with k >= 3, n >= 3, so 2R+4 = 2^e with e = 0 mod 4 and e = 16 mod 20 (e is itself a tower), hence
+2R+4 = 1 mod 5, = 11 mod 25 and = 0 mod 4:  R = 1 mod 5, R = 16 mod 25, R even, R = 0 mod 3.  This holds for R'', R2' and
+R3 whatever B is (B's own class is irrelevant: B enters only through the digit 2B-1 of the P1 clear).  Consequently
+   r(L00) = 3,  L1 = 0 mod 5 (one sub-step then stop),  L0' = (324R''-359)/25 is an integer, ODD and = 1 mod 3.
+So the cascade orbit of f3_0RC is in the class covered by C04's A1 (odd, 1 mod 3): its key is in {31, 37, 43, 49, 55} and the
+endgame is M8's (Coq casc_keyU) with P = 12R2'+8, t = 9, far side l = "11 A".  Every class halts.  The route-world check
+(7.4) confirms that f3_0RC and M8 coincide from the cascade on.
+
+7.3 Score.  As in C04 (A2, upper.txt sec. 5): sigma > G_(K'+1)(4) >= f_w(K'+1) with K' = P - Q' - e_route >= 12R2' + 8 - 14N - 60
+> 11 R2', N <= 2 log2(L0') + 2.  M8: sigma(M8) < f_w(K+3) < f_w(f_w(12B+27)) <= f_w(2^^(12B+28) 4).  Since 2R2'+4 =
+2^^(12R''+12) 4 and 12R''+12 >= 6 * 2^^9(2B) - 12 >> 12B+28, K'+1 > 5 * 2^^(12R''+12) 4 > 2^^(12B+28) 4, hence
+   sigma(f3_0RC) > f_w(K'+1) > f_w(f_w(12B+27)) > sigma(M8)   in every endgame class,
+and more precisely f_w(f_w(12R''+11)) < sigma(f3_0RC) < f_w(f_w(12R''+13)) with 2R''+4 >= 2^^9(2B): the same omega level as
+M8 (f_w^2) with the inner argument raised from 12B+26 to about 6 * 2^^9(2B).
+
+7.4 Decoupled accumulators (runs/routes/dec_*.txt, --Rlist; note the first list entry replaces B).  B = 366, R'' = 3966,
+R2' = 366: P1 gives "0 1 2194 13 1*5" (2194 = 6*366-2), P2 gives 1*47603 = 12*3966+11 with NO clear inside P2 (no CL
+moment between J2 and J3: the list is built by R1/R2/R3 alone from r = 3R''+2), P3 gives A = 28567 = (36*3966+59)/5,
+parked 4400 = 12*366+8 = 12R2'+8, X = 17137, k' = 17130 = (108*3966-78)/25: every formula of 7.1 with R'' != R2'.
+B = 3966, R'' = 366, R2' = 366: "0 1 23794 13 1*5" (23794 = 6*3966-2), then the B = 6 trace verbatim, HALT H1.
+So P1 holds for B in {6, 11, 16, 21, 26, 36, 61, 76, 96, 126, 366, 3966}, P2/P3 for (R'', R2') in {(366,366), (3966,3966
+to J3), (27,355), (3966,366), (366,3966)}.
+7.4' Checks done / to do: (a) f3_0RC and M8 from y1-deep's nine --kt route worlds (key 31 rho 0-4, 37, 43, 49, 55),
+expecting identical halts and no far-left H0 (runs/routes/); (b) R'' and R2' decoupled (--Rlist 366,3966 and 3966,366) to
+confirm "12R''+11", "12R2'+8", A, X, k' with two different accumulators (runs/routes/dec_*); (c) H1 events: with H1 the only
+undefined slot, a halt needs E0 with a 1 on the left; the --h1log runs show none before the endgame's D0 event.
+
+7.5 Coq route.  C04's development with three new lemmas: P1 (a rebuild lemma parametric in B, like the record's 51-stage
+R1), P2 (champion rules + clears from the P1 output: Kt_R1/R2/R3 + CDP, arbitrary far side), P3 (the I0 top-level exhaustion
+with one r = 3 sub-step and a stop, parametric in R'' and R2'), then reach_top' (the D0f instance), casc_stepU and casc_keyU
+unchanged, plus the residue lemma 7.2 (mod 25 version of arrow_mod5) and the bound 7.3.

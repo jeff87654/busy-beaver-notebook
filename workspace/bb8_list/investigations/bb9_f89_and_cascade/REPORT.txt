@@ -1,0 +1,57 @@
+================================================================================
+BB(9) TARGET #3 REPORT: 9-STATE EXHAUSTION & GUARD REDIRECTS OF F89 AND
+9-STATE EXTENSIONS OF xh_0914 & STARTUP-DIVERGENT (X) PARENTS OF champ_231/232
+================================================================================
+Date: 2026-10-25
+Workspace: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb9_f89_and_cascade
+
+1. EXECUTIVE SUMMARY
+--------------------
+We conducted an exhaustive 9-state investigation across two unexplored families:
+  * Part A: 9-state exhaustion and guard-pair redirects of the 7-state base-3
+    Ackermann looper `F89` (`1RB0RE_0RC---_1LD0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE`,
+    k_1 = 30 digits) and its blank-tape start siblings `F89-S1`, `F89-S2`, `F89-S3`,
+    where the 12-transition core engine (`D, B_k, T_k`) leaves up to 6 free
+    exhaustion transitions (`B1, C0, H0, H1, I0, I1`).
+  * Part B: 9-state (`I`) extensions of the 8-state 2-tower counter-cascade halter
+    `xh_0914` (`1RB0RG_1RC1RB_0RD1RH_0LE0LD_0LF1LE_1RA1LF_0LD0RB_---1RD`) and its
+    `232` twin `xh_0980`, plus 9-state extensions of the k_1 in {1, 2, 4}
+    startup-divergent (`X`) parents of `champ_231`/`232`.
+
+Headline Findings:
+  1. **The 1^(3x+5) [B0] 0 Compression Law on `F89` (Part A)**:
+     During `S([x])`, before `B0:0` or `C0:0` ever fires, the initial O(x^2) passes
+     use only `C1`, `G0`, and `C0:1` to compress the entire digit `[x]` into a
+     featureless unary block of M = 3x + 5 ones: `0^inf 1^(3x+5) [B0] 0^inf`.
+     Because M = 3x + 5 == 2 (mod 3) for every integer x >= 1, any gadget triggered
+     at `B0:0` or `C0:0` sees the exact same modulo-3 parity regardless of x.
+     Moreover, in `F89`'s core engine, `1^M [B0] 0` sweeps left to:
+       - M == 2 (mod 3) => `[1^((M-2)/3)]` (all-odd tower),
+       - M == 0 (mod 3) => `[2, 0, 1^((M-6)/3)]` (reduces via E_2, ZD, Z_2 to odd tower),
+       - M == 1 (mod 3) => `[3, 0, 1^((M-7)/3)]` (reduces via Z_2, ZD to odd tower).
+  2. **Multi-Round Halters on `F89-S3` (Part A, 1.48M TNF Leaves Searched)**:
+     Modifying `C0` alongside `B0:0` (`FamA1b`, 510,049 leaves) or `C0:1` (`FamA2b`,
+     21,205 leaves) breaks the M == 2 (mod 3) compression invariance and yields
+     91 multi-round halters on `F89-S3`, peaking at R = 3 (collapsing a 12-digit
+     base-3 Ackermann tower on `1RB0RE_0RC0RI_1LH0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE_1RA0LF_---0LC`
+     before halting at `I0 = ---`). None reach R >= 4 or beat `h003`.
+  3. **Complete Screen of `xh_0914 + I` (Part B1, 10,130 Machines)**:
+     Screening all 8-state and 9-state extensions `H0 -> (I0, I1)` of `xh_0914` and
+     `xh_0980` (`partB_screen_xh0914.out.txt`) proved that 0 machines achieve a
+     multi-round halt beyond E_2: every `All-K` extension either uses both slots of
+     `I` (leaving 0 halt slots) or leaves an unreachable `---` slot.
+  4. **62 New E_2 Multi-Round Halters on `b231_X / b232_X + I` (Part B2)**:
+     Screening all `X-I1` and `X-I2` 9-state extensions of the k_1 in {1, 2, 4}
+     `X`-parents identified 743 `MIXED_KH` candidates (`partB_screen_x_parents.out.txt`).
+     Running `c231f.exe` (`run_c231f_on_partB.py`) resolved all 743, uncovering
+     62 genuine E_2 halters across 8 groups (overcoming the 8-state 16-Slot
+     Impossibility Theorem), peaking at k_1 = 2 -> k_2 = 78,455,298,203
+     (~f_omega(7.85 * 10^10) on `1RH0RG_1RC1RB_0RD1LI_0LE0LD_0LF1LE_1RA1LF_0LD0RB_1LB1RB_---1LC`).
+     Zero machines reach E_3 or higher.
+
+2. KEY FILES IN THIS WORKSPACE
+------------------------------
+  - `partA_f89_tnf_search.cpp` / `.out.txt`: C++ 9-state TNF enumerator & macro simulator for `F89` / `F89-S1..S3`.
+  - `partA_analyze_top_halters.py`, `partA_verify_towers.py`: Verification of multi-round `F89-S3` halters.
+  - `partB_screen_xh0914.cpp` / `.out.txt`, `partB_analyze_xh0914_results.py`: Full 10,130-machine screen of `xh_0914`/`xh_0980 + I`.
+  - `partB_screen_x_parents.cpp` / `.out.txt`, `run_c231f_on_partB.py`: Full screen and `c231f` verification of 9-state `X`-parent extensions.

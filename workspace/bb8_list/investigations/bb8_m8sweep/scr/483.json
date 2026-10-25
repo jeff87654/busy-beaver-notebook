@@ -1,0 +1,1 @@
+{"i": 483, "m": "1RB1RA_1LB1RC_0RG0LD_0RF1LE_1LA1LD_---0RB_0RA0RF", "tmpl": "L,E,P=1,u=1,s=0,d=2d+0,b=2b+1,S=01", "cls": [190], "M": 60, "runs": [{"X": "G0", "s": 0, "c": 10, "v": "g0", "snap": {"step": 15, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "483_G0_c10_g0.txt"}], "time": 0.8}

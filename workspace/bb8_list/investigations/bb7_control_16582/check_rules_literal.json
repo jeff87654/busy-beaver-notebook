@@ -1,0 +1,30 @@
+{
+ "R1": {
+  "cases": 768,
+  "ok": 768,
+  "fails": [],
+  "max_head_minus_tail_start": -7,
+  "max_steps_per_rule": 1078
+ },
+ "T1": {
+  "cases": 192,
+  "ok": 192,
+  "fails": [],
+  "max_head_minus_tail_start": -1,
+  "max_steps_per_rule": 1090
+ },
+ "R2": {
+  "cases": 768,
+  "ok": 768,
+  "fails": [],
+  "max_head_minus_tail_start": -6,
+  "max_steps_per_rule": 1076
+ },
+ "T2": {
+  "cases": 192,
+  "ok": 192,
+  "fails": [],
+  "max_head_minus_tail_start": -4,
+  "max_steps_per_rule": 1059
+ }
+}

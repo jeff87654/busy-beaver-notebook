@@ -1,0 +1,1 @@
+{"states": 8, "seconds_limit": 3600, "elapsed_seconds": 3600.01, "nodes_started": 22226384, "frontier_nodes": 176, "halting_hits": 5272859, "terminal_halters": 4578291, "stopped": true}

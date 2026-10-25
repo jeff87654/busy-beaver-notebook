@@ -1,0 +1,41 @@
+{
+  "configuration": {
+    "seconds": 10,
+    "workers": 2,
+    "seed": 20260926,
+    "ops": 3000,
+    "output": "run3_smoke.json"
+  },
+  "elapsed_seconds": 12.078000000037719,
+  "best": [],
+  "workers": [
+    {
+      "worker": 0,
+      "counts": {
+        "evaluations": 678,
+        "ops": 388,
+        "halt": 279,
+        "accepted": 77,
+        "cache_hits": 239,
+        "infinite": 11,
+        "deep_evaluations": 3
+      },
+      "best": [],
+      "unresolved": []
+    },
+    {
+      "worker": 1,
+      "counts": {
+        "evaluations": 644,
+        "ops": 402,
+        "cache_hits": 284,
+        "accepted": 68,
+        "halt": 231,
+        "deep_evaluations": 9,
+        "infinite": 11
+      },
+      "best": [],
+      "unresolved": []
+    }
+  ]
+}

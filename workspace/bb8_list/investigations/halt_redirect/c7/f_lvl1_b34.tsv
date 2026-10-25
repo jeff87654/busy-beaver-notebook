@@ -1,0 +1,11 @@
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LA0LI_---0LA	HALT	5	4	J k=221 far=clean ev=block zeros=217 r= ; J k=221 far=clean ev=block zeros=217 r=20 ; J k=217 far=junk ev=left zeros=217 r=20 ; J k=216 far=clean ev=left zeros=216 r=20 ; H I0 ones=1526
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LA0LI_---0RE	HALT	5	4	J k=221 far=clean ev=block zeros=217 r= ; J k=221 far=clean ev=block zeros=217 r=20 ; J k=217 far=junk ev=left zeros=217 r=20 ; J k=216 far=clean ev=left zeros=216 r=20 ; H I0 ones=1526
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LA1LI_---1LF	TIME	2	1	J k=252 far=clean ev=left zeros=252 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_1LI---_0LA1LA	HALT	2	1	J k=218 far=clean ev=left zeros=218 r=20 ; H H1 ones=461
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_1LI---_1LA1LA	HALT	2	1	J k=218 far=clean ev=left zeros=218 r=20 ; H H1 ones=461
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_1LI---_1LA0LD	HALT	3	2	J k=218 far=junk ev=block zeros=217 r= ; J k=218 far=junk ev=block zeros=217 r=20 ; H H1 ones=487
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_1LI---_1LA1LE	TIME	2	1	J k=218 far=junk ev=left zeros=218 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_1LI---_1LA1RF	TIME	2	1	J k=218 far=junk ev=left zeros=218 r=20 ; T
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_1LI1RF_1LC---	HALT	3	2	J k=323 far=clean ev=block zeros=320 r= ; J k=323 far=clean ev=block zeros=320 r=20 ; H I1 ones=576
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_0RI0RH_---0RC	HALT	3	2	J k=165 far=junk ev=block zeros=163 r= ; J k=165 far=junk ev=block zeros=163 r=20 ; H I0 ones=341
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_1RH0LC_1RG1LD_0RG0RF_0RI0RH_---1RD	HALT	3	2	J k=165 far=junk ev=block zeros=163 r= ; J k=165 far=junk ev=block zeros=163 r=20 ; H I0 ones=341

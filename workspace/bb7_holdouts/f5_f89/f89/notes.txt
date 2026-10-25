@@ -1,0 +1,4 @@
+2026-10-24 08:58:40 start F89 task (Opus agent)
+2026-10-24 09:03:41 coding: separator-before, tape=00[1(01)^d]..., K=D-left event with 1 leading #. odd-mode rules D/B/T/S in eng.py; lockstep 3e7 steps 2760 events 0 miss
+2026-10-24 09:25:38 rules D/B/T/S proven symbolically: msim.py (shift + carried-context shifts, sound) loop lemmas lemS/lemB/lemT/lemB0, small K via msmall.py + symtest(symsim). [1^30] at step 4679 exact (lit). invariant all-odd -> NEVER-HALTS
+2026-10-24 09:33:39 lockstep 3e8 steps: 7746 rule apps 0 miss; hsearch 4680 small configs (len<=4, digits 0..7, any parity) none halt in 2e6; siblings = F89 started in C/F/D (relabel, 2 mirrored), reach all-odd [3,3]@162 / [1]@13, lockstep 3e6 0 miss; ctl.py positive control msim HALT on symbolic families. VERDICT NEVER-HALTS

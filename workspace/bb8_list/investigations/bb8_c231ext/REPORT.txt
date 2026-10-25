@@ -1,0 +1,123 @@
+bb8_c231ext: 8-state halt-redirect extensions of champ_231 / champ_232 (BB(7) record)           2026-10-23
+================================================================================================================
+VERDICT: no 8-state extension beats M8. None even halts after a rebuild round. Every halting extension halts at
+the first exhaustion or within one sweep after it, with sigma between 6a_f+3 and 12a_f-29 (a_f = champ_231's final
+accumulator, about f_omega(20)). M8 is f_omega^3(12). Nothing was added to OPEN_CANDIDATES.
+
+MACHINES. C1 (the only halt) -> {0,1}{L,R}H, and H = one halt + one transition (w, d, X in A..H).
+256 machines per base, 512 in total. TNF duplicates: none. No free-transition variants exist: all 13 defined
+transitions are used before the exhaustion.
+
+EXHAUSTION TAPE (exact, both bases). Instead of halting, the machine is at
+  0^inf (10)^(2n-1) 11 00 1 C>1 1 00 (1100)^(3a+1-n) 1 0^inf     (n = list length, 20 in the real run)
+C reads 1 with a 1 on both sides, so H always reads 1 on entry.
+
+OUTCOMES (512)
+  256  H1 = halt: halt immediately. sigma = 6a_f+7 (+0/-1), i.e. champ_231's score.
+   83  halt soon after the exhaustion (H0 inside the gadget). sigma = 6a_f+c, 9a_f-c or 12a_f-29.
+       Best: 12a_f-29 (..._0RD1RH_..._---1RA / ---0RE / ---0RC, both bases). About champ level.
+  118  never reach a K-configuration again:
+         114 leftward bouncers (tape span grows like sqrt(t); the list is never touched again)
+           4 in-place loops (C1 = 1LH, H1 = 1RC and C1 = 1RH, H1 = 1LC)
+       Non-halting. Even if one halted, it could not reach Ackermann size.
+   55  rebuild (a K-configuration with a new list of length about 3a after the exhaustion):
+        16 CLEAN infinite rebuilders. NON-HALTING (strong evidence).
+           Family X: (C1,H1) in {0LH/1RB, 0RH/0LA, 1LH/1LF, 1LH/1RF, 1RH/0LB, 1RH/1LF, 1RH/1RC}, x2 bases.
+             K(a;0^n) -> K(c; p, q, .., 0, 1^(3a-2-n)). The head digits encode n positionally, growing one digit
+             each time n grows by x1.5-2. Checked for every n <= 60, sampled up to 1542. It always rebuilds, and
+             H0 is never read (H is entered about 2n to n^2 times per exhaustion, always on a 1).
+           1RH/1RE (x2): K(a;0^n) -> K(4n+3; 0, 1^(3a-2n)) for every n <= 600 with a >= n.
+         2 0LH/0LA (x2): the rebuilt K(1; 0^(2n+1), ..) violates the Bk precondition; no halt within 2e9 steps.
+         6 halt within one sweep of the first rebuild: 0RH/1LE, 0RH/1RD, 1LH/1LC (x2).
+           For 1LH/1LC the gadget halts when n is odd; when n is even it rebuilds with left junk, which kills it at
+           once. About champ level.
+        31 junk / flagged-digit rebuilders. The left junk becomes an odd-length block, a "flagged digit"
+           (digit + one extra 1).
+           - The engine decrements it like a normal digit, and the flag stays.
+           - A flagged-zero borrow refills it (about 3A) and keeps the flag, possibly moving it left.
+           - The final exhaustion K(A;0^j,[1],0^z) fires the gadget again, and the next list carries more flags
+             (e.g. 0LH/1RC and 0LH/0RE: two flags).
+           - For 1LH/0LA and 1LH/0LD, odd n leads to a left bouncer and even n to a flagged rebuild.
+           No H0 read in any probe (exhaustion maps n = 1..60, marker events, final-exhaustion probes).
+           Probably non-halting. In any case, nothing halts after a second round.
+
+WHY IT FAILS
+- The only halt is H0.
+- The gadget output depends on n, and on 3a+1-n only as a list length, never on residues of a.
+- On the gadget's paths, H only ever reads 1 at the real scale.
+- An M8-style residue-decided round needs a gadget that tests something like the parity of n' = 3a+1-n, halts in
+  one class, and rebuilds cleanly in the other.
+- 1LH/1LC has exactly that test (odd n -> halt), but its even-n rebuild leaves junk that kills it at once.
+
+RESIDUES (resid.py; for any follow-up)
+- a_f = g(w), g(w) = f^(3w+2)(1) = (5*3^(3w+2)-3)/2.
+- g flips parity (g(w) is odd iff w is even), so a_f mod 2 is NOT tower-stable. It depends on the parity of the
+  B1-chain length, recursively through the whole run.
+- Only 2a_f+3 = 0 mod 3^K is stable.
+- A parity-gated design would need a level-table residue engine (U_j mod Q, as in reb7/eng7), not one tower lemma.
+
+CONTROLS
+- champ_231's own run from K(10;0^20) halts at step 6297 = 48a^2+192a+137-28n (rule E).
+- Old champion under fl7 (reb7 template R,B,P=11,u=10,s=1,d=3d+1,b=3b+2,S=111001): halts at its exhaustion
+  (n=0..3, b=40..60).
+- Negative control: old champion with E0=1LH, H=1LH--- runs off the tape (translated cycler).
+- Positive control: M8 does not halt at the exhaustion. pkf8 (topmap W2 world, --B 66 --cls 66 --mod 150) shows
+  its first top-level rebuild (top 817, as in topmap's own control), then the cascade.
+- Limitation: my K-tools are specific to champ_231's engine and have no M8 template. M8's round count (2 rebuilds,
+  then a residue-decided halt) comes from the M8 Coq proof and topmap; I did not re-derive it here.
+
+9 STATES (not done; the 8-state results gave nothing to extend)
+- A 9-state route would add one state to family X (a clean infinite rebuilder) or to 1LH/1LC (parity test plus
+  junk cleanup), to get "halt on a class of n', rebuild otherwise".
+- Each round adds one omega level, starting from about f_omega(20).
+- Two rebuilds then a halt gives about f_omega^3(20), above M8. Beating h003 (f_omega^7(12)) needs about 6 rebuilds.
+- Deciding the rounds would need a_f's parity classes (see RESIDUES).
+- Earlier 9-state work: bb8_list/investigations/bb9_champ231_accel (no report).
+
+FILES (bb8_list/investigations/bb8_c231ext)
+  tm.py, peek.py, halt_tape.py         literal Python sim and tape views
+  resid.py                             exact residues of a_f (finite-chain recursion; parity alternates)
+  enum8.py -> ext8.txt                 the 512 machines
+  follow.cpp/.exe                      literal follow from K(a;ds); K-moment parser (modes chg/first/all; H-entry count)
+  gfollow.cpp/.exe                     generalized follower (odd blocks / flagged digits)
+  sweeps.cpp/.exe, tapegrow.cpp/.exe   left-boundary sweep views; tape-growth classifier
+  scan1.py -> scan1.jsonl              stage-1 outcomes; end0.txt, h0.txt; end0cls.py -> end0cls.tsv
+  emap.py -> emap1.jsonl               exhaustion maps (55 machines, n=1..60)
+  group.py, marker.py, mprobe.py, xprobe.py, fprobe.py, groups.py   grouping, marker extraction, event probes
+  notes.txt                            timestamped log
+
+  multi_round_sim.py                   accelerated multi-round / multi-flag simulator (Macros 1..4)
+  MULTI_ROUND_PROOF.txt                exact all-n proof for Family X (14) + multi-round resolution of all 33 non-clean rebuilders
+
+ADDENDUM (MULTI_ROUND_PROOF.txt):
+  1. Family X (14 machines): Unconditional all-n (n >= 1) and all-round (r >= 1) proof completed (Lemmas X.1, X.2,
+     Theorem X.3). All 7 pairs on both 231/232 map identically via 2n+1 passes of Phi to K(c_{2n+1}; d_1, .., 0,
+     1^(N-K_n)); prefix potential S^(M) = c + 2*sum_{i<M} d_i >= 2M + 1 proves c >= 2m + 1 > m at every pass, so H0
+     is structurally unreachable.
+  2. 0LH/0LA (2 machines): Exact closed-cycle proof (Theorem Z.1). For all n >= 2, K(1; 0^(2n+1), 1^N) violates
+     m <= 3a + 3 = 6, turns around inside 0^(4n+4) in 242 / 254 base steps without visiting C1/H, strands 1^N, and
+     loops forever in K(1; 1, 1, 1) <-> K(A'; 0^3) with A' = (5*3^572 - 3)/2.
+  3. 31 Flagged-Digit Rebuilders (Classes F1..F6):
+     - Class F1 (10 machines: 0LH/0LF, 0LH/0RD, 1LH/1LD, 1LH/0LA, 1LH/0LD): Heal all flags early in Round 2 into
+       canonical flag-free CLEAN_K for all n >= 1 (correcting line 40 for 1LH/0LA,0LD: odd n is not a bouncer;
+       follow.exe hit its 2e7-step limit draining 1^27 in ~3e13 base steps before healing to CLEAN_K).
+     - Class F2 (4 machines: 0LH/0RE, 1LH/0RG): Heal their single flag at Round 2 final exhaustion into CLEAN_K
+       (K(1; 22, 0, 1^...) / K(1; 24, 0, 1^...)), alternating between 1-flag even rounds and 0-flag odd rounds.
+     - Class F3 (8 machines: 0LH/1RC, 0RH/0LD, 0RH/1LC, 1RH/0LA): Governed by a closed 3-phase automaton across
+       rounds ({0 flags} -> {1 flag} -> {0 flags or 2 flags at [0,1]} -> {1 flag}).
+     - Class F4 (4 machines: 1LH/0RA, 1LH/1LA): Period-3 front-drain cycle ([0,1]->[0]->[2]) locked mod 3 across
+       rounds r >= 3 via 3A == 0 (mod 3) (1LH/1LA at n=20 heals directly to CLEAN_K after 16 borrows).
+     - Class F5 (4 machines: 0LH/0RC, 0LH/1RE): Self-sustaining front-buffer growers inside Round 2 ([2,2,11,6A+1,
+       (6A-1)^m,..] with A = g(g(5)) and [2,2,5,6A+3,(6A+1)^m,..] with A = g(g(2))), adding +1 block per cycle
+       forever without ever reaching index >= 5.
+     - Class F6 (1 machine: 0RH/1RG on champ_231): Sweeps across (1100)^N in Round 1 and runs a 26-stage base-5
+       countdown R_{k+1} = 5*R_k + 10, B_k = 53 - 2k. For small test N <= 4.2e18, outputs [2]^(n-2) + [u,r,B_k,0]
+       (healing to CLEAN_K for even n). For true N_1 = 3*A_1 - 19 >> 4.2e18, B_26 = 1 expands U_26 into
+       M = (9*5^27 - 13)/4 = 16,763,806,343,078,613,278 == 2 (mod 3) blocks of 2: [3; 10, 0, 2^M]. Each 2 borrowed
+       from 2^M is decremented to 2 - 2 = 0 (Rule L1: [U; 0^m, B, ..] -> [3; 2^(m-1), U+9-2m, B-2, ..]), permanently
+       adding a new 0 slot and escalating the left-absorption cost by one Knuth up-arrow per borrowed 2
+       (Delta L_r ~ 5 ^^(r) (U^(r-1)/2)). Because A_1 ~ 3 ^^(18) (3*a_18) has 18 up-arrows, N_1 = 3*A_1 - 19 runs
+       out during the drain of the r_1 = 18-th 2 of 2^M! Moreover, ALL THREE residue classes m == 0, 1, 2 (mod 3) of
+       the Round 2 tail 2^m UNCONDITIONALLY HALT at H0 = --- (in Round 2 for m == 0, Round 4 for m == 1, and Round 5
+       for m == 2). For the exact blank-tape value r_1 = 18, m = M - 19 == 1 (mod 3) halts at the end of Round 4 with
+       Sigma ~ 6*A_4 ~ 3 ^^ A_1 ~ f_2(f_omega(20)) << f_omega^3(12) = M8.

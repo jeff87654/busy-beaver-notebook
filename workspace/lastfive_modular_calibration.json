@@ -1,0 +1,19 @@
+{
+  "unit_result": "PASS: Word bit order, block lengths1/2/3, leading padding, residue, suffix, length modulus\n",
+  "controls": [
+    {
+      "name": "loop",
+      "machine": "1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA",
+      "proved_nonhalting": true,
+      "stderr": "verified: lset:3 lset_tr:4 rset:1 rset_tr:1 accept_set:3 block_maxT:2\n",
+      "log": "1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA N\n"
+    },
+    {
+      "name": "halt",
+      "machine": "---1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA",
+      "proved_nonhalting": false,
+      "stderr": "failed:\n---1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA_1RA1RA MitM_CTL Modular maxT 10000 m 3 k 4 lmod 1 n 2 run\n",
+      "log": ""
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "method": "Exact finite trace with an unread arbitrary-suffix boundary; prefix equality proves the cycle for every suffix by locality, then induction proves nonhalting.",
+  "source": "unresolved_early_locality.js",
+  "results": [
+    {
+      "id": "C05",
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_1LE0LE_1RH1RZ_1RH1RB",
+      "status": "nonhalting_by_universal_locality",
+      "seed_steps": 30517,
+      "seed_head": -329,
+      "period": 30494,
+      "head_shift": -324,
+      "active_prefix_length": 331,
+      "appended_block_length": 324,
+      "min_cell_read": -324,
+      "max_cell_read": 7,
+      "arbitrary_suffix_starts": 331,
+      "arbitrary_suffix_never_read": true,
+      "output_prefix_matches": true,
+      "initial_ones": 4,
+      "ones_added_per_period": 1
+    },
+    {
+      "id": "C06",
+      "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0LF_0LG0LD_0LC0LE_1RH1RZ_1RH1RB",
+      "status": "nonhalting_by_universal_locality",
+      "seed_steps": 12631,
+      "seed_head": -209,
+      "period": 12611,
+      "head_shift": -205,
+      "active_prefix_length": 213,
+      "appended_block_length": 205,
+      "min_cell_read": -205,
+      "max_cell_read": 8,
+      "arbitrary_suffix_starts": 213,
+      "arbitrary_suffix_never_read": true,
+      "output_prefix_matches": true,
+      "initial_ones": 3,
+      "ones_added_per_period": 1
+    }
+  ]
+}

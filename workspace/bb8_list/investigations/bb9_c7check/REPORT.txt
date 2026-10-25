@@ -1,0 +1,250 @@
+bb9_c7check: independent check of the BB(9) candidate C7-0LI-1LC0RA          (checker agent c7-check, Opus, 2026-10-22)
+====================================================================================================================
+C7 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI---_1LC0RA   (only undefined slot: H1)
+M8 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---          (BB(8) record, Coq)
+Notation: views far -> near as printed by wsim ("1*k" counts the m-token, "zN" = N blank cells, "x*c" = c tokens D(x));
+a CL moment with view "ctx X 1*k" is Kt([1]^(k-1) ++ [X] ++ rev ctx; 1; 2; t) in the Coq notation of Abs.v, and the CL
+is Abs.v CDP with j = k-1, v = (X-1)/3: R = iter v (U (k-1)) B (B = 0 when r_in = 2), result Kt([1]^k ++ rev ctx; 1; 3R+2; t).
+
+0. VERDICT
+----------
+CONFIRMED, with corrections (final verdict in sec. 10; C7 is now also Coq-proved by c7-coq).  C7 halts in the real
+residue class (strong evidence, same standard as the f3 check), with
+    sigma(C7) > 24 R10 - O(K6) > f_w^5(5B) > f_w^6(11),
+far above M8 (< f_w^3(5B)) and f3_0RC (< f_w^4(2B+4)).  Confirmed: the J1..J6 rebuild formulas, the counter loop, the
+consumption of the far-left prefix, the I1 path, the 8-sub-step cascade (a = 3,5,7,5,9,7,7,5 = separators + 3) and the
+halt at H1, and the score bound.  REFUTED / corrected (bookkeeping, not the conclusion):
+  * The residue in the entry is wrong: with the tower residues (R = 935224366 mod 5^13, which reproduces C04's
+    36B+73 = 108499 mod 5^8) the entry's own formula gives L0 = 8136900 mod 5^10, not 23806525 (they agree only mod 5^6).
+  * The halting branch is NOT "Q = 3 mod 5": in the real class Q = (3^8 L0 - 3388400)/5^9 = 2 mod 5, and the machine halts
+    INSIDE the post-counter exhaustion, right after the 4*Q block ("... y7 4*Q 7 1*P 0*4 ..." -> H1).  The Q = 3 mod 5
+    branch exists (it goes through a second counter, C = k+3 = 2 mod 3, and also halts); Q = 0 mod 5 gives an ESC.
+  * "J7..J11" is not five jumps: the counter C = 6R5+12 runs 2R5+4 rounds (a tower); the entry's J numbering is --cnt's.
+  * The step after the counter, "(6R+10) 1*(K6-3)" with nothing to its left, is confirmed and uniform (every K6, R tested).
+  * The outcome is decided by the 10th base-5 digit of L0: reps that agree with the real L0 only mod 5^7..5^9 show three
+    other endings (long cascade into the parked list, ESC, continued cascade).  Only reps faithful mod 6*5^10 count.
+Still unproved: everything is simulation of residue-faithful worlds (exact TM simulation, no jumps except the record's
+CDP clears and the uniform counter skip); no Coq.  See sec. 9 for the runs still in progress at the time of writing.
+
+1. TOOLS (written here; the claimant's pkf7/pkf8 were not used for any result)
+------------------------------------------------------------------------------
+c7sim.cpp/.exe  = bb9_f3check/wsim.cpp + --hall (log every H read).  Literal byte tape, one jump (the record's CL, R from a
+                list), optional counter skip --cnt.
+lit.exe         two machines in lockstep from blank (copy of f3check's).
+c7m90f.cpp/.exe EXACT TM simulation with a 90-cell block macro machine: RLE stacks of identical blocks, chain steps
+                (head crosses a run in one state) and "front chains" (head crawls through a run with bounces into the block
+                behind it; cached 2-block window simulation, chained when (state, left block) repeats).  No jumps.  Starts
+                from a Kt description with huge numbers, stops at the first CL moment (wsim's rule + r_in = 2 mod 3) or a
+                halt.  Validated against c7sim on 8 starts (identical step counts, views, halts, ones).  Linear in list
+                length and accumulator: n = 1e8 or R = 2e6 in minutes.  (c7macro.cpp = 18-cell version, c7m90.cpp = no fronts.)
+gm.py           one phase with c7m90f.   chain.py: phases + CL (R policy) + counter skip (C := 6 + C mod 3 after three
+                identical rounds) + MULTI (a run of equal digit tokens left of X cleared at once, one CDP each).
+towmod.py       stable residues of 2-power towers; kres.py: the J1..J6 bookkeeping with real residues.
+g1.py, cntgrid.py, rvar2.py, exitR.py, realk.py, realk2.py, rtest.py: grids and faithful worlds.
+
+2. C7 AGAINST M8 (question 1)
+-----------------------------
+* lit.exe C7 vs M8 from blank: identical for 3e9 steps, H never entered.  c7sim (B=6 world): the CL giving B is at step
+  2117 with view "0*2 7 1*11" (M8's), and the first H visit is at step 8111, the far-left start of the first exhaustion,
+  left cell 0 (M8's first H event, same step, f3check sec. 2.3).  There C7 does H0 = 0LI, I0 = 1LC where M8 does H0 = 1RG:
+  this is the first divergence.
+* Unlike f3_0RC, C7 does NOT emulate M8 at H0-left-1 events: H0 = 0LI then I1 = 0RA erases the 1 left of H and re-enters
+  A (A0 = 1RB), while M8 writes 1 and goes to G.  So C7 is a different machine after step 8111.  The first I1 event is in
+  the same exhaustion (step 20235 in the B=6 world; every top-level exhaustion has 2-3 of them).
+* After the counter loop the far prefix is gone and every H0 event has a 1 on its left: the endgame runs on I1 only
+  (c7sim 366 world after the counter exit: H0one = 1100, H0zero = 0).
+
+3. THE REBUILDS J1..J6 AND THE COUNTER (question 2; grids in runs/)
+-------------------------------------------------------------------
+Phase rules (each checked literally from constructed Kt starts; "K" = number of zero digits after the CL):
+  ETOP1  Kt([1]^K ++ [0;0]; 1; 3R+2; t), R = 1 and K = 1 mod 5
+           ->* view "0 1 (K'+5) 1*(K'-1)", t+2,  K' = (27R + 3K + 10)/5
+         [256 + 72 starts: R in {6,11,16,21,26,31,41,46,66,91,116,366,1100}, K = 11..86, t = 0,2,4,6; runs/g_top1.txt,
+          g_top_t2.txt; I0 path: exactly 3R+2 far-left H0 events, 2 H0-left-1 events]
+  E01    Kt([1]^n ++ [1;0]; 1; 3R+2; t) ->* view "0*2 7 1*(12R+n+5)", t   (any n, R; no H visit at all)  [54 starts, g_e01.txt]
+  ETOP3  Kt([1]^K ++ [0;0]; 1; 3R+2; t), R = 1 and K = 3 mod 5
+           ->* view "0*2 1 7 z2 (K'-12) 1*K'", t+2,  K' = (27R + 3K + 44)/5                   [128 starts, g_top3_t4.txt]
+  CNT    Kt([1]^K6 ++ [z2,7,1,0,0]; 1; 3R5+2; t) ->* view "0*3 (6R5+12) 7 1*(K6-2)"; then rounds
+         "0*3 C (6R+7) 1*(K6-2)" -> CL (v = 2R+2, j = K6-3) -> "0*3 (C-3) (6R'+7) 1*(K6-2)"; at C = 0:
+         "0*4 (6R+7) 1*(K6-2)" -> CL -> "0 2 z2 (6R'+4) 1*(K6-2)".  No H visit.  [K' = 103..123 x (R5,R) = (6,366),
+         (11,116): cntgrid1.txt; a different R at every CL: rvar2_108.txt, rvar2_8107.txt]
+  EXIT   Kt([1]^(K6-2) ++ [z2,2,0]; 1; 3R+2; 6) ->* view "(6R+10) 1*(K6-3)" with NOTHING to its left (marker and one
+         digit consumed).  Uniform: K' = 103..123 (all residues mod 5) x R in {116, 366} (cntgrid2.txt), R varying per CL
+         (rvar2_*.txt: R = 41 gives 256 = 6*41+10), K6 = 324403 with R over residues mod 5^2..5^7 (exitR.txt), and all
+         real-class reps of sec. 5.
+Real run (kres.py: every branch condition with the real residues): J1 K1 = 11 -> ETOP1 K2 = (27B+43)/5 -> CL (v=(K2+4)/3,
+j=K2-2) R1 -> E01 K3 = 12R1+K2+4 -> CL (v=2, j=K3-1) R2 -> ETOP1 K4 = (27R2+3K3+10)/5 -> CL R3 -> E01 K5 = 12R3+K4+4 ->
+CL R4 -> ETOP3 K6 = (27R4+3K5+44)/5 -> CL (v=(K6-13)/3, j=K6-1) R5 -> CNT (2R5+4 rounds) -> EXIT -> CL (v=2R9+3,
+j=K6-4) R10 -> the I1 exhaustion of n = K6-3 zero digits (sec. 5).  t = 0,2,2,4,4,6,6.  All seven formulas of the entry
+for J1..J6 are reproduced exactly (B = R = 366 world, runs/w366_cnt.txt: J2 "0 1 1990 1*1984", J3 "0*2 7 1*6381",
+J4 "0 1 5812 1*5806", J5 "0*2 7 1*10203", J6 "0*2 1 7 z2 8095 1*8107").  Depths: every clear J2..J6 is at depth
+K_i - O(1) with K2 = 5.4B, K3 > 12R1, K4 > 5.4R2, K5 > 12R3, K6 > 5.4R4: linear in the previous accumulator (confirmed).
+Omega levels counted by cleared list length only: B -> R1 -> R2 -> R3 -> R4 -> R5, five f_w steps (sec. 6).
+
+4. RESIDUES (question 4)
+------------------------
+towmod.py: every accumulator here comes from a deep clear, 2R+4 is a tall 2-tower, so R = B = 935224366 mod 5^13
+(= 1, 16, 116, 616 mod 5, 25, 125, 625; = 366 mod 3600; = 6 mod 2520), independently re-derived (pure 5-adic recursion)
+and consistent with C04's L0 = 36B+73 = 108499 mod 5^8.  Branch conditions (kres.py): K1 = 1, K3 = 1 (ETOP1), K5 = 3
+(ETOP3) mod 5; X2, X4, X6 = 1 mod 3; C = 6R5+12 = 0 mod 3 (counter reaches 0).
+    L0 = n = K6 - 3 = (675R4 + 900R3 + 405R2 + 540R1 + 243B + 1742)/125   (the entry's formula, re-derived)
+       = 61337390949400 mod 5^12*64*81*77;  = 8136900 mod 5^10;  = 4 mod 6;  base-5 digits (low first) 0,0,1,0,4,3,0,4,0,4,3,4.
+The entry's 23806525 corresponds to an R residue that agrees with the true one only mod 5^6 (back-solved: 577630616 mod 5^13).
+
+5. THE ENDGAME IN THE REAL CLASS (questions 3 and 4)
+----------------------------------------------------
+Method: exact simulation (c7m90f) from the counter exit Kt([1]^(K6-2) ++ [z2,2,0]; 1; 3R0+2; 6) with K6 in the real class,
+every CL by the record's rule with an accumulator of the real residue class: first CL R0 = 2124366 (= real mod
+2^4 3^2 5^5 7; parked list 12R0 >> the cascade's consumption, about n/74), later CLs R = 324366 (= real mod 450000).
+Counter skips and MULTI clears as in sec. 1.  runs/rk2/K*.txt, runs/rk/*.txt.
+  EXIT gives "(6R0+10) 1*(K6-3)" (the entry's J14 form) in every rep.  Then the I1 exhaustion of n = K6-3:
+  real class (n = real mod 6*5^10), six reps: K6 = 47199403, 105793153, 164386903, 222980653 (agree mod 6*5^10, m = 0..3,
+  different mod 4, 9, 7, ...) and 281574403, 574543153 (agree mod 6*5^11); n from 4.7e7 to 5.7e8, all identical in shape:
+      0*2 y0 2 y1 4 y2 2 y3 6 y4 4 y5 4 y6 2 y7 4*Q 7 1*P 0*4 z2 (0*3 z2)^... -> HALT H1, inside this exhaustion
+      y_i = (3^(i+1) n + c_i)/5^(i+1),  c = 15, -25, 75, -775, -1075, -3225, -9675, -654025   (exact in all reps)
+      Q = (3^8 n - 3388400)/5^9 = 2 mod 5,  P = 12R - c(n),  c(n) = (4*3^8 n + 60665150)/5^9  (about 0.01344 n)
+      K6 = 47199403: y = 28319643 ... 792767, Q = 158552, P = 24858146, HALT H1, ones 121831523
+      K6 = 105793153: Q = 355382; 164386903: 552212; 222980653: 749042; 281574403: 945872; 574543153: Q = 1930022,
+      P = 17772266, ones 913378589.  All Q = 2 mod 5, all HALT H1 with no CL after the exit CL.
+  The separators 2 4 2 6 4 4 2 are the entry's a = 5 7 5 9 7 7 5 minus 3 (a0 = 3 is the first step): the entry's
+  8-step path is right; its ending ("Q = 3 mod 5") is not the real one.
+  Reps that agree with the real n only to lower precision (the 10th digit decides Q mod 5 and the stop):
+      K6 = 324403 (5^9):    same 8 tokens, Q = 1088 = 3 mod 5 -> "7 1*P 0 2*2 z2 C 7 1*k", C = k+3 = 3917 = 2 mod 3 ->
+                            counter to C = 2 -> "0 2 (6R+10) 1*k" -> HALT H1   (this is the entry's branch)
+      K6 = 12043153 (5^9):  same 8 tokens, Q = 40455 = 0 mod 5 -> "4*Q 145645 1*(P+...)": ESC (the parked list becomes the
+                            near list; the 4s and then a counter run at depth ~12R)    (stopped; not the real class)
+      K6 = 2668153 (5^8):   a different 8th separator (4), 9 tokens, then "4*5377 6 19359 ..." (the cascade continues)
+      K6 = 793153 (5^7):    no stop at all: 18 tokens down to 79, then the parked list is activated (ESC)
+  So: in the real class C7 halts in the first post-counter exhaustion, 9 sub-steps in, deterministically; no far-left
+  event (the far prefix is gone), no earlier halt (every earlier phase ends in a CL or a counter round, checked on grids and
+  in the faithful reps), and no dependence on digits beyond 5^10 (the six reps differ there and in their residues mod 2^k, 3^k, 7 and agree).
+  Why it is certifiable: the halt happens after a fixed number (9) of sub-steps, so it depends only on n mod 6*5^10 (and
+  R mod small numbers), which IS computable from the tower; unlike M8/C04, the cascade never reaches the tower-sized
+  number of steps that makes those classes uncomputable.
+
+6. SCORE (question 5)
+---------------------
+Facts used: CDP (Abs.v): a CL of v at depth j from b gives iter v (U j) b;  2 U_j(x) + 4 = 2^^(j+1)(2x+4) (U_closed);
+f_w(m) <= 2^^(m+1) 4 (C04 REPORT sec. 4; so U_j(x) >= g(j) := (f_w(j) - 4)/2); U_j(x) > x; 5 g(x) >= f_w(x) once
+f_w(x) >= 7.
+  R1 >= g(K2-2), K2-2 = (27B+33)/5 >= 5B           R2 >= g(K3-1), K3-1 >= 12R1
+  R3 >= g(K4-2), K4-2 >= 5R2                       R4 >= g(K5-1), K5-1 >= 12R3
+  R5 >= g(K6-1), K6-1 >= 5R4                       R10 >= R9 >= ... >= R5   (each counter/exit CL is U_j^v(.) >= its input)
+  (more precisely R9 >= U_(K6-2)^(2R5+4)(R6) >= U_(K6-1)(R5), R10 >= U_(K6-4)^(2R9+3)(0) > R9)
+Halting tape (sec. 5): ones = 2P + (sum of the y-tokens, separators, 4*Q, tail), P = 12 R10 - c(n), c(n) < n/70, and the
+y-tokens alone hold more than 1.5 n ones, so
+    sigma(C7) > 24 R10 > R5 >= g(f_w(f_w(f_w(f_w(5B))))) ,   hence   sigma(C7) > f_w^5(5B).
+Exact in all eight faithful halts (six reps, three R values; runs/rk2, runs/rtest.txt):
+    sigma = 24 R10 + (14658279 n + 711714275) / 5^10,      n = K6 - 3   (R10 = the accumulator of the exit CL)
+(R = 324366, 1000001, 2124366 at n = 47199400: ones 78631523, 94846763, 121831523, i.e. exactly 24 per unit of R; the
+R residue does not matter, R = 1000001 is not a tower residue beyond mod 5.)
+B: 2B+4 = 2^^13 3 = 2^^12 4 >= f_w(11), so 5B > f_w(11) and sigma(C7) > f_w^6(11).  This is the entry's bound; both
+inequalities hold (24 R10 is the parked list, i.e. the entry's "> 24 R_10" is right up to the O(n) consumption, which the
+y-tokens over-compensate).
+Comparisons:  M8: sigma < f_w(f_w(12B+27)) < f_w^3(5B)  (f_w(5B) > 12B+27).
+              f3_0RC: sigma < f_w(f_w(12R''+13)) with R'' <= U_6(B) (R'' = iter (2B-1) (U 5) R_a, R_a <= U_5^2(0)) and
+              2U_6(B)+4 = 2^^7(2B+4) <= f_w(2B+4), so sigma(f3) < f_w^4(2B+4) < f_w^5(5B) < sigma(C7).
+So C7 beats M8 and f3_0RC by two resp. one f_w levels (more precisely: C7's lower bound exceeds their upper bounds).
+No upper bound for C7 was derived (not needed for the record claim).
+
+7. TWINS (question 6)
+---------------------
+..._1LI---_0RC1RA, ..._1LI---_0RC0RF, ..._1LI---_0RC1LG: c7sim from blank in the B = R = 366 world (--cnt): the same 27
+CL views in the same order and the same halt (H1, ones 17593) as C7; only the step counts differ (+2164, +4382, +6600).
+H0 = 1LI / I0 = 0RC / C1 = 0LB / B0 = 1LC reproduces C7's H0 = 0LI / I0 = 1LC (two extra steps per I0 event); the I1
+variants reconverge.  Same score; none is larger.  (Not re-run in the faithful worlds; c7m90f takes the machine as an
+argument if the Coq side wants it.)
+
+8. COQ-READY SPEC (question 7)
+------------------------------
+Reuse from bb9_c04_coq/dev: Kt, Kg, U, CDP/CH/CLR2 (Abs.v), the U_closed / arrow lemmas, the init lemma pattern
+(init_reach: one `do N step` computation; C7's start is M8's: CL moment "0*2 7 1*11" at step 2117), the fgh bounds.
+NOT reusable: any M8/C04 lemma that passes through state H (C7's H/I differ, also at H0-left-1 events), i.e. the
+exhaustion/cascade groups (G_sub*, G_stop, G_entry, G_end, CBtail).  New machine-level lemmas (generate with the C04
+symbolic executor, C7 table), all on Kt forms, far context l0 as a free left tape where marked:
+  L0  c0 -->* Kt([1]^10 ++ [7;0;0]; 1; 2; 0)                                                  (2117 steps, closed)
+  L1  ETOP1: forall R K t, R mod 5 = 1 -> K mod 5 = 1 -> K >= 11 ->
+        Kt([1]^K ++ [0;0]; 1; 3R+2; t) -->+ Kt([1]^(K'-2) ++ [K'+5; 1; 0]; 1; 2; t+2),  5K' = 27R+3K+10
+      (top-level: the far end is the blank tape; I0 path.  Parametric in R and K: the 3R+2 far-left H0 sweeps are an
+       induction on R, the list part an induction on K.)
+  L2  E01: forall n R t, Kt([1]^n ++ [1;0]; 1; 3R+2; t) -->+ Kt([1]^(12R+n+4) ++ [7;0;0]; 1; 2; t)   (no H visit)
+  L3  ETOP3: R mod 5 = 1 -> K mod 5 = 3 -> Kt([1]^K ++ [0;0]; 1; 3R+2; t) -->+ [far "0 0 1 7 z2"] Kt([1]^(K'-1) ++
+        [K'-12]; 1; 2; t+2) with 5K' = 27R+3K+44   (the z2 gap needs a tape-level far context, as C04's "0 2 z2" marker)
+  L4  CNT entry: [far "0 0 1 7 z2"] Kt([1]^K; 1; 3R+2; t) -->+ [far "0 0 0"] Kt([1]^(K-3) ++ [7; 6R+12]; 1; 2; t)
+  L5  CNT round: [far "0 0 0"] Kt([1]^(K-3) ++ [6R+7; C+3]; 1; 2; t) -- CDP (v = 2R+2, j = K-3) --> ... -->+
+        [far "0 0 0"] Kt([1]^(K-3) ++ [6R'+7; C]; 1; 2; t),  R' = iter (2R+2) (U (K-3)) 0 (b = 0 at the CL moment, r_in = 2)
+      (champion rules only; induction on C/3 with C = 6R5+12 = 0 mod 3)
+  L6  CNT exit: C = 0: [far "0 0 0 0"] Kt([1]^(K-3) ++ [6R+7]; 1; 2; t) -> CDP -> [far "0 2 z2"] Kt([1]^(K-3) ++
+        [6R'+4]; 1; 2; t) -> CDP -> Kt([1]^(K-2) ++ far "0 2 z2"; 1; 3R''+2; t)
+  L7  EXIT: real K class: [far "0 2 z2"] Kt([1]^(K-2); 1; 3R+2; 6) -->+ Kt([1]^(K-4) ++ [6R+10]; 1; 2; 6) on a BLANK
+        far side (the marker and one digit are consumed).  Uniform in K and R (sec. 3).
+  L8  ENDGAME (the new hard lemma, C04-sub-step-sized): for n = n_real mod 6*5^10 (n = 61337390949400 mod 5^12*64*81*77,
+        concretely n = 8136900 mod 5^10 and n = 4 mod 6) and R = 1 mod 5 (any R that keeps P >= 0):
+        Kt([1]^n; 1; 3R+2; 6) -->* HALT (H reads 1), the tape then holding
+        0*2 y0 2 y1 4 y2 2 y3 6 y4 4 y5 4 y6 2 y7 4*Q 7 1*P 0*4 ...,  y_i = (3^(i+1) n + c_i)/5^(i+1), Q, P as in sec. 5.
+        Natural decomposition (to be read off a raw trace, e.g. c7sim --hall --canon from "1*n;1;3R+2;6" with a small n in
+        the same class mod 5^10... not available below 4.7e7, so use the macro sim's block trace): (a) accumulator
+        conversion (3R+2 H0-left-1 sweeps: I1 path), (b) 8 sub-steps L -> (3L+c)/5 with separators 2,4,2,6,4,4,2,
+        (c) the 4*Q block and the halt.  Each sub-step lemma is parametric in L (like C04's casc_stepU); the class
+        condition fixes the residue of L at every step, so only 8 instances + the halting step are needed.
+  L9  Clears: CDP for J1 (v=2, j=10: B), J2 (v=(K2+4)/3, j=K2-2), J3 (v=2, j=K3-1), J4, J5, J6 (v=(K6-13)/3, j=K6-1),
+        the counter rounds, the exit CLs, and the final CL (v=2R9+3, j=K6-4: R10).
+  Arithmetic: tower residues mod 5^13 * 2^4 3^2 (Resid.v style, as for B in the record: B = 1 mod 5 etc. extended);
+  the branch conditions of kres.py; n's class mod 6*5^10.  Score: sec. 6 with g(x) = (f_w(x)-4)/2 from U_closed.
+Size estimate: L1, L3, L7, L8 are four new parametric exhaustion lemmas (each like the record's 51-stage rebuild or C04's
+sub-step family); L2, L4-L6 are champion-rule compositions.  L8 is the crux: it must be parametric in n within a residue
+class mod 6*5^10, i.e. 8 sub-step lemmas with symbolic L, which is what C04's development already does for M8's map.
+
+9. FILES, RUNS, OPEN POINTS (bb8_list/investigations/bb9_c7check)
+-----------------------------------------------------------------
+notes.txt (dated log), REPORT.txt, pids.txt; tools of sec. 1.
+runs/w6_366.txt, w366_cnt.txt (c7sim from blank; 366 = real mod 18000), twin_*.txt (twins), g_top1.txt, g_top_t2.txt,
+g_top3_t4.txt, g_e01.txt (rebuild grids), cntgrid1.txt, rvar2_*.txt (counter), exitR.txt (exit vs R residues),
+gm_i1_5000.txt, g_i1_R366.txt (endgame variety for non-real n), rk2/K*.txt (real-class reps, sec. 5), rk/*.txt and
+realk_*.txt (lower-precision reps; realk_j7_m0 with R=366 is NOT faithful: parked list too short), rtest.txt (R
+dependence), e2e_bad_ctxgap.txt + e2e2.txt (end-to-end world, sec. 10).
+BUG NOTE: until 2026-10-22 ~06:10 c7m90f dropped a trailing gap from the printed CTX, so chains that cleared a token
+standing right after a gap ("... z2 X 1*k") continued from a wrong Kt.  Void: cntgrid1.txt exits, the first rvar2 exits,
+the endings after the first stop in rk/K2668153.txt and realk_j5_m1.txt, e2e_bad_ctxgap.txt after J5.  Every result
+quoted in this report is from the fixed tool or from runs without such a CL.
+Open (not done here): Coq; an analytic model of the I1 sub-step (the hidden "a" state); a 5^12 rep (skipped: six reps at
+5^10/5^11 agree); the twins in faithful worlds.  What a proof must still establish: the uniformity of every phase for
+all sizes (L1-L8 of sec. 8), in particular the I1 cascade for all n in the class, which here is checked only at
+4.7e7 <= n <= 5.7e8.
+
+10. END-TO-END WORLD AND FINAL CROSS-CHECK (2026-10-22)
+-------------------------------------------------------
+e2e: from the J1 CL moment with B = R1 = R2 = R3 = 366 (real residue mod 18000 = lcm(3600,125), the residues every
+branch condition needs), R4 = 84694356 (chosen so that n = K6-3 is in the real class mod 6*5^10), R5 = 6, counter R = 366,
+exit/R10 = 2124366.  runs/e2e_bad_ctxgap.txt J1..J5 (valid: no gap-CL before J5) + runs/e2e2.txt (fixed tool):
+  J1 "0 1 1990 1*1984"  J2 "0*2 7 1*6381"  J3 "0 1 5812 1*5806"  J4 "0*2 7 1*10203"  J5 "0*2 1 7 z2 457355641 1*457355653"
+  counter "0*3 48 7 ..." -> C = 45, 42, (skip) 6, 3, 0 -> "0*4 2203" -> "0 2 z2 2200" -> "12746206 1*457355650" (EXIT)
+  -> I1 cascade 274413393 2 164648033 4 98788821 2 59273291 6 35563975 4 21338385 4 12803031 2 7681817 4*1536362 7 1*P
+  -> HALT H1, ones 737479241 = 24*2124366 + (14658279 n + 711714275)/5^10 exactly (n = 457355650), Q = 1536362 = 2 mod 5.
+So the composed chain J1 -> halt runs as predicted in one world, with the halt formula of sec. 6.
+
+Residues of B each conclusion needs (lead's question): ETOP1 at J1 needs B = 1 mod 5; K2 = 0 mod 5 and K3 = 1 mod 5 need
+B mod 125 (= 116) together with R mod 25; K5 = 3 mod 5 (ETOP3) needs B mod 625 and R mod 125; the endgame needs n mod 6*5^10,
+i.e. B and every R mod 5^13 (and mod 6).  B = 6 worlds are unfaithful (they leave the chain at J4, runs/w6_366.txt);
+B = 366 is faithful for J1..J6; only n's class (here imposed through R4) decides the endgame.
+
+Items from the lead / c7-coq:
+ (1) L0 = n = K6-3 = 8136900 mod 5^10, 4 mod 6, from my phase formulas (re-derived, kres.py) and the stabilised tower
+     residue (two independent computations).  With this value: 8 sub-steps (separators 2 4 2 6 4 4 2, i.e. Coq's
+     r = 1,3,0,3,4,0,0,3) then the 4*Q branch with Q = 2 mod 5 -> halt inside the exhaustion.  The entry's 23806525 is not
+     the tower residue; reps of other classes take other routes (sec. 5).
+ (2) Counter: confirmed, C = 6R5+12 drops by 3 per round, 2R5+4 rounds; the post-counter cascade is C7's own I1 cascade
+     (not C04's).  My y-tokens are Coq's L values after each sub-step; Q is Coq's u (L9 = 15u+17).  Halt in every real-class
+     rep and in the e2e world with u = Q = 2 mod 5; Q = 3 mod 5 (rep 324403) also halts, via a second counter; Q = 0 mod 5
+     (rep 12043153) escalates (ESC).  The Coq rule "halts iff u = 1 or 2 mod 5" is consistent with these three points; I did
+     not test u = 1 or 4 mod 5 or Coq's map constants separately.
+ (3) Bound.  The Coq theorem N > f_w^4(6*2^^13 3 + 3) is implied by, and weaker than, the paper bound of sec. 6:
+     sigma > 24 R10 > R5 >= (f_w^5(5B) - 4)/2, i.e. sigma > f_w^5(5B) > f_w^6(11).  The five f_w levels are the five clears
+     at depths K2-2 >= 5B, K3-1 >= 12R1, K4-2 >= 5R2, K5-1 >= 12R3, K6-1 >= 5R4, each giving R >= (f_w(depth)-4)/2 by
+     U_closed and f_w(m) <= 2^^(m+1) 4.  The extra level over Coq's statement is the J2 clear (depth ~5.4B -> R1 ~ f_w(5B)).
+     So f_w^5 is justified on paper; a Coq proof of it would need the J2 clear bound R1 >= (f_w(K2-2)-4)/2 in the chain.
+
+FINAL VERDICT: CONFIRMED (now also Coq-proved by c7-coq), with the corrections of sec. 0: the true residue is
+L0 = 8136900 mod 5^10, the halting branch has Q = u = 2 mod 5 (not 3), the counter has 2R5+4 rounds, and the exit step is
+uniform.  Score: sigma = 24 R10 + (14658279 n + 711714275)/5^10 in every faithful world, so sigma > f_w^5(5B) > f_w^6(11)
+on paper, and N > f_w^4(6*2^^13 3 + 3) in Coq.

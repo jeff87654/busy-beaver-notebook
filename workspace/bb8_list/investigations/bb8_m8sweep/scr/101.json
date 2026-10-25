@@ -1,0 +1,1 @@
+{"i": 101, "m": "1RB0LB_1RC1RE_1LD1LF_1LB0LE_1LG0LC_0LD1RA_---0RF", "tmpl": "R,E,P=1,u=011,s=0,d=1d+0,b=1b+0,S=1", "cls": [189], "M": 60, "runs": [{"X": "D1", "s": 0, "c": 9, "v": "g0", "snap": {"step": 3, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "101_D1_c9_g0.txt"}], "time": 0.3}

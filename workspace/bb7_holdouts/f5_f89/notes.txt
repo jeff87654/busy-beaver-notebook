@@ -1,0 +1,15 @@
+2026-10-24 08:43:46 start F5/F89 settle task (Opus agent). Read never_audit/REPORT, reb7/REPORT, counters/notes.
+2026-10-24 F5 coding found (kl.exe, u=10 tokens, K = M1 D-left / M2 E-left / M3 G-right): tape = A . d1 . d2 ... with separators '.'(0) and '#'(1).
+  K-traces of the 3 siblings from blank are IDENTICAL for 3e8 steps (24527 K events), only the first blank event differs.
+  Abstract state [A | d1..d_{p-1}, e# (, c#)] : last digit e attached to '#'; optional 2nd segment c (c=-1 = absent).
+  Rules (probed literally, A=20): Bj [A|0^j,s] s>=2 -> [2|2^(j-1),A+4-2j,s-2]; Mj [A|0^j,1#,c#] -> [2|2^(j-1),(A+c+4-2j)#];
+  T0 [A|0#,c#] -> [2|2^((A+c+3)/2),0#]; Tk [A|0^k,0#,c#] -> [2|2^(k-1),1#,(A+c+2-2k)#]  (c=-1 formulas = single-segment cases)
+  Invariant candidate: A even at every K-config, c odd (or -1). No rule needs odd A. 
+2026-10-24 10:02:03 small-config search hs2_M1.txt: 9360 configs (A 0..7, <=3 digits 0..3, seps ./#), 616 halt, ALL have '#' directly after A (or A=0): outside grammar. none with 'A .' prefix.
+2026-10-24 F5 literal grid (grid.py) + thresholds (thr.py, thr_out.txt): every rule over j zeros holds iff A >= 2j (A even), all 3 siblings identical; B1/T0/T1/M1 never fail.
+2026-10-24 F5 lockstep 3e8 steps x 3 siblings (t1/t2/t3.txt, lock.py): 24483 pairs each, 0 miss.
+2026-10-24 F5 symbolic suite (symsuite.py -> symsuite_out.tsv): 1404 cases (3 siblings x B-ord/B-ord2/B-e/B-e0/B-e3/M/T for j=1..12,16,20,25,31 x c in {-1,H1,1,3}, + T0/D/D1/De/Me), mod 2, A>=2j+12: DONE bad=0.
+2026-10-24 control (a) ctl_champ.py: symsim finds HALT for champion exhaustion [0^1,X] and [0^11,X], all 12 classes.
+2026-10-24 F89 subagent: NEVER-HALTS (all-odd invariant, f89/REPORT.txt); my independent check f89_indep.py: 150 random odd lists 0 bad; lockstep from blank 7747 events after [1^30]@4679, all odd, 0 miss.
+2026-10-24 control (b) subagent ctl_f68/REPORT.txt: F68 re-confirmed never-halting by the same method.
+2026-10-24 10:39:04 REPORT.txt written. Verdicts: F5 x3 NEVER-HALTS, F89 (+3 siblings) NEVER-HALTS. Nothing appended to OPEN_CANDIDATES.

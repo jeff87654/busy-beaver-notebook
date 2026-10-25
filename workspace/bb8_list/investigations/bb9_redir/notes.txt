@@ -1,0 +1,24 @@
+bb9_redir : generalize the f3 top-rebuild relay trick (agent bb9-redir, Opus, 2026-10-19)
+=====================================================================================
+f3_0RC = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI---_0RC1RF  (bar: beat M8 in every class)
+M8     = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---
+
+HANDOFF (keep current)
+- Faithful world F = pkf8 --B 6 --cls 366 --mod 3600 --cnt.  M8 control runs/m8_F.txt (HALT H1, ones 9866, 11 s).
+- Marker-only context CTX = M8's J3 config: --kt "0,0,60,6,37,1*4394,0,2,z2,19,1*11;1;1100;12" --R 366 --cls 366
+  --mod 3600 --cnt reproduces M8's tail from J3 exactly (ones 9866, 7 s); no top-level (far-left) event in it.
+- chain.py (PID in pids.txt) runs steps1.txt after the s8r driver: covers screen (cov_F) then relay phase 1 on M8.
+
+TOOLS (tools/)
+- pkf8.exe (copy of bb9_y1_fable), screen.py (list "name machine [Q]" -> runs/<world>/summary.tsv, wall watchdog, resume),
+  relay.py (generalized relay screen, see docstring), chain.py (sequential step runner), launch.py.
+
+PLAN
+A (8-state): A1 set8 reachable rows (list_s8r.txt, 53) rescreened in F (old screens w1/r6 were not faithful mod 25).
+   A2 covers of M8 (bb8_resid cov0 29 + cov1 544, list_cov_q.txt with canonical state Q) from blank in F.
+B (9-state): relay.py on M8, all slots S: S -> (w',d',I), common symbol c, transparent I_c (J1 + CTX equal to M8),
+   then I_(1-c) in 36 values (phase 2).  Skips y1-fable's F3/F4.
+
+LOG
+2026-10-19
+- 08:38 s8r_F screen started (2 workers, 240 s wall).  Covers: Q = B for all but c1u_80/88/92 (Q = D).

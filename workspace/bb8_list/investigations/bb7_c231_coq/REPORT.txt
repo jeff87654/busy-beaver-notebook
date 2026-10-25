@@ -1,0 +1,58 @@
+champ_231 / champ_232: Coq proof (busycoq bd2e36f, Coq 8.20.1), no axioms
+=============================================================================
+champ_231 = 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB
+champ_232 = 1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB   (G0 differs; same proof scripts)
+Both: 7 states, C1 undefined = the halt.
+
+RESULT (both machines, probe*.log: every theorem "Closed under the global context")
+  c231_halts = c232_halts              : halts tm c0
+  c231_score_exact = c232_score_exact        : exists c, c0 -->* c /\ halted tm c /\ ones c (2 * W 20 5 + 7)
+  c231_lower = c232_lower              : exists c N, ... /\ ones c N /\ arrow 20 3 3 < N /\ Lc 20 < N /\ arrow 19 3 (arrow 18 3 3) < N
+  c231_beats_bb7_champion = c232_beats_bb7_champion : exists c N, ... /\ ones c N /\ 3 * arrow 13 2 3 + 22 < N /\ arrow 11 2 (arrow 11 2 3) < N
+  table_matches_string (parser of the machine string inside Coq, vm_compute), halt_entry (C1 is "---", tm (C,1) = None),
+  c0_is_blank_A.
+  The halting configuration has the head in state C on a 1 (cfin), so the standard score (C1 as 1RZ, which writes a 1
+  over that 1) is sigma = N = 2 * W 20 5 + 7 exactly, the same for both machines.
+  arrow k a b = Knuth a ^(k arrows) b, arrow 0 a b = a*b.  So sigma > 3↑^20 3 = 3↑^19 3↑^19 3; the BB(7) champion has
+  sigma = 3*(2↑^13 3)+22 (bb8_champ35_vs_bb7/COMPARISON.md) and the wiki bound 2↑^11 2↑^11 3: both proved smaller.
+
+DEFINITIONS (Clr.v)
+  U 0 x = 3x + 9;  U (j+1) x = (U j)^(x+2-j) (W j 3);  W 0 B = B;  W (j+1) B = U j (W j B)   (pair fixpoint UW)
+  Lc 0 = 5, Lc (j+1) = arrow j 3 (Lc j)   (Lc 20 = 3↑^19 3↑^18 ... 3↑↑ 3^15, Bound.v)
+
+PROOF STRUCTURE
+  Kc ds a b = 0^inf E> 0 1^(2b+1) 00 1^(2a) 00 [1^(2d) 00 for each digit d, nearest first] 1 0^inf
+  C231_rules1/2/3: crossings, mini-cycle MC, R1ITER (Kc ds a b -->* Kc ds 0 (b+3a)), the passes START/FW/TURN/BW/FINB,
+    R23 (k <= b: Kc (0^k ++ S y :: t) 0 b -->+ 0^inf E> 0 1 00 (1100)^k 1^(2(b+3-k)) 00 rgt (y::t)), giving
+    R2 (k=0) and R3 (k>=1: Kc (1^(k-1) ++ (b+3-k) :: y :: t) 1 0), and R4x (k <= b: Kc 0^k 0 b -->* cfin k b, halted,
+    ones = 2b+7).  Every lemma statement was literal-checked first (tools/rules.py, onescheck.py; both machines).
+  C231_init: c0 -->* Kc (1^20) 1 2 (231: 3715 steps; 232: 3775 steps, by `do N step`).
+  C231_clear: CDP (clearing a digit at depth m from counter B >= m, by induction on the depth), clear_ones.
+    The k <= b side condition of R3/R4 always holds because W j B >= B + j and U j x >= x + 1.
+  C231_run: c0 -->* Kc (1^20) 0 5 -->* Kc (0^20) 0 (W 20 5) -->* cfin 20 (W 20 5); count of ones.
+  Bound.v: U_lower: arrow i 3 (y + 3 - i) <= U i y; W_chain: Lc j + j <= W j 5; comparisons.
+  Bound3.v: W j 5 >= arrow j 3 3 + j for j >= 2 (base W 2 5 = U0^26(3) >= 2 * 3^27 = 2 * arrow 2 3 3).
+  Comparisons with closed arrow terms are done only by exact proof terms + arithmetic lemmas on variables
+  (a rewrite with arrow_S3 once made coqc evaluate arrow 18 3 3: 3.7 GB, killed).
+
+FILES / BUILD
+  pkg/ : the clean package (LF endings, descriptive names, build_order.txt, _CoqProject, sha256.txt of the .v files).
+    BB72.v Individual72.v (7-state busycoq instance, copied from bb8_list/proofs), Clr.v, Bound.v, Bound3.v,
+    C231_rules1..3.v C231_init.v C231_clear.v C231_run.v C231_main.v probe231.v, and the same C232_* + probe232.v.
+  Clean build 2026-10-22 (tools/pkg.py: fresh dir, coqc 8.20.1 Idle, busycoq bd2e36f = bb9_f3_coq/ext/busycoq/verify):
+    all 21 files exit 0, total 1321 s (the two *_init.v ~400 s each, the rest 20-45 s).  pkg/compile_clean.log,
+    pkg/probe231.log, pkg/probe232.log: 7 x "Closed under the global context" each, no "Axioms:".
+  coq/ : development copies (T1..T6, M231 = 231; U1..U6, M232 = 232).  tools/: simulators and literal checks
+    (kcheck.py, rules.py, rle.py, onescheck.py, initstep.py), cq.py (Idle coqc wrapper with memory guard), pkg.py.
+
+AGREEMENT WITH THE INDEPENDENT CHECK (bb7_c231check/notes.txt)
+  Same rules and side condition (their K(a;..) = my Kc .. 0 b at b = 3a; their Bk "k <= 3a" = my "k <= b"),
+  same score: their sigma = 6 a_f + 7 = my 2 b_f + 7.  Their paper bound sigma > 3↑^20 3 is now the Coq theorem.
+  Argon's REPORT: rules and the 20-digit start are right; "3↑^19" undersells it (sigma > 3↑^20 3), and the claim
+  "G0 used only at step 5" is wrong (checker: G0 is used every macro step, harmlessly) - irrelevant to the proof,
+  which handles 232 with the same scripts.
+
+NOT DONE / CAVEATS
+  No upper bound on sigma is proved (expected sigma < 3↑^20 4).  Step counts are not formalized.
+  The champion's exact sigma 3*(2↑^13 3)+22 is our own (unpublished) analysis; the wiki bound 2↑^11 2↑^11 3 is also
+  compared.  No repo PR (lead packages).

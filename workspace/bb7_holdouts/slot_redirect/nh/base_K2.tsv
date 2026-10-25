@@ -1,0 +1,5 @@
+machine	K	nat	nat_lg	maxcnt	maxruns	SRs	SRmax	SRK	SRend	SRsit_lg	k2_lg	SC	SCmax	SCK	k2nat	FR	shape
+1RB---_1RC0LF_1RD---_0RE0LG_1LF0RG_1LG1LF_0LB0RB	2	304	0.005	7	-
+1RB0LA_1LC0RB_0RF1LD_0LE1LG_1LA0LB_---1RB_1LE---	2	0	0.000	0	-
+1RB0LD_1RC1RG_0RD1RA_0LE0RB_0RF1LA_1LG---_0LA---	2	0	0.000	0	-
+#summary	machines=0

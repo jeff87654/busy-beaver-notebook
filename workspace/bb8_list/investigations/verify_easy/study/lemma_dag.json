@@ -1,0 +1,114 @@
+{
+ "k31/K_e1.v": {
+  "lemmas": 681,
+  "steps": 80352,
+  "crit": 1576,
+  "with_deps": 456,
+  "roots": 6,
+  "bytes": 1411450
+ },
+ "k31/K_e2.v": {
+  "lemmas": 1187,
+  "steps": 28011,
+  "crit": 1005,
+  "with_deps": 889,
+  "roots": 5,
+  "bytes": 1774981
+ },
+ "dev/G_sub2.v": {
+  "lemmas": 1302,
+  "steps": 38687,
+  "crit": 615,
+  "with_deps": 954,
+  "roots": 6,
+  "bytes": 2411041
+ },
+ "dev/G_entry.v": {
+  "lemmas": 1232,
+  "steps": 22045,
+  "crit": 140,
+  "with_deps": 924,
+  "roots": 6,
+  "bytes": 1921926
+ },
+ "dev/G_sub3.v": {
+  "lemmas": 1089,
+  "steps": 19700,
+  "crit": 502,
+  "with_deps": 804,
+  "roots": 6,
+  "bytes": 1550187
+ },
+ "dev/G_sub4.v": {
+  "lemmas": 999,
+  "steps": 24614,
+  "crit": 659,
+  "with_deps": 732,
+  "roots": 6,
+  "bytes": 1502791
+ },
+ "dev/G_sub5.v": {
+  "lemmas": 999,
+  "steps": 22442,
+  "crit": 471,
+  "with_deps": 732,
+  "roots": 6,
+  "bytes": 1463309
+ },
+ "dev/G_reb1.v": {
+  "lemmas": 316,
+  "steps": 12003,
+  "crit": 1485,
+  "with_deps": 243,
+  "roots": 1,
+  "bytes": 492247
+ },
+ "dev/G_stop.v": {
+  "lemmas": 325,
+  "steps": 10751,
+  "crit": 453,
+  "with_deps": 222,
+  "roots": 6,
+  "bytes": 480272
+ },
+ "dev/G_p20_0.v": {
+  "lemmas": 90,
+  "steps": 7117,
+  "crit": 998,
+  "with_deps": 53,
+  "roots": 1,
+  "bytes": 126990
+ },
+ "dev/G_p14_0.v": {
+  "lemmas": 61,
+  "steps": 4801,
+  "crit": 763,
+  "with_deps": 36,
+  "roots": 1,
+  "bytes": 80604
+ },
+ "dev/G_top.v": {
+  "lemmas": 292,
+  "steps": 5585,
+  "crit": 624,
+  "with_deps": 207,
+  "roots": 2,
+  "bytes": 314396
+ },
+ "k31/K_x.v": {
+  "lemmas": 300,
+  "steps": 3964,
+  "crit": 132,
+  "with_deps": 212,
+  "roots": 4,
+  "bytes": 234524
+ },
+ "dev/G_rules.v": {
+  "lemmas": 247,
+  "steps": 2245,
+  "crit": 112,
+  "with_deps": 171,
+  "roots": 6,
+  "bytes": 145963
+ }
+}

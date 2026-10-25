@@ -1,0 +1,134 @@
+{
+  "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0LE_0RE0RH",
+  "meaning": "Each input/output array lists fixed one-runs; append (011)^k01. a+b*k is exact time for every k>=minK. offset counts absorbed terminal two-runs.",
+  "examples": [
+    {
+      "input": [
+        2
+      ],
+      "output": [
+        3,
+        3
+      ],
+      "a": 37,
+      "b": 12,
+      "shift": -3,
+      "folds": 1,
+      "offset": 0,
+      "minK": 0,
+      "micro": 20
+    },
+    {
+      "input": [
+        3
+      ],
+      "output": [
+        4
+      ],
+      "a": 38,
+      "b": 12,
+      "shift": -2,
+      "folds": 1,
+      "offset": 1,
+      "minK": 0,
+      "micro": 21
+    },
+    {
+      "input": [
+        4
+      ],
+      "output": [
+        3,
+        4
+      ],
+      "a": 77,
+      "b": 24,
+      "shift": -3,
+      "folds": 2,
+      "offset": 1,
+      "minK": 0,
+      "micro": 43
+    },
+    {
+      "input": [
+        3,
+        4
+      ],
+      "output": [
+        4,
+        2,
+        3
+      ],
+      "a": 90,
+      "b": 24,
+      "shift": -2,
+      "folds": 2,
+      "offset": 1,
+      "minK": 0,
+      "micro": 56
+    },
+    {
+      "input": [
+        4,
+        2,
+        3
+      ],
+      "output": [
+        3,
+        3,
+        4,
+        3,
+        3
+      ],
+      "a": 853,
+      "b": 144,
+      "shift": -3,
+      "folds": 12,
+      "offset": 6,
+      "minK": 0,
+      "micro": 649
+    },
+    {
+      "input": [
+        3,
+        3,
+        4,
+        3,
+        3
+      ],
+      "output": [
+        3,
+        2,
+        2,
+        4,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "a": 2735,
+      "b": 288,
+      "shift": -3,
+      "folds": 24,
+      "offset": 12,
+      "minK": 0,
+      "micro": 2327
+    },
+    {
+      "input": [
+        3,
+        2,
+        3,
+        4
+      ],
+      "status": "halt",
+      "a": 11020,
+      "b": 648,
+      "folds": 54,
+      "minK": 0,
+      "micro": 10101
+    }
+  ]
+}

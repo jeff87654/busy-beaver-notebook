@@ -1,0 +1,466 @@
+{
+  "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0LE_0RE0RH",
+  "counts": {
+    "H_run": 64,
+    "A_leading_one": 64,
+    "H_tail_reset": 1,
+    "E_zero_reset": 1,
+    "E_one_boundary": 1,
+    "E_two_boundary": 1,
+    "E_triple": 1,
+    "E_zero_left_one": 1,
+    "E_local_halt": 1,
+    "A_left_zero": 63,
+    "A_left_01": 63,
+    "A_left_11": 63,
+    "whole_right_pass": 105,
+    "all_two_tail_family": 99
+  },
+  "total_checks": 528,
+  "meaning": "Finite transcription checks; universal identities follow from the explicit transition derivations.",
+  "artificial_halting_input": {
+    "word": "11110110111101",
+    "head": -1,
+    "state": "A",
+    "left_background": 0,
+    "right_background": 0,
+    "steps": 1086,
+    "ones": 30,
+    "E0_events": [
+      {
+        "step": 30,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 60,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 128,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 170,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 228,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 282,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 366,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 432,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 514,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 592,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 698,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 788,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 894,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 996,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "step": 1083,
+        "left": 1,
+        "right": 0
+      }
+    ],
+    "last_steps": [
+      {
+        "step": 1080,
+        "state": "E",
+        "read": 1,
+        "head": 5
+      },
+      {
+        "step": 1081,
+        "state": "F",
+        "read": 1,
+        "head": 4
+      },
+      {
+        "step": 1082,
+        "state": "G",
+        "read": 1,
+        "head": 3
+      },
+      {
+        "step": 1083,
+        "state": "E",
+        "read": 0,
+        "head": 2
+      },
+      {
+        "step": 1084,
+        "state": "C",
+        "read": 1,
+        "head": 1
+      },
+      {
+        "step": 1085,
+        "state": "D",
+        "read": 1,
+        "head": 0
+      }
+    ]
+  },
+  "all_two_tail_family_examples": [
+    {
+      "input_runs": [
+        2,
+        1
+      ],
+      "output_runs": [
+        3,
+        3,
+        1
+      ],
+      "steps": 37,
+      "head_shift": -3
+    },
+    {
+      "input_runs": [
+        2,
+        2,
+        1
+      ],
+      "output_runs": [
+        3,
+        3,
+        2,
+        1
+      ],
+      "steps": 49,
+      "head_shift": -3
+    },
+    {
+      "input_runs": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "output_runs": [
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "steps": 421,
+      "head_shift": -3
+    },
+    {
+      "input_runs": [
+        3,
+        1
+      ],
+      "output_runs": [
+        4,
+        2,
+        1
+      ],
+      "steps": 38,
+      "head_shift": -2
+    },
+    {
+      "input_runs": [
+        3,
+        2,
+        1
+      ],
+      "output_runs": [
+        4,
+        2,
+        2,
+        1
+      ],
+      "steps": 50,
+      "head_shift": -2
+    },
+    {
+      "input_runs": [
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "output_runs": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "steps": 422,
+      "head_shift": -2
+    },
+    {
+      "input_runs": [
+        4,
+        1
+      ],
+      "output_runs": [
+        3,
+        4,
+        2,
+        1
+      ],
+      "steps": 77,
+      "head_shift": -3
+    },
+    {
+      "input_runs": [
+        4,
+        2,
+        1
+      ],
+      "output_runs": [
+        3,
+        4,
+        2,
+        2,
+        1
+      ],
+      "steps": 101,
+      "head_shift": -3
+    },
+    {
+      "input_runs": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "output_runs": [
+        3,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "steps": 845,
+      "head_shift": -3
+    }
+  ],
+  "blank_classification": "unresolved; the artificial input is not asserted reachable from blank"
+}

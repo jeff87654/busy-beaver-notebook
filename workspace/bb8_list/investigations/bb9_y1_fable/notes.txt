@@ -1,0 +1,49 @@
+bb9_y1_fable : can a 9-state machine on M8's engine be certified above M8?  (agent y1-fable, Fable, 2026-10-18)
+==============================================================================================================
+Y1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_0RA---   (M8 + H1 -> 0LI, I = 0RA ---)
+M8 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---
+
+HANDOFF (keep current)
+- status: screening family F3 (runs/f3_B6/summary.tsv); REPORT.txt = the argument.  PIDs in pids.txt (kill by PID only).
+- results so far: (1) THEOREM: no 9-state machine faithful to M8 up to M8's halting configuration beats M8 in every class
+  (slot counting + the Coq halting tapes Hc d s G l R n t: left cell is 0 iff d >= 1, right cell always 1).
+  (2) No additive residue invariant for the cascade map g for any modulus (each branch has a fixed point mod m).
+  (3) MC with exact Coq accounting: all 9 (key, rho) classes occur among starts == real 36B+73 mod 2^12 3^6 5^6 7..31;
+  d = 0 classes ~21%.  (4) In M8's run, H0 events have left cell 0 exactly at the TOP-LEVEL exhaustion starts (far-left
+  blank), 1 at every marker/rebuild-internal H0 -> family F3 = M8 with H0 = 0LI, I1 = 1RF (faithful), I0 free changes
+  only the top-level rebuilds.  Goal: a bigger second escalation with M8's cascade/endgame -> all-class lower bound above
+  M8's Coq upper bound f_w^2(12B+27).
+
+TOOLS
+- tools/pkf8.cpp/.exe = bb9_y1/tools/pkf7 + --h0log Q (H0EV lines: 3 cells left, 2 right of the head at each 0-read in Q).
+  Compile: PATH=/c/msys64/ucrt64/bin:$PATH g++ -O2 -static (g++ by full path fails silently: cc1plus needs the bin dir on PATH).
+- tools/launch.py NAME OUT CMD...   (records the real PID in pids.txt);  tools/screen_f3.py LIST WORLD "args" NPAR WALL.
+- mc_class.py N DIGITS [seed]  (runs/mc_class.txt).
+- small faithful world for M8: --B 6 --cls 366 --mod 3600 --cnt  (B = 6 mod 2520 real; R = 366 mod 3600 real; key 31 route;
+  M8 halts at step 4.5e8 after 10 jumps, ones 9866; runs/m8_B6.txt).
+
+LOG
+2026-10-18
+- 15:05 read C04 REPORT/PROOF_SKETCH, upper.txt, k31 report, Coq Hc/EndU/CascU/Step (P = 12 R2 + 11 at L1, consumption
+  3/11/4/6/6), y1-deep notes + REPORT (done 15:2x: verdict open), bb8-resid F1 screen (288 rows) + backref.
+- 15:15 theorem (faithful extensions) written down; reported to lead 15:25 with items (1)-(3).
+- 15:20 mc_class.py: 3 x 20000 samples (80/300/1500-digit starts), all classes present, rho uniform within key 31.
+- 15:33 pkf8 compiled; M8 small world run: H0EV left=000 only at steps 8111 (exh#1) and 6788301 (exh#2); all other H0 events
+  left=100 or 111 (marker / rebuild-internal / tail region).  H1EV once (the halt) left=101.
+- 15:36 F3 screen launched: 36 machines (I0 = all options; 0RF = M8 control), world B6, 2 parallel, 600 s wall each.
+2026-10-19
+- 07:47 F3 screen done (36 rows, runs/f3_B6/summary.tsv): 17 HALT H1, 19 loopers/timeouts. Controls f3_0RF, f3_1LG = M8 exactly.
+  !!! f3_0RC (= f3_1RD): M8 pipeline with a much bigger second escalation (exh#1 -> digits linear in B at depth 7 ->
+  R'' >> B -> top rebuild 12R''+11 -> R2' -> top-level stop L0' = (108R2'+47)/5 -> M8 cascade (y tokens exact) -> class-b halt).
+  f3_1LC: two more tower-level rebuilds (f_w^4-ish) then M8 cascade + halt.  Both logged in OPEN_CANDIDATES.txt.
+- 07:52 parametric runs launched (tools/jobs.py jobs_param.txt -> runs/param/): f3_0RC B = 11..126, R classes 366/3600,
+  3966/7200, rk policy; f3_1LC B = 11..26.  Lead informed.
+- 08:20 param results: f3_0RC parametric (10 B values, 3 R policies): P1 "0 1 (6B-2) 13 1*5", P2 "0,0 7 1*(12R''+11)", P3 top
+  stop L00 = 36R''+37 -> r=3 -> L1 = (108R''+47)/5 = 0 mod 5 -> parked 12R2'+8, A = y+3, X = k'+7, L0' = (324R''-359)/25;
+  then M8's cascade (y tokens exact) + class-b halt.  f3_1LC NOT parametric (B = 6/11/16/21/26 differ) -> low priority.
+  REPORT sec. 7 written.  Queued (after the param driver): 9 route worlds x {M8, f3_0RC} + 2 decoupled-R runs (jobs_routes.txt -> runs/routes/).
+- 08:35 route worlds (runs/routes/): f3_0RC == M8 in all 9 classes (same ones, +2 steps per marker H0), no far-left H0,
+  one H1 event (the halt).  Lead sent the sec.-7 argument.  OPEN_CANDIDATES updated.  dec_* (Rlist) runs in progress.
+- 09:05 dec runs: formulas confirmed with R'' != R2' (list 12R''+11 built by R1-R3 with no clear in P2; parked 12R2'+8;
+  A, k' as predicted).  Lead: f3-check and f3-coq agents started on sec. 7.  f3_1LC on hold.
+- 09:15 F4 screen (I0 = 0RF, I1 = 35 options) launched on 1 core, runs/f4_B6/.

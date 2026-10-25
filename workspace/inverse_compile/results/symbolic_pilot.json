@@ -1,0 +1,765 @@
+{
+  "warning": "These records prove one abstract checkpoint-to-checkpoint step for the stated fixed digit length and encoding. They do not supply blank-tape initialization, iteration, ordinal descent, or a Busy Beaver bound.",
+  "records": [
+    {
+      "name": "discovered_transfer1_offset0_nright",
+      "table": "0RB1RB_1RC1LB_0RZ0LA",
+      "n_digits": 1,
+      "status": "proved",
+      "explored": 24,
+      "branches": [
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "ge",
+              2
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "3",
+          "final": "C: 0^inf 1^(n+1) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              1
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "3",
+          "final": "C: 0^inf 1^(2) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "3",
+          "final": "C: 0^inf 0^(1) 1^(1) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              2
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+1) 0^(1) 1^(d0-1); head offset n",
+          "steps": "3",
+          "final": "A: 0^inf 1^(n) [1^(1)] 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              2
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+1); head offset n",
+          "steps": "3",
+          "final": "A: 0^inf 1^(n) [1^(1)] 0^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              1
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2) 0^(1) 1^(d0-1); head offset 1",
+          "steps": "3",
+          "final": "A: 0^inf 1^(1) [1^(1)] 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              1
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2); head offset 1",
+          "steps": "3",
+          "final": "A: 0^inf 1^(1) [1^(1)] 0^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(1) 0^(1) 1^(d0-1); head offset 0",
+          "steps": "4",
+          "final": "A: 0^inf [1^(1)] 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(1); head offset 0",
+          "steps": "4",
+          "final": "A: 0^inf [1^(1)] 0^(1) 0^inf"
+        }
+      ],
+      "encoding": {
+        "offset": 0,
+        "head_anchor": "n_right"
+      }
+    },
+    {
+      "name": "discovered_transfer1_offset1_nright",
+      "table": "---1RB_0RB1RC_1RD1LC_0RZ0LA",
+      "n_digits": 1,
+      "status": "proved",
+      "explored": 28,
+      "branches": [
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "5",
+          "final": "D: 0^inf 1^(n+1) 0^(1) 1^(2) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "5",
+          "final": "D: 0^inf 1^(1) 0^(1) 1^(2) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+2) 0^(1) 1^(d0); head offset n+1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(n+1) [1^(1)] 0^(1) 1^(d0) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+2) 0^(1) 1^(1); head offset n+1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(n+1) [1^(1)] 0^(1) 1^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2) 0^(1) 1^(d0); head offset 1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(1) [1^(1)] 0^(1) 1^(d0) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2) 0^(1) 1^(1); head offset 1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(1) [1^(1)] 0^(1) 1^(1) 0^inf"
+        }
+      ],
+      "encoding": {
+        "offset": 1,
+        "head_anchor": "n_right"
+      }
+    },
+    {
+      "name": "hand_built_transfer1_offset0_left_sweep",
+      "table": "1RC1RB_1RC1RB_0RZ0LD_0RA1LD",
+      "n_digits": 1,
+      "status": "proved",
+      "explored": 44,
+      "branches": [
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "ge",
+              3
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "n+2",
+          "final": "C: 0^inf 1^(n+1) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              2
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "4",
+          "final": "C: 0^inf 1^(3) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              1
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "3",
+          "final": "C: 0^inf 1^(2) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "2",
+          "final": "C: 0^inf 1^(1) [0^(1)] 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              3
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+1) 0^(1) 1^(d0-1); head offset 0",
+          "steps": "2*n+4",
+          "final": "A: 0^inf 0^(1) [1^(1)] 1^(n) 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              3
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+1); head offset 0",
+          "steps": "2*n+4",
+          "final": "A: 0^inf 0^(1) [1^(1)] 1^(n) 0^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              2
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(3) 0^(1) 1^(d0-1); head offset 0",
+          "steps": "8",
+          "final": "A: 0^inf 0^(1) [1^(1)] 1^(2) 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              2
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(3); head offset 0",
+          "steps": "8",
+          "final": "A: 0^inf 0^(1) [1^(1)] 1^(2) 0^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              1
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2) 0^(1) 1^(d0-1); head offset 0",
+          "steps": "6",
+          "final": "A: 0^inf 0^(1) [1^(1)] 1^(1) 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              1
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2); head offset 0",
+          "steps": "6",
+          "final": "A: 0^inf 0^(1) [1^(1)] 1^(1) 0^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "ge",
+              2
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(1) 0^(1) 1^(d0-1); head offset 0",
+          "steps": "4",
+          "final": "A: 0^inf 0^(1) [1^(1)] 0^(1) 1^(d0-1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              1
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(1); head offset 0",
+          "steps": "4",
+          "final": "A: 0^inf 0^(1) [1^(1)] 0^(1) 0^inf"
+        }
+      ],
+      "encoding": {
+        "offset": 0,
+        "head_anchor": "left"
+      }
+    },
+    {
+      "name": "negative_control_always_halt",
+      "table": "1RZ1RZ",
+      "n_digits": 1,
+      "status": "counterexample",
+      "explored": 4,
+      "branches": [
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "1",
+          "final": "A: 0^inf 1^(n) [1^(1)] 0^(1) 1^(1) 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "halts from the all-zero digit case",
+          "steps": "1",
+          "final": "A: 0^inf [1^(1)] 0^(1) 1^(1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "ge",
+              1
+            ]
+          },
+          "status": "counterexample",
+          "reason": "halts before the required checkpoint",
+          "steps": "1",
+          "final": "A: 0^inf 1^(n) [1^(1)] 0^(1) 1^(d0+1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "ge",
+              1
+            ]
+          },
+          "status": "counterexample",
+          "reason": "halts before the required checkpoint",
+          "steps": "1",
+          "final": "A: 0^inf [1^(1)] 0^(1) 1^(d0+1) 0^inf"
+        }
+      ],
+      "encoding": {
+        "offset": 1,
+        "head_anchor": "n_right"
+      }
+    },
+    {
+      "name": "successor_sketch_counter2_offset1_nright",
+      "table": "---1RB_0RB1RC_---1LD_1RE1LD_---0LA_------",
+      "n_digits": 2,
+      "status": "unknown",
+      "explored": 38,
+      "branches": [
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "eq",
+              0
+            ],
+            "d1": [
+              "eq",
+              0
+            ]
+          },
+          "status": "unknown",
+          "reason": "unassigned transition C0 is reachable",
+          "steps": "3",
+          "final": "C: 0^inf 1^(n+1) 0^(1) 1^(1) [0^(1)] 1^(1) 0^inf"
+        },
+        {
+          "case_name": "halt_all_zero",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              0
+            ],
+            "d1": [
+              "eq",
+              0
+            ]
+          },
+          "status": "unknown",
+          "reason": "unassigned transition C0 is reachable",
+          "steps": "3",
+          "final": "C: 0^inf 1^(1) 0^(1) 1^(1) [0^(1)] 1^(1) 0^inf"
+        },
+        {
+          "case_name": "refill_from_d1",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "eq",
+              0
+            ],
+            "d1": [
+              "ge",
+              1
+            ]
+          },
+          "status": "unknown",
+          "reason": "unassigned transition C0 is reachable",
+          "steps": "3",
+          "final": "C: 0^inf 1^(n+1) 0^(1) 1^(1) [0^(1)] 1^(d1+1) 0^inf"
+        },
+        {
+          "case_name": "refill_from_d1",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              0
+            ],
+            "d1": [
+              "ge",
+              1
+            ]
+          },
+          "status": "unknown",
+          "reason": "unassigned transition C0 is reachable",
+          "steps": "3",
+          "final": "C: 0^inf 1^(1) 0^(1) 1^(1) [0^(1)] 1^(d1+1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "ge",
+              2
+            ],
+            "d1": [
+              "ge",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+2) 0^(1) 1^(d0) 0^(1) 1^(d1+1); head offset n+1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(n+1) [1^(1)] 0^(1) 1^(d0) 0^(1) 1^(d1+1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "ge",
+              1
+            ],
+            "d0": [
+              "eq",
+              1
+            ],
+            "d1": [
+              "ge",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(n+2) 0^(1) 1^(1) 0^(1) 1^(d1+1); head offset n+1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(n+1) [1^(1)] 0^(1) 1^(1) 0^(1) 1^(d1+1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "ge",
+              2
+            ],
+            "d1": [
+              "ge",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2) 0^(1) 1^(d0) 0^(1) 1^(d1+1); head offset 1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(1) [1^(1)] 0^(1) 1^(d0) 0^(1) 1^(d1+1) 0^inf"
+        },
+        {
+          "case_name": "successor_d0",
+          "assumptions": {
+            "n": [
+              "eq",
+              0
+            ],
+            "d0": [
+              "eq",
+              1
+            ],
+            "d1": [
+              "ge",
+              0
+            ]
+          },
+          "status": "proved",
+          "reason": "final tape 1^(2) 0^(1) 1^(1) 0^(1) 1^(d1+1); head offset 1",
+          "steps": "7",
+          "final": "A: 0^inf 1^(1) [1^(1)] 0^(1) 1^(1) 0^(1) 1^(d1+1) 0^inf"
+        }
+      ],
+      "encoding": {
+        "offset": 1,
+        "head_anchor": "n_right"
+      }
+    }
+  ]
+}

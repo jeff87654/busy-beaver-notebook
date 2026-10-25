@@ -1,0 +1,106 @@
+[
+  {
+    "id": "C09",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_0RG0LE_1RH0RG_1RA0RF",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 18,
+      "max_width": 404,
+      "num_nodes": 959
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.125
+  },
+  {
+    "id": "C10",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RG0LE_1LD1RH_0RE0RG",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 18,
+      "max_width": 378,
+      "num_nodes": 916
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.14100000000325963
+  },
+  {
+    "id": "C11",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1RH1LF_0LC1LG_1LA1LE_1RF0RH",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 18,
+      "max_width": 305,
+      "num_nodes": 718
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.1559999999590218
+  },
+  {
+    "id": "C12",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE0RH_1RZ1LF_1RD1LG_1LA0LG_0RD1RA",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 30,
+      "max_width": 365,
+      "num_nodes": 1229
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.14100000000325963
+  },
+  {
+    "id": "C13",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0RC_0RE0RH",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 24,
+      "max_width": 374,
+      "num_nodes": 1086
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.35999999998603016
+  },
+  {
+    "id": "C14",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_0LC1LF_1RH1LG_1LA0LE_0RE0RH",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 20,
+      "max_width": 373,
+      "num_nodes": 929
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.2970000000204891
+  },
+  {
+    "id": "C15",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RH1LG_1LA0RC_0RE0RH",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 24,
+      "max_width": 397,
+      "num_nodes": 1130
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.625
+  },
+  {
+    "id": "C16",
+    "machine": "1RB1LA_0LA0RC_1RA1LD_0LE1RZ_1LC1LF_1RH1LG_1LA0LE_0RE0RH",
+    "backtrack": {
+      "success": false,
+      "halted": false,
+      "max_steps": 20,
+      "max_width": 402,
+      "num_nodes": 982
+    },
+    "reverse_engineer": false,
+    "elapsed_seconds": 0.21899999998277053
+  }
+]

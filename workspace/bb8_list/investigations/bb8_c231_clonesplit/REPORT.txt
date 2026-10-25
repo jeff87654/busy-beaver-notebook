@@ -1,0 +1,484 @@
+====================================================================================================
+BB(8) INVESTIGATION REPORT: `champ_231` / `champ_232` 8-STATE CLONE-SPLITS,
+`G0`/1-SLOT STARTUP AMPLIFIERS & `FAMILY X` REBUILDER VARIANTS (`bb8_c231_clonesplit`)
+====================================================================================================
+Date: 2026-10-23
+Directory: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_c231_clonesplit\
+
+====================================================================================================
+1. EXECUTIVE SUMMARY
+====================================================================================================
+
+We performed a complete, macro-accelerated structural and computational census of 8-state extensions
+of the 7-state Ackermann champions `champ_231` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB`)
+and `champ_232` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1LC0RB`) across two orthogonal axes:
+
+  * SEARCH 1 (8-State Startup Amplifiers with `C1 = ---`):
+    - Exhaustive enumeration of all 4,096 `(G0, H0, H1)` machines on `champ_231` (`search1_g0_amp.tsv`)
+      and all 106,496 1-slot redirect machines (`t -> w d H` across all 13 engine transitions `A0..G1`
+      on both `champ_231` and `champ_232`, `search1_all_startup_amp.tsv`).
+    - RESULT 1A (Exact Next-Symbol & Phase-Usage Theorem): Contrary to the hypothesis that `G0` is
+      unused after Startup, `G0` is executed ONCE per Rule D decrement (`m = 0`) and `m + 1` times
+      per Borrow `B_m` (`m >= 1`), plus `3n + 3` times during Exhaustion E. However, profiling the
+      immediate NEXT symbol read (`0` vs `1`) after each of the 13 transitions revealed five exact
+      structural invariants:
+        1. `D1 = 0LD` NEVER lands on `1` in the entire run (`[24,0]` Startup, `[6,0]` Rule D,
+           `[6,0]` Borrow, `[9,0]` Exhaustion).
+        2. `G0 = 0LD` (`231`) / `1LC` (`232`) NEVER lands on `1` when stepping left (`[31,0]` Startup,
+           `[1,0]` Rule D, `[3,0]` Borrow, `[12,0]` Exhaustion), and when stepping RIGHT (`G0 = 1RH,
+           H1 = 1LD`), the right neighbor is ALWAYS `1` during Rule D and Borrow `B_m`, and is `0`
+           ONLY at the right tip `1010 [G0] 0^inf` (steps 18, 138, 3522 of Startup and the start of
+           Exhaustion E)!
+        3. `B0 = 1RC` NEVER lands on `1` during Startup (`[84,0]`), Rule D (`[8,0]`), or Borrow
+           (`[12,0]`), landing on `1` ONLY ONCE at the `C1` exhaustion event!
+        4. `A0 = 1RB` lands on `0` ONLY ONCE in the entire run, at step 1 on the blank tape (`[1,26]`
+           Startup, `[0,6]` Rule D, `[0,6]` Borrow, `[0,10]` Exhaustion)!
+        5. `G1 = 0RB` NEVER lands on `0` during Rule D (`[0,2]`) or Borrow (`[0,6]`), landing on `0`
+           only 3 times in Startup (`[3,54]`) and 2 times in Exhaustion E (`[2,30]`).
+    - RESULT 1B (Maximum Startup Tower Height = 20): Across all 106,496 1-slot startup amplifiers on
+      `champ_231` and `champ_232`, the maximum initial base-3 Ackermann tower height is `k_1 = 20`
+      (`K(8; 0, 1^19)` or `K(6; 0, 1^19)`). No 1-slot 8-state startup amplifier exceeds `k_1 = 20`.
+    - RESULT 1C (New `C1 = ---` Infinite `f_{omega+1}` Rebuilders & Shifted-Parity Exponential Halters):
+        * Using the right-tip splitter `G0 = 1RH, H1 = 1LD`:
+          - `H0 in {0LE, 0LH, 1LD, 1LH}` (4 machines) build short shifted-parity towers (`1^43`,
+            `1^40`, `1^46`, `1^55`), execute 1 or 2 exponential decrements (`~3^21` to `1.16e27`
+            steps), and halt cleanly at `C1 = ---`.
+          - `H0 in {1LE, 1RD}` (2 machines: `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_1LE1LD`
+            and `..._1RD1LD`) build a 5-digit sentinel-free tower `[E0] 100 (1100)^5 11` at step 324
+            and enter an INFINITE `f_{omega+1}` alternating-parity rebuild cycle without EVER reaching
+            `C1 = ---`!
+        * Using the `G1` Exhaustion-E interceptor `G1 = 0RH, H1 = 1RB`:
+          - `H0 in {0LG, 1LF, 1RE}` (3 machines on `231` + 3 twins on `232`) survive the 3 startup
+            hits on `G1 -> H0`, build a full `k_1 = 20` tower (`K(6; 0, 1^19)` or `K(8; 0, 1^19)`),
+            and then intercept Exhaustion E at `G1 -> H0` BEFORE `C1 = ---` is ever reached, becoming
+            infinite `f_{omega+1}` rebuilders with `C1 = ---` completely unused!
+
+  * SEARCH 2 (8-State Clone-Splits & `Family X` Rebuilder Variants across `k = 1..9, 20`):
+    - Exhaustive macro-accelerated simulation (`search2_clonesplit.tsv`) of 8,640 machines across
+      canonical exhaustion tapes `1 0 (10)^(2k-1) [C1] 1 (0011)^N` (`N = 2k + 6`, `k = 1..9, 20`),
+      powered by a newly proved 5th analytical macro (**Macro 5: Shifted-Parity `S_odd` Multi-Digit
+      Tower Collapse**).
+    - RESULT 2A (Discovery of 8-State Counter-Driven Ackermann Cascade Rebuilders):
+      In the 6 blank-tape-valid clone-split families (`CS1..CS6`, 192 machines where `D1 = 0LH` or
+      `G0 = 0LH/1LH`, `H0 = 0LE/0RD/0RG`, and `H1 = ---`), redirecting `C1` directly into `A..G`
+      unlocks 14 choices of `C1` (`{0LA, 0LC, 0RF, 0RG, 1LA, 1LB, 1LC, 1LD, 1LE, 1LG, 1RA, 1RB, 1RD, 1RE}`)
+      that act as clean `K` / `K*` rebuilders. Unlike `bb8_c231ext` (where `C1 -> H` rebuilders never
+      triggered intermediate Ackermann cascades during exhaustion), `C1 in {0LA, 0LC, 0RF, 0RG, 1LA,
+      1LB, 1LE, 1RA, 1RB, 1RE}` convert the left exhaustion remnant `(10)^(2k-1)` into an intermediate
+      `(k-1)`-digit tower, execute `O(k)` intermediate Ackermann collapses (`10` to `87` collapses at
+      `k = 20`), and self-heal into a clean `N' = N + dL` canonical tower for every `k >= 1`!
+    - RESULT 2B (Discovery of `MIXED_KH` Clone-Splits and Counter-Driven Cascade Halters):
+        * `C1 = 1LD` in `CS3, CS4, CS5, CS6` (4 machines, e.g.
+          `1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LD0RB_0LE---`) achieves `K/K*` for `k = 1, 2, 3`
+          (`k1 = K*(dL+1, c=3)`, `k2 = K(dL+3, c=2)`, `k3 = K*(dL+2, c=8)`) and halts cleanly at
+          `H1 = ---` for all `k >= 4` (halting in Round 1 at step `+3,345` from the blank tape `k_1 = 20`).
+        * `CS9` (`G0 = 1RH, H0 = ---, H1 = 1LD`) with `C1 = 1LG` achieves `K*(dL=-2)` for all `k != 4`
+          and halts via an intermediate Ackermann cascade `H*(H0)` at `k = 4`!
+        * `CS10/CS11` (`G1 = 0RH, H0 = ---, H1 = 1RB`) and `GEN_231/232_B0_H1HALT` (`B0 = 1RH, H0 = 0RD,
+          H1 = ---`) with `C1 in {0RF, 1RA}` achieve `K` for `k = 1, 2`, `H` for `k = 3`, and
+          counter-driven cascade halt `H*` (after collapsing a `(k-1)`-digit intermediate Ackermann
+          tower!) for all `k >= 4`.
+    - RESULT 2C (Structural Impossibility of a Blank-Tape Multi-Round `E_2`/`E_3` Halter in 8 States):
+      Exhaustive testing of all 8,640 clone-split and `Family X` variants proves that NO 8-state
+      1-slot extension of `champ_231`/`champ_232` halts in Round 2 (`E_2`) or Round 3 (`E_3`) from
+      the blank tape (`k_1 = 20`):
+        * Every `Family X` 1-slot modification either halts during Startup/Rule D (`G0 = ---` or broken
+          `Rule D`) or loops forever.
+        * Every blank-tape-valid clone-split (`CS1..CS6`) has its halt slot at `H1 = ---`, which is
+          only reachable by creating `1 1 [D1]` or `1 1 [G0]`. Across all 32 choices of `C1`, only
+          `C1 = 1LD` in `CS3..CS6` reaches `H1 = ---` for large `k` (`k >= 4`), which already triggers
+          at `k_1 = 20` in Round 1 (`E_1`).
+      Therefore, **9 states** (as realized in `bb9_champ231_accel`) is the minimum state count required
+      to turn the `champ_231`/`champ_232` Ackermann engine into a blank-tape multi-round (`E_2`/`E_3`)
+      tetration/pentation halter.
+
+====================================================================================================
+2. PHASE-BY-PHASE TRANSITION & NEXT-SYMBOL THEOREM FOR `champ_231` AND `champ_232`
+====================================================================================================
+
+In `champ_231` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RB`), the 7-state run from a blank
+tape decomposes into five canonical macro phases:
+  1. **Startup (`0 -> K(8; 0, 1^19)`)**: 3,897 steps building a 20-digit base-3 tower (`N = 20`).
+  2. **Expand `E_0` (`[E0] 100 1^(2a) -> [E0] 100 (1100)^(3a+2)`)**: Uses ONLY 9 transitions
+     (`A0, B0, B1, C0, D0, D1, E0, E1, F0`), never touching `A1, F1, G0, G1`.
+  3. **Rule D (`m = 0`: `[E0] 100 00 1^(2b) -> [E0] 100 1^(2b-2)`)**: 53 steps; uses all 13 transitions,
+     including `G0` exactly ONCE (`1 0 [G0] 1 1 -> [E0] 1 0 0 1 1`).
+  4. **Borrow `B_m` (`m >= 1`: `[E0] 100 (00)^(m+1) 1^(2b) -> [E0] 100 (1100)^m 1^(2b-2)`)**:
+     `86m + 53` steps; uses all 13 transitions, including `G0` exactly `m + 1` times.
+  5. **Exhaustion E (`[E0] 100 (00)^n 1 0^inf -> 1 0 (10)^(n-1) [C1] 1 0^inf`)**: `86n + 55` steps;
+     uses all 13 transitions (`G0` hit `3n + 3` times) before reaching `C1` at the left sentinel.
+
+Profiling the exact `[next_sym = 0, next_sym = 1]` counts immediately after each of the 13 transitions
+across Startup (3,897 steps), Rule D (53 steps), Borrow `B_2` (225 steps), and Exhaustion `E(n=3)`
+(313 steps) establishes the following exact table:
+
+----------------------------------------------------------------------------------------------------
+Slot   231 Rule   Startup [0, 1]   Rule D [0, 1]   Borrow B_2 [0, 1]   Exhaust E_3 [0, 1]   Property
+----------------------------------------------------------------------------------------------------
+A0     1RB        [  1,   26]      [ 0,    6]      [ 0,    6]          [ 0,   10]           `0` ONLY at step 1!
+A1     0RG        [ 31,   57]      [ 1,    2]      [ 3,    6]          [12,   32]           Both `0` and `1`
+B0     1RC        [ 84,    0]      [ 8,    0]      [12,    0]          [41,    1]           `1` ONLY at `C1`!
+B1     1RB        [ 56,  621]      [ 7,    6]      [ 9,   40]          [32,   48]           Both `0` and `1`
+C0     0RD        [ 60,   24]      [ 2,    6]      [ 6,    6]          [32,    9]           Both `0` and `1`
+D0     0LE        [808,   64]      [ 3,    2]      [53,    8]          [33,   24]           Both `0` and `1`
+D1     0LD        [ 24,    0]      [ 6,    0]      [ 6,    0]          [ 9,    0]           100% ALWAYS `0`!
+E0     0LF        [709,  161]      [ 3,    1]      [49,    5]          [26,    8]           Both `0` and `1`
+E1     1LE        [ 56,  652]      [ 1,    6]      [ 7,   42]          [ 7,   36]           Both `0` and `1`
+F0     1RA        [ 27,   87]      [ 6,    3]      [ 6,    9]          [10,   42]           Both `0` and `1`
+F1     1LF        [ 87,  880]      [ 9,    0]      [15,   37]          [52,   24]           Both `0` and `1`
+G0     0LD (1LC)  [ 31,    0]      [ 1,    0]      [ 3,    0]          [12,    0]           100% ALWAYS `0` (left)!
+G1     0RB        [  3,   54]      [ 0,    2]      [ 0,    6]          [ 2,   30]           `0` ONLY in Start/Exh!
+----------------------------------------------------------------------------------------------------
+
+### Theorem 2.1 (Five Structural Clone-Split & Amplifier Channels of `champ_231` / `champ_232`)
+1. **`D1` Left-Zero Invariant**: Every time `D1` is entered in `champ_231` or `champ_232`, the cell to
+   its left is `0`. Thus `D1 = 0LH` with `H0 = 0LE` (or `H0 = 0RG` on `231`) leaves `H1` 100% unused
+   throughout Startup, Expand, Rule D, Borrow, and Exhaustion!
+2. **`G0` Left-Zero & Right-Tip Invariant**: Every time `G0` is entered, the local tape around the head
+   has the form `1 0 [G0] R`.
+   - Stepping LEFT (`G0 = 0LH, H0 = 0LE` on `231`, or `G0 = 1LH, H0 = 0RD` on `232`) ALWAYS reads `0`
+     at `H0`, leaving `H1` 100% unused!
+   - Stepping RIGHT (`G0 = 1RH, H1 = 1LD`) reads the first symbol of `R`. During Rule D and Borrow `B_m`,
+     `R` ALWAYS starts with `1 1`, so `1 0 [G0] 1 R' -> 1 0 1 [H1] 1 R' -> 1 0 [D1] 1 1 R' ->
+     1 [D0] 0 0 1 1 R' -> [E0] 1 0 0 1 1 R'`, which reproduces `G0 = 1LC` (`champ_232`) WITHOUT
+     EVER USING `H0`! Consequently, `H0` is triggered ONLY when `R` starts with `0` (`1010 [G0] 0^inf`),
+     which happens only at the right tip during Startup (steps 18, 138, 3522) and at the start of
+     Exhaustion E!
+3. **`B0` Exhaustion-Only Invariant (`champ_232` In-Degree-2 Split)**: `B0 = 1RC` steps right onto `0`
+   at every hit EXCEPT the final `C1` exhaustion event. In `champ_232`, state `C` has two incoming
+   transitions (`B0 = 1RC` and `G0 = 1LC`). Redirecting `B0 = 1RH, H0 = 0RD` separates `B0`'s right
+   step (`H1`, triggered only at Exhaustion) from `G0 = 1LC`'s left step (`C1`)!
+4. **`A0` Blank-Tape Step-1 Invariant**: `A0 = 1RB` steps right onto `0` ONLY at step 1 on the blank
+   tape; every subsequent `A0` hit in the entire lifetime of the machine steps right onto `1`. Thus
+   `A0 = 1RH, H1 = 1RB` triggers `H0` at step 2 and never again during normal engine operation!
+5. **`G1` Startup/Exhaustion Invariant**: `G1 = 0RB` ALWAYS steps right onto `1` during Rule D and
+   Borrow `B_m`, stepping right onto `0` only 3 times during Startup (steps 14, 134, 3518) and twice
+   during Exhaustion E (before `C1` is reached). Thus `G1 = 0RH, H1 = 1RB` acts as an Exhaustion-E
+   interceptor that fires BEFORE `C1`!
+
+====================================================================================================
+3. SEARCH 1: COMPLETE 8-STATE STARTUP AMPLIFIER CENSUS (`C1 = ---`)
+====================================================================================================
+
+### 3.1 Complete Classification of the 4,096 `(G0, H0, H1)` Startup Amplifiers (`search1_g0_amp.tsv`)
+We tested all `4 * 32 * 32 = 4,096` machines of the form
+`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_<G0>0RB_<H0><H1>` from a blank tape:
+
+  * **Total machines**: `4,096`
+  * **Valid local Rule D gadgets (`1 0 [G0] 1 1 -> [E0] 1 0 0 1 1`)**: `141`
+  * **Reach canonical tower `K(L; d_0, ..., d_{k-1})`**: `72` (all 72 have `k_1 = 20`, `L = 8`,
+    `d = (0, 1^19)`, identically equal to `champ_231`/`champ_232`)
+  * **Halting machines (`C1 = ---` or `H = ---`)**: `753`
+
+The 141 local Rule D gadgets partition into four exact structural families:
+1. **`G0 = 0LH, H0 = 0LE` (`32` `H1`-free machines) + `G0 = 0LH, H0 in {0LH, 1LC, 1LH}` (`3` two-step
+   clones)**:
+   All 35 machines are step-for-step equivalent to `champ_231`, reaching `K(8; 0, 1^19)` (`k_1 = 20`)
+   at step 3,897 (or 3,928 for the 3 two-step clones) and halting with `Sigma = 6 A_1 + 7`.
+2. **`G0 = 1LH, H0 = 0RD` (`32` `H1`-free machines) + `G0 = 1LH, H0 in {0LD, 0LH, 1LC}` (`3` two-step
+   clones)**:
+   All 35 machines are step-for-step equivalent to `champ_232`, reaching `K(8; 0, 1^19)` (`k_1 = 20`)
+   at step 3,959 (or 3,990) and halting with `Sigma = 6 A_1 + 7`.
+3. **`G0 = 0RH, H1 = 1LH, H0 in {0LD, 1LC}` (`2` machines)**:
+   Preserves Rule D when `G0` faces `1` on the right, but breaks at step 18 (`1010 [G0] 0^inf`),
+   entering a simple right-moving bouncer.
+4. **`G0 = 1RH, H1 = 1LD` (`32` choices of `H0`) — The Right-Tip Splitter**:
+   As proved in Theorem 2.1(2), `G0 = 1RH, H1 = 1LD` preserves Rule D and Borrow `B_m` on `1 0 [G0] 1`
+   without reading `H0`, so `H0` fires ONLY at right-tip configurations `1010 [G0] 0^inf` (step 18):
+   - **`H0 = 0LD` (`1` machine)**: `1010 1 [H0] -> 1010 [D1] 0 -> 101 [D0] 00 -> 10 [E0] 100`, which
+     is identical to `G0 = 1LC` (`champ_232`, `k_1 = 20` at step 3,959).
+   - **`H0 = 1LC` (`1` machine)**: Leaves an extra `1` at the right tip (`10101`), halting at `C1 = ---`
+     in 57 steps (`sigma = 6`).
+   - **`H0 in {0LE, 0LH, 1LD, 1LH}` (`4` Shifted-Parity Exponential Halters)**:
+     Instead of building a 20-digit tower, `H0` shifts the parity of the initial block at step 18,
+     causing `Expand E_0` and `Rule D` to build a single large odd/even block and halt cleanly at
+     `C1 = ---` after 1 or 2 exponential phases:
+       * `H0 = 0LH` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_0LH1LD`):
+         Reaches `[E0] 100 1^40` at step 650 (`a = 20`, `20 -> 62`), halts at `C1 = ---` in
+         **`275,999,666,585,092,999` (`2.76e17`) steps** with **`Sigma = 188`**.
+       * `H0 = 0LE` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_0LE1LD`):
+         Reaches `[E0] 100 1^43` at step 779 (shifted parity `S_odd`: `1^43 -> (1100)^64 11 -> 1^432`),
+         halts at `C1 = ---` in **`12,262,598,900,837,937,225,847` (`1.23e22`) steps** with **`Sigma = 1,297`**.
+       * `H0 = 1LD` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_1LD1LD`):
+         Reaches `[E0] 100 1^46` at step 915 (`a = 23`, `23 -> 71`), halts at `C1 = ---` in
+         **`201,203,756,940,518,325,771` (`2.01e20`) steps** with **`Sigma = 215`**.
+       * `H0 = 1LH` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_1LH1LD`):
+         Reaches `[E0] 100 1^55` at step 1,288 (shifted parity `S_odd`: `1^55 -> (1100)^82 11 -> 1^540`),
+         halts at `C1 = ---` in **`1,163,348,885,375,302,385,787,256,743` (`1.16e27`) steps** with
+         **`Sigma = 1,621`**.
+   - **`H0 in {1LE, 1RD}` (`2` Sentinel-Free Infinite `f_{omega+1}` Alternating-Parity Rebuilders!)**:
+     `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_1LE1LD` and
+     `1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_1RH0RB_1RD1LD` are extraordinary:
+       * At step 18 (`1010 [G0] 0^inf`), `H0` erases the `1010` left sentinel and creates a
+         **sentinel-free 5-digit shifted-parity tower** at step 324 (325 for `1RD`):
+         `0^inf [E0] 100 (1100)^5 11 0^inf`.
+       * Because `11` at the right end has odd parity (`S_odd`) after the 5 even digits `(1100)^5`
+         collapse, the tower alternates forever between EVEN single-block configurations `[E0] 100 1^(2a)`
+         and ODD single-block configurations `[E0] 100 1^(2A+1)` without a left sentinel:
+           - **Round 1 (Odd Collapse)**: `[E0] 100 (1100)^5 11` collapses in `S_odd` to the even block
+             `[E0] 100 1^(2a_1)` with `a_1 = 236,396`.
+           - **Even Rebuild Law**: From `[E0] 100 1^(2a)`, `Expand E_0` produces `[E0] 100 (1100)^(3a+2)`.
+             When the `3a+2` digits exhaust to the right tip (`1010 [G0] 0^inf` on the far right!), `H0`
+             triggers at the right tip and converts the exhaustion wave into the `3a`-digit tower
+             `[E0] 100 11 00 1^43 0000 (1100)^(3a-2) 11`, which collapses in `S_odd` to the odd block
+             `[E0] 100 1^(2A+1)`!
+           - **Odd Rebuild Law**: From `[E0] 100 1^(2A+1)`, `Expand E_0` produces
+             `[E0] 100 (1100)^(3A+1) 11 00 11`. When `H0` triggers at the right tip of `11 00 11`, it
+             converts the top into `[E0] 100 1^12 0000 (1100)^(3A+1) 11`, which collapses in `S_odd`
+             to the even block `[E0] 100 1^(2a')`!
+       * Because there is no `1010` sentinel on the left, `[C0]` never steps onto `1` on the left, so
+         **`C1 = ---` is NEVER reached**, and both machines are **7-transition-free (`C1 = ---`)
+         infinite `f_{omega+1}` Ackermann rebuilders**!
+
+### 3.2 All 13 Slots `A0..G1` Startup Amplifier Scan (`search1_all_startup_amp.tsv`)
+Across all `2 * 13 * 4 * 32 * 32 = 106,496` 1-slot startup redirects (`t -> w d H` on `champ_231`
+and `champ_232` with `C1 = ---`), we verified:
+  * **Maximum base-3 Ackermann tower height is `k_1 = 20`** (`count_gt20 = 0` for genuine Rule-D-preserving
+    base-3 towers; the apparent `k > 20` rows in `search1_all_startup_amp.tsv` are broken-Rule-D linear
+    bouncers `K(0; 0^t)`, `K(1; 1^t)`, `K(2; 2^t)`).
+  * **`A0 = 1RH, H1 = 1RB` (Step-2 Blank-Tape Amplifier)**:
+    Because `A0` lands on `0` ONLY at step 1 on the blank tape (Theorem 2.1(4)), `H0` executes once at
+    step 2 (`0^inf 1 [H0] 0^inf`) and is never used again! Out of the 32 choices of `H0`:
+      - `H0 = 1RC`: Identical to `champ_231`/`champ_232` (`K(8; 0, 1^19)` at step 3,897 / 3,959).
+      - `H0 in {0LB, 1LF, 1LG, 1RE}` (4 non-trivial step-2 amplifiers): Survive step 2 via different
+        6–11 step micro-trajectories that all converge to the exact same first canonical state `K(6; 1)`
+        at steps 11–18, reaching `K(8; 0, 1^19)` (`k_1 = 20`) at steps 3,893 (`1LF`), 3,895 (`1RE`),
+        3,899 (`0LB`), and 3,900 (`1LG`).
+  * **`G1 = 0RH, H1 = 1RB` (Exhaustion-E Interceptors with `C1 = ---` Unused!)**:
+    Because `G1` lands on `0` only 3 times during Startup and twice during Exhaustion E BEFORE `C1` is
+    reached (Theorem 2.1(5)), 4 choices of `H0` survive Startup to build a 20-digit tower:
+      - `H0 = 1RC`: Exact clone of `G1 = 0RB` (`K(8; 0, 1^19)` at step 3,897, halts at `C1 = ---`).
+      - **`H0 = 0LG` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RH_0LG1RB` and `232` twin)**:
+        Builds `K(6; 0, 1^19)` (`k_1 = 20`, left sentinel `L = 6`) at step 3,866. When the 20-digit
+        tower exhausts (`Exhaustion E`), `G1 -> H0 = 0LG` intercepts the exhaustion wave BEFORE it
+        reaches `C1 = ---`, reflecting it back to the right and rebuilding a new `k_2 = 45`-digit
+        tower (`K(6; 0, 1^44)`), running forever at **`f_{omega+1}`** with `C1 = ---` untouched!
+      - **`H0 in {1LF, 1RE}` (`1RB0RG_1RC1RB_0RD---_0LE0LD_0LF1LE_1RA1LF_0LD0RH_1LF1RB`, `..._1RE1RB`
+        and `232` twins)**:
+        Build `K(8; 0, 1^19)` (`k_1 = 20`, `L = 8`) at steps 3,896 (`1LF`) and 3,898 (`1RE`), and
+        similarly intercept Exhaustion E at `G1 -> H0` before `C1 = ---` is ever reached, rebuilding
+        `K(6; 0, 1^45)` (`k_2 = 46`) and running forever at **`f_{omega+1}`** with `C1 = ---` untouched!
+
+====================================================================================================
+4. SEARCH 2: COMPLETE 8-STATE CLONE-SPLIT & `FAMILY X` CENSUS (`8,640` MACHINES)
+====================================================================================================
+
+### 4.1 Theorem 4.1 (Macro 5: Shifted-Parity `S_odd` Multi-Digit Tower Collapse)
+During Search 2, several `C1` redirects (`C1 in {0RG, 1LA, 1LB, 1LE, 1LG, 1RB, 1RE}`) created
+intermediate towers where the leftmost block after `[E0] 100` has **odd** length `2a + 1`, followed
+by `s >= 1` standard even digits `1^(2 d_1) 00 ... 1^(2 d_s) 00`:
+  `0^inf <LEFT> [E0] 100 1^(2a+1) 00 1^(2 d_1) 00 ... 1^(2 d_s) 00 <AFTER> 0^inf`  (`d_i >= 1`).
+
+We proved and implemented **Macro 5** in `search2_clonesplit.cpp`:
+  * Because `Expand E_0` on `[E0] 100 1^(2a+1)` produces `[E0] 100 (1100)^(3a+1) 11 00 11`, every
+    even digit `1^(2 d_i)` to the right is consumed by standard `Rule D` / `Borrow B_m` decrements
+    while the rightmost boundary of the active shifted-parity prefix remains locked at odd parity `11`.
+  * Consequently, all `s` even digits `d_1, ..., d_s` collapse cleanly in `f_{s+1}` steps into a
+    SINGLE odd block:
+      `0^inf <LEFT> [E0] 100 1^(2 A_final + 1) (00)^(s+1) <AFTER> 0^inf`
+    where `2 A_final + 1 == 3 (mod 6)`!
+  * Under modular-6 parity reduction, replacing `2 A_final + 1` by `u_cap = base_u + 3` (`base_u = 36`,
+    `u_cap = 39`) preserves the exact downstream trajectory of `champ_231`/`champ_232` (since every
+    subsequent `E_0` step maps `2A + 1 -> 3A + 1`, which preserves `2A + 1 (mod 6)` through the entire
+    borrow/exhaustion chain!).
+
+Adding Macro 5 resolved all shifted-parity multi-digit tower collapses in milliseconds.
+
+### 4.2 Complete Classification of the 6 Blank-Tape-Valid Clone-Split Families (`CS1..CS6`, 192 Machines)
+From Theorem 2.1(1)-(2), there are 6 canonical clone-split templates (`CS1..CS6`) where `H1 = ---` is
+the sole halt slot and the machine is 100% identical to `champ_231` or `champ_232` from the blank tape
+all the way to the first `C1` exhaustion event (`k_1 = 20`, `N = 46`):
+  - `CS1_231_G0_0LH`: `G0 = 0LH, H0 = 0LE, H1 = ---` on `champ_231`
+  - `CS2_231_G0_1LH`: `G0 = 1LH, H0 = 0RD, H1 = ---` on `champ_231`/`champ_232`
+  - `CS3_231_D1_0LH`: `D1 = 0LH, H0 = 0LE, H1 = ---` on `champ_231`
+  - `CS4_231_D1_0LH_0RG`: `D1 = 0LH, H0 = 0RG, H1 = ---` on `champ_231`
+  - `CS5_232_D1_0LH`: `D1 = 0LH, H0 = 0LE, H1 = ---` on `champ_232`
+  - `CS6_231_D1G0_0LH`: `D1 = 0LH, G0 = 0LH, H0 = 0LE, H1 = ---` on `champ_231`
+
+Across all 32 choices of `C1` tested on `1 0 (10)^(2k-1) [C1] 1 (0011)^N` (`k = 1..9, 20`), the
+outcomes are completely classified into four regimes:
+
+1. **Immediate / Linear Halters at `H1 = ---` (`H_ONLY`)**:
+   - In `CS1`: `C1 in {0LD, 0LH, 1LD, 1LH}` (4 machines) step left into `D1` or `H` on a `1`, hitting
+     `H1 = ---` in 1 to 2,847 steps for all `k >= 1`.
+   - In `CS2`: `C1 in {0LH, 1LH}` (2 machines) hit `H1 = ---` in 1 or 405 steps.
+   - In `CS3..CS6`: `C1 in {0LB, 0LD, 0LE, 0LF, 0LH, 1LH, 1RC, 1RF, 1RG}` (9 machines) create `1 1 [D1]`
+     during the left-remnant traversal and halt at `H1 = ---` in 1 to 10,879 steps for all `k >= 1`.
+
+2. **Bouncers / Broken-Sentinel Infinite Loops (`INF_LOOP`)**:
+   - `C1 in {0LA, 0LC}` in `CS1, CS2` (`G0` split) and `C1 in {0RA, 0RB, 0RC, 0RD, 0RE, 0RH, 1LF, 1RH}`
+     enter translated cyclists (`TC`) or right/left bouncers (`BC`) without rebuilding a canonical tower.
+
+3. **14 Clean `K` / `K*` Infinite Rebuilder Choices of `C1` — Including Counter-Driven Ackermann
+   Cascade Rebuilders!**:
+   Across `CS1..CS6`, 14 choices of `C1` rebuild a clean canonical tower `K` or `K*` (`N' = N + dL`,
+   `L' = L_new`):
+   --------------------------------------------------------------------------------------------------
+   `C1`   Active Families    Behavior on `1 0 (10)^(2k-1) [C1] 1 (0011)^N` (`k = 20` stats)
+   --------------------------------------------------------------------------------------------------
+   `0LA`  `CS3, CS5`         **Ackermann Cascade Rebuilder**: `K*(dL = -2k+4, L'=6, c=62 at k=20)`
+   `0LC`  `CS3..CS6`         **Ackermann Cascade Rebuilder**: `K*(dL = -2k+4, L'=6, c=63 at k=20)`
+   `0RF`  `CS1..CS6` (All 6) **Counter-Tower Cascade Rebuilder**: Converts `(10)^(2k-1)` directly into
+                             `[E0] (1100)^(k-1) 1^11 0000 (1100)^(N-1) 1`, executing `k+8` Ackermann
+                             collapses to reach `K*(dL = +2k-24, L'=4, c=28 at k=20)` for all `k >= 1`!
+   `0RG`  `CS1..CS6` (All 6) **Shifted-Parity Cascade Rebuilder**: Uses Macro 5 (`S_odd`) to collapse
+                             intermediate towers into `K*(dL = -2k+3, L'=4, c=19 at k=20)`!
+   `1LA`  `CS1..CS6` (All 6) **Ackermann Cascade Rebuilder**: `K*(dL = -2k+2, L'=8, c=44..87 at k=20)`
+   `1LB`  `CS1..CS6` (All 6) **Ackermann Cascade Rebuilder**: `K*(dL = -2k+2, L'=8, c=10 at k=20)`
+   `1LC`  `CS1..CS6` (All 6) Direct Rebuilder (`Family X` core): `K(dL = +1, L'=4k+4, c=0)`
+   `1LD`  `CS2`              Direct Rebuilder: `K(dL = +2k, L'=6, c=0)` for all `k >= 1`
+   `1LE`  `CS1..CS6` (All 6) **Ackermann Cascade Rebuilder**: `K*(dL = -2k+4, L'=6, c=62 at k=20)`
+   `1LG`  `CS1..CS6` (All 6) Parity-Alternating Rebuilder (`1LG` core):
+                             Odd `k`: `K(dL = +1, L'=4k+2, c=0)`;
+                             Even `k`: **Macro 5 `S_odd` Cascade** `K*(dL = -2k+3, L'=4, c=19 at k=20)`!
+   `1RA`  `CS1..CS6` (All 6) **Counter-Tower Cascade Rebuilder** (twin of `0RF`):
+                             `K*(dL = +2k-24, L'=4, c=28 at k=20)` for all `k >= 1`!
+   `1RB`  `CS1..CS6` (All 6) **Ackermann Cascade Rebuilder**: `K*(dL = -2k+2, L'=8, c=10 at k=20)`
+   `1RD`  `CS1..CS6` (All 6) Direct Rebuilder (`Family X` core): `K(dL = +1, L'=4k+4, c=0)`
+   `1RE`  `CS1..CS6` (All 6) **Ackermann Cascade Rebuilder**: `K*(dL = -2k+4, L'=6, c=62 at k=20)`
+   --------------------------------------------------------------------------------------------------
+   *Significance*: In `bb8_c231ext` (where `C1 -> H`), NONE of the 16 rebuilders executed Ackermann
+   cascades (`c > 0`) during exhaustion; their `K*` runs were purely single-pass `Rule D` sweeps.
+   Here, by using state `H` as a `D1`/`G0` clone-split and routing `C1` directly into `A..G`, 10
+   different `C1` choices (`0LA, 0LC, 0RF, 0RG, 1LA, 1LB, 1LE, 1RA, 1RB, 1RE`) plus even-`k` `1LG`
+   execute genuine intermediate Ackermann tower collapses (`c = 10..87` at `k = 20`) during every
+   single exhaustion round before healing back into the main tower!
+
+4. **`MIXED_KH` Clone-Splits (`C1 = 1LD` in `CS3, CS4, CS5, CS6` — 4 Machines)**:
+   - Machine 1 (`CS3`): `1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LD0RB_0LE---`
+   - Machine 2 (`CS4`): `1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LD0RB_0RG---`
+   - Machine 3 (`CS5`): `1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_1LC0RB_0LE---`
+   - Machine 4 (`CS6`): `1RB0RG_1RC1RB_0RD1LD_0LE0LH_0LF1LE_1RA1LF_0LH0RB_0LE---`
+   On `1 0 (10)^(2k-1) [C1] 1 (0011)^N`:
+     * `k = 1`: `K*(dL = +1, L' = 4, collapses = 3, steps = 543)`
+     * `k = 2`: `K (dL = +3, L' = 6, collapses = 2, steps = 528)`
+     * `k = 3`: `K*(dL = +2, L' = 8, collapses = 8, steps = 2,906)`
+     * `k >= 4`: Halts cleanly at `H1 = ---` in `3,345` steps!
+   Why `k = 1, 2, 3` rebuild while `k >= 4` halts: `C1 = 1LD` steps left into `(10)^(2k-1)` in state
+   `D0 = 0LE`, converting `1 0 (10)^3` into a 3-digit prefix that reaches `H1 = ---` as soon as the
+   fourth `10` pair is present (`k >= 4`). Because the blank-tape startup produces `k_1 = 20 >= 4`,
+   all 4 machines halt in Round 1 (`E_1`) at step `+3,345` after the first tower exhaustion.
+
+### 4.3 Counter-Driven Ackermann Cascade Halters (`CS9`, `CS10/CS11`, `GEN_B0_H1HALT`)
+When we relax blank-tape Startup survival and examine all engine-preserving clone-splits (`ec = 11`)
+on canonical `C1` exhaustion tapes (`k = 1..9, 20`), three remarkable families of **8-state
+Counter-Driven Ackermann Cascade Halters (`H*`)** emerge:
+
+1. **`CS9_231_G0_1RH_H1_1LD` with `C1 = 1LG` (`1RB0RG_1RC1RB_0RD1LG_0LE0LD_0LF1LE_1RA1LF_1RH0RB_---1LD`)**:
+   - For `k = 1, 3, 5, 7, 9` (all odd `k`): Rebuilds `K(dL = +1, L' = 4k+2)` in `35k + 33` steps.
+   - For `k = 2, 6, 8, 20` (all even `k != 4`): Collapses an intermediate shifted-parity tower via
+     Macro 5 (`S_odd`) and rebuilds `K*(dL = -2k+3, L' = 4)`!
+   - **For `k = 4` ONLY**: The intermediate 4-digit cascade hits the right tip `1010 [G0] 0^inf`
+     before re-engaging the main `(0011)^N` tower, triggering `H0 = ---` after **4 intermediate
+     Ackermann collapses (`H*(H0, c=4)`)**!
+   - *(Note: From a blank tape, `H0 = ---` halts at step 19 of Startup because `G0 = 1RH` hits `0` at
+     the right tip at step 18.)*
+
+2. **`CS10/CS11` (`G1 = 0RH, H0 = ---, H1 = 1RB`) with `C1 in {0RF, 1RA}` (4 Machines)**:
+   - `1RB0RG_1RC1RB_0RD0RF_0LE0LD_0LF1LE_1RA1LF_0LD0RH_---1RB` (and `1RA` / `232` twins):
+   - On `1 0 (10)^(2k-1) [C1] 1 (0011)^N`:
+     * `k = 1`: `K(dL = +1, L' = 6)` in 62 steps.
+     * `k = 2`: `K(dL = +2, L' = 6)` in 151 steps.
+     * `k = 3`: `H(H0)` in 226 steps.
+     * **`k >= 4` (`k = 4..9, 20`)**: Converts `(10)^(2k-1)` into the `(k-1)`-digit counter tower
+       `[E0] (1100)^(k-1) 1^11 0000 (1100)^(N-1) 1`, collapses all `k-1` digits (`c = k - 1`
+       Ackermann collapses, i.e., `f_k` intermediate runtime!), and then triggers `G1 -> H0 = ---`
+       (`H*(H0)`) when that intermediate `(k-1)`-digit tower exhausts!
+   - *(Note: From a blank tape, `G1 = 0RH, H0 = ---` halts at step 15 of Startup, and during any full
+     tower exhaustion `G1` lands on `0` twice BEFORE `C1` is reached.)*
+
+3. **`GEN_231/232_B0_H1HALT` (`B0 = 1RH, H0 = 0RD, H1 = ---`) with `C1 in {0RF, 1RA}` (4 Machines)**:
+   - `1RB0RG_1RH1RB_0RD0RF_0LE0LD_0LF1LE_1RA1LF_1LC0RB_0RD---` (and `1RA` / `231` twins):
+   - In `champ_232`, `G0 = 1LC` enters `C1` during exhaustion when `G0` steps left onto `1`. With
+     `B0 = 1RH, H0 = 0RD, H1 = ---`, `B0` never hits `H1 = ---` during Startup, Expand, Rule D, or
+     Borrow `B_m` (Theorem 2.1(3))!
+   - If started at `[C1]` on `1 0 (10)^(2k-1) [C1] 1 (0011)^N` with `C1 in {0RF, 1RA}`:
+     * `k = 1`: `K(dL = +1, L' = 6)` in 65 steps.
+     * `k = 2`: `K(dL = +2, L' = 6)` in 157 steps.
+     * `k = 3`: `H(H1)` in 269 steps.
+     * **`k >= 4` (`k = 4..9, 20`)**: Collapses the `(k-1)`-digit counter tower (`c = k - 1` Ackermann
+       collapses) and then hits `B0 -> H1 = ---` (`H*(H1)`) when the `(k-1)`-digit counter tower
+       exhausts to its left sentinel!
+   - *(Why this does not fire from the blank tape*: During the main tower's Exhaustion E, `B0 = 1RH`
+     is the transition that detects the `1010` left sentinel at the end of Exhaustion E, whereas
+     `G0 = 1LC` always steps left onto `0` (`[12, 0]`). Thus from the blank tape, `B0 = 1RH, H1 = ---`
+     halts at the end of Exhaustion 1 BEFORE `C1` is ever entered!)*
+
+### 4.4 Complete Census of `Family X` + `1RH/1RE` `G0`/`H0`-Freed & 1-Slot Variants (`7,328` Machines)
+We tested all 16 clean infinite rebuilders from `bb8_c231ext` (`8` on `champ_231` + `8` on `champ_232`:
+the 6 `Family X` members `C1 = w R H` with `H = (1LC/1RD) (0LD/1LF)` plus `C1 in {1RH, 1RE}` with
+`H1 = 1LG, H0 = 0LD`) across three modification families:
+  1. **`FX_G0HALT` (`16 * 32 = 512` machines)**: Set `G0 = ---` and test all 32 choices of `H0`.
+     - Result: Because `G0` is used in every Rule D decrement (`ec = 01`), all 512 machines either
+       halt at `G0 = ---` on the very first Rule D decrement (`260` `H_ONLY` machines) or loop without
+       Rule D (`252` `INF_LOOP` machines). Zero `K` outcomes.
+  2. **`FX_H0MOD_T_HALT` (`16 * 13 * 32 = 6,656` machines)**: Set one engine transition `t in {A0..G1}`
+     to `---` and test all 32 choices of the unused `H0` slot in `Family X` (`H0` is triggered only if
+     `C1 = w R H` steps right onto `0`, or if another transition points to `H`).
+     - Result: Setting any `t in {A0..G1}` to `---` breaks either `Expand E_0` or `Rule D`. Across all
+       6,656 machines, `6,144` halt immediately (`H_ONLY`), `496` loop (`INF_LOOP`), and `16` (`C1 = 0RH,
+       D0 = ---, H0 = 0LF` on `231`/`232`) produce a trivial broken-engine `MIXED_KH` (`k = 1 -> K` in
+       44 steps without using `D0`, `k >= 2 -> H(D0)` in 22 steps; from the blank tape `D0 = ---`
+       halts at step 5).
+  3. **`FX_1SLOT_TO_H` (`8 * 10 * 2 = 160` machines)**: Keep `H0 = ---` as the halt slot in the 8
+     `champ_231` rebuilders and redirect one engine slot `t` to `w d H` (`H1` already fixed by
+     `Family X`).
+     - Result: Only `D1 = 0LH` (`ec = 00` because `H0 = ---` is hit immediately when `D1` steps left
+       onto `0`) or `G1 -> H` (`MIXED_KH` for `C1 in {1RH, 1RE}` where `k = 1` finishes in 45 steps
+       before `G1` is needed, and `k >= 2` halts at `H0 = ---` in 20 steps) occur. None preserve
+       Rule D (`0` machines with `ec = 11`).
+
+====================================================================================================
+5. STRUCTURAL IMPOSSIBILITY THEOREM: WHY 9 STATES (`bb9_champ231_accel`) ARE REQUIRED FOR `E_2`/`E_3`
+====================================================================================================
+
+Combining Search 1 (`106,496` startup machines) and Search 2 (`8,640` clone-split and `Family X`
+machines) yields a complete structural explanation of why **8 states can achieve `f_{omega+1}` infinite
+rebuilding and 1-round (`E_1`) counter-driven cascade halting, but 9 states are strictly required for
+a blank-tape multi-round (`E_2`/`E_3`) halter on the `champ_231`/`champ_232` engine**:
+
+  1. **All 13 transitions `A0..G1` of `champ_231`/`champ_232` are essential to `{Startup, Expand, Rule D}`**:
+     No engine transition can be freed (`t = ---`) without halting during Startup or the first Rule D
+     decrement.
+  2. **In 8 states (`16` transitions), `13` slots run the engine and `1` slot is `---`, leaving ONLY
+     `2` non-engine transitions (`C1` plus one slot of `H`)**:
+     - If `C1 -> H` (`Family X` architecture, `bb8_c231ext`), both `C1` and `H1` are consumed just to
+       turn the exhaustion wave around (`C1 = w R H`, `H1 = 1LC/1RD/1LG`). The remaining slot `H0 = ---`
+       is never entered during any `Family X` rebuild (`C1` always steps right onto `1`), and any
+       redirect `t -> w d H` from the engine into `H` that preserves `Rule D` must route through `H0`
+       (`D1 = 0LH`, `G0 = 0LH/1LH`, or `B0 = 1RH`), which conflicts with `H0 = ---`!
+     - Conversely, if `H` is used as a `D1`/`G0` clone-split (`CS1..CS6`, where `H0 = 0LE/0RD/0RG` and
+       `H1 = ---`), then `C1` only has a SINGLE transition (`C1 -> w' d' Q` for `Q in {A..G}`) to turn
+       the exhaustion wave around. As shown in Section 4.2, the 14 choices of `C1` that successfully
+       rebuild (`0LA, 0LC, 0RF, 0RG, 1LA, 1LB, 1LC, 1LD, 1LE, 1LG, 1RA, 1RB, 1RD, 1RE`) either:
+         * Self-heal for ALL `k >= 1` (`13` choices, running forever at `f_{omega+1}`), or
+         * Rebuild only for `k <= 3` and halt at `H1 = ---` for all `k >= 4` (`C1 = 1LD` in `CS3..CS6`),
+           which already halts at `E_1` because the blank tape starts at `k_1 = 20 >= 4`!
+  3. **Why 9 States (`bb9_champ231_accel`) Immediately Breaks the Barrier**:
+     Adding State `I` provides 2 additional transitions, allowing `C1 -> H` (`Family X` or cascade
+     rebuilder) AND an independent parity/sentinel detector `I` (`E_2` halter at `~10^(10^29)` steps
+     and `E_3` halter at `> 10^^65` steps).
+
+====================================================================================================
+6. INVENTORY OF FILES & ARTIFACTS IN `bb8_c231_clonesplit/`
+====================================================================================================
+
+  * `search1_g0_amp.cpp` / `search1_g0_amp.exe` -> `search1_g0_amp.tsv`
+    Complete census of all 4,096 `(G0, H0, H1)` startup amplifiers on `champ_231` (`C1 = ---`),
+    plus exact verification of the 4 shifted-parity exponential halters (`H0 in {0LE, 0LH, 1LD, 1LH}`)
+    and the 2 sentinel-free infinite `f_{omega+1}` alternating-parity rebuilders (`H0 in {1LE, 1RD}`).
+  * `search1_all_startup_amp.cpp` / `search1_all_startup_amp.exe` -> `search1_all_startup_amp.tsv`
+    Complete census of all 106,496 1-slot startup amplifiers across all 13 engine transitions `A0..G1`
+    on `champ_231` and `champ_232` (`C1 = ---`).
+  * `search2_clonesplit.cpp` / `search2_clonesplit.exe` -> `search2_clonesplit.tsv`
+    Complete macro-accelerated census (incorporating Macro 1..5, including the newly proved Macro 5
+    Shifted-Parity `S_odd` Multi-Digit Tower Collapse) across `k = 1..9, 20` (`N = 2k + 6`) for all
+    8,640 clone-split (`CS1..CS11`), general 1-slot redirect (`GEN`), and `Family X` (`FX`) machines.
+  * `profile_transitions.py`
+    Exact next-symbol (`0` vs `1`) profiler across Startup, Rule D, Borrow `B_m`, and Exhaustion E.
+  * `verify_1le1ld.py`, `verify_s_odd_multi.py`, `inspect_s2.py`
+    Verification scripts for the `G0 = 1RH, H0 = 1LE, H1 = 1LD` sentinel-free `f_{omega+1}` rebuilder,
+    Macro 5 (`S_odd` tower collapse), and `search2_clonesplit.tsv` analysis.
+  * `REPORT.txt`
+    This comprehensive technical report.
+====================================================================================================

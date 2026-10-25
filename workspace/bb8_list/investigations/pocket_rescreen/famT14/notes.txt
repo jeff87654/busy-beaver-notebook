@@ -1,0 +1,59 @@
+2026-10-23 10:53:39 start famT14 investigation of T1/T2
+2026-10-23 11:00:55 sim.exe/cmp.py/drv.py/pr.py written. Found tape = digit list with marker bits (odd runs). Hypothesis refill rule: zeros get 1, except a zero right after an original marked zero gets 0; top zero gets remainder b-1-sum; leftmost exhaustion prepends block M1 1^(R-1), R=b-sum.
+2026-10-23 11:06:19 eng.py (abstract rules R1 a->a-1,b+2; R2 d1-1,a=b+1; R3 marked-borrow; R4 leftmost rebuild) validated: val2.py seeds 11-13 x T1/T2: ~570 configs/machine all OK (lowest digit unmarked; lowest-marked cases differ: a=1 variant, never arise)
+2026-10-23 11:09:09 lock.py: blank-tape lockstep 16605/16605 K-configs to 3e8 steps, T1 and T2
+2026-10-23 11:13:44 blank-tape lockstep fixed (start state A): from K0=[M1,1^13];2;0 at step 2041 (T1)/2005 (T2): 16605/16605 K-configs match engine to 3e8 steps
+2026-10-23 val3.py (orbit-shaped: multi-block lists, borrows over many zeros spanning marks, multi-mark leftmost R4): seeds 21,22 x T1/T2: 240/240 OK per machine
+2026-10-23 lock2.py from [M1,1];2;0: literal R4 at step 44.2M (N=2,b=3070) -> [M1,1^3067,M1,0]; 5790/5790 lockstep to 6e7, T1 and T2
+VERDICT T1, T2: NEVER-HALTS (rebuild-forever). Rules (mirrored, K = digits with mark bit (odd run), a, b):
+ R1 a>0: a-1,b+2 | R2 a=0,d1>0: d1-1, a=b+1, b=0 | R3 borrow from lowest nonzero d_p over zeros Z: d_p-1 (mark kept); non-top zero ->0 if the zero above it is marked else 1; top zero -> b-1-sum(others); a=2,b=0
+ R4 all zero (N digits): zeros refilled as R3 with top->1; prepend block M1 1^(R-1), R=b-sum; a=2,b=0  (= old K(0^n;0;b) -> 1(110)^(b-n)1110...)
+ validity margins: R3 needs b>=1+sum, R4 needs R>=1; induction: every borrow over k zeros has b>=2k+2 (lemma: next borrow over >=j zeros after a borrow over exactly j zeros has b at least doubled). marks only at positions 14 and block tops, so d1 never marked.
+2026-10-23 11:29:55 follow-up: 16 sibling rows (rows16.txt). geng.py generic family engine (T1 rules; coding B0,z,droptop), glock.py blank lockstep at a=0 events, gval.py random macro validation. G1 rep row7: lockstep 36 macro (incl literal R4 at 4.4e7) to 3e8, gval 150/150
+2026-10-23 11:46:16 G1-coding (B0=2,z=1,droptop, T1 constants): glock 3e8 rows 1,2,5,7,8,13: 36 macro ok incl literal R4; rows 6,9,10: 20 ok; rows 11,12: 34 ok. gval 120/120 for rows 1,2,5,6,8,9,10,11,12,13 (row 7: 150/150)
+2026-10-23 11:48:09 row14: geng2 F14={z1,A0 0,B0 0,dl0,c2 1,c3 -1,a3 2,c4 -1,topv 2} (R4 block top M2): gval2 150/150, glock2 34 macro to 3e8
+2026-10-23 rows 3/4: gfit2 fits z2,A0 0,B0 2,c2 2,c3 1,a3 1 (21 macro to 3e7) but marked-zero borrow differs from T1 rule (gval2 BAD e.g. [M2 0 0 M0 0^4] b=10 -> [M2 0 M0 M8 1 1 0], no decrement above); early literal collapse "182"->"1 183"->"1 5 2^91" (rebuild w/o interior marks). Own engine needed.
+2026-10-23 rows 15/16: different coding (top run 2d, others 2d+1; first borrow refills without decrementing top: [M14,0];0;b -> [M14,15];...). gfit2 only 9 macro events, ambiguous. Own engine needed.
+2026-10-23 long literal (3e9, long3416.txt): rows 3/4 collapse to a single run at ~24k steps ("182") and rebuild [P,M2,1^90] at 59670 (block ~b); next exhaustion needs the 90-digit list (infeasible). Probes: [P,M0,0^k];0;b -> [1,M(b-2),1^(k-1)] (P merges, mark moves down) - not T1 rule. UNSETTLED (own engine needed).
+2026-10-23 rows 15/16 (identical traces): slow phase [M14, X] with X=9,7,5,3 at 1.8e8/7.2e8/2.9e9 steps, B doubling; first exhaustion not reached (level ~3.6 per rank), no rebuild observed. UNSETTLED.
+VERDICTS follow-up: NEVER-HALTS (rebuild-forever, T1 shape, strong evidence): rows 1,2,5,6,7,8,9,10,11,12,13 (G1 coding) and 14 (F14). UNSETTLED: 3,4,15,16.
+2026-10-23 12:53:04 round 3: rows 3/4 and 15/16 own engines
+2026-10-23 13:02:34 rows 3/4: eng34.py macro engine (R2 b'=2b+4; R3 x-1 refill [b-k+2,1..]; marked-zero x merges into y (run+1), refill [M(b-k+1),1..]; lowest M0 merges, b'=2b+3; [M0] alone b'=2b+3 forever; all-zero -> REBUILD [P,M2,1^(b-1)]). val34 row3 180/180 (+'empty' decode artefact), row4 120/120; tgt34 98/98 each; lock34 blank 40/40 to 3e9 incl literal REBUILD (b=90)
+2026-10-23 rows 3/4 round map (abs34.py omega-abstraction, zone macro): round from [P,M2,1^N]: N even -> REBUILD, N odd -> [M0]-alone loop (checked N=0..7 exact-vs-macro agree, N=88/89/90). Blank: N=0 -> REBUILD b=90 (literal, lock34) -> N=89 odd -> M0-alone: [M0];b -> [M0];2b+3 forever (literal b=5,6,30,31,100,1001 x2-4 iterations). NEVER HALTS.
+2026-10-23 rows 15/16: eng56.py (R2 b'=2b+2; L0 lowest M0 -> b+1 unmarked; R3 x-1 refill [b-k,1..] b'=4; RM/RB marked-zero/no x -> M(b-k+1), zeros -> [1^(k-1),M2]). val56 100+100 OK, tgt56 RM 60+60 OK, lock56 blank 19/19 to 3e9 incl literal RB [0];14 -> [M14,M2]. abs56: every round is [M(b),M2] -> all zero -> RB [M(b'),M2] (fixed length 2, b' ~ tetration of b). No halting rule; NEVER HALTS.
+2026-10-23 15:38:03 round 4: roots1043 batch (roots1043.txt from roots_big_untemplated.txt lines 1RB1LG)
+2026-10-23 16:47:14 bat2.py restarted with probe timeouts (sanity N=2e6/5s, battery N=3e7/15s); earlier stall = python parsing huge event streams
+2026-10-23 bat2 stopped (99/99 UNFIT). Why the coding fails: (1) the old fitter forced the lowest digit to share the interior parity (T1 has it; many roots don't - lowest run carries an extra 1, fixed by 'lo' offset in detect2.py); (2) a large share of roots store the counter in ZERO GAPS: after the first exhaustion they rebuild a gap of ~2b zeros (e.g. #60 1RB1LG_0RC0LB_1RD---_1LE0RB_1RF1RE_0RH0LG_1LD1LA_0RG1LE: "1|3| 102" -> "1, 3, 1, 2|107|") and later steps change the gap length by +-1 while B doubles, i.e. the digit is the count of empty runs, not a 1-run length. Those need a gap coding, not the T1 run coding. code_all.py (detect2 = data-driven coding from blank-trace R2 pairs + sanity) running to measure how many rows have a 1-run coding.
+2026-10-23 code_all.jsonl (detect2 over all 1119 = 1043 big + 76 mid): only 7 rows have a sane 1-run coding (6 are G1-type C0 variants 1RB1LG_0RC0RD_xxx0RE_---0RH_..._1LB0LG/0LB, 1 is 1RB1LG_0RC0LB_1RD0LA_1LE0RH_1RF1RE_0LA0LG_1LC1LA_---0RE). 1112 rows: no sane run coding (mostly z=3 at state B, i.e. T1 head geometry, but the counter is in zero gaps). bat2 stopped (own task), not restarted.
+
+==================== HANDOFF (2026-10-23, famT14 agent; all my tasks stopped, no own PIDs running) ====================
+WHY 1112/1119 roots fail the run coding: in T1 the digit list is runs of 1s (run 2v+mark) separated by single 0s and a
+rebuild writes ~b digits "110". In the roots the counter lives in ZERO GAPS: the rebuild writes a gap of ~2b zeros, and
+the low end then works on the gap length (gap +-1 / -4 per step while B ~doubles), i.e. a digit = length of a zero gap
+(equivalently a count of empty runs), with short 1-blocks (1,2,3,12,...) as markers/separators. Event geometry is the
+same as T1 (state B, 3 trailing zeros at K-moments), only the storage differs.
+EXAMPLES (mirrored, events in state B, cmp.py notation: k, = 1^k 0 ; |g| = 0^g):
+ #60 1RB1LG_0RC0LB_1RD---_1LE0RB_1RF1RE_0RH0LG_1LD1LA_0RG1LE: exhaustion "1|3| 102|3|" (b~51) -> rebuild "1, 3, 1, 2|107|";
+     then "...2|100| 1|2| 10" -> "|101| 15" -> "|101| 1, 28" -> "|102| 30" -> "|98| 1, 35" -> "|98| 1|2| 70" -> "|99| 75":
+     a lone 1-run at the gap's low end acts as digit 1 (R2: it dissolves into the gap, A=B+5); at a=0 with no 1-run the
+     gap's low end is cut by 4 and a 1-run appears (borrow from the gap). B' = 2B+10 per cycle.
+ #30 1RB1LG_0RC0LB_1RD---_1LE0LG_1RF1RE_0RD0LG_1RH1LA_0RA0RE: "12|104| 507, 2|3|" -> "12|105| 1016|3|" -> "12|101| 1019, 2"
+     -> "12|102| 2040" -> "12|98| 2043, 2" -> "12|99| 4088": header 1-run 12, gap 98..105 cycling, B doubling.
+ #1-#7 (1RB1LG_0RC---_0L?0RE_0RF1RC_..._1LB1LD): no right-end events in states A/C at all (CNT 0 for A); not a K-list.
+ First-look size: one gap is consumed like a unary number while B grows exponentially -> roughly exponential per round,
+ NOT f_omega; unverified.
+THE 7 ROWS WITH A RUN CODING (code_all.jsonl, detect2 sanity passed):
+ 6 = C0 variants of the settled G1 siblings: 1RB1LG_0RC0RD_{0LG,0LG,0RE,1LB,1LE,1RG}0RE_---0RH_1RF1RE_0LA0LG_1LH1LA_1LB0L{B,G,G,G,G,G}
+     -> geng.py G1 coding (B0=2,z=1,droptop) should apply (rows 1-13 of rows16.txt had the same shape); NOT yet run:
+     need glock.py + gval.py per row (R4 is the C0-dependent case).
+ 1 = 1RB1LG_0RC0LB_1RD0LA_1LE0RH_1RF1RE_0LA0LG_1LC1LA_---0RE (event state C, z=2, e2=6): unknown semantics; battery.py first.
+OUTLINE OF A GAP-CODED ENGINE (what generalizes from eng.py):
+ - Represent the tape as alternating (ones-run o_i, zero-gap g_i) pairs, not runs split by single 0s (gk.gruns turns a gap
+   of g zeros into g-1 empty runs; work on the pair list instead).
+ - Digit value = (g_i - g0)/2 (or g_i - g0), mark = which marker 1-block (o_i) precedes it; A/B stay 1-runs at the right end.
+ - Keep eng.py's macro shape: R1 (a-phase), R2 (lowest digit -1, a affine in b), R3 borrow with refill (top affine in b,
+   rest constant), R4 all-zero rebuild (new gap ~ c*b); fit the affine constants per row from probes at b and b+1
+   (two windows, as reb7) and validate with random probes (gval-style) + blank lockstep at a=0 events (ucode.chain_end).
+ - Then the omega-abstraction (abs34/abs56 style: values int|BIG, zone/R2*/R3* macros) for the round map.
+ Tools in this folder: sim.exe/sim2.exe (sim2 '*' mode = right-end event counts per state), cmp.py, gk.py, ucode.py
+ (coding, chain_end, probe with timeouts), detect2.py, cfit.py, battery.py, eng.py/geng*.py/eng34.py/eng56.py, abs34/abs56.

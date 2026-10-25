@@ -1,0 +1,8 @@
+2026-10-21 22:49:31 packaging agent started: worktree C:/Users/jeffr/Downloads/bb9f3_wt branch bb9-f3 (origin/main 78bd08e); BB9/verify_f3 assembled from x/{lib,dev,k31,score}, f3/{Defs,Sim,Final3,Statement,probe}, lib9 = verify_c04/lib BB92+Individual92 (byte-identical to ext/tree/lib). VsM8 decision pending timing.
+2026-10-21 22:51:59 smoke test OK (lib/BB112, Individual112, dev/Base). Full from-scratch build launched: pkg/launch.py (Idle, J=3, COQC=pkg/coqc_idle -> pids_pkg.txt with cpu times), log BB9/verify_f3/compile_clean.log
+2026-10-21 22:56:33 README draft written (placeholders for build times); port_check.sh: 31 ported files verified; VsM8 DECISION: dropped from repo entry (needs C04+BB8/verify+M8 trees in same job); documented as chain m8_bracket + f3_beats_m8_bound, CI diffs Defs text.
+2026-10-21 23:00:18 write-up BB9/<f3>.md, README BB9 section, C04 note, CI job bb9-f3 (port_check + Defs diff + J=4 build + probe 5 closed, timeout 330) drafted. Waiting on local build (K_e1, G_sub2, K_e2 running since 22:53, machine at 100% load from other agents).
+2026-10-22 00:46:28 K_e2 ok: cpu 2638s wall 6776s (C04 CI K_e2 2211s wall at J=4) -> X files cost ~C04's; CI J=4 estimate ~2 h, timeout 330 fine.
+2026-10-22 02:14:24 G_sub2 ok cpu 4098s (C04 runner alone ~1620s): local cpu ~2.5x runner; worst-case CI ~4h; bb9-f3 timeout set 355.
+2026-10-22 05:08:43 K_e1 ok (cpu 8016s wall 22519s)
+2026-10-22 10:09:19 build done (COMPILE DONE 29851 s, probe 5/5). C7 wording applied. Commit 52aab0e pushed, PR #30 opened. Watching CI.

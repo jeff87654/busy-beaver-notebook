@@ -1,0 +1,90 @@
+bb9_y1: deep analysis of the BB(9) lead Y1 (agent y1-deep / "bb9-y1", Opus, started 2026-10-18)
+====================================================================================================
+Y1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG0LI_0RA---   (= M8 with H1 -> 0LI, new state I = 0RA ---)
+M8 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_1RG---          (8-state collapse of the record C04)
+
+HANDOFF (keep current)
+- status: Y1 DONE (OPEN, not certifiable; REPORT.txt).  Z1/Z2/Z3 (z1/): probable loopers, strong evidence, no proof (notes 2026-10-19).
+- key fact: M8's halting cell-left depends on the class (d=0 for key31 rho 0/4 -> Y1 halts with sigma(M8)-1).
+- if resumed: residue-faithful R = 366 + 3600 i; fixed R makes rounds repeat (artefact).
+
+LOG
+2026-10-18
+- 14:30 setup.  Read bb9_c04_deep REPORT/PROOF_SKETCH, bb9_c04_upper/upper.txt, bb9_c04_coq k31/K31_End.v + fgh/EndU.v.
+- M8's halting configurations (Coq, K31_End.Hc):  Hc d s G l R n t =
+      (1 >> (01)^d >> 1 >> (01)^s >> encl G >> 1 >> l)  <{{H}}  HR R n t
+  i.e. far-to-near tokens  .. l .. G .. D(s) D(d), head in H on the LAST cell (the final 1) of D(d), right side
+  HR = 1111 0101 0 (10)^(6R) 0 1011011 (011)^n (11001001)^t 01.
+  Y1 at this point: H1 = 0LI erases that 1, I reads the cell left of it = first cell of (01)^d:
+      d = 0  -> I reads 1 -> HALT I1 immediately (sigma(Y1) = sigma(M8) - 1)
+      d >= 1 -> I reads 0 -> I0 = 0RA, Y1 continues in the engine.
+  d per class (EndU.v):  key 31: rho=0: d=0, rho=1: d=1, rho=2: d=6R_E, rho=3: d=1, rho=4: d=0  (rho = (P-35) mod 5 = K mod 5 class)
+                         key 37: d=7   key 43: d=9   key 49: d=3   key 55: d=8+6Rs
+  => Y1 halts at M8's halt point exactly in the classes key31/rho in {0,4}.  The class is decided by the full base-5
+     expansion of B (C04 REPORT sec. 3): NOT computable.  (to be literal-checked: runs/k31_*.txt)
+- 14:40 tools/pkf7.cpp: pkf6 + --cnt (JCNT jump: C X 1^k -> (C-3j) T(R) 1^k).  Validation vs literal: runs/val_cnt.txt.
+- 14:42 first Y1 runs in C04's validated class-b worlds (P=803, k=18/42/192; runs/t0.txt literal, t1.txt with --cnt):
+  after the M8 halt point Y1 runs a NEAR-LIST CASCADE: depth K -> K+2 -> (3K-c)/5 -> ... (c like key-31's post-ESC
+  sub-step c' = 30,33,21,34,37 for K mod 5 = 0..4), each stage a counter mode with a counter ~6R (R = current
+  accumulator) and each counter ending takes 3 or 5 from the nearest far token.  It creates new far tokens ~6R.
+  When the near list is exhausted it walks through the far tokens at depth 0-3, reaches the top "0,0" and REBUILDS a
+  near list 1^(~12R') (3rd escalation), then counter mode at that depth, then HALT I1 (all 3 worlds).  World k=192 had
+  TWO top rebuilds (J74 1*5835 -> cascade with C04-like y tokens 3502 4 2100 6 1258 ...; later J171-173 1*2633) = 4th
+  escalation?  To be understood.
+- 14:45 JCNT validated: literal vs --cnt event sequences identical in 3 worlds (R=40 fixed), same halts and ones.
+- 14:47 key-31 check (runs/k31.txt, k=12/24/60, P=300..304): P=300 (rho=0) and P=304 (rho=4) HALT I1 one step after
+  M8's HALT H1 (ones 24713 vs 24714).  P=301..303 continue.  REPORTED to lead.
+- tools/pkf7 --h1log H: logs every H1 event (M8's halting transition) with the 3 cells left of the head.
+- 14:50 e2e Y1 world (exh#2 start, n=29917, rk policy): class b, Y1 cascade -> far tokens absorbed -> top
+  "0*2 17949 44587|0" -> "0*2 7|728" -> "0 1 4728 442|434" -> HALT I1.  21 H1 events, only the last reads 1.
+  (rk policy makes R explode after a top rebuild: killed the j=3/15 runs; use fixed or capped R.)
+- !!! RESIDUES: every accumulator R in these phases has 2R+4 = a tall tower of 2s, so R = Rinf (mod m) for any modest m,
+  Rinf = B_mod(m) (towermod): R = 1 mod 5, 0 mod 2, 0 mod 3, 16 mod 25, 366 mod 3600, 9366 mod 22500.  The test worlds so
+  far used R = 40/60/130 (= 0 mod 5): residue-UNFAITHFUL (e.g. the top rebuild list 12R+8 is 0 mod 5 really, 3 mod 5 in
+  the tests).  From now on R = 366 (+3600 i) everywhere.  runs/r366.txt.
+- 14:55 (a safety-classifier stop interrupted my turn on benign work; resumed per standing policy.)
+- 15:00-15:20 r366 worlds (R=366 fixed, residue-faithful mod 3600): k=192 and k31/P=301 reach the round-2 top rebuild
+  (0*2 7|8667, C04-like exh with y tokens 5202 4 3120 ...), round-2 key-49-like ESC at depth 4323, round-2 Y1 cascade,
+  then HALT I1 mid-walk at "... 2205 4 5 0" (H1EV left=101).  k=18/42/302: rounds repeat exactly ("0*2 7|4400" again and
+  again, 1500+ jumps): fixed-R artefact, killed.  REPORT.txt written.
+- 15:15 lead round 2: (1) Y1 rebuild count class-independent?  NO (r366: k31r1/k55 halt in round 2 mid-walk; e2e class b
+  halts after round-1 rebuild; k49/k37/k31r2 cycle at fixed R).  (2) class-robust variant search.  ARGUMENT: in the
+  M8+1 family (15 M8 transitions kept; H1, I0, I1 new, one halt) no member is class-robust: H entered only from E0=1LH,
+  so the cell right of H is E's 1; H1=xLI reads 1 iff d=0 -> both I slots used across classes -> halt at M8's point in
+  some class; H1=xRI -> I reads 1 always -> halt immediate or unreachable.  Literal: tools/f1screen.py (288 x 9 worlds,
+  2e6 steps past M8's halt) -> runs/f1screen.tsv.  (3) rho invariant: tools/cobound.py (no mod-5 coboundary up to 5^5,
+  also with a t term), tools/keyrho_mc.py (rho uniform per key-31 predecessor; key weights 31 .50, 49 .375, 37 .06,
+  55 .045, 43 .015).  Reported to lead; y1-fable (bb9_y1_fable) does the structural/invariant side.
+- M8 halt steps with --R 366 in the 9 route worlds: see tools/f1screen.py WORLDS.
+- 15:50 F1 screen DONE (runs/f1screen.tsv, tools/f1summ.py): 288 rows x 9 classes.  Every row with a halt in budget
+  has an IMM halt (<= 64 steps after M8's halt) in >= 1 class; the 59 rows with no IMM anywhere (all H1 = xRI) never
+  halt in budget (I0 unreachable).  Matches the slot argument.
+2026-10-18 (lead round 3): Z1 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LF0LC_1RG1LD_0RH0RF_---0RF, Z2 = .._0LC0LC_.. (folder z1/).
+- Z1 = M8 with H merged into F (M8's H0 = 1RG = F0; M8's halt H1 becomes F1 = 1LD) and G's 0RG loop cut: G0 -> H,
+  H1 = 0RF, H0 = HALT.  So Z1 = M8 exactly until M8's halt point, PROVIDED G never reads 00.  Z1 = the 7-state
+  X7 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LF0LC_1RG1LD_0RG0RF (champion, E0 = 1LF) plus "halt when G reads 00".
+- Local analysis: F is entered from B1 (1LF), E0 (1LF), G1/H1 (0RF).  After B1/E0 the cell right of F is a 1, so G
+  reads 1: safe.  Danger only in a RIGHTWARD SWEEP F0 G1 F0 ... / F0 G0 H1 ..., which advances over (01|001)* and stops
+  when F reads 1 (any "11" stops it); it halts iff F meets "000".  At every CL moment in all runs (Y1 and Z1, all
+  classes) there is no gap z3+ (grep): the only 000 on the tape are the blank ends.  So a halt needs a sweep that runs
+  off the right end of the written tape (or a transient 000).
+- NGramCPS (ngcps2 up to 16/12, 10/14, 14/10) and annotated ngann9 (8/8, 10/10, ann=2 g=1) all FAIL with the same
+  spurious path: a 001-sweep reaching the blank right end (ngscan_z1.txt).
+- !!! Z2 is NOT M8 through the escalations: E0 is read only at exhaustions, and Z2's E0 = 0LC changes every
+  exhaustion (resid's grid traces for Z2 diverge from M8 at the first exhaustion of each world).  Z2's lockstep-3e9 only
+  covers level 0.  Z2 must be analysed from exhaustion #1 (Kt(1^11;1;3b+2;0)).
+- runs: z1/old/ (fixed-R Z1 route runs: round cycle like Y1's, no halt), z1/z1_fg.txt (pkf7b --fglog F: histogram of
+  the 3 cells right of every F0 event, FG00 lines = F0 with 00 ahead = Z1 halt).
+2026-10-19
+- 07:45 Z1 fg runs done (z1/z1_fg.txt): 9 classes x 3e10 steps, R=366: FG00 = 0, F0 never within 148 cells of the
+  right end (= 18 tail blocks + 1001).  Longer windows ngcps2 8/20, 6/24, 10/18: FAIL.  ngann9 TC_PATH path
+  (z1/path88.txt): spurious SHORT-TAPE path (left and right windows both blank: both tape ends within the window).
+  z1/ngcps3.cpp = ngcps2 seeded from a real config (z1/seed_2117.txt, Z1 from blank at step 2117): still FAIL 6/6, 10/14.
+- !!! CORRECTION: Z2/Z3 DO reproduce M8 at macro level: from exhaustion #1 (z1/z23.txt, b=7, 366) and in all 9 route
+  worlds (z1/z2r.txt) the event views equal M8's up to M8's halt point, then continue (top rebuilds 4459, 7069, 8635,
+  ... at fixed R).  Z2 and Z3 are event-identical.  Not step-identical (E0 differs) - macro only.
+- Z2 routes (1e10 each, 5 classes done): FG00 = 0, minR = 148.  Transient z3 gaps do occur mid-exhaustion (STOP
+  snapshots), so the safety is dynamic, not "no 000 on tape".
+- Verdict sent: Z1/Z2/Z3 probable loopers (strong evidence, no proof).  OPEN_CANDIDATES updated.
+- 08:40 Z2 route worlds all 9 done (z1/z2r.txt): FG00 = 0, minR = 148 in every class; no halt.  No processes of mine running.
+- 08:50 lead: no proof for Z1/Z2/Z3; OPEN_CANDIDATES marked probable loopers + covers resid's G-chain continuers.  Stood down; no processes running.

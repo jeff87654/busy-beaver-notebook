@@ -1,0 +1,46 @@
+rank/ notes (agent: record-level estimator for dlscan2 CHAMPION / R4-SOME rows) -- started 2026-10-22
+2026-10-22 rows: 58 unique CHAMPION/R4-SOME rows (17 CHAMPION, 41 R4-SOME) from hits_triage7.tsv, prefilter/hits_dl2_1M.tsv, sample1pct/hits.tsv (hits_dlscan2.tsv empty).
+2026-10-22 plan: rk7.cpp = includes dlscan2.cpp (main renamed) -> modes trace (blank-tape literal K-trace in template, dlscan2's parser) and probe (configs from stdin -> next K / HALT / TIMEOUT).
+           rank7.py = rule-level model: f0(b)=m1 b+c1 (R1); G_1(b)=f0^(m2 b+c2)(b2); G_j(b)=G_(j-1)^(x_j(b))(K_j), x_j=m3 b+c3+e3(j-1), K_j=G_(j-2)^t..G_1^t(f0^a3(b3)).
+           FGH index propagation per level; mixed exact/mod-Q evaluation for exhaustion residues; lockstep + random-config validation.
+2026-10-22 rank7.py + rk7.exe working. Calibration: BB(7) champion est level 13.00 (true 2↑^13 3), champ_231/232 21.00 (u_j = j-1, 20 levels, ≈2↑^21 3). Lockstep 2999/2999 on c231, 24/24 champion; randcheck 60/60.
+   Pitfall: a failed Python rewrite (cp1252 can't encode ↑) truncated rank7.py -> always open with encoding='utf-8'.
+2026-10-22 settled_dl3.txt = the 18 never-halting machines of dl3_hits/REPORT.txt (run anyway as a cross-check, marked settled).
+2026-10-22 FINDING: CHAMPION rows with nonempty P (e.g. 1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1LB0LE, P=101) never reach dlscan2's R4 config K(;0;b):
+   the leading digit stays 0 and the real exhaustion K(0^n;0;b) REBUILDS ([0];0;2 -> [0,2,2,2]; [0,0];0;3 -> [0,2^17]; [0,0,0];0;2 -> [0,2^~240]).
+   So the CHAMPION grade is an artefact of probing R4 with an empty list; rank7 must use E(0^n) with the run's n, and treat literal
+   "rule says exhaustion, literal shows K" as an observed REBUILD (not a rule miss).
+2026-10-22 champion twin 1RB0RA_1LC1LF_0LD0LB_1RE0LB_1RA---_1RG1LE_0RG0RF (CHAMPION row in hits_triage7): identical K-trace to the BB(7) champion
+   (same ds,a,b at every K, fewer steps), halting ones at K(;0;b) = 6b+11 for both (b=0..8,20,21) -> SAME sigma, fewer steps. Tie, not a record.
+   rk7 'haltones' mode added (prints steps + ones at halt from K(ds;a;b)); built as rk7b.exe while the batch held rk7.exe.
+2026-10-22 !!! X33 = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE (R4-SOME, not in dl3's 18): strong evidence HALTS, sigma ~2↑^34.
+   dlscan2 template P=110 hides a top digit (P-inclusive coding: runs 1^v 0). Exhaustion rules (literal, x33/ends.py):
+   [2,0^n,0,b]: odd b<2n HALT, b>=2n -> [1,b-2n+2,2^(n-1);2;1]; [1,0^n,0,b>=2n+1] -> [b-2n+2,2^(n-1);2;1]; [B]: odd HALT (B+3 ones), even -> [2,1,2^(B/2),1].
+   Parity: F1,F2 flip, F3 keeps, F_j odd for j>=4 => b1,b2,b3 odd => HALT at [b3]. x33/chain.py: 3 moduli agree, level 33->34->34.
+   Reported to lead (SendMessage main) + appended to OPEN_CANDIDATES.txt (X33).
+   LESSON: E-pattern must be probed at b >> 2n (my first run used b<=47 with n=32 and missed the b<2n threshold);
+   'T' at large b = leaves template (hidden top digit / rebuild) -> needs P-inclusive follow-up (x33/ktr.py).
+2026-10-22 !!! Z16 = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE: HALTS (strong evidence), ~2↑^16. P=10 hidden top digit; [1,0^n,0,r]->[r-2n+1,2^(n-1);2;0];
+   true E [r] even HALT; F_j even for j>=4 -> HALT. x33/chainZ.py (3 moduli). Reported + OPEN_CANDIDATES (Z16).
+2026-10-22 Y19 = 1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG: NEVER HALTS (rule level): true E K(;0;b) (P-less template) halts iff b even;
+   top borrow K([1,0^n];0;b) -> K([3b-2n,2^(n-1)];2;1); F_j odd for j>=4 (K4=F2(10) odd, F3 keeps parity) -> every round odd -> rebuild.
+   METHOD: P-inclusive template T' = same template with P absorbed as digits (P=10 -> digit 1, P='-'); rk7 probe in T' gives top-borrow and true-E rules.
+2026-10-22 !!! CORRECTION: X33 refuted by lead's x33-check (Phi invariant, never halts) and Z16 refuted by me: dlscan2's R3 fit only collects k=1
+   borrows (it breaks at a tail digit 2), so 'tail=1 e3=0' are DEFAULTS. Real R3 (X33, Z16): refill ...-2k, tail of 2s. With tails 2 every F_j
+   flips parity -> Phi = a + b + sum(ds) invariant -> never halt. My lockstep/randcheck missed it (k>=2 borrows rare in 3000 K-configs and in
+   random configs with a in 0..6). Z16 moved to SETTLED. Retraction sent to lead.
+   FIX (in progress): rank7 refits R3 itself from k=1..4 probes (refill linear in b and k, tail digit any value, a3, b3) and targets each rule.
+2026-10-22 rank7 v2: refit_rules (R1/R2 on b>=1, R3 on k=1..4 with any tail digit), borrow-biased randcheck, two-window E probes (b<=47 and
+   b>=4n+40), literal rebuild events counted separately, rk7 follow diagnostics, automatic P-inclusive re-analysis (pinc_template: P made of
+   digits -> P='-'), round-2 sweep (class transitions of b mod per through rebuilt lists -> 'never halts' / 'HALT REACHABLE').
+   Verified on X33/Z16/Y19: all REBUILD + round-2 'never halts' (agrees with x33-check and hand Phi). Full rerun launched (rank_all.tsv).
+2026-10-22 subagent results (folders p101/, f3/; agents ended without hand-back, results read from their notes.txt):
+   P=101 family M1 1RB---_1LC0LG_1RF1RD_0RF0LE_0LC1LB_1RA0RC_1LB0LE, M2 .._1RB0LE, M3 1RB0LE_1LC0LA_..._1RB---: NEVER HALT (Lemma Q, rules literal-verified).
+   C1 1RB0RD_0RC1RG_1RD1RC_1LD0LE_0RB1LF_0LC1LE_---1RA: NEVER HALTS (r mod 3 invariant, v-coding).
+   A1 1RB0LF_1RC1RF_1LD1RE_0LA1LD_---1RA_0RB1RG_0RA0LE, A2 .._0RA1RB: HALT at 3rd exhaustion, level ~3 (3^^^3..3^^^4). Not record.
+   B1 1RB0RD_0LC1LC_1LE1LD_1RE1LB_1RG1LF_---0LE_1RA1RG: HALTS, sigma=(3^(3^82+1)+21)/2 ~ 10^(6.35e38). Not record.
+   => rank7 round-2 'never halts' was WRONG for A1/A2/B1 (R3 refit had failed: absorb rule [..,z,0,0;a]==[..;a+z+2]). Fixed: round-2 marked
+      UNRELIABLE and verdict '+RULES?' whenever the refit fails.
+2026-10-22 REPORT.txt written (final run 63 rows, no new record candidate; X33/Z16 false alarms retracted; champion twin tie; A1/A2/B1 small halters).
+2026-10-22 added find_invariants/invariant_check (linear Phi mod 2,3,4,6 over a,b,sum(ds); exhaustion classes + rebuild) and check_controls.py (champion, c231 positive; X33, i negative): ALL CONTROLS OK. X33 OPEN_CANDIDATES entry: appended my agreement update. Final rerun launched.
+2026-10-22 final rerun done (63 rows): 2 RECORD? (c231/232), 2 CLOSE (champion, twin), 20 NEVER-HALTS(invariant), 21 REBUILD, 14 LEAVES-TEMPLATE, 4 below. REPORT updated.

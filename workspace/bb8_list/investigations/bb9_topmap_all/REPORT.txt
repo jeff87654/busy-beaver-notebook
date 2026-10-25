@@ -1,0 +1,112 @@
+bb9_topmap_all REPORT: top-map + real-orbit sweep over ALL 9-state M8-extension sets (agent topmap-all, Opus;
+started 2026-10-22 18:02, finished 2026-10-23 00:17)
+==================================================================================================================
+Bars: h003 (BB(9) target, ~f_w^7(12), 4 residue rounds + M8 cascade, real orbit [4,3,1,1,0]); C7 (Coq, > f_w^6(12)).
+
+0. VERDICT
+  * NEGATIVE on both questions.
+    (a) No machine has a longer real chain of top-level rebuilds than h003.  Outside the h003 family, the M8-engine machines
+        that leave M8 BEFORE its endgame cascade reach at most 2 residue-driven top rounds, then exit.
+    (b) No f_(w+1)-shaped exit.  Every loop whose exit could depend on a non-residue quantity falls into one of three kinds:
+        a Y-type cascade rebuild (driven by the endgame class, and never observed to halt), a t-growing loop with nothing
+        that consumes t, or a fixed-R-world artefact (sec. 4).
+  * Every multi-round loop found starts at M8's own first top (Top(12B+25), t=3; W3 4417, W2 817) and continues inside
+    M8's endgame cascade.  These machines are Y-type: the cascade's output depends on the endgame class.  They are not
+    certifiable, and none was seen to halt after more than 2 W3 rounds.
+  * OPEN_CANDIDATES: nothing new to add as a candidate.  I appended an update to S063 (= c08718 here: its 'exit' branches
+    are class-dependent cascade rebuilds; demote to low) and a sweep note at the bottom of OPEN.
+
+1. MACHINE SETS AND COUNTS (tools/collect.py, canon.py)
+  The script pulls every 9-state machine string out of: halt_redirect/c7/mf_out.tsv (10366); bb9_redir/runs (all tsvs incl.
+  c7_1undef/c7_multi/c7_rest w150, 830 groups, t2_602, cs_97, cov_F, s8r_F, relay_m8); bb9_c7triage (rank_all, list_h/s/t4);
+  bb8_resid (covers9_3e8, cov/, f1/, f2/, f2r6/, q5i/, q5i150/, r9/, list_f1); bb9_y1_fable (f3/f4 lists, runs/).
+  -> 42694 distinct strings, 32789 isomorphism classes (BFS relabelling from A).  2695 classes = bb9_topmap's h003-family tree
+  nodes, skipped.  30094 screened:
+     M8E  : M8's A-D, F, G rows, free E/H/I            11475 classes
+     M8pre: M8's A-D rows only                          4402
+     other: cover relabellings of M8 (split state) and their completions   14217
+  (about 3100 classes have <= 8 reachable states.  They were screened last.)
+
+2. PIPELINE
+  W3 (--B 366 --cls 366 --mod 3600) costs ~10 s per machine under the current load (3 coqc from other agents), and its
+  2.5e8-step budget misses h003-type second tops (at 3e8).  So I screened in W2 (--B 66 --cls 66 --mod 150; R = R* mod 150,
+  hence mod 25).  In W2 the first 2 top residues mod 5 are faithful, and additive loops are faithful mod 25 forever.  W2 runs
+  all of h003 in 0.9 s (tops 819, 1283, 1565, then exit and halt) and all of C7 in 0.9 s.  W3 was used for confirmation only.
+  New simulators (copies of pkf8 + options, output identical to pkf8 on h003, md5-checked):
+    tools/pkf8n.exe  --needk S K    STOP NEEDK if no clear of depth >= K by step S (early stop for machines that never follow M8)
+    tools/pkf8t.exe  --maxtops N K  STOP after N views '<= 5 prefix tokens 1*K' (caps the rebuild loops; screen only)
+  Stage 1+2 (tools/screen.py): W2, --needk 4e6 300, jumps 60, maxt 1.5e8, maxtops 6.  Classifier tools/cls.py on the
+  run files (main top shape, arithmetic flag, t change):
+      type        M8E  M8pre  other   meaning
+      HALT-0     1853   2039   4332   halts before any top
+      NOBIGCLEAR 5437   1469   7286   no depth >= 300 clear by step 4e6 (never follows M8 to its first exhaustion)
+      NOTOP       884    163    150   big clears but no top view
+      HALT-1      609     10      5   1 top, then halts
+      HALT-2       20      0      0   2 tops, then halts (801->1275, 817->2773 families)
+      ONE         799     44    152   1 top, then long non-top activity (cascades/counters/stalls)
+      ARITH      1496    619   2157   exact rebuild loop K' = K + 12R + c, t constant (all residues mod 5 visited: non-halting shape)
+      GROW>=2     377     52    141   >= 2 tops, not arithmetic
+  Stage 3 (tools/mk_s3.py): the 1585 ONE/GROW/HALT>=2 rows fall into 226 groups with identical W2 traces.  One deep W2 run
+  per group (jumps 400, maxt 1.5e9).  Stage 4: W3 long runs (maxt 1e10-2.5e10) for the 16 best leads (runs/l1w3.tsv).
+  Fits: tools/roundfit.py (direct Top(K) starts over K, t, R, writing to temp files).
+  Short-round chains: tools/chain.py (the longest run of '0*2 7' tops with a t-step <= 3, i.e. h003-like residue rounds).
+
+3. RANKED TABLE (real residue rounds before the first class-dependent event; level ~ rounds + endgame)
+  -  h003 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI---_1RI1RC (M8E): 4 rounds + M8 cascade (halts in every class).
+       Class-robust.  ~f_w^7(12) = the bar.
+  -  C7 ..._1LH0LC_.._0LI---_1LC0RA (M8E): the C7 chain.  Class-robust.  > f_w^6(12), Coq.
+  1  801->1275 family (~60 machines, M8E), e.g. c07896 ..._0LH0LC_.._0RB0LI_---0RD (HALT I0 in W2), c07951, c08633, c17268,
+       c18685.  K0 = 12B+9 (= 1 mod 5).  K=1 mod 5: K' = 12R+(3K+12)/5.  Real K1 = 0 mod 5 -> exit.  2 residue rounds.
+       Level ~M8+2 (~f_w^4): below C7.
+  2  392->1760 family (~29, M8E), e.g. c07929 ..._0RB0RI_0LA---: 2 tops (t 1, 2), then long activity.  <= f_w^4.
+  3  c08080 ..._0LH0LC_.._0RC0LI_1LF--- (W3: tops 4417, 10949, then HALT I1) and c17344 ..._1LH0LC_.._0RI0RH_---0LC (W3:
+       4417, 10759, then HALT I0).  M8's first top -> cascade rebuild -> 1 more top -> halt.  Y-type (class-dependent),
+       2 rounds, ~M8 + 1-2 levels.
+  4  c08718 = S063 ..._0LH0LC_.._0RI1LB_1RH---, and the same pattern in c08721, c08802, c11384, c11481, c19026, c19032,
+       c19053, c19197, c12487, c08038, c08957, c14805, c26027, c26363.
+       After M8's first cascade it follows an h003-like map: K=4 mod 5: K' = 12R+(3K-7)/5; K=1 mod 5: K' = 12R+(9K+26)/5;
+       t+3 per round.  Its 'exit' classes (K=0,2) run a cascade that REBUILDS Top(12R+c') with a class-dependent c'.
+       Y-type: the round count is not residue-computable.  No halt seen (c08718 in W3: 12 tops, 2.5e10 steps, no halt).
+       Most likely non-halting.
+  5  ARITH loops (4272 classes, all families, e.g. c06879 ..._0LG0LC_.._------_------): K' = K + 12R + c, t constant,
+       every residue visited.  Non-halting shape.
+  Nothing reaches h003's 4 residue rounds.  No class-robust machine beats C7.
+
+4. MACHINES WITH A t- OR COUNTER-DEPENDENT LOOK (question b), with the fitted behaviour
+  * c08718 / S063 (and the post-cascade loops in sec. 3 row 4): t grows +3 per short round and +70..+140 per cascade round.
+    Nothing reads t: the short-round map has the same form at t = 72..90 and 323..461 (W3 trace).  The cascade output c'
+    varies with K, not with t (runs/rf_c08718.tsv: 100 starts at t=3, K = 0,2 mod 5 in 1000..1249, every start rebuilds,
+    c' = 3..8081 with no residue pattern, none halts).  Exit is class-driven, not t-driven.
+  * c12487 ..._0RH0LC_.._---0LI_1LD---: W2 tops ~800 every round (K' = 12R+c) while t = 3,55,158,281,331 grows.  A
+    cascade-round loop; t is never consumed.  W3: 1 top, no halt in 1e10.
+  * c06991 ..._0LH0LC_.._0LA1LB_------: a cycle 476 -> 780 -> 1795 -> 2260 -> 786 -> 1 -> 466 -> 780 -> 1795 with
+    t = 0 -> 149 -> 920 -> 1603 -> 2718 -> 3635.  t grows by ~R per cycle and is never consumed; I is unreachable.
+    Non-halting shape.
+  * c13064 ..._0RH0LC_.._---1RI_0RC0RI: counter consumes a 6R token, 3 per 2 counter steps, while the clear depth falls
+    1606, 1605, ...  A fixed/decreasing-depth counter is an argument shift, not a level.  Then a > 1.4e8-step stall.
+  * c26027 (cover class 1RB0RA_1LC1LG_1RD0LB_1RF1LE_0LC0LC_1RH0RA_1RH1LD_0RI0RG_---0RF): W2 segment 'A Y 0 7 1*k' with
+    A -= 3R+2, Y -= 1, k += 6R+2 over 5 steps, which looks like a countdown driving growing depths.  ARTEFACT: A is an OLD
+    token compared against the fresh accumulator.  A direct start with fresh R = 3966 > A uses A up at once
+    (k 1000 -> 3208, no countdown).  Lesson: fixed-R worlds (W2/W3) can fake countdowns whenever an old token is compared
+    with a fresh R.  Check such segments with a fresh R larger than every older token.
+  tools/countdown.py (a far token >= 50 that decreases by a small constant over >= 3 consecutive same-shape views) found
+  only c13064 and c26027 in all 30094 W2 runs + 226 deep runs.
+
+5. WHY THE M8-ENGINE SPACE TOPS OUT HERE (structural)
+  A certifiable chain needs residue-decided rounds BEFORE any endgame cascade: the machine must leave M8 at E0's far-left
+  event (step 8110), as h003 and C7 do.  All other loops enter M8's cascade first.  The cascade's end (rebuild vs halt,
+  and c') depends on the endgame class of a tower-sized K.  So those machines are Y-type, the case covered by the peek
+  theorem.  Their round counts are not residue-computable.  None of them was seen to halt after more than 2 rounds, so
+  they are most likely non-halting.  In the pre-cascade population the best maps give 2 rounds (residue K1 = 0 mod 5
+  exits).  h003's 4 rounds remain the maximum.
+  Unresolved (not candidates by structure): the 108 deep-run 'ONE' rows that STOP (1 top, then long non-top segments or
+  stalls of > 1e9 W2 steps).  Any later top-level rebuild there would start after <= 1 residue round.
+
+6. FILES
+  notes.txt (dated log), pids.txt (all own PIDs; none running at the end), machines.tsv / classes.tsv (sets, classes,
+  sources), runs/w2.tsv(.cls) + runs/W2/ (screen), runs/s3.tsv(.cls) + runs/S3/ (deep W2), runs/s3_groups.tsv,
+  runs/l1w3.tsv + runs/L1W3/ (W3 leads), runs/rf_c08718.tsv (round fit), runs/countdown1.txt, runs/s1.tsv + runs/s2a.tsv
+  (early W3 passes, superseded), runs/deep_c08062.txt.
+  tools/: collect.py, canon.py, screen.py, cls.py, mk_s3.py, chain.py, countdown.py, roundfit.py, pkf8n.cpp/.exe,
+  pkf8t.cpp/.exe, (copies) pkf8.exe, fittop.py, orbit.py, towres.py, backref_s.py.
+  OPEN_CANDIDATES.before_topmap_all.txt = backup before my two additions (S063 update; sweep note at the bottom of OPEN).

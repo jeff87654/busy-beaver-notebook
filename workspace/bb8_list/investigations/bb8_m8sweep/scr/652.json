@@ -1,0 +1,1 @@
+{"i": 652, "m": "1RB1RF_1LC1LE_0LD0LB_0RA0RG_0LC0RA_1RB0RC_1RD---", "tmpl": "R,B,P=1,u=01,s=0,d=1d+0,b=2b+1,S=1", "cls": [94], "M": 60, "runs": [{"X": "A0", "s": 0, "c": 34, "v": "g0", "snap": {"step": 0, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "652_A0_c34_g0.txt"}], "time": 1.0}

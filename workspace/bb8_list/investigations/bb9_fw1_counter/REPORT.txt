@@ -1,0 +1,46 @@
+bb9_fw1_counter REPORT (2026-10-22): 2-state counter gadget on 7-state f_(omega+1)-type loopers
+=================================================================================================
+Question: can 2 new states turn one of the 18 dl3_hits loopers (F1 r,s,h,u / F2 i,a,b,c,t,j / F3 d,f,o,n,e,g,p,q)
+into a 9-state f_(omega+1) halter (counter created once, decremented once per rebuild, halt when empty)?
+
+ANSWER: NO, at the design level. Nothing enumerated (the spec allows no gadget), nothing appended to OPEN_CANDIDATES.
+Details and the argument: PLAN.md section 1. Short version:
+
+1. Geometry (literal: tm.py look.py micro.py snap.py on r, i, d, p)
+   * v-coded odometers (digit = 1^d 0, zero digit = one 0). The accumulator grows OUTWARD at the LSD end in the
+     D-phase. The borrow walk = exhaustion walk TRANSPORTS the accumulator run toward the MSD, one cell per
+     iteration, writing the tail behind it (r: G sweeps the run, G0 extends it, C reads the next cell: C0 zero
+     digit, C1 borrow). E = the run is used up in blank territory, so the MSD frontier also moves every round.
+   * v-coding is COMPLETE: every word beyond the MSD parses as digits.
+2. Consequences
+   (a) A counter parked beyond the MSD, behind any gap (a "00" gap = two zero digits), is the leading digit: the walk
+       borrows from it and the list length freezes until it reaches 0, then growth resumes. Never halts.
+       Literal (parked.py): i [3,0,0,1] -> [2,15,2,2]; d [2,0^4,1] -> [1,14,3,2,2,1].
+   (b) Anything parked beyond the LSD end is absorbed into the list/accumulator by the first D steps
+       (lsdpark.py: r, i, d, gaps 2..30, within ~100-800 steps).
+   (c) So with the engine intact only the accumulator crosses an exhaustion; an E-end gadget sits in blank at the
+       new MSD frontier and sees a residue of A (the bb8_fw1_redirect finite-state bound, <= ~1 certified rebuild).
+   (d) A gadget on a walk/borrow slot fires in normal borrows too. Two states can look at most two cells past the
+       found digit and every such pattern (11, 10, 01, 00) occurs in normal borrows, so no branch is free (worked
+       for r's C1 in PLAN.md). A counter on these engines needs a unary block transported with the walk (>= 3
+       extra states) or a different coding.
+3. W1-LOOPER rows of dl3_triage7 (4): tape span ~ sqrt(t) to 1.07e9 steps (e.g. 51,729 cells): polynomial, not
+   record class.
+4. Side screen: the dlscan3 LOOPER/REBUILD/MULTI pool (573 distinct 7-state rows of dl3_hits + dl3_triage7, incomplete
+   codings u = 110/01/10 with an MSD prefix P). geo.exe (2.7e8 steps each, geo_all.tsv): 489 grow on ONE side with a
+   STATIC MSD end (the BB(13)-champion geometry "(110)^n 1 0 [inner] 1^b"), 16 drift slightly (mostly ~20-cell
+   counters), 68 small growth, 0 halts. E-probe (kmom.exe) on 1RB---_0LC0RG_1LE1LD_1LC0LB_0RF1RD_1RB1RD_1RE0RA:
+   the MSD end stays fixed through several rebuilds.
+   These are better hosts than the 18 (a counter beyond P survives rounds), but with P static the looper never
+   touches the cells beyond P, so a gadget must (i) invert the end test (hook clone: blank beyond P -> halt),
+   (ii) decrement at the counter's FAR end (sweep out, erase, sweep back) or move P, and (iii) build the counter.
+   That is >= 3-4 states with the engine kept: not a 9-state design. Possible only by luck (an existing state
+   doing the return sweep) - not enumerated.
+
+Recommendation: close the 18-base / 2-state route. A 9-state f_(omega+1) counter needs an engine that already
+moves its separator per round (BB(14)-style 1^(2n+r) 00 1 0 eating) or already creates a counter (BB(15)-style);
+none of the 573 dlscan3 loopers shows such drift within 2.7e8 steps (only 1-3 exhaustions are visible there, so a per-round drift check needs E-probes per template: not done beyond one machine).
+
+Files: PLAN.md notes.txt | tm.py look.py micro.py snap.py slotuse.py slotev.py | parked.py lsdpark.py |
+width.cpp/.exe (span growth) geo.cpp/.exe (geo_all.tsv, pool.tsv) peek.cpp/.exe kmom.cpp/.exe idlerun.py | pids.txt.
+CPU: ~1 core-hour at Idle priority (2 cores for the geo screen).

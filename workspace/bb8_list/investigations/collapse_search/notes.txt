@@ -1,0 +1,44 @@
+collapse_search notes (agent collapse-search, Opus, started 2026-10-23 09:12)
+2026-10-23 09:10 setup. Prior art read: bb8_resid (collapse2.py syntactic, dyncollapse.exe observational; n1/T12a/M13/M14/fw2
+  no collapse; set8 = all 8-state champion+H with E0->H screened, only M8+twins), bb9_topmap_all (30k 9-state M8 extensions).
+  Built src/cand.py (families D: delete X + retarget incoming (33 options each); DR: delete X, incoming -> Y (any w,d),
+  Y's two slots free (34 options each); M: merge X,Y) and src/cfollow.cpp (lit / world / dump / prof modes).
+  lit = literal runs from a battery of starts (blank + configs dumped after every jump of the parent's jump world with
+  R = 6, 30, 126), compare EDGE MOMENTS (head on 0 next to the outermost 1; full tape hash) with relay tolerance (skip<=3),
+  online abort + moment-gap cap.  ~2.5 ms/candidate.
+09:45 POSITIVE CONTROL (lit): M8 (as relabelled DRFG candidate of C04: delete G, F0 -> 1R(I), ...) passes 63/63 C04 starts;
+  30 random C04 candidates: 0 pass.  Bug fixes on the way: quadratic R1/L1 rescans (lazy bounds), final-stretch gap.
+09:50 launched full lit screens: cand_c04 (499,305) and cand_h003 (743,757) vs 63 / 32 starts, N = 2e6.
+09:50 C04 control DONE: 499,305 candidates, exactly ONE passes all 63 starts = M8 (relabelled, DRFG); no near-misses (nobody
+  passes >= 1 start with <= 1 failure).  h003 DONE: 743,757 candidates, NO literal collapse; 421 pass exactly one start
+  (the blank start, which never reaches an E0 event in 2e6 literal steps), the one 'pass' DRBI is B relocated into I's slot
+  with all B-starts unmapped (a relabelled D(I) variant; its proper-map twin fails).  C7 DONE: same picture (0 collapses).
+  set8 world screen crashed (bad_alloc: runaway tape) after 63 rows -> width cap (2^27) added, remainder relaunched.
+10:00 n1: B-form starts (src/bform.py, verified vs literal n1 at steps 6447 and 48159), 65 forms covering stage 0 and the
+  P1/P2/P4 shapes with small parameters + endgame m = 0..6.  Bisim (prof over the 65 starts): only J~E NEAR (J1 = E1 =
+  0LC; J0 halt vs E0 1LI, 3 events): the halting peek, not mergeable.  cand_n1 = 2,463,080 (D(C) alone 1.87M).
+10:05 C7 + twins (1RA,0RF,1LG) lit DONE: no literal collapse (only the B-relocated DRBI pseudo-pass, see h003).
+  Synthetic control for the n1 starts: n1 with I split (I1 -> K, K = copy of I) -> cand --only K recovers n1 exactly
+  (DK, 66/66 starts); near-miss I0 = 0LE (J~E merge) passes 53, fails the 2 halting starts.
+  Bisim (prof, worlds R=6,66): h003/C7/twins: no compatible pair; M8: H~F NEAR (H0 = F0 = 1RG, H1 halt vs F1 1LD = halting
+  peek; merge -> no halt); n1: J~E NEAR (peek); T12a: J~E, L~K NEAR (peeks; K1 unused in the B-form starts).
+10:40 set8 (complete engine-preserving 8-state family: champion core + E0 -> H + H0,H1 free, 260 rows) in world R=66
+  (R = R* mod 150), 1e9 steps: halters: 165 with 1 escalation, 8 with 2 (M8 and its 4 twins: 11,817 ones 3283-3284;
+  3 rows 11,12); NO halter with >= 3 escalations.  Non-halting with >= 3 escalations: 49 rows, all UNIFORM additive
+  rebuild loops (K' = K + 795..800 per round, or +398/+796 alternating), no K-residue dependence -> no exit (bb8_resid:
+  the xRH rows never halt, H reads 1).  Every core-preserving D/DR/M candidate of h003/C7/twins is in set8 or has an
+  unreachable H (121 strings with E0 -> core state).
+10:15 M8 -> 7 lit DONE (334,377 cand, 62 starts): no collapse; best = BB(7) champion itself (E0 = halt; also as DREH
+  relabel), 9/11 starts then fails the 2 starts where M8 continues past E0.
+10:30 n1 -> 9 lit DONE (2,463,080 cand, 66 starts): no collapse.  The one blank-only pass (DRHI, H relocated) retested with
+  the corrected map 01234567.8: fails at moment 2 of the B-form starts.  Non-core near-miss profile (I/J deletions and
+  merges, 40,928): best candidates match the parent until the first E0 event (moment 2 of each B-form start), then fail.
+10:40 h003 non-core near-miss profile (DH/DRH/DRI/MH/MI, 32,272), small worlds: best match 21-22 of ~1600 moments of the
+  first post-jump start = up to the first far-left H0 event.  Faithful world R = 366 (R* mod 3600), N = 2e7, stopped after
+  DH+DRH complete + 2418 DRI: same divergence point (moment 1101-1102 of 2047, the far-left event of exhaustion #1).
+  Slot budget: h003 uses 17 non-halt slots (all but H1); an 8-state table has <= 15 non-halt slots, so 2 used behaviours
+  must disappear: needs a relay state (lit: none) or two compatible merges (bisim: none).
+10:50 T12a -> 11 DONE (318,085 cand, I/J/K/L only): no collapse.  179 near-misses pass 65/66 n1-battery starts (n1 + junk,
+  single-peek variants); rescreened on 40 random endgame B-forms where n1 halts at J0 (starts_t12j): all fail at their
+  2nd failed start (best 4/40, L deleted with K0 = 0RD).
+10:55 REPORT.txt written.  Large regenerable candidate lists deleted (python src/cand.py MACHINE).  No own process running.

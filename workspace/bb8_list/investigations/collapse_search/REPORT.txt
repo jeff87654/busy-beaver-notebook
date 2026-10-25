@@ -1,0 +1,158 @@
+collapse_search: systematic state-collapse search on h003, C7 (+3 twins), n1, T12a and M8   (agent collapse-search, Opus,
+2026-10-23 09:10-10:55; notes.txt = dated log, pids.txt = every PID I launched)
+=======================================================================================================================
+
+0. VERDICT
+----------
+NEGATIVE for every target.  No (n-1)-state machine reproduces any target, literally or at the macro level.
+  (a) h003 -> 8 states:   no collapse.  No 8-state machine with the champion engine shows more than 2 escalations and halts.
+                          M8 and its 4 twins are the best.
+  (b) C7 + twins -> 8:    no collapse.  The same 8-state family applies, so the same answer.
+  (c) n1 -> 9 states:     no collapse.  J is a halting peek (J1 = E1), and I is an irreducible sweeper.
+  (d) T12a -> 11 states:  no collapse.  K and L are halting peeks; best near-misses are n1 itself.
+      M8 -> 7 states:     no collapse.  The best near-miss is the BB(7) champion itself (E0 = halt).
+Controls:
+  * M8 FOUND from C04: yes.  It is the only one of 499,305 C04 candidates that passes all 63 starts.
+  * A synthetic n1 with a split sweeper collapses back to exactly n1: 66/66 starts.
+  * Negative controls: 30 random C04 candidates pass 0 starts.  Over all screens, no non-trivial candidate passed every
+    start (only the parent copies of the controls and the relocation artefacts of sec. 3).
+Nothing record-beating: OPEN_CANDIDATES.txt is unchanged.
+
+Structural reason (slot budget, holds for all five targets).  Every target uses ALL its non-halt slots in the profiled
+worlds (bisim "unused slots: -"; T12a: K1 unused, the halt).  An (n-1)-state table has 2 fewer slots and still needs a halt.
+So a collapse must remove >= 2 used behaviours (one for M8 -> 7 / T12a -> 11).  There are only two ways to do that:
+  * a relay state, whose entries net to one step (C04's G, found by the literal screen);
+  * two states whose used slots agree after merging.
+The literal screen finds no relay in any target, and the bisim pass finds no compatible pair.  Every "NEAR" pair is a
+state that agrees with another except on its halt slot (a halting peek):
+  * n1 J ~ E (J1 = E1 = 0LC; J0 halts, E0 = 1LI);
+  * M8 H ~ F (H0 = F0 = 1RG; H1 halts, F1 = 1LD);
+  * T12a J ~ E and L ~ K.
+Merging away a peek removes the only halt.
+
+1. METHOD AND TOOLS (src/)
+--------------------------
+cand.py   Candidate generator, n -> n-1 states (start state A is never deleted; every candidate must keep >= 1 halt slot):
+  D  X     Delete X.  Every incoming transition becomes any (w,d,T) with T kept, or halt (4(n-1)+1 options each).
+  DR X Y   Delete X.  Incoming transitions are retargeted to Y with any (w,d).  Y's two slots are each either unchanged or
+           any of the 4(n-1)+1 options (Y absorbs X).  Only when in(X) <= 3.
+  M  X Y   Merge X and Y.  Each slot is taken from X or Y, or, for at most one slot, any option.  (M is nearly a subset of DR.)
+  Exact duplicates are removed.  Each candidate carries a state MAP (parent -> candidate) used to start it in the parent's
+  configurations.
+cfollow.cpp (cfollow3.exe = current build; cfollow.exe / cfollow2.exe are older builds used by the first runs).  Modes:
+  lit    Literal runs from a battery of START configurations.  Each run records EDGE MOMENTS: the head is on a 0 next
+         to the outermost 1, and the moment stores a full-tape hash.  A candidate passes a start if its moment sequence
+         matches the parent's with relay tolerance (<= 3 skipped moments per side at a mismatch) and it halts iff the
+         parent halts.  The run aborts online at the first mismatch, after 2 failed starts, or after a moment gap more
+         than twice the parent's.  Cost: about 2.5 ms per candidate.
+  world  Jump world, a port of hsim's champion CL jump with R := Rdef for every clear.  Reports escalations
+         (new-max-K clears), CL list, halt and ones.
+  dump / ldump   Write start configurations: after every jump of a jump world, or every E-th literal edge moment.
+  prof   Slot-use counts and the entry context of each state, for the bisimulation pass.
+bisim.py   Observed-behaviour merge test over prof outputs.  COMPATIBLE: the used slots agree modulo X~Y.  NEAR: they
+           conflict on <= 2 events per profiled run.
+bform.py   n1-style B-form starts [L|A] -> tape.  Verified against literal n1 at steps 6447 and 48159.
+s8sum.py   World summary.  nearmiss.py: ranks lit output.  canon.py: BFS relabelling.
+runseq.sh / launch.ps1   Sequential Idle-priority launcher that logs PIDs.
+
+START BATTERIES (faithful worlds = the parent's own macro configurations):
+  champion-engine targets  Blank start, plus the configuration right after every CL jump of the parent's jump world with
+                           R = 6, 30 and 126.  Counts: C04 63, h003 32, C7 63, twins 35-38, M8 63.  These include every
+                           top branch, the exits, cascades and halts that occur in those worlds.  h003 was re-checked in
+                           the residue-faithful world R = 366 (R* mod 3600) with N = 2e7.
+  n1                       Blank start plus 65 B-forms: stage 0, the P1/P2/P4 shapes with small parameters, and endgame
+                           forms with m = 0..6.
+  T12a                     The n1 battery, plus 40 random endgame B-forms in which n1 halts at J0, i.e. where T12a
+                           diverges from n1 (T12a halts at L1 in 19 of them and continues in 21).
+  Literal horizon N = 2e6 parent steps per start.  A candidate gets 1.5N steps.
+
+2. RESULTS PER TARGET
+---------------------
+target           cand.       starts  full pass  near-misses (best) and why they fail
+---------------  ----------  ------  ---------  ----------------------------------------------------------------------
+C04 (control)    499,305     63      1 = M8     none.  Every other candidate fails >= 2 starts.
+h003 -> 8        743,757     32      0          421 pass exactly 1 start: the blank start, which never reaches an E0
+                                                event in 2e6 literal steps.  Non-core profile (DH/DRH/DRI/MH/MI, 32,272):
+                                                the best match 21-22 of ~1600 moments, then diverge at the first FAR-LEFT
+                                                H0 event (h003's H0 -> I0 x3 -> I1 sweep).  Same divergence in the
+                                                faithful world R = 366 (moment 1101 of 2047).
+C7 -> 8          743,757     63      0          Same picture as h003 (421 pass only the blank start).
+C7 twins 1RA/    743,757 /   35-38   0          Same.  The I~G pair of twin 0RF (I1 = G1 = 0RF) conflicts on I0 in
+  0RF/1LG        1,015,393 /                    840 events.
+                 813,913
+set8 (all 8-st.  260         world   n/a        Run in world R = 66 (R = R* mod 150, faithful mod 25), 1e9 steps.
+  champion+H)                R=66               HALTERS: 165 with 1 escalation; 8 with 2: M8 + 4 twins (11, 817; ones
+                                                3283-3284) and 3 rows with (11, 12).  NO halter with >= 3 escalations.
+                                                NON-HALTING with >= 3 escalations: 49 rows, all uniform additive rebuild
+                                                loops (K' = K + 795..800 per round, or +398/+796 alternating, up to 40
+                                                rounds).  Their shape does not depend on K's residue, so no exit.  The
+                                                xRH rows never halt (bb8_resid: H reads 1).  Every core-preserving D/DR/M
+                                                candidate of h003/C7/twins is in set8, or has an unreachable H (121
+                                                strings with E0 -> core).
+M8 -> 7          334,377     63      0          The BB(7) champion (DH:0, and its DREH relabel) passes 9 of 11 tested
+                                                starts, then fails the 2 starts where M8 continues past E0.  The bisim
+                                                NEAR pair is H~F (merge -> no halt slot).
+n1 -> 9          2,463,080   66      0          Non-core profile (I/J, 40,928): the best match up to the first E0 event
+                                                of each B-form start (moment 2), then fail.  J~E NEAR (peek).
+T12a -> 11       318,085     66+40   0          179 pass 65/66 n1-battery starts.  These are n1 plus junk, or
+  (I,J,K,L                                      single-peek variants.  On the 40-start J0 battery all fail at their
+  deletions)                                    2nd failed start: best = L deleted with K0 = 0RD, 4/40.  They
+                                                differ from T12a exactly where T12a halts at L1 or continues.
+Synthetic        55,761      66      1 = n1     n1 with I1 -> K, K = copy of I.  Near-miss: I0 = 0LE (the J~E merge),
+  n1+K (control)                                53/66; it fails only the halting starts.
+
+3. ARTEFACTS AND HOW THEY WERE RESOLVED
+---------------------------------------
+* Relocation pseudo-passes.  These are DR(X,Y) where X is the start state of every non-blank start (B for the champion
+  targets, H for n1) and Y is rewritten into a copy of X.  The candidate then passes only the blank start, because all
+  other starts are "unmapped".  Each was resolved:
+  - h003, C7 and the twins: the canonical twin is "D(I) with H0 -> xLB".  It is in the same list with a B-preserving map
+    and failed.
+  - n1: re-run with the corrected map 01234567.8; it fails at moment 2.
+* The first set8 run crashed (bad_alloc on a runaway tape).  A tape-width cap was added and rows 64-260 were rerun.
+* The world-mode CL jump is valid only for an unmodified champion core.  That is why macro (world) comparison was used only
+  on core-preserving candidates (set8).  Core-modifying candidates are judged by the literal screen, whose post-jump
+  starts exercise the clears literally.
+
+4. WHAT IS NOT COVERED (honest limits)
+---------------------------------------
+* The literal screen detects collapses that are tape-equal up to relays.  An "observational" collapse that differs from the
+  parent only on configurations unreachable in the real run, through a residue invariant, would be rejected in the
+  small-R worlds.  For h003/C7 the best non-core candidates fail at the class-independent far-left event, in both the small
+  and the R = 366 worlds.  For n1 they fail at the first E0 event of every B-form.  So no such case is near.
+* Macro twins with a DIFFERENT engine (not the champion core for h003/C7, not GH for n1) are outside any collapse notion.
+  They were not searched.  For n1 the engine-preserving 9-state family (GH + 1 state) was closed earlier by the bb9 fw1
+  search ("GH bases +1", see memory/bb9-fw1-search-status).  It was not re-run here.
+* T12a: only deletions or merges of I, J, K, L were generated.  Deleting or rewriting a GH-core state fails at once for
+  n1 (n1 lit: all 2.46M fail), and T12a = n1 on those starts.
+* Transformations that need 2 deletions plus 1 new state were not enumerated.
+
+5. COST
+-------
+CPU: about 4 core-hours, at most 2 cores, Idle priority.
+  * lit screens: C04 12 min, h003 13, C7 4, twins 15, M8 7, n1 15, T12a 45.
+  * set8 world: about 65 min.
+  * near-miss and faithful runs: about 45 min.
+  * dumps/prof: about 10 min.
+Tokens: about 300k.
+
+6. FILES (bb8_list/investigations/collapse_search)
+-----------------------------------------------
+src/cand.py cfollow.cpp bisim.py bform.py s8sum.py nearmiss.py canon.py ; cfollow3.exe ; launch.ps1 runseq.sh ;
+jobs1.txt jobs2.txt
+runs/
+  starts_{c04,h003,c7,c7tw*,m8,n1,t12,t12j}.txt   start batteries
+  starts_h003_R366.txt                            faithful-world starts for h003
+  dump_*                                          the jump-world runs the batteries came from
+  lit_<target>.txt / .err                         kept candidates + npass histogram
+  litnc_h003.txt, litnc366_h003.txt, litnc_n1.txt, lit_t12j.txt   near-miss profiles
+  w_set8_R66.txt + w_set8b_R66.txt                set8 world screen
+  set8.txt                                        the 260 rows
+  prof/                                           bisim profiles
+  t12_forms.txt                                   random endgame B-forms
+Candidate lists: the large runs/cand_<target>.txt files were deleted to save disk.  Regenerate them with
+  python src/cand.py <MACHINE>            (T12a: --only I/J/K/L, then merge)
+They are deterministic and identical to the screened lists.
+Reproduce a screen:
+  cfollow3.exe lit <PARENT> runs/cand_<t>.txt runs/starts_<t>.txt 2e6
+  cfollow3.exe world <PARENT> runs/set8.txt --Rdef 66 --maxs 1e9

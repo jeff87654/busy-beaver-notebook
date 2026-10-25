@@ -1,0 +1,78 @@
+2026-10-22 start x33-check: X=1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE
+2026-10-22 coding: K-moment = state A, head on the 0 just right of the rightmost 1. Tape from leftmost 1 to head-1 split on '0' -> [d1..dn; b] (b = last run).
+   Own sim.py/ktrace.py reproduce: 32 [2,1;1], 44 [2,0;4], 80 [1,6;1], 338 [21;1], 1850 [64], 4442 [2,1,2^32;1]. (rank's chain matches up to here.)
+2026-10-22 fitted (from trace): D [..,d+1;b]->[..,d;b+3] (12 steps at b=1; 2b+10?), Bk [..,y+1,0^k;b]->[..,y,b-2k+4,2^(k-1);1].
+   !!! Both preserve Phi = b + sum(ds) mod 2 (D: -1+3; Bk: -1+(b-2k+4)+2(k-1)+1-b = 2). Phi=0 at every K so far (68 at 4442).
+   If rules hold generally, B at every true exhaustion [B] is EVEN -> rebuild -> the claimed halt at [b3] is impossible. CHECKING literally.
+2026-10-22 VERIFIED RULES (own lit.exe = literal C++ K->K runner; rules.py predict; randtest.py/randtest2.py/grid.py/etest.py/stepfit.py):
+   Config K(ds;b): tape 0^inf 1^d1 0 1^d2 0 ... 1^dn 0 1^b [A on 0] 0^inf  (leading zero digits = blank, dropped).
+   D : K(..,d+1; b)        -> K(..,d; b+3)                          any d>=0,b>=0       steps 2b+10
+   Bk: K(..,y+1,0^k; b)    -> K(..,y, b-2k+4, 2^(k-1); 1)  k>=1     PRE b >= 2k-2      steps 2(k+1)b - 2k^2 + 12k + 10
+       (y=0 at the top: leading 0 vanishes.)  b <= 2k-3: odd b HALTS (G0), even b -> other K (not used). Grid k<=13, 6 prefixes: boundary exact, prefix-independent.
+   E : K(;B) (all digits 0/blank) : B even -> K(2,1,2^(B/2); 1) steps B^2/2+8B+32 ; B odd -> HALT with B+3 ones after B^2/2+6.5B+17 steps (G0 undefined). Checked B=0..1200 all.
+   Blank tape = K(;0): E with B=0 -> K(2,1;1) at step 32 (matches).
+   Random literal tests: 800 configs (lists up to 36 digits, digits up to 5000, b up to 20000), 0 misses inside PRE.
+2026-10-22 !!! INVARIANT Phi = b + sum(ds) mod 2: D changes by +2, Bk by +2, E-rebuild gives Phi = B+4 = B (even). Blank: Phi=0.
+   => at every true exhaustion K(;B), B is EVEN => rebuild, never the odd halt. The only other halt is Bk with odd b<=2k-3 (size-excluded, see below).
+   => X NEVER HALTS (rule level), same mechanism as its sibling i. The rank claim "F3 preserves parity" contradicts Phi: every F_j flips b's parity
+      (F_j decrements one digit by 1 and leaves the lower digits 0, so Phi-invariance gives F_j(b) = b+1 mod 2 for all j).
+   X vs i: i's borrow returns b=0 and refill b-2k+5 (G1=0LG writes 0); Phi invariant for i too. Same family, same invariant.
+2026-10-22 RANK ERROR LOCATED: rank/x33/chain.py models borrows with dlscan2's 'R3 1b+0+0k tail=1 a=2 b=1' (rank7.py line 142: tail digits = R['tail'] = 1).
+   Literal: K(1,0,0,0,0;50) -> K(46,2,2,2;1) (526 steps); K(3,0^5;40) -> K(2,34,2,2,2,2;1). Tail digits are 2, refill b-2k+4 (their k = mine-1: b-2k+2).
+   1-instead-of-2 tail digits shift Phi by k-1 => their K_j / F_j parities (F3 'preserves', K_j odd j>=4) are artefacts. Their coding at 180940 = mine
+   (K(2,1,2^29,1,87,67;646)); only the rule is wrong. Their exhaustion rules (ends.py) are right; the F_j iterate is not.
+2026-10-22 SIZE PRECONDITION PROOF (paper): u_j(b) := one unit at position j (positions 1..j-1 zero, digit j decremented, lower positions cleared again).
+   u_1(b)=b+3; u_j(b)=u_(j-1)^r(T_(j-1)), r=b-2j+6 (borrow over j-1 zeros), T_m := clear [2^(m-1)] from b=1: T_1=1, T_(m+1)=u_m^2(T_m).
+   Induction: T_m >= 2m-1; for b>=2j-4: all inner borrows meet PRE, r>=2, u_j(b) >= T_(j-1)+3r >= 3b-4j+15 >= b+3.
+   Real run segment from rebuild K(2,1,2^n;1): units at position j enter with b >= T_j >= 2j-1 >= 2j-4 => PRE always holds; zero digits never
+   appear except as fully-cleared lower positions; the segment ends in E(B), B even by Phi => rebuild with n=B/2. Blank = E(0).
+   => X NEVER HALTS: B_0=0 -> [2,1;1] -> B_1=64 (step 1850) -> [2,1,2^32;1] (4442) -> B_2 even (~f_33-scale) -> [2,1,2^(B_2/2);1] -> ... forever.
+2026-10-22 lockstep: 3000 consecutive K-steps from blank literal-exact (1.07e7 steps), Phi even at all. Long run in background (lockstep_long.log).
+2026-10-22 ===== COQ-READY SPEC (x33-check) : X NEVER HALTS =====
+ Machine X = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE. Only undefined transition: G0.
+ Tape notation left->right, 0^inf at both ends. Digit d coded 1^d 0. [S] = head in state S on the next cell.
+ K(ds;b)   := 0^inf 1^d1 0 1^d2 0 ... 1^dn 0 1^b [A] 0^inf          (leading zero digits are blank; Phi := b + sum ds)
+ Q(L;m,c,t):= L 0^(m-1) [E] 0 1^c (0 1 1)^t 0 R                       (E on the RIGHTMOST of m zero cells; L ends with 1 or is 0^inf)
+ MICRO LEMMAS (each checked literally; steps exact):
+  S  (start)  ... 1^b [A] 0 0 R      -(b+5)->  ... [E]0 1^(b+2) 0 R      (A0 B0 C0 D0, then E1 over b+1 ones; [E] lands on the 0 left of 1^b)
+              i.e. K-tail "0 1^b [A]" becomes Q(..; m, b+2, 0) where m = number of 0 cells left of 1^b (1 + trailing zero digits).
+  LOOP  m>=2, c>=2 : Q(L;m,c,t) -(2c+5)-> Q(L;m-1,c-2,t+1)          (E0 1LB, B0 0RC, C1 x(c+1), C0 0LD, D1 1LF, F1 1LG, G1 0LE, E1 x(c-2)) [300/300 random contexts]
+  HALT  m>=2, c=1  : Q(L;m,1,t) -7-> G on a 0 = HALT, ones = 2+2t+ones(L)   (E0,B0,C1,C1,C0,D1,F1 then G0)
+  FIN   m=1, L = L' 1^(y+1):  L' 1^(y+1) [E]0 1^c (011)^t 0 R -(c+3+3t)-> L' 1^y 0 1^(c+1) (101)^t [A]0 R   (E0 1LB, B1 0RA, A1 x(c+1), (A0 1RB,B1 0RA,A1 1RA) x t)
+              = digits ..,y, c+2, 2^(t-1), b=1  (t>=1)   or   ..,y ; b=c+1 (t=0)
+  EVEN  m=inf, c=0 : 0^inf [E]0 (011)^t 0 R -(3t+15)-> K(2,1,2^(t-1);1)   (t>=1; literal B=6: steps 71->98)
+ MACRO RULES (compositions; each also verified against literal runs: 800 random configs, B=0..1200, 3000-K lockstep):
+  D : K(P,d+1;b)        -> K(P,d;b+3)                        = S + FIN(t=0)                        steps 2b+10
+  Bk: K(P,y+1,0^k;b)    -> K(P,y,b-2k+4,2^(k-1);1)   k>=1, PRE b>=2k-2 (last LOOP has c=b-2k+4>=2)
+                          = S + k*LOOP (c_i=b+2-2i) + FIN(t=k)                                      steps 2(k+1)b-2k^2+12k+10
+       b<=2k-3, b odd: HALT (HALT lemma reached with c=1). b<=2k-3 even: leaves family (never reached).
+  E : K(;B), B even     -> K(2,1,2^(B/2);1)    = S + (B/2+1) LOOPs (m=inf) + EVEN(t=B/2+1)          steps B^2/2+8B+32
+      K(;B), B odd      -> HALT, B+3 ones      = S + (B+1)/2 LOOPs + HALT(t=(B+1)/2)                steps B^2/2+6.5B+17 (+1 if the halting step is counted)
+  Blank tape = K(;0).
+ PARITY LEMMA: D and Bk add exactly 2 to b+sum(ds); E-even gives Phi = 2+1+B+1 = B+4.  => Phi(c) = 0 mod 2 for every K reached from blank.
+ UNIT / CLEAR LEMMAS (mutual induction on j; all borrows inside meet PRE):
+  unit_j(b): K(P,x+1,0^(j-1);b) ->+ K(P,x,0^(j-1);u_j(b)).  u_1(b)=b+3 (D).  j>=2, b>=2j-4: Bk(k=j-1) then clear_(j-1) of [b-2j+6, 2^(j-2)] from b=1.
+  clear_m: K(P,d_m..d_1;b), all d_i>=1, b>=1 ->* K(P,0^m;b'), with entry value >= 1+3(i-1) >= 2i-4 at each position i (each unit adds >=3).
+  Bounds: u_j(b) >= 1+3*(#top-level units) = 1+3(b-2j+6)+3*2(j-2) = 3b+7 >= b+3.  u_j(b) = b+1 mod 2 (Phi).
+ RUN INVARIANT / MAIN THEOREM: blank = K(;0). For B even: K(;B) ->+ K(2,1,2^(B/2);1) ->* K(;B') via clear_(B/2+2) (all digits >=1, b=1),
+  B' = Phi = 0 mod 2, B' > B. So the machine visits K(;B_i), B_0=0, B_1=64, B_2 even, ... forever, never reaching G0.
+  (Halts are only possible via HALT inside Bk with c=1 (excluded: PRE holds by clear_m) or E with B odd (excluded: Phi).)
+ Suggested Coq: progress_nonhalt / closed-set style with predicate P(c) := exists B even, c = K(;B); prove K(;B) ->+ K(;B') with B' even
+  from the macro rules by induction (unit_j/clear_m mutual induction on j with b >= 2j-4).
+2026-10-22 REPORT.txt written (verdict: NEVER HALTS). OPEN_CANDIDATES updated.
+2026-10-22 lockstep stopped by me (PID 54243) at: round 48: 96726 K-steps verified literal, 13391320162 steps, now len=34 b=190456 last digits [2, 1, 82, 5404]
+2026-10-22 TASK 2: Z = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE (rank claims halts ~2^^16), Y19 = 1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG (rank: never halts)
+2026-10-22 Z = 1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE: NEVER HALTS (rule level). Differs from X only in F0 (end-game of E-even).
+   K-trace: 26 K(1,2;1) | 38 K(1,1;4) | 56 K(1,0;7) | 104 K(9;1) | 428 K(;28) | 1070 K(1,2^15;1).  (rank's "[1,2^16] at 1071" = same, their coding.)
+   D, Bk identical to X (ztest.py: 700 random + grid, 0 misses in PRE; small odd b halts, even leaves). Literal K(1,0^4;50)->K(46,2,2,2;1).
+   E_Z: B even -> K(1,2^(B/2+1);1); B odd -> HALT, B+3 ones (B=0..29). Rebuild Phi = 1+B+2+1 = B+4 -> even. Phi=0 from blank.
+   lockstepZ.py: 8000 K-steps from blank exact (7.3e7 steps), Phi even at all. Unit-growth PRE proof as for X (rebuild digits all >=1, b=1).
+   Rank's chain used dlscan2 'R3 3b+1 tail 1' again; the rank agent has since refuted Z itself (OPEN_CANDIDATES Z16 entry). Independent confirmation appended.
+2026-10-22 Y19 = 1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG: NEVER HALTS (agree with rank). Halt = E0.
+   K-moments: skip transient K with empty last run (lit2.exe flag 1; [..,x;0] -> [..;x+2] is mid-macro). Blank -> K(1;1) at 9.
+   D K(..,d+1;b)->K(..,d;b+3);  Bk K(..,y+1,0^k;b)->K(..,y,b-2k+1,2^(k-1);4) iff b>=2k+1 (grid k<=11: b<=2k odd HALT, even leaves);
+   E K(;B): odd HALT (B+1 ones); even: B=0 -> K(1;1), B=2 -> K(1;5), B>=4 -> K(1,3,2^(B/2-2);4) (B=0..21).
+   Phi=b+sum: D +2, Bk -1+(b-2k+1)+2(k-1)+4-b = +2, rebuild Phi = B+4 (B>=4), 2 (B=0), 6 (B=2). Phi=0 always -> B even -> rebuild.
+   PRE: u_j(b) for b>=2j-1: r=b-2j+3>=2, result >= 4+3(r+2(j-2)) = 3b+1 >= b+3; clear enters position i with b >= 4+3(i-1) >= 2i-1.
+   ytest.py: 800 random (b>=1, b>=2k+1) 0 misses; lockstep 6000 K-steps from blank exact (3.6e7 steps), Phi even at all.
+2026-10-22 lead: Z task cancelled (rank agent retracted Z itself with the same Phi argument). Z/Y19 checks above were already complete when the cancel arrived; stopping. No processes running.

@@ -1,0 +1,1 @@
+{"i": 365, "m": "1RB0RG_1RC0RA_1LD1LE_1LB0LC_0LD0RF_0LA0RF_---1LA", "tmpl": "R,A,P=1,u=01,s=0,d=1d+0,b=2b+1,S=0", "cls": [94], "M": 60, "runs": [{"X": "E0", "s": 0, "c": 34, "v": "g0", "snap": {"step": 5, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "365_E0_c34_g0.txt"}], "time": 1.1}

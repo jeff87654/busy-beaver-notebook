@@ -1,0 +1,35 @@
+1	L1	unary (1100)^6936 list, d1 x d2 count ACC x9 cycles	~3^^7000 per round (3 arrows/round)	L1
+2-3,45-46	H1class	f_omega digit list, groups 10^x01^y split by 00, borrow refills next digit with ACC	level ~42 (H1) / ~1500+ (c01) at 1st exhaustion; f_(w+1) loop	H1
+4-5	c03c04	top digit 01^4 counts rounds, list (10^2 00)x~ACC/3 consumed 1 item per exp	level ~4	G
+6	c05	list (01 11^2)x240 + binary counter	level ~3	G
+7-8,26-31,48-49	shuffler	additive transfers, lists regrow x1.4/round, no acceleration	polynomial/exponential	G
+9-10	M8c08	001101^165 list + M2-type eater	<= ~2^^165 (level ~3)	G
+11-24,59-60,67-76,87	c671	groups 10^x01^y; G1.c exp digit (656/671), G2 tower digit, (1,1) items vanish 1-2 per G2 refill; P=01^2 rebuild	level ~4-5	C671
+25	M9	unary list x123, d0 per doubling, list exhaustion rebuilds + round counter	~2^^123, rounds <= 2^^^R	G
+32-33	c29c30	G1/G2 count down together, constant (4,4) items consumed	level <= ~4	G
+34,38	M3M10	~6 unary counters (110101/010111 blocks), quadratic bounces	level ~4-6	G
+35	c31	[10^2 11 01^2]x66 consumed, digit refilled ~ACC	level ~4	G
+36	M1	unary lists L1 x54, L2 consumed per doubling	~2^^55 (level ~3)	M1
+37	M2	binary eater, parity rebuilds	<= small towers	M2
+39	M4	unary list x29 rewritten as plain run	level <= ~5	G
+40-42	M5	pairs (x,y); only 2 pair levels active	~2^^^15 (level ~4)	G
+43-44	segcopy	list -> digit k (ACC x2), then segment-copying bouncer	tower at most; linear after	G
+47	1RB0LC	digit 32748 -2 per doubling, x17 list consumed	~2^^19 (level ~4)	G
+50-52	c34c36	counter lists (grow / one-bit items)	level ~3	G
+53	M6	bouncer: identical segment per round	linear	G
+54	H3	doubling counter, list = unary count	exponential (< level 2)	G
+55	c37	d1/B stale-ACC copies, constant-4 items count rounds	level ~3	G
+56	M7	list x9 + counter 11^k	<= level ~11 even if hierarchical; observed exponential	G
+57-58	c38c39	binary counter eating a 12-item list	exponential	G
+61-63	H4	digit list + G1/G2 digits (H1 language), final exhaustion rebuilds list from ACC	level ~10 at 1st exhaustion; f_(w+1)-type loop	H4
+64	c42	rounds, list grows, ACC x4	exponential	G
+65-66,81	C4075	phases freeze ACC copies, list grows	level ~3	G
+77-80	C332	exp digit + unary list	level ~3	G
+82	D18	unary list, rebuild with linear growth	tower class	G
+83	D19	groups refilled with constants, rebuild per round	level ~3-4	G
+84-85	C14	unary list + one digit	level ~3	G
+86	D22	frozen small values + one digit	level <= 3	G
+88-89,94	C32	unary list + digit	level ~3	G
+90-91,95-96,100,106,108-110	C15	list (11 10^2 01^2)xn + frontier y; y-exhaustion HALT or REBUILD by (a,b) class	level ~4-6 per top round	G
+92-93,97-99,105,107	Dsmall	one exp digit or binary counter + 4-6 item unary list	level <= ~3	G
+101-104	C151	(2,2) items consumed into U=(2,ACC) tower digit	level ~4	G

@@ -1,0 +1,398 @@
+================================================================================
+ROUTE #2 (BB(8)): GUARD-PAIR & EXHAUSTION-REDIRECT SCREEN OF NON-TEMPLATED
+AND UNSCREENED 7-STATE f_{omega+1} HIERARCHICAL LOOPERS
+================================================================================
+Date: 2026-10-24
+Workspace: C:\Users\jeffr\Downloads\bb8\bb8_list\investigations\bb8_nontemplate_guards
+
+EXECUTIVE SUMMARY
+-----------------
+We investigated all non-templated, non-standard, and unscreened 7-state f_{omega+1}
+hierarchical loopers to determine whether any 8-state child (via an exhaustion-only
+slot redirect X -> (w, d, H) or a 2-step guard-pair redirect X -> H with
+H(1-s) = old(1-s) and H(s) free) can run for 1+ full f_omega rounds and halt cleanly
+at a subsequent exhaustion (E_2, E_3, E_4):
+
+  1. F5 family (F5-M1, F5-M2, F5-M3; k_1 = 26 digits, base-4 Ackermann engine):
+     - Structural Obstruction Proven: With the exact 0^2 separator coding, all 13
+       defined slots and all 21 reachable (X, s) guard pairs are used in ordinary D
+       and B_j steps. Every reachable exhaustion/rebuild macro step (T_k, M_j, and
+       T_0 with A+c+3 even) uses the EXACT same 13 slots and 21 (X, s) pairs
+       (Exhaustion \ Ordinary = empty). A 22nd pair (D0:0 in M3, F0:0 in M1/M2) fires
+       only in T_0 when A+c+3 is odd ('T0-ODD'), which is unreachable under F5's
+       parity invariant.
+     - Full Guard Screen (3 x 858 = 2,574 machines): Max halt step is 3,621 (M1),
+       15,835 (M2), and 14,387 (M3); 0 multi-round halters exist.
+
+  2. F89 family (F89, F89-S1, F89-S2, F89-S3; k_1 = 30 / 13 / 15 digits, base-3
+     Ackermann engine with separator-before coding 0 0 [1 (01)^d1]...[1 (01)^dn]):
+     - Discovery of Exhaustion-Only Slot & 4 Guard Pairs Missed by m8sweep:
+       Because m8sweep used the dlscan template L,D,P=1,u=01,s=011,d=2d+0,b=2b+1,S=00
+       (which fits only the even prelude and fails to recognize single-digit [x] =
+       0 0 1 (01)^x with no 011 separator as an exhaustion moment), m8sweep recorded
+       free=[], guards=[] for F89 and its 3 siblings (i = 212, 266, 276, 329).
+       In the true odd-digit template, the engine (D, B_k) and top-shrink (T_k) use
+       only 12 slots and 21 (X, s) pairs. Slot C0 (1LD) and 4 guard pairs (B0:0, C0:0,
+       C0:1, G0:0 in F89 coordinates) are NEVER used in D, B_k, or T_k — they are
+       used EXCLUSIVELY in the full-round rebuild S [x] -> [1^(x+2)] (G0:0 -> C0:1
+       is the S1/S2 loop boundary firing x+1 times per round; B0:0 -> C0:0 is the S3
+       completion trigger firing ONCE per round after (10)^x is converted to 1^(3x+2)).
+     - Complete Enumeration (4 x 132 = 528 guard children + 4 x 4,356 = 17,424 C0-slot
+       children):
+       * Genuine E_2 Selective Halters on F89-S3: Guard C0:1 -> 0LF (in F89-S3:
+         D0:1 -> 0LA, machine 1RB0RF_1RC0RE_0RD---_1LH0RG_1LF0LA_1LA0LE_1RD1RE_0LA0LA)
+         is untouched before E_1 (K [1] at step 13), rebuilds S([1]) -> K [1, 1, 1]
+         at x = 1 (step 72), runs Round 2 via B_1, D, D, T_1 to E_2 (K [13] at step
+         408), and halts cleanly during S([13]) at step 789 (since S([x]) halts at B1
+         for all odd x >= 3). However, because F89-S3's Round 1 seed is [1] (building
+         only [1, 1, 1]), E_2 occurs at step 789; in F89, F89-S1, and F89-S2, the
+         prelude already executes S([27,0,0]) (x=28) or S([11]) (x=11) to build
+         [1^30] or [1^13], so any redirect that halts on S([x]) for x >= 3 halts
+         during the prelude (max halt step 13,628 on F89, 3,343 on S1/S2, 3,086 on S3).
+       * Even-Headed Tower Rebuilds on B0:0 and C0:0: Redirecting B0:0 or C0:0 creates
+         6 families of modified full-height towers ([3,0,1^x], [2,0,1^x],
+         [3,0,1^(x-1),2], [2,0,1^(x-1),2], [1^x,2], [2,0,1^(x+1)]). Every one of
+         them drains its 1^x suffix to Y ~ f_omega(x), converts the leading even digit
+         into [2Y+9, 0] (or [2Y+9, 0, 0]), and rebuilds a pure odd or even-headed
+         tower of height ~2Y+13, looping at f_{omega+1} forever without halting.
+
+  3. H1 / H2 / c01 / c02 (and H4, N2 / N2m) paired-segment f_{omega+1} loopers:
+     - H1 / H2 & c01 / c02: All 13 defined slots and all 22 (H1/H2) or 24 (c01/c02)
+       exhaustion guard pairs are already used in the L1/L2/Lx/Ly/Borrow engine
+       (Exhaustion \ Engine = empty). A rare right-boundary pair E0:0 in H1 (D0:0 in
+       H2) fires only 3 times in 200,000 steps (steps 23, 109, 14104); 7/33 guard
+       redirects halt at steps 24..29 and 26/33 never halt.
+     - N2 / N2m: Has 1 exhaustion-only slot (F0 in N2, C1 in N2m) and 2 exhaustion-only
+       guard pairs (E0:0, G0:0 in N2; D0:0, A1:0 in N2m). Across all 61,376 8-state
+       extensions, every halting variant halts at Round 1 (y = 5, step 66) before any
+       tower is built, and every surviving variant either collapses to 1 segment or
+       preserves the odd parity invariant Y_final == 1 (mod 2) forever.
+
+  4. X33, Z16, Y19, F70, F279, F44a, F44b (unscreened large rebuilders in m8sweep):
+     - Full wf8.exe Screen (114 runs in scr_x33/ + deep --maxt 2e7 checks):
+       Across all reachable Round-1 residues (c = 33 for X33/Z16, c = 43 for Y19,
+       c = 4, 19 for F70/F44a/F44b, c = 33, 42 for F279), ZERO 8-state children halt
+       at J >= 1 (HALT(J>0) = 0 across all 7 bases). Apparent J = 1 halts on c = 42
+       (X33/Z16) and c = 34 (Y19) are artefacts of towercls.py probing an artificial
+       even top digit d = 2, whereas every tower built by X33, Z16, and Y19 has top
+       digit d = 1 (odd residue c = 33 / c = 43).
+
+================================================================================
+1. RESOLVING THE PROMPT MEMORY-STRINGS VS TRUE MACHINE STRINGS
+================================================================================
+The 4 inline machine strings written from memory in the prompt were verified by
+`find_hosts.py` to be memory typos (P_F89 halts at step 6, P_H1 halts at step 5,
+P_F5 and P_c01 are simple linear runaways). The true 7-state machine strings from
+the codebase reports (`bb7_holdouts/f5_f89/REPORT.txt`, `f89/REPORT.txt`,
+`h1_extend/REPORT.txt`, `nonlist/hand/groupC.txt`, `n2_decide/REPORT.txt`,
+`bb8_list/investigations/bb7_x33check/REPORT.txt`) are:
+
+  Family   Name     Machine String                                         Halt   Size / Notes
+  ------   ------   ----------------------------------------------------   ----   --------------------------
+  F5       F5-M1    1RB1RG_0LC0LD_1RF0LD_0RE1LB_1LB0RF_0RA---_1RA1RD       F1     k_1 = 26 ([2|2^25,0#]@7205)
+  F5       F5-M2    1RB1RE_1RC1RA_0LD0LE_1RF0LE_0RG1LC_0RB---_1LC0RF       F1     k_1 = 26 ([2|2^25,0#]@5016)
+  F5       F5-M3    1RB0LD_0RC0RG_1LD0RG_0LE---_1LB1LF_1LE1LG_0LA1RB       D1     k_1 = 26 ([2|2^25,0#]@7316)
+  F89      F89      1RB0RE_0RC---_1LD0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE       B1     k_1 = 30 ([1^30]@4679)
+  F89      F89-S1   1RB0LG_1LC0LE_1LF0LD_1RE0RB_1RB0RD_0LA---_1LA1LD       F1     k_1 = 13 ([3,3]@162 -> [1^13]@1019)
+  F89      F89-S2   1RB0RD_1LC0LA_1LE0LD_1RA0RB_0LF---_1RB0LG_1LF1LD       E1     k_1 = 13 ([3,3]@162 -> [1^13]@1019)
+  F89      F89-S3   1RB0RF_1RC0RE_0RD---_1LA0RG_1LF0LA_1LA0LE_1RD1RE       C1     k_1 = 15 ([1]@13 -> [1^3]@80 -> [1^15]@1311)
+  H1/H2    H1       1RB1RE_1RC1RA_0LD1LE_1RE1LE_0RG0RF_---0LG_1LC1RA       F0     D = 20 paired groups (10)^x (01)^y
+  H1/H2    H2       1RB1RF_0LC1LD_1RD1LD_0RE0RG_1LB1RF_1RA1RD_---0LE       G0     D = 19 paired groups (same as H1)
+  c01/c02  c01      1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0LD0LB       A1     D = 1533 paired groups
+  c01/c02  c02      1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0RD0LB       A1     D = 1533 paired groups (same as c01)
+  H4       H4       1RB0RE_1LC1RA_0LG1LD_0RB0RG_0RF---_1RC1LD_1LD0LB       E1     D = 8 paired groups + end creation
+  N2       N2       1RB0RC_1RC0RA_1LD0LB_1LE0LA_0LF---_1RC0LG_1LF1LA       E1     paired groups (01)^p (10)^q
+  N2       N2m      1RB1RE_1LC0RA_1RF0RD_1LC0LE_1LD0LC_1RG0RE_0RB---       G1     mirror/relabel sibling of N2
+  X33      X33      1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE       G0     k_1 = 33 digits (dl3 F2 core i)
+  Z16      Z16      1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE       G0     k_1 = 15 digits (dl3 F2 core i)
+  Y19      Y19      1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG       E0     k_1 = 19 digits (dl3 F1 core h)
+  reb7     F70      1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LG0LE_1RA---       G1     k_1 = 604 digits
+  reb7     F279     1RB0LA_0RC0RG_1RD---_0LE0LF_1LE0RF_1LF1RA_0RD0RG       C1     k_1 = 423 digits
+  reb7     F44a     1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LG0LE_0RA---       G1     k_1 = 199 digits
+  reb7     F44b     1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LG0LE_1RE---       G1     k_1 = 199 digits
+
+================================================================================
+2. F5 FAMILY (F5-M1, F5-M2, F5-M3): EXACT TRANSITION & GUARD-PAIR ANALYSIS
+================================================================================
+2.1 Coding and Macro Rules (verified cell-exact in `step4_analyze_f5_redirects.py`)
+In F5-M3 (`1RB0LD_0RC0RG_1LD0RG_0LE---_1LB1LF_1LE1LG_0LA1RB`, K = G at right; F5-M1 and
+F5-M2 are exact state-relabelings/mirrors started in B):
+  Tape at right-end G-stop:  rev(content) 0 0 [G]0
+  where content = (10)^A 0 [(10)^{d_1} 0 ... (10)^{d_{n-1}} 0] (10)^e 1 [(10)^c 1 if c >= 0].
+
+  Macro Rules on (A, L = [d_1, ..., d_{n-1}, e], c):
+    D   (d_1 > 0):               (A, [d_1, ...], c)        -> (A+2, [d_1-1, ...], c)
+    B_j (d_1=..=d_j=0, d_{j+1}>=2): (A, [0^j, d_{j+1}, ...], c) -> (2, [2^{j-1}, A+4-2j, d_{j+1}-2, ...], c)
+    T_k (L = [0^k, 0]):          (A, [0^k, 0], c)          -> (2, [2^{k-1}, 1], A + c + 2 - 2k)  (with c=-1 for none)
+    M_j (L = [0^j, 1], c >= 0):  (A, [0^j, 1], c)          -> (2, [2^{j-1}, A + c + 4 - 2j], -1)
+    T_0 (L = [0], A+c+3 even):   (A, [0], c)               -> (2, [2^{(A+c+3)/2}, 0], -1)
+
+2.2 Transition & Guard-Pair Profile (`step4_analyze_f5_redirects.py`, `step4b_f5_d00_guard.py`)
+  - Pure Ordinary Engine (D, B_j with e in {0, 1}):
+    * Uses all 13 defined slots: A0, A1, B0, B1, C0, C1, D0, E0, E1, F0, F1, G0, G1
+    * Uses 21 (X, s) guard pairs:
+      A0:0, A1:0, B0:0, B0:1, B1:0, B1:1, C0:0, C1:0, C1:1, D0:1,
+      E0:0, E0:1, E1:0, E1:1, F0:0, F0:1, F1:0, G0:0, G0:1, G1:0, G1:1
+  - Full Engine (including attached B_j with e >= 2):
+    * Uses the exact same 13 slots and 21 (X, s) guard pairs.
+  - Exhaustion / Rebuild Rules (T_k, M_j, and reachable T_0 with A+c+3 even):
+    * Uses the EXACT SAME 13 slots and 21 (X, s) guard pairs!
+    * Slots in (T_k | M_j | T_0) \ (D | B_j) = []
+    * Guard pairs in (T_k | M_j | T_0_even) \ (D | B_j) = []
+  - Why D0:0 (F0:0 in M1/M2) Never Fires in Any Reachable Round:
+    * The 22nd guard pair D0:0 (in F5-M3; F0:0 in F5-M1/M2) fires during T_0(A, [0], c)
+      IF AND ONLY IF A + c + 3 is ODD ('T0-ODD' in f5eng.py), which maps (A, [0], c) to
+      (2, [2^m, 1], 0).
+    * However, in F5's invariant set I (entered at step 165 in M1, 33 in M2, 162 in M3),
+      A is always even, every d_i (i < n) is even, and e + (c + 1) == 0 (mod 2). When L
+      reduces to [0] (so e = 0), c + 1 is even (either c = -1 or c is odd), so A + c + 3
+      is ALWAYS EVEN. Thus D0:0 (F0:0) is never reached in the natural run (0 times in
+      the prelude and 0 times in all subsequent rounds forever).
+  - Prelude vs Post-Prelude Pairs (`step4d_f5_and_f89_final_checks.py`):
+    * Pre-pairs \ Post-pairs = [] for all three machines (M1, M2, M3).
+
+2.3 Full 8-State Guard-Pair Screen on F5-M1, F5-M2, F5-M3 (`step4c_trace_f5_full_round.py`)
+We simulated all 26 x 33 = 858 guard-pair redirects on each of F5-M1, F5-M2, and F5-M3
+(2,574 8-state machines total):
+  - F5-M1: 141 / 858 halt; max halt = 3,621 steps (guard A0:1 -> 0RG, halts during prelude T_0).
+  - F5-M2: 155 / 858 halt; max halt = 15,835 steps (guard B0:0 -> 1LA, halts in modified engine).
+  - F5-M3: 153 / 858 halt; max halt = 14,387 steps (guard E0:0 -> 1RF, halts in modified engine).
+  - Among non-halting variants (`step4d_f5_and_f89_final_checks.py`), 0 enter an out-of-invariant
+    hierarchical tower: every non-halting variant either leaves the trajectory unchanged
+    (the 5 unused pairs A0:1, A1:1, C0:1, D0:0, F1:1), stays inside the invariant set I,
+    or collapses to a 1-level linear grower `(1, [1^k, 0], -1)`.
+
+================================================================================
+3. F89 FAMILY (F89, F89-S1, F89-S2, F89-S3): COMPLETE GUARD & SLOT SCREEN
+================================================================================
+3.1 Why `m8sweep` Missed F89 and Its 3 Siblings (`check_m8_nofit.py`)
+In `bb8_m8sweep/xcands.json`, F89 (`i=266`) and its 3 siblings (`i=212, 276, 329`) are
+listed with `tmpl = "L,D,P=1,u=01,s=011,d=2d+0,b=2b+1,S=00"`, `free = []`, `guards = []`.
+Why? Because `dlscan` treated `011` as a separator AFTER each digit (`(01)^d 011`). In
+F89's actual coding, `1` is a separator BEFORE each odd digit:
+  K-config:  [D]0 0 0 [1 (01)^{d_1}] [1 (01)^{d_2}] ... [1 (01)^{d_n}]
+When all digits $d_i = 2k_i + 1$ are odd, adjacent digits `[1 (01)^{2k_1+1}] [1 (01)^{2k_2+1}]`
+have `0 1 1` at the boundary between them, which fooled `dlscan` into thinking `011` is a
+post-digit separator and the last digit is unterminated! Consequently, when the list
+shrinks to a single digit `[x]` (`[D]0 0 0 1 (01)^x`), there is NO `011` anywhere on the
+tape, so `m8sweep`'s template follower failed to recognize `[x]` as an exhaustion moment
+and reported `free = []`, `guards = []`.
+
+3.2 Exact Transition & Guard-Pair Separation (`step1_profile_transitions.py`, `step3_analyze_f89_guards.py`)
+By `sib2.py`, F89-S1, F89-S2, and F89-S3 are exact relabelings/mirrors of F89 started on a
+blank tape in states C, F, and D respectively:
+  - F89    = F89 started in A: even prelude -> S([27,0,0]) -> K [1^30] at step 4,679.
+  - F89-S1 = F89 started in C (relabeled CFABDEG, mirrored): K [3,3]@162 -> [7,1]@226 -> [11]@322 -> K [1^13]@1019.
+  - F89-S2 = F89 started in F (relabeled CEFBDAG, mirrored): K [3,3]@162 -> [7,1]@226 -> [11]@322 -> K [1^13]@1019.
+  - F89-S3 = F89 started in D (relabeled BCDAEFG): K [1]@13 -> K [1,1,1]@80 -> ... -> [13]@416 -> K [1^15]@1311.
+
+In F89's canonical coordinates (`1RB0RE_0RC---_1LD0RG_1RA0RF_1LF0LD_1LD0LE_1RC1RE`, B1 = ---):
+  - Odd-Template Rules:
+    * D   [a, b, R] (b >= 3)          -> [a+4, b-2, R]
+    * B_k [a, 1^k, d, R] (k>=1, d>=3) -> [1^k, a+4, d-2, R]
+    * T_k [a, 1^k] (k >= 1)           -> [1^{k-1}, a+4]
+    * S   [x]                         -> [1^{x+2}]
+  - Slots & Pairs Used in Engine (D, B_k) and Top-Shrink (T_k):
+    * 12 slots: A0, A1, B0, C1, D0, D1, E0, E1, F0, F1, G0, G1 (C0 is NEVER used!)
+    * 21 pairs: A0:0, A1:0, A1:1, B0:1, C1:0, C1:1, D0:0, D0:1, D1:0, D1:1,
+                E0:0, E0:1, E1:0, E1:1, F0:0, F0:1, F1:0, F1:1, G0:1, G1:0, G1:1
+  - Exhaustion-Only Slot & Guard Pairs Used EXCLUSIVELY in S [x] -> [1^{x+2}]:
+    * 1 Exhaustion-Only Slot:  C0 (`1LD`; A0 in S1, F0 in S2, D0 in S3)
+    * 4 Exhaustion-Only Pairs: B0:0, C0:0, C0:1, G0:0
+      - S1 (`[D]0 0 0 1 (01)^x -> 1 1 0 0 (10)^x 1 [C]0`) and S2^x
+        (`1^m 0 0 (10)^{n+1} 1 [C]0 -> 1^{m+3} 0 0 (10)^n 1 [C]0`) hit `G0:0` followed
+        immediately by `C0:1` at the right end of each `(10)` unit (x+1 times per S [x]).
+      - S3 (`1^{3x+2} 0 0 1 [C]0 -> K [1^{x+2}]`) hits `B0:0` followed immediately by
+        `C0:0` EXACTLY ONCE per S [x] round, after all `(10)^x` units are converted into
+        `1^{3x+2}`.
+
+3.3 Complete Screen of the 132 S-Guard Children & 4,356 C0-Slot Children
+(`step3b_screen_f89_children.py`, `step3c_multi_k_f89.py`, `step3d_c0_slot_and_even_towers.py`,
+`step3e_blank_tape_f89.py`, `step3f_inspect_blank_survivors.py`, `step3g_c0_blank_and_deep.py`,
+`step3h_fastforward_f89_towers.py`)
+
+  A. Guard Pair C0:1 and Guard Pair G0:0 (the S1/S2 per-unit loop guards):
+     - Discovery of a Genuine Round-2 (E_2) Selective Halter on F89-S3:
+       Redirecting `C0:1 -> (0, -1, 'F')` (`0LF`; in F89-S3 coordinates, `D0:1 -> 0LA`,
+       8-state machine `1RB0RF_1RC0RE_0RD---_1LH0RG_1LF0LA_1LA0LE_1RD1RE_0LA0LA`):
+       * On `S([1])` (x = 1): rebuilds cleanly to `K [1, 1, 1]` in 59 steps!
+       * On `S([x])` for all odd x >= 3 (x = 3, 5, 7, 9, 11, 13, ...): halts at `B1` (`C1`
+         in S3) in `6*x^2 + 12*x - 37` steps (56 steps for x=3, 97 for x=5, 381 for x=13)!
+       * When started from the blank tape on F89-S3 (start D):
+         - Steps 1..13: reaches Round 1 exhaustion `K [1]` (x = 1) without touching C0:1.
+         - Steps 14..72: executes `S([1]) -> K [1, 1, 1]` (rebuilding a 3-digit tower!).
+         - Steps 73..408: executes Round 2 via pure engine rules `B_1, D, D, T_1`
+           (`[1, 1, 1] -> [1, 5]@168 -> [5, 3]@216 -> [9, 1]@296 -> [13]@408`) without
+           touching C0:1.
+         - Steps 409..789: executes `S([13])` (x = 13 >= 3) and HALTS CLEANLY at `B1`
+           (`C1` in S3) at step 789!
+       * Why does this selective mechanism halt at step 789 on F89-S3 and step 3,047 /
+         3,331 on F89 / F89-S1 / F89-S2?
+         Because C0:1 -> 0LF only lets x = 1 pass (rebuilding `[1] -> [1, 1, 1]`, whose
+         Round 2 exhaustion is `[13]` at step 408) and halts on all x >= 3. In F89,
+         F89-S1, and F89-S2, the prelude before the first big odd tower (`[1^30]` or
+         `[1^13]`) already executes `S([27,0,0])` (x = 28) or `S([11])` (x = 11), so
+         `C0:1 -> 0LF` halts during that initial rebuild at step 3,047 (F89) or step
+         3,331 (F89-S1/S2).
+     - All other non-halting redirects of C0:1 (12 variants) and G0:0 (12 variants) abort
+       the S2 loop after 1 unit, collapsing S([x]) into a 1- to 4-digit polynomial counter
+       (`[x] -> [x+4]`, `[x] -> [1, x]`, `[x] -> [x+4, 0]`, `[x] -> [3, x, 0]`).
+
+  B. Guard Pair B0:0 and Guard Pair C0:0 (the S3 once-per-round completion triggers):
+     Because B0:0 and C0:0 fire in S3 AFTER S2^x has already converted `(10)^x` into
+     `1^{3x+2}`, redirecting B0:0 or C0:0 preserves the full tower height ~x+2. Across all
+     66 variants (33 for B0:0, 33 for C0:0):
+     - 9 variants halt immediately on S3 (`2` on B0:0, `7` on C0:0; max blank-tape halt step 39).
+     - 20 variants (`14` on B0:0, `6` on C0:0) enter a local loop/runaway in S3.
+     - 8 variants reproduce the standard all-odd tower `S([x]) -> [1^{x+2}]`.
+     - 11 variants append a trailing `0` or `0, 0` (`[3, 0, 1^{x-1}, 0]`, `[1^{x+1}, 0]`,
+       `[1^{x+1}, 0, 0]`, `[2, 0, 1^x, 0]`, `[3, 0, 1^x, 0]`), which causes every subsequent
+       pass to bounce off the trailing `0` and append 3 or 4 new `1`s linearly forever.
+     - 18 variants rebuild `[x]` into one of 6 families of full-height even-digit towers:
+       1. `[3, 0, 1^x]`         (B0:0 -> 1LC, 1LF, 1RC, 1RF; C0:0 -> 1LD, 1LH, 1RF)
+       2. `[2, 0, 1^x]`         (B0:0 -> 0LH)
+       3. `[3, 0, 1^{x-1}, 2]`  (B0:0 -> 0RC, 0RF; C0:0 -> 0RD, 0RH)
+       4. `[2, 0, 1^{x-1}, 2]`  (B0:0 -> 1LH; C0:0 -> 0LC, 1LC)
+       5. `[1^x, 2]`            (C0:0 -> 0LF)
+       6. `[2, 0, 1^{x+1}]`     (C0:0 -> 1RD, 1RH)
+       Multi-round simulation (`step3d_c0_slot_and_even_towers.py`) proves that in ALL 6
+       families, the top odd suffix `1^x` (or `1^{x-1}, 2 -> 1^{x-2}, 5, 0`) reduces by the
+       unchanged D, B_k, T_k engine to a single huge odd digit `Y ~ f_omega(x)` alongside
+       the leading `3, 0` or `2, 0`; then `[3, 0, Y] -> [3, Y+3] ->* [2Y+9, 0]`, and S on
+       `[2Y+9, 0]` (or `[2Y+9, 0, 0]`) rebuilds a fresh tower of height `2Y+13`, looping at
+       level f_{omega+1} forever without halting.
+
+  C. All 4,356 C0-Slot Redirects (`C0 -> w d H, H0, H1` across Starts A, C, F, D):
+     - Blank-tape halts (`step3g_c0_blank_and_deep.py`):
+       * Start A (F89):    843 / 4,356 halt; max halt = 13,628 steps (`C0=1LH, H0=0RF, H1=0LF`).
+       * Start C (F89-S1): 794 / 4,356 halt; max halt =  3,343 steps (`C0=1LH, H0=1RE, H1=0LF`).
+       * Start F (F89-S2): 798 / 4,356 halt; max halt =  3,343 steps (`C0=1LH, H0=1RE, H1=0LF`).
+       * Start D (F89-S3): 767 / 4,356 halt; max halt =  3,086 steps (`C0=1LH, H0=1RC, H1=0LF`).
+     - Fast-forward check of all tower-building survivors (`step3h_fastforward_f89_towers.py`):
+       * Across all 4 start states, 0 machines that build a tower of height >= 4 from the
+         blank tape halt on S([x]) for any odd x >= 3. The only 2 odd-tower machines that
+         halt on S([x]) (x >= 3) are the two F89-S3 `C0:1 -> 0LF` equivalents (`H0=1RA/1RE,
+         H1=0LF`), which build `[1, 1, 1]` at step 72/84 and halt at step 789/805.
+
+================================================================================
+4. H1 / H2, c01 / c02, H4, AND N2 / N2m (PAIRED-SEGMENT f_{omega+1} LOOPERS)
+================================================================================
+4.1 H1 and H2 (`1RB1RE_1RC1RA_0LD1LE_1RE1LE_0RG0RF_---0LG_1LC1RA`, `F0 = ---`)
+  - Engine (`L1, L2, Lx, Ly, Borrow` on groups `(10)^x (01)^y` separated by `00`):
+    * Uses all 13 defined slots (`A0..G1` except `F0 = ---`).
+    * Uses 22 `(X, s)` guard pairs:
+      `A0:0, A0:1, A1:0, B0:0, B0:1, B1:0, B1:1, C0:0, C0:1, C1:0, C1:1, D0:0, D1:0, D1:1,
+       E0:0, E0:1, E1:1, F1:0, G0:0, G0:1, G1:0, G1:1`.
+  - Exhaustion (`ACC | (1,0)` list rebuild into `~(9/8) b` items `(1,1)`):
+    * Uses a 21-pair strict subset of the Engine pairs (`B1:1` omitted).
+    * Exhaustion \ Engine = [] (0 exhaustion-only slots, 0 exhaustion-only guard pairs).
+    * Note: Why is `F0 = ---` (`E1` followed by `0`) never reached? Because `E` is only
+      entered on `1` from `A1 = 1RE` (moving R), `C1 = 1LE` (moving L onto the `1` just
+      written by `D` or `B`), `D0 = 1RE` (moving R), or `D1 = 1LE` (moving L). Whenever
+      `A1` or `D0` moves R onto a `1`, that `1` is the first bit of a `10` or `11` unit in
+      which the cell to its right is traversed only after `E1 = 1LE` moves LEFT! Thus `E1`
+      always moves Left onto the `1` just written by `A1 = 1RE` or `D0 = 1RE`, so `E1` is
+      ALWAYS followed by `F1` (`E1:1`), never `F0` (`E1:0`)!
+  - Rare Boundary Pair `E0:0` (`D0:0` in H2) (`step5_analyze_h1_c01_n2.py`):
+    * In a 200,000-step natural run of H1, 21 of the 22 active pairs fire >= 86 times,
+      while `E0:0` (`E0 = 0RG` landing on `0`) fires ONLY 3 TIMES: at step 23 (`head=3`),
+      step 109 (`head=7`), and step 14,104 (`head=50`), when the head extends the right
+      tape boundary `..101100` during list creation/extension.
+    * Screening all 33 guard redirects of `E0:0` on H1 (`E0 -> 0RH, H1 = G1 = 1RA, H0` free):
+      7 / 33 halt at steps 24..29 (on the first `E0:0` at step 23), and 26 / 33 never halt.
+
+4.2 c01 and c02 (`1RB---_0RC0RA_0RD1LG_0LE1RC_1RF0LF_1LE1LD_0{L,R}D0LB`, `A1 = ---`)
+  - Engine (`Lx, Ly, Borrow` on 1,533 paired groups `(01)^p (10)^q`):
+    * Uses all 13 defined slots (`A0, B0..G1`) and 24 `(X, s)` guard pairs:
+      `A0:0, A0:1, B0:0, B0:1, B1:0, B1:1, C0:0, C0:1, C1:0, C1:1, D0:0, D0:1, D1:0, D1:1,
+       E0:0, E0:1, E1:0, E1:1, F0:0, F0:1, F1:0, F1:1, G0:1, G1:0, G1:1` (with `B1:1` used
+      in borrows).
+  - Exhaustion (`ACC | (1,0)` rebuild):
+    * Uses the exact same 13 slots and 24 pairs (`B1:1` omitted).
+    * Exhaustion \ Engine = [] (0 exhaustion-only slots, 0 exhaustion-only guard pairs).
+
+4.3 N2 and N2m (`1RB0RC_1RC0RA_1LD0LB_1LE0LA_0LF---_1RC0LG_1LF1LA`, `E1 = ---`)
+  - Profile (`step5_analyze_h1_c01_n2.py` & `n2_decide/REPORT.txt`):
+    * Startup (`steps 1..43` to `C(3, 5)`): uses 12 slots (`G0` not yet used).
+    * Engine (`L1, L2, Borrow`): uses 12 slots (`A0, A1, B0, B1, C0, C1, D0, D1, E0, F1, G0, G1`;
+      slot `F0 = 1RC` is NEVER used in the engine!).
+    * Exhaustion (`C(a, y) -> K([1, 2, 2^{y-2}], 2, a+y-2)`): uses `F0` (1 exhaustion-only
+      slot) and `E0:0, G0:0` (2 exhaustion-only guard pairs; in N2m: slot `C1` and guard
+      pairs `D0:0, A1:0`).
+  - Complete 8-State Screen (61,376 machines across N2 and N2m):
+    * Because Round 1 starts at `C(3, 5)` (step 43) and hits its first exhaustion at
+      `C(6, 5)` at step 66 (before any multi-digit tower exists), every halting redirect
+      of `F0` or `E0:0 / G0:0` halts during Round 1 rebuild (step <= 200), while every
+      redirect that rebuilds a list of length >= 2 either collapses to 1 segment or
+      preserves the odd parity invariant `Y_final == 1 (mod 2)` across all rounds forever.
+
+================================================================================
+5. X33, Z16, Y19, F70, F279, F44a, F44b: FULL WF8 M8-RECIPE SCREEN
+================================================================================
+5.1 Why These 7 Bases Were Unscreened in `m8sweep`
+In `bb8_m8sweep/xcands.json`, all 7 bases had non-empty `free` / `guards` lists and valid
+`towercls` fits, but `scr_done = False` because `m8sweep` was stopped at 92 / 716 bases
+before reaching their indices (`i = 84, 459, 470, 474, 476, 478, 481`).
+
+5.2 Structural Relationship to `dl3` F1 (`h`) and F2 (`i`) Cores
+  - `X33` (`1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_0LA1LG_---0LE`) and
+    `Z16` (`1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_1LA1LG_---0LE`) share the exact 5-state
+    engine core `A..E` and `G1 = 0LE` with the `dl3` F2 host `i` (`..._0LA0LG_---0LE`),
+    differing only in `F1 = 1LG` (and `F0 = 1LA` in Z16).
+  - `F70`, `F44a`, `F44b` (`1RB1RA_0RC0RA_0LD1RC_1LE1LF_1LB1LE_{1,0}LG0LE_{1RA,0RA,1RE}---`)
+    are the exact same `A..E` core with states `F` and `G` swapped!
+  - `Y19` (`1RB1RA_0RC0RA_0LD1RC_0LE1LE_---1LF_1LA0LG_1LB1LG`) shares the exact 6-state
+    core `A..E, G` with the `dl3` F1 host `h` (`..._1RA0LG_1LB1LG`), differing only in
+    `F0 = 1LA` instead of `1RA`.
+
+5.3 Complete `wf8.exe` Screen Results (`step6_screen_x33_and_reb7.py`, `step6_parse_wf8_results.py`,
+`step6b_verify_t_j2.py`; raw leaf files in `scr_x33/`)
+
+  Base   Idx   Free Slots     Guards                   Reachable c   HALT(J=0)   HALT(J>0)   LOOP/T/XMAX(J>0)
+  ----   ---   ------------   ----------------------   -----------   ---------   ---------   ----------------
+  X33    470   ['F0', 'G0']   ['B10','D10','F10','G10']   c = 33          386           0            74
+  Z16    476   ['F0', 'G0']   ['D10', 'F10', 'G10']       c = 33          363           0            67
+  Y19    459   ['E0']         ['D10', 'F00']              c = 43           22           0             5
+  F70    481   ['F0', 'G0']   ['D10', 'F10']              c = 4, 19       350           0           720
+  F279    84   []             ['B10']                     c = 33, 42        8           0            38
+  F44a   478   ['F0', 'G0']   ['D10', 'F10']              c = 4, 19       336           0           722
+  F44b   474   ['F0', 'G0']   ['D10', 'F10']              c = 4, 19       314           0           600
+
+  - Why `c = 42` (on X33/Z16) and `c = 34` (on Y19) are Unreachable Artefacts:
+    In `bb8_m8sweep/towercls.py`, residue classes were probed on `([d] + [0]*j, 0, b)` for
+    `d in (1, 2, 5)`. For X33, Z16, and Y19, `d = 2` (an even top digit) yields the even
+    residue class (`c = 42` for X33/Z16, `c = 34` for Y19), where the 7-state base machine
+    ITSELF halts at `G0 = ---` / `E0 = ---` at J = 1. However, as proven in
+    `bb7_x33check/REPORT.txt`, every tower rebuilt by X33 (33 digits), Z16 (15 digits),
+    and Y19 (19 digits) has top digit `d = 1` (odd), which ALWAYS lands in the odd residue
+    class (`c = 33` for X33/Z16, `c = 43` for Y19). In that reachable class, `G0` (X33/Z16)
+    and `E0` (Y19) are never reached (`SNAP NOT REACHED` through J = 14..15), and ZERO
+    children halt at J >= 1.
+  - Deep Verification (`--maxt 2e7` in `step6b_verify_t_j2.py`):
+    Every `T(J>0)` leaf that stopped at `J = 2` or `J = 3` at the default `3e6` step budget
+    (`zeros = [1274, 1272]` on X33/Z16, `zeros = [424, 422, 694]` on Y19, `zeros = [1819, 1815]`
+    and `[1821^2]` on F70/F44a/F44b, `zeros = [423, 420, 680]` on F279) was re-run with
+    `--maxt 2e7` and confirmed to be a non-halting multi-round loop (`escJ = [1, 3, 4, 5, 6]`,
+    `LOOP J=5 rsig=x1/x2`).
+
+================================================================================
+6. SUMMARY OF FILES IN THIS WORKSPACE
+================================================================================
+  - `find_hosts.py`: Verifies prompt memory-strings vs true 7-state report machines.
+  - `check_excluded.py`: Identifies all 121 `NEVER-HALTS` rows in `reb7` excluded from `m8sweep`.
+  - `check_m8_nofit.py`: Diagnoses why `m8sweep` failed on F89 and its 3 siblings.
+  - `step1_profile_transitions.py`, `profile_f89_detail.py`, `step2_profile_h1_c01_n2_x33.py`:
+    Initial transition and `(X, s)` guard-pair profilers across all target families.
+  - `step3_analyze_f89_guards.py`, `step3b_screen_f89_children.py`, `step3c_multi_k_f89.py`,
+    `step3d_c0_slot_and_even_towers.py`, `step3e_blank_tape_f89.py`,
+    `step3f_inspect_blank_survivors.py`, `step3g_c0_blank_and_deep.py`,
+    `step3h_fastforward_f89_towers.py`: Complete analysis and enumeration of F89, F89-S1,
+    F89-S2, F89-S3 (`C0` slot redirects and `B0:0, C0:0, C0:1, G0:0` guard redirects).
+  - `step4_analyze_f5_redirects.py`, `step4b_f5_d00_guard.py`, `step4c_trace_f5_full_round.py`,
+    `step4d_f5_and_f89_final_checks.py`: Exact `0^2`-separator macro-step profiler and full
+    858-per-sibling guard-pair screen for F5-M1, F5-M2, F5-M3.
+  - `step5_analyze_h1_c01_n2.py`: Rare-pair (`E0:0`) analysis and guard screen for H1/H2,
+    c01/c02, and N2/N2m.
+  - `step6_screen_x33_and_reb7.py`, `step6_parse_wf8_results.py`, `step6b_verify_t_j2.py`,
+    and `scr_x33/`: Complete `wf8.exe` screen and deep verification of X33, Z16, Y19, F70,
+    F279, F44a, and F44b.

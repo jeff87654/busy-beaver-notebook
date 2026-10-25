@@ -1,0 +1,16 @@
+2026-10-23 09:10:12 start: inventory of 8-state pockets (lead task: size-rank rescreen)
+2026-10-23 09:14:52 inventory: 336 unique 8-state rows, 21 in rank8 -> 315 new (196 dl2-format, 119+8 v1/partial converted; see inv_all.tsv). controls run started
+2026-10-23 09:15:49 rank7 controls OK: champ35 RECORD? 37.0; BB7 champ CLOSE 13.0; champ_231 RECORD? 21.0; X33,i NEVER-HALTS(invariant); M8 LEAVES-TEMPLATE 13.0 (E(b=84) leaves template). NOTE: M8 is invisible to est_level; LEAVES-TEMPLATE/T rows need reb7+mrounds. Main rank started.
+2026-10-23 09:25:37 reb7 controls OK: M8 UNSETTLED{T}; champ35/BB7 champ/champ_231 HALT@1; X33,i NEVER(residue+INV). reb7 pocket shard 0/2 started
+2026-10-23 10:04:23 rank_main done (323 rows)
+2026-10-23 10:19:57 reb7 done: 323 lines (NEVER 128, NOFIT 64, UNSETTLED 42, HALT-REACHED 24, ERROR 1, unique by reb key 259). W2 pkf8t on champion-engine T rows -> w2/. mrounds on all T rows started.
+2026-10-23 11:17:55 mrounds done (39 T rows): NEVER 12 (Ackermann parent L27, champ35 H1-variants L32, 0RG0LC pair, 1RB1RC L6), HALT@2 5 (H8 family, small), UNSETTLED 22. W2/r6 pkf8t on champion-engine T rows 31-34: no M8 escalation (M8 r6 signature 11 97 12 4374 2617 not reproduced), no halt. fam0LD agent: 1RB0LD_0RC--- rows all HALT small (<= 2^^7). famT14 agent: T1/T2 NEVER (rebuild-forever, prepend block of size b-sum each exhaustion).
+2026-10-23 11:33:46 growth.py on 122 NOFIT rows: 107 GROWS / 15 LOW; blk 3e8: 79 rows span >10000 (champion-like; 77 are never-dispatched dl_hits 'partial' rows), 37 families split into nofit_s4/slice0-2.tsv for 3 Opus S4 subagents
+2026-10-23 14:33:04 S4 subagents done (s0,s1,s2 RESULT.tsv): no flags (a)/(b); f_3 counter-reload hosts only. famT14: all 18 1RB1LG rows NEVER (rebuild-forever). Appended sweep note to OPEN_CANDIDATES (OPEN section end; backup OPEN_CANDIDATES.before_pocket.txt).
+2026-10-23 15:01:21 blk 3e8 on roots_untemplated.txt (holdouts without a dl2/v1 row) -> blk_roots.txt
+2026-10-23 15:37:21 roots: dlscan2 5e6 regrade = same 168 graded; blk 3e8 on all 1814 roots: 1130 untemplated champion-like growers (1043 = 1RB1LG marker family -> famT14 agent batch; 87 others -> reb7 with sibling templates pool_oth.tsv)
+2026-10-23 16:33:42 S4 slice3 (12 rows) and slice4 (67 roots rows) done: no (a)/(b) flags; F4.13 = f_(w+1)-shaped host (c). Waiting on famT14 roots1043 batch.
+2026-10-23 18:04:24 DONE. famT14 handoff (gap coding) in famT14/notes.txt; 1119 1RB1LG roots left unclassified (REPORT sec 7); OPEN_CANDIDATES sweep note extended. No own PIDs running.
+2026-10-23 18:05:53 lead: cap the 1119 block; gapsnap.exe size filter (gap/1-run structure at 1e7..3e8) over r1lg.txt -> gapsnap_r1lg.txt
+2026-10-23 18:36:30 stopped own gapsnap2e9 children 112752,106516 after ~90/537 rows (NOGAP metric cannot separate counters from T1 lists; switching to run-count metric)
+2026-10-23 18:37:57 gap filter done: 589 NOT-RECORD-CLASS, 7 small halts, 523 UNCLASSIFIED (r1lg_final.tsv). REPORT final.

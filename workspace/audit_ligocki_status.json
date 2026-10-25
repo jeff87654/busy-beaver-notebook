@@ -1,0 +1,133 @@
+[
+  {
+    "expected": "halt",
+    "result": {
+      "machine": "1RZ1RZ",
+      "engine": "Ligocki Quick_Sim (unmodified)",
+      "options": {
+        "max_loops": 10000,
+        "block_size": 1,
+        "bf_loops": 1000,
+        "recursive": false,
+        "no_backsymbol": false,
+        "no_prover": false
+      },
+      "status": "halt",
+      "reason": "explicit_halting_transition",
+      "upstream_state": "Halt",
+      "loops": 1,
+      "steps": {
+        "kind": "integer",
+        "decimal": "1"
+      },
+      "ones": {
+        "kind": "integer",
+        "decimal": "1"
+      },
+      "rule_moves": 0,
+      "chain_moves": 0,
+      "macro_moves": 1,
+      "rules_proven": 0,
+      "failed_proofs": 0,
+      "elapsed_seconds": 0.8439999999827705,
+      "upstream_log_tail": "\n         Steps:                     Times Applied:\nTotal:   1                                       1\nMacro:   1                                       1\nChain:   0                                       0\nRule:    0                                       0\nRules proven: 0\nIterated rules proven: 0\nExponential rules proven: 0\nGeneral rules proven: 0\nCollatz rules: 0\nFailed proofs: 0\nProver num past configs: 1\nTape copies: 0\nElapsed time: 0.0\n0^inf (1) Z> 0^inf\nNum Nonzeros: 1\n\nTuring Machine Halted\n\nSteps:    1\nNonzeros: 1\n",
+      "upstream_log_truncated": false,
+      "process_returncode": 0,
+      "wall_seconds": 2.1410000000032596
+    }
+  },
+  {
+    "expected": "infinite",
+    "result": {
+      "machine": "1RA1RA",
+      "engine": "Ligocki Quick_Sim (unmodified)",
+      "options": {
+        "max_loops": 10000,
+        "block_size": 1,
+        "bf_loops": 1000,
+        "recursive": false,
+        "no_backsymbol": false,
+        "no_prover": false
+      },
+      "status": "infinite",
+      "reason": "INF_CHAIN_STEP",
+      "upstream_state": "Inf_Repeat",
+      "loops": 2,
+      "steps": {
+        "kind": "integer",
+        "decimal": "1"
+      },
+      "ones": {
+        "kind": "integer",
+        "decimal": "1"
+      },
+      "rule_moves": 0,
+      "chain_moves": 0,
+      "macro_moves": 1,
+      "rules_proven": 0,
+      "failed_proofs": 0,
+      "elapsed_seconds": 0.75,
+      "upstream_log_tail": "\n         Steps:                     Times Applied:\nTotal:   1                                       2\nMacro:   1                                       1\nChain:   0                                       0\nRule:    0                                       0\nRules proven: 0\nIterated rules proven: 0\nExponential rules proven: 0\nGeneral rules proven: 0\nCollatz rules: 0\nFailed proofs: 0\nProver num past configs: 2\nTape copies: 0\nElapsed time: 0.002019643783569336\n0^inf (1) A> 0^inf\nNum Nonzeros: 1\n\n\nTuring Machine proven Infinite\nReason: INF_CHAIN_STEP\nQuasihalt:\nis_decided: true\n\n",
+      "upstream_log_truncated": false,
+      "process_returncode": 0,
+      "wall_seconds": 1.8589999999967404
+    }
+  },
+  {
+    "expected": "cutoff",
+    "result": {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+      "engine": "Ligocki Quick_Sim (unmodified)",
+      "options": {
+        "max_loops": 1,
+        "block_size": 2,
+        "bf_loops": 1000,
+        "recursive": false,
+        "no_backsymbol": false,
+        "no_prover": false
+      },
+      "status": "cutoff",
+      "reason": "simulation_loop_limit",
+      "upstream_state": "Running",
+      "loops": 1,
+      "steps": {
+        "kind": "integer",
+        "decimal": "2"
+      },
+      "ones": {
+        "kind": "integer",
+        "decimal": "2"
+      },
+      "rule_moves": 0,
+      "chain_moves": 0,
+      "macro_moves": 1,
+      "rules_proven": 0,
+      "failed_proofs": 0,
+      "elapsed_seconds": 0.5,
+      "upstream_log_tail": "\n         Steps:                     Times Applied:\nTotal:   2                                       1\nMacro:   2                                       1\nChain:   0                                       0\nRule:    0                                       0\nRules proven: 0\nIterated rules proven: 0\nExponential rules proven: 0\nGeneral rules proven: 0\nCollatz rules: 0\nFailed proofs: 0\nProver num past configs: 1\nTape copies: 0\nElapsed time: 0.0\n00^inf (11) C> 00^inf\nNum Nonzeros: 2\n\n\nMaximum number of loops (1) reached\n",
+      "upstream_log_truncated": false,
+      "process_returncode": 0,
+      "wall_seconds": 1.4839999999967404
+    }
+  },
+  {
+    "expected": "cutoff",
+    "result": {
+      "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+      "status": "cutoff",
+      "reason": "external_wall_timeout",
+      "timeout_seconds": 0.01,
+      "elapsed_seconds": 0.18800000002374873,
+      "options": {
+        "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+        "max_loops": 10000,
+        "block_size": 0,
+        "bf_loops": 1000,
+        "recursive": false,
+        "no_backsymbol": false,
+        "no_prover": false
+      },
+      "engine": "Ligocki Quick_Sim (unmodified)"
+    }
+  }
+]

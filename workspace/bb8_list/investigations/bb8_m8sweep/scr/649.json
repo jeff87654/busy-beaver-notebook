@@ -1,0 +1,1 @@
+{"i": 649, "m": "1RB1RF_1LC1LB_1RC1LD_0LE0RF_0LB0LG_0LG1RA_---0LC", "tmpl": "R,A,P=1,u=1,s=0,d=2d+0,b=2b+1,S=01", "cls": [190], "M": 60, "runs": [{"X": "E0", "s": 0, "c": 10, "v": "g0", "snap": {"step": 4, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "649_E0_c10_g0.txt"}], "time": 0.7}

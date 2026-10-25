@@ -1,0 +1,76 @@
+bb9_jzseed: free-slot search on Jacobzheng's BB(9) champion engine (fw2 family). Started 2026-10-17, wound down 2026-10-18.
+No Coq work was done. Machines below are in champion labels; the start state is given separately.
+
+RESULT
+- No 9-state machine on this engine beats fw2, so none beats the current bar M8/C04, which is far above fw2.
+- No halter makes 3 or more big (class-valued) cascades. The search found no counter-controlled repetition (f_(w+1)).
+- The best halter of the whole free-slot tree is fw2 itself:
+    1RB1RA_0LC0LF_0RD1LC_1RA1RG_1RH0RA_1LB1LF_---1RE_1LI1LI_0RE0LH, start E (also found from start I).
+    sigma = X1+4. X0 is the cascade of a list of depth 465010 from B0=1. X1 is the cascade of a list of depth (3X0+7)/4.
+    This matches Coq: b2 = 7 mod 8, b3 even, sigma = b3+4.
+- The next best are:
+    1RB1RA_0LC0LF_0RD1LC_1RA1RG_1LH0RA_1LB1LF_---1RE_1LI0RI_1RE0LH, start E: first list of depth 5739, X1 depth (3X0+3)/4.
+    1RB1RA_0LC0LF_0RD1LC_1RA1RG_1RI0RA_1LB1LF_---1RE_1LD1LI_1LH0LH, start I: depth 109.
+    Then depths 13-19, of the champion type (X1 depth X0+c).
+
+ENGINE CORE AND TOOL
+- The engine core is A0 A1 B0 B1 C0 C1 D0 D1 E1 F0 F1 G1, exactly the slots that R1-R3 read (literal test t_rules.py).
+  R1 reads up to 3 cells left of the head and shifts the word 2 cells left, so the left side must be blank.
+  I1 is not core.
+- jz.cpp is a copy of bb9_symsim/symsim.cpp (copied as symsim_orig.cpp), extended with:
+    part_ulaw.cpp: the U residue law. Tables U_j mod MG with a checked self-propagating fixed point; JINF = 3 for all moduli tested.
+    part_kd.cpp: an exact cascade accelerator. It applies R1iter + CDPx digit by digit, handles bulk blocks at depth >= JINF,
+      and proves B >= 2j by a slack argument (Ugrow). Cascade symbols carry linear lower bounds (Coq Xbound), and the
+      list tail is kept untouched.
+    part_drv.cpp: the driver, with run / enum (free-slot tree) / utab, and --compact / --rep / --nocycle / --kd1 / --skipval.
+  In proof mode the cascade is a Z-symbol with LBZ/resZ, which gives inductive certificates (GEN-W-AFF) for eternal rebuild loops.
+  Build: python assemble.py ; g++ -O2 -std=c++17 -static -o jz.exe jz.cpp
+- Validation (all versions):
+    ucheck.py: U residues against big-int/tower arithmetic and the Coq Upar/U_mod8 laws, ~26k queries, 0 mismatches.
+    kdcheck.py: about 4.2k single jumps checked; the predicted configuration is visited by the literal run in every case, 0 misses.
+    validate.py free/mut (literal vs symbolic): BAD 0.
+    Deep-depth table check: 0 differences.
+    --nocycle rerun of about 6.9k GEN certificates: 0 halts, 600-900 more big cascades each.
+
+RUNS
+1) enum1: free slots E0 G0 H0 H1 I0, with I1=0LH fixed. Blank tape, all 9 start states, 12,968,685 nodes, MG 2520, budget 2e4 / 2 s.
+   HALT 360,241: big=0 352,166; big=1 7,701; big=2 374; big>=3 none.
+   CYCLE about 12.53M: LIN 6.86M, GEN-W-AFF 4.42M, ESCAPE 0.78M, and smaller classes.
+   Holdouts 72,506. Files: enum1/summary.txt, enum1/holdouts.txt, enum1/out_*.txt.gz.
+2) mut: all 1- and 2-slot changes of fw2 (start E) and of the champion (start A), 397,872 machines.
+   No big>=3. The best has big=2 with a first list of depth 19.
+   Core-broken mutants: 100,077 HALT (best sigma about 4.0e18), 1,265 holdouts. Core-intact mutants: 96 holdouts.
+   File: mut/summary.txt.
+3) Holdout regrades: grade1/grade2 at bigger budgets were ineffective. rep1/rep2 were a representative screening (NOT sound):
+   huge values were replaced by the residue representative >= 3000 (rep2: >= 7000). Over all 73,862 holdouts: 0 HALT.
+   Under the same setting, fw2 and the champion halt with big=2.
+4) enum2 (PARTIAL): I1 freed too, skipping the I1=0LH subtree. Roots E and B only, each about 2/3 done when stopped on the
+   lead's instruction. HALT: big=0 364,572; big=1 8,861; big=2 210; no big>=3. The best has big=2 with a first list of
+   depth 63. File: enum2/summary.txt.
+
+STRUCTURAL ARGUMENT (paper argument with computed inputs)
+- For j >= 2 and huge x, U_j(x) mod M depends only on the parity of x: two constants.
+  This was checked for M = 2520, 27720, 720720, 3548160, 2^20, 2^21, 3^14 and 9*2^20.
+- So after any deep cascade the counter is in one of 2 classes. Suppose the end-of-list routine reads only residues of
+  the counter. Then the next class is a function of the current one, so a halt needs r -> h, and at most 2 big cascades
+  can precede a halt. That is f_w(f_w(n)), fw2's level.
+- With the core intact the cascade reads the whole tape: the left side must be blank and every 1 to the right is a digit.
+  So no outer counter survives, and f_(w+1) is impossible.
+- The only room left is a bigger first list. The best first list in the tree is fw2's (465010).
+
+OPEN
+- The 73,862 holdouts are not certified. By family:
+    30.5k: no cascade at all.
+    12.5k: one big cascade, then the end routine never finishes in budget.
+    11.5k: R1-only growth of a symbolic counter.
+    About 7k: eternal rebuilders r -> r. They cannot halt by the class argument, but their certificates fail because the
+      proof mode has no deepCompress.
+    About 2.5k: PARTIAL-STOP family. The cascade stops at B < 2j because a marker digit sits beyond a long zero gap and the
+      counter cannot be compared with the gap. Example: 1RB1RA_0LC0LF_0RD1LC_1RA1RG_0LA0RA_1LB1LF_0LI1RE_1LI0LG_1RC0LH, start A,
+      with counter X2 = U_2(9) << gap ~1.5*X1. This family is the one possible escape from the class argument: there,
+      free-slot code runs on a non-blank list. It showed no halter under representatives.
+- The class argument assumes a residue-only end routine. Reading high bits of the counter (for example a unary-to-binary
+  conversion) is not excluded by proof, only by the search.
+- enum2 roots A, C, D, F, G, H, I were not run. In enum1 the C and D trees are identical to B's.
+
+PIDs: pids.txt. Every process I launched has ended (the last ones were stopped on the lead's instruction on 2026-10-18).

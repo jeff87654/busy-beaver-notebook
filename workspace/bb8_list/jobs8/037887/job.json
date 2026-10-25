@@ -1,0 +1,16 @@
+{
+ "job": 37887,
+ "states": 8,
+ "complete": true,
+ "nodes": 5317298140,
+ "holdouts": 101518,
+ "distinct_holdouts": 101518,
+ "cpu_seconds": 697388.7,
+ "wall_seconds_this_run": 205108.1,
+ "finished": "2026-10-09T02:59:31",
+ "enumerator": "github.com/ccz181078/TM @ a41db6c (main.cpp sha256 22294ab2...) + deadline/checkpoint hooks",
+ "binaries": {
+  "mxdys_pilot8.exe": "095f076bd1c41d6f6b53627ebe4e529f2b1fefc704f073f21ae5feb2e0ca2b6e",
+  "mxdys_resume8.exe": "2797266c42d455baf16fc272a7de2ec8ee585c3bb2bbdda56fac7bfba3a83a34"
+ }
+}

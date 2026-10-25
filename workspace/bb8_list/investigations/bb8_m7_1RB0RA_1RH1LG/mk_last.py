@@ -1,0 +1,5 @@
+s=open('snapwin.cpp').read()
+s=s.replace('cnt++; if(cnt%stride) continue;','cnt++; if(stride<0){ lastsnap2=lastsnap; lastsnap=to_string(st+1)+" "; for(long long i=mn;i<p;i++) lastsnap.push_back(\'0\'+tape[i]); continue;} if(cnt%stride) continue;')
+s=s.replace('long long cnt=0;','long long cnt=0; string lastsnap,lastsnap2;')
+s=s.replace('printf("end state','if(stride<0){ printf("%s\n%s\n",lastsnap2.c_str(),lastsnap.c_str()); }\n  printf("end state')
+open('snapwin2.cpp','w').write(s)

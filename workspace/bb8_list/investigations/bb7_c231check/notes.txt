@@ -1,0 +1,38 @@
+2026-10-22T19:07:55-07:00 start: independent check of champ_231/232 (BB7)
+2026-10-22 ENCODING (own sim, both machines): K(a; d1..dn) = 0^inf [E]0 100 (11)^a 00 (11)^d1 00 ... (11)^dn 00 1 0^inf, head on the 0 left of P in state E. d1 = ACTIVE end (next to a). Argon writes the list reversed (active end on the right).
+2026-10-22 first K from blank: step 3897, K(8; 0, 1^19), n=20 digits (Argon's 3715 point is mid-phase, not a K-config). Next: 5459 K(1;26,0,1^18), 5593 K(6;25,..), 6477 K(21;24,..), 13211 K(66;23,..), 69895 K(201;22,..). (Argon's step numbers after 5459 are wrong; values right.)
+2026-10-22 RULES (rsim exact, grid a<=30,k<=22):  D: K(a; d+1, R) -> K(3a+3; d, R) (a>=1).  Bk: K(a; 0^k, y+1, R) -> K(1; 1^(k-1), 3a+3-k, y, R) valid iff k<=3a (fails/loops for k>3a).  E: K(a; 0^k) -> HALT (C1) iff k<=3a.  a=0 is different (never reached).
+2026-10-22 phase lemma: X(m,j) = 0^inf [E]0 1^m 00 1^j 00 <digits> ; X(m,j+1) -> X(m+3,j) in 2m+10 steps; K(a;..) = X(1,2a) -> X(6a+1,0).
+2026-10-22 STEP COUNTS (rsim exact, fitted on a grid and checked on every grid point; steps = transitions from K-config to next K-config / to the halting config, halting transition not counted):
+  champ_231: D 12a^2+66a+56 | Bk 12a^2+(24k+66)a+74+10(k-1)-4(k-1)(k-2) | E 48a^2+192a+137-28k ; ones at halt = 6a+7 (independent of k)
+  champ_232: D 12a^2+66a+58 | Bk  (champ_231 value)+2(k+1)               | E 48a^2+198a+143-30k ; ones at halt = 6a+7
+  champ_232 = champ_231 with G0: 0LD -> 1LC; at every G0 event the cell to the left is 0, so 1LC,C0 0RD,D1 0LD replaces 0LD (+2 steps). G0 IS used once per macro step (Argon's 'G0 only at step 5' is wrong) but harmlessly.
+2026-10-22 first K for champ_232: step 3959, same K(8; 0, 1^19).
+2026-10-22 ===== COQ-READY SPEC (verified: each lemma 60 random-context trials per machine, both machines; macro rules 400 random configs incl. exact step counts) =====
+Notation busycoq-style: "S>" head reads the next cell, "<S" head reads the last cell of the left part; 0^inf implicit at both ends; X, Y, l arbitrary.
+Sub-lemmas (steps M1 / M2):
+ L1  0^inf E>0 1^m 001 X  -> 0^inf E>0 1^(m+3) 00 X                 2m+10
+ L2  0^inf E>0 1^m 000 X  -> 0^inf F>0 1^(m+3) 00 X                 2m+10
+ L3  l F>0 1^M 000 X      -> l 10 F>0 1^(M-1) 00 X      (M>=2)      2M+4
+ L4  l F>0 1^M 001 X      -> l 1 F>00 1^(M-1) 00 X      (M>=2)      2M+5
+ L5  l 01 F>00 1^N 001 X  -> l <F 0 1^(N+4) 00 X                    2N+11
+ L5' l 01 F>00 1^N 000 X  -> l F>0 1^(N+4) 00 X                     2N+10
+ L6  0^inf 1 <F 0 Y       -> 0^inf E>0 100 Y                         6 / 8   (uses G0)
+ L7  l 0101 <F 0 Y        -> l <F 0 1100 Y                           8 / 10  (uses G0)
+ L8  l 10 F>0 1 0^inf     -> l 1 <F 0 1 0^inf                        6 / 8   (uses G0)
+ H   l 011 <F 01 Y        -> l 1001 C>1 Y  then C1 undefined: HALT   6
+ (M2 extra 2 steps at each G0: G0=1LC, C0 0RD, D1 0LD; the cell left of G is always 0.)
+K(a; d1..dn) := 0^inf E>0 100 (11)^a 00 (11)^d1 00 ... (11)^dn 00 1 0^inf.  m:=6a+1, M:=6a+4.
+ Phase1: K(a;..) = E>0 1 00 1^(2a) 00 ... --L1 x2a--> E>0 1^(6a+1) 0000 ...   (12a^2+18a steps)
+ D  (d1>=1): L2; L3 once; L4; L5 (N=M-2); L6.   -> K(3a+3; d1-1, ...)       12a^2+66a+56  (M2 +2)
+ Bk (d1..dk=0, d_{k+1}=y+1, k<=3a): L2 -> F>0 1^M 0^(3+2k) 1^(2y+2)..; L3 x(2k+1) -> (10)^(2k+1) F>0 1^(M-2k-1) 00 1..; L4; L5 [l=0^inf (10)^(2k) 1];
+     L7 x k (prepends (1100)^k); L6  -> K(1; 1^(k-1), 3a+3-k, y, ...)     12a^2+(24k+66)a+74+10(k-1)-4(k-1)(k-2)  (M2 +2(k+1))
+ E  (all n digits 0, n<=3a): L2; L3 x(2n+1); L4 (X=0^inf); L5' ; L3 x(N+3) with N=6a+2-2n (block N+4 -> 1, runs into blank); L8; L7 x (N+2)/2 ; H.
+     HALT at C1 after 48a^2+192a+137-28n steps (M2: 48a^2+198a+143-30n) [+1 if the halting transition is counted]; ones at halt = 6a+7.
+ Preconditions: L3/L4 need block>=2 -> exactly k<=3a (Bk) and n<=3a (E); confirmed by grid: rule fails (no K reached in 4e5 steps) for k=3a+1.
+2026-10-22 TRAJECTORY: blank --3897 steps (M2: 3959)--> K(8; 0, 1^19) (20 digits). Run uses only D, Bk (k<=19), E (n=20):
+   a=1 configs are exactly B outputs and never have the form (1; 1, 0, ..); hence any K(a;0^k,..) with k>=2 has a=3a'+3 with a'>=6, a>=21, 3a>=63>=20, so all preconditions hold.
+ Final a_f = U_19(U_18(...U_1(8))), with U_0(x)=3x+3, s_0=1, s_j=U_{j-1}(s_{j-1}), U_j(x)=U_{j-1}^(3x+3-j)(s_{j-1}).  sigma = 6 a_f + 7 for BOTH machines.
+2026-10-22 LOCKSTEP: literal C++ (lit.exe, 3e10 steps each) vs rule+exact-step prediction: 10/10 macro steps match for BOTH machines (K up to step 3,632,810,465 / 3,632,810,549, a=49206). End-to-end small lists (rule-level vs exact run-length sim to HALT): 6/6 match steps and sigma.
+2026-10-22 SCORE: sigma(231)=sigma(232)=6a_f+7 > 3↑^20 3 (paper proof in REPORT.txt sec 4). Prior art: none found. OPEN_CANDIDATES entry added (line ~304; file is all-CRLF now, kept CRLF).
+2026-10-22 DONE: REPORT.txt written.

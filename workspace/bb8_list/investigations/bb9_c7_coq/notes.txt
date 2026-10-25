@@ -1,0 +1,143 @@
+bb9_c7_coq notes (agent: C7 Coq formalizer, started 2026-10-21). Crash-safe log; newest at bottom.
+Task: Coq proof that C7 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_1RG1LD_0RG0RF_0LI---_1LC0RA halts, score bound, beats M8.
+Template: ../bb9_f3_coq (X tree, cq.py, sched.py, gen/ mexp retargeted).
+
+2026-10-21
+- Auxiliary machine X' = C04 with E0 = 1LJ, J = 0LK/---, K = 1LC/0RA (C7's I):
+    X' = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LJ0LC_0RG1LD_0LH1LH_1RI---_0RI0RF_0LK---_1LC0RA
+  (only K's row differs from f3's X: f3's K = 0RC/1RH).  C7's H <-> X' J, C7's I <-> X' K, C7's G <-> X' I.
+- Literal check: C7's run from blank to J1 (Kg(0^10++[2]), 2117 C7 steps) has NO E0 event -> C04's init_reach and
+  the CDP clears (R1/R2/R3, E1 only) hold for X' unchanged.
+- pkf8 --kt has NO far frame: use --kt "0,0,..." for the frame 11.  (First runs without it gave a wrong phase.)
+- J1 -> J2 confirmed literally: Kt(1^11;1;3B+2;0) (frame 11) -> CL [0 1 (K2+5) 1*(K2-1)], t=2, K2=(27B+43)/5, for
+  B = 6,16,31,41,56,66,91,116,141,366 (B = 1 mod 5).  Contains a far-left transfer loop (H0 with blank left, I0=1LC,
+  ~B rounds) and 2 H0 events with left cell 1 (I1 = 0RA).  tools/c7sim.py shows it.
+- 23:00 X' tree: x/dev/Base.v (K = 1LC/0RA), G_rules (compiled OK under X': champion rules E0-free), Abs, KStep (generic
+  part of f3's Step.v), Lift copied; tools/cq.py + sched.py retargeted (BusyCoq + BB8 from ../bb9_f3_coq/ext).
+- Phase B (frame-1 rebuild) is E0-free: Kx(1^n++[1];1;3R+2;t;e1) -> CL Kt(1^(K'-1)++[7];1;2;t), K' = 12R+n+5
+  (n = 40, 94; R = 6..41).  Phase A branches by n mod 5 (R = 1 mod 5): n=1: K=(27R+3n+10)/5 [frame 1|1,K+5,1^(K-1)];
+  n=3: K=(27R+3n+44)/5 [frame 11|1,7,00,K-12,1^K]; n=0: [11|3,K,7,1^K]; n=2,4: long cascades.  t -> t+2.
+- Phase D + counter (E0-free): from [11|1,7,00 | 1^K ; 3R+2] -> CL [11, 0 | 6R+12, 7, 1^(K-2)]; counter rounds
+  C -> C-3 depositing 6R'+7 (R3 borrow + CDPx).  End (C=6 test): [0*3 3 X 1*k] -> [0*4 X 1*k] -> [0 2 00 X 1*k]
+  -> [6R+10, 1*(k-1)] (frame eaten, far end blank) -> clear -> Kx(1^n;1;3R10+2;t;blank), n = K6 - 3.
+- C7 CASCADE (tools/c7m.exe = fast C++ sim printing D0 moments FAR (10)^y 011 (100)^P 1^L 11 tail):
+  from Kx(1^n;1;3R+2;t;blank): first D0 moment L = 3n-4, P = 12R+8, y = 0, far "1" (special), then sub-steps
+  L -> (3L + c_r)/5, r = L mod 5: c_1 = -23, c_3 = -14, c_4 = -32, c_0 = -20 (NOT a stop!); y' = (L+19)/5 (r=1),
+  t -> t+2, P -> P-4 or -6, far list grows by one token per step.  r = 2 is the special branch: rounds that eat L by
+  about 15 each and deposit "4" tokens (4*Q), then a D0 with P = 1 ... outcome (halt / new cascade) depends on L.
+- Residue chain (tools/chain.py, rho = tower residue, 5^22 precision): n = K6-3 = 8136900 mod 5^10 (= checker's value;
+  the claimed 23806525 is not what the formula gives); L1 = 3n-4; orbit r = 1,3,0,3,4,0,0,3 then step 9 r = 2 with
+  L9 = 4805222 mod 5^11 (odd, 2 mod 3).  So "8 sub-steps then the r=2 branch at step 9" AGREES with the claim.
+  (An earlier quick calc with too little 5-adic precision gave L9 = 472 mod 625: wrong; 222 mod 625 is right.)
+- Small-L r=2 probes (runs/r2d0.txt): halt for L = 17, 47, 107, 122; others continue (MAX). L=472 (wrong residue) ->
+  31 rounds, D0 L=559 P=1, then a NEW cascade 559 -> 326 -> 191 -> ... (no halt).  Running L = 222, 847, 3347, 14597.
+- r=2 BRANCH RULE (tools/r2t.py, runs/r2_*.txt): L = 2 mod 15 always (L9 = 2 mod 3), write L = 15Q + 17. The branch runs
+  Q rounds (each eats 15 from L and 4 parked blocks, deposits a token 4), giving [far 4^Q 7 1^(P-4Q-7) ...]; then
+  HALT for Q = 1,2 mod 5 (Q >= 2; Q = 0 also halts, Q = 1 continues), otherwise it continues (a clear / new cascade).
+  t-independent (t = 3..13), s,y-independent.  Real: Q = (L9-17)/15 = 2 mod 5 -> HALTS.  Literal confirmation in the
+  real class: L = 3347 (Q=222, 73M steps) and L = 14597 (Q=972, 1.27G steps) both HALT at H1:
+  final tape [0*3 2 30 4*Q 7 1*(P-4Q-7) 0 z1 <H> ...]  => ones about P = 12 R10 + 8 - 4*8-ish (huge).
+  The claim's "Q = 3 mod 5" is presumably Q+1 (count convention); the halting conclusion AGREES.
+- 23:35 mexp generation of phase A started (gen/grp_pa.py, PID 8892).
+- 2026-10-21 (Res helper) x/dev/Res.v (XDev.Res) DONE, compiles in 44 s, no axioms (Print Assumptions: Closed x3):
+  U_res : forall j x, (2 <= j)%nat -> Z.of_nat (U j x) mod Mres = rho ; iter_U_res (1 <= v, 2 <= j) ; Bx_res.
+  Mres = 15820312500000 (2^5 3^4 5^14), rho = 5059528974366.  Route: arrow k 2 n = tower h with h >= 20 (k>=3,n>=4);
+  16-level Carmichael chain 2^6 3^4 5^14 -> 2^2 3^3 5^13 -> 2^2 3^2 5^12 -> 2^2 3 5^11 -> 2^2 5^10 .. 2^2 5 -> 4 -> 1
+  (lvl_i: tz h mod m_i = c_i for h >= 20-i); generic step_res + stdlib Zpow_mod_correct + vm_compute.
+  Python check: tower h mod 2M = T = 10119057948736 exactly from h = 16 on (h = 15 differs).  Generator kept in
+  the helper's scratchpad (gen_res.py); file is self-contained.
+killed my own sched 46708 (duplicate scheduler)
+2026-10-22 00:00-01:10
+- mexp (gen/, TM = X') works for C7's phases once each phase is cut at the right moment:
+  PA1 (Kt(1^n;1;3R+2;t) -> M1 = 111 00 111 (001)^(9R+n+6) (11111001)^t 001, the far-left transfer loop; linear),
+  PA2 (M1 with c = 5j+21 -> CL [frame 1|1,3j+16,1^(3j+10)], t+2), PC2 (c = 5j+23 -> CL [11|1,7,00,3j+7,1^(3j+19)]),
+  PD, R30 (counter's last borrow 3 -> 0), E2, E3 (counter end; frame eaten), SUB1/3/0/4 (cascade sub-steps, l general),
+  ENTRY1 (entry + first sub-step: Kx(1^(5m);1;3R+2;t;blank) -> D0f (3+t) (9m-7) (12R+4) 0 (3m+3) blank) all GENERATED.
+  PB (frame-1 rebuild) fails in mexp with symbolic t ("stuck") and with t = 2,4 ("too many stages" at 400): retrying
+  with maxstages 3000 (logs/gen_pbt.out).  vcheck.py (validate.reaches) confirms targets literally.
+- The r = 2 branch: L = 15u+17. R2A (u rounds) -> M2 (fitted, tools/bfit.py, formula verified for 8 parameter sets);
+  R2H: M2 with u = 5j+2 -> halt (X' J reading 1) with right side 11111 (00111)^(18j+11) (00100111)^t ...
+  (the 1-run of length 18u+23 is eaten in 5-blocks; 18u+23 = 4 mod 5 iff u = 2 mod 5).  gen/grp_r2.py.
+- Coq: x/dev/C7Phases.v (pa1 pa2 pc2 pd r30 e2 e3 restated on Kx/M1), C7Count.v (clear_dig, count_round,
+  count_loop by induction, count_end -> Kx(1^N;1;3R'+2;t;blank)), C7Casc.v (sub3 sub0 sub4 on D0f), C7Entry.v.
+  Res.v (helper agent): U_res / iter_U_res / Bx_res mod 2^5 3^4 5^14 = 5059528974366, closed (44 s).
+- Compiled so far: Base G_rules Abs KStep Lift G_sub1 G_e3 G_r30 Res; compiling G_pa1 G_pa2 G_pd G_e2 then the rest.
+01:25 killed my own runaway c7m 32104 (r2 L=222 run) and duplicate PA1 regen python 20048
+2026-10-22 sim helper: c7/Defs.v (tm7, 36s), x/dev/Ones.v (8s), c7/Sim.v (38s) compiled; Sim: c7_halts_of_x (halts Base.tm c0 -> T3.halts tm7 c0), x_halts_of_c7, c7_reach_of_x, c7_to_x / x_to_c7 (no hypotheses), all Closed; direct Rel (no hd0/alt branch)
+2026-10-22 01:10-02:00
+- PA1: Coq's finish_norm cannot rotate (11111001)^t past fixed cells: retargeted mexp to the form the run reaches,
+  M1n x t = 1001001 (11111001)^t 00 (100)^24 1 (001)^x 1100111 (x = c-26); PA2 (x = 5j), PC2 (x = 5j+2) regenerated.
+  G_pa1 (new) compiled OK (647 s).  LESSON: take mexp targets from the reached syntactic form; vcheck.py only checks tapes.
+- PB: whole-phase mexp fails (main loop over (101)^(4acc+n) = two run vars).  Split: PBab (-> S2 x t =
+  1010 111 (001)^x (11111001)^t 001, x = 4acc+n) and PBc (S2 -> Kt(1^(x-4)++[7])), both generated (gen/grp_pbs.py).
+- r=2 branch: whole R2A stuck in mexp (>40 min, killed).  Split: R2A1 (D0f (t+1) (15u+17) (p+2) -> W1, the 1^L ->
+  (00111) conversion; generated, 13 KB) and R2A2 (W1 -> M2, the u rounds); R2H (M2, u = 5j+2 -> halt) — R2A2 and R2H
+  generating (logs/gen_r2a2.out, gen_r2h.out).  W1 formula verified literally on 9 parameter sets.
+- Files: C7Arith.v (generated by tools/gen_arith.py: c7_arith, all divisions exact, the cascade residues; witnesses
+  explicit linear forms in the q's of X = Mres q + rho), C7Top.v (stageA/stageB, reach_count: c0 ->* Kx(1^(3j3+19);1;
+  3R10+2;6;blank); reach_L9: -> D0f 23 (15u+17) (12R10-32) ...), C7Score.v (f_omega^2 a < R3, f_omega^4 a < R5 <= R10,
+  a = 12Bx+27), C7PhB.v, c7/Defs.v + c7/Sim.v + x/dev/Ones.v (helper; closed).
+- Compiling (sched run5): G_pa2 G_ent G_pbab G_pbc C7Phases C7PhB C7Count C7Entry C7Arith C7Top.
+02:25 killed my own stale gen processes 41216 (pa2, pre-fix module), 25556 (R2H, symbolic s), 30544 (R2A2, symbolic s)
+03:20 killed my own gen processes 27704 (stale R2H), 19216 (VH), 11568 (VH2): stuck; splitting VH2 at the 1^(3c+5) moment
+2026-10-22 02:00-03:30
+- r=2 branch: whole-branch mexp stuck; symbolic s also wrong for s=0 (real s=2): fixed s=2, y=y'+5.  Final split:
+  R2A1 (D0f -> W1), PRE (W1 -> Vc 0 A (3u+1) (3u+6), X' in J = C7's H0 event), ROUND (one round; Coq induction
+  [rounds]), VH1 (Vc b=1 -> B> moment), VH2a (-> Q3c, the 1^(3c+14) run), VH2b (Q3c with 1^(5w+4) -> halt, J reading 1,
+  right 11111 (00111)^w ...).  All verified literally with gen/vcheck2.py (fast bytearray checker) and generated.
+  Real: u = 5jj+2, c = 6u+6 = 30jj+18, 3(c-3)+14 = 5(18jj+11)+4.  LESSON: vcheck2 edge values (c=0, s=0, p=0, t=0)
+  differ from the real ones; fix such parameters concretely in the mexp shapes.
+- PBab: also needed the reached form S2n x t = 1001001 (11111001)^t 00 (100)^29 1 (001)^x 110101 (finish_norm).
+- Files written: C7Halt.v (W1c, Vc, r2a1, pre, rnd, rounds, vh, vh2, Hc, Hc_halted, Hc_ones), C7Final.v (x_goal:
+  X' halts with N ones, f_omega^2 and f_omega^4 (12Bx+27) < N; x_halts), c7/Final7.v, c7/Statement.v, c7/probe.v.
+- Compiling: G_ent (sched run5, since 01:50), sequential queue logs/seq1.out (C7Arith, C7Count, G_pbab, G_pbc, G_r2*,
+  Score, C7Halt).
+- 04:20 compiled: C7Count, G_pbab/G_pbc (new forms), G_r2a1/pre/round/vh1/vh2b, Score, C7Halt (with VHq), C7Arith (430 s).
+  VH2a (M2p -> Q3) generated script FAILS in Coq (mexp's view of the parked run is rotated w.r.t. Coq's term at a
+  C-crossing: 'follow cr_CL_100_010' finds 0 0 1 [001]^A with the head on 1).  Avoided: VHq = V(b=1) -> Q3 directly
+  (no B> moment in between) generated and compiled (107 s).  G_r2vh1/vh2a no longer used.
+  gen_arith: Coq's `exists a, b, c, ...` failed to parse beyond 5 terms here: one `exists` per witness.
+  (correction: the line above is ~03:50, not 04:20)
+04:45 killed my own scratch coqc 26840 (C7All test, >30 min: a slow tactic)
+05:30 killed my own coqc 40660 (C7Final) and 42068 (scratch): lia slowed by the Z-mod residue hyps with 13-digit constants; clearing them
+05:45 C7Final COMPILED: x_goal (X' halts, N ones, f_omega^2 and f_omega^4 (12Bx+27) < N) and x_halts: Closed under the global context (371 s)
+2026-10-22 05:50 DONE. c7/probe.v: c7_all_ok (c7_halts, c7_lower f_omega^4, c7_beats_m8_bound) and c7_table Closed
+  under the global context.  sched: 42-file closure up to date.  REPORT.txt written.
+2026-10-22 10:08:19 killed my own orphan python 45592 (V-formula check from 01:55; the s=0 case never halts and looped; superseded by vcheck2)
+2026-10-22 10:35:18 REBOOT RESUME (agent c7 lower5): running sched.py 2 c7/probe.v to check .vo consistency
+2026-10-22 10:36 after reboot: sched.py 2 c7/probe.v -> "START 0 to build, DONE ok=42": all 42 .vo of the closure intact.
+2026-10-22 10:45 TASK A paper check (f_omega^5).  The existing chain (C7Score.chain_bound) starts its f_omega levels
+  at R2 with the argument a = 12Bx+27 (only "D3 > a"), i.e. it throws R1's level away.  But R1 is itself a clear at a
+  depth linear in Bx:  R1 = iter (j1+6) (U (3 j1 + 12)) 0 with 5 j1 = 9 Bx - 9 (C7Arith E1), i.e. depth
+  3 j1 + 12 = (27Bx+33)/5 = K2 - 2 and digit v = j1 + 6 = (K2+4)/3 with K2 = (27B+43)/5 = 3 j1 + 14: exactly the c7-check
+  CDP parameters (v=(K2+4)/3, j=K2-2).  So for any y with y + 1 <= 3 j1 + 12 (y <= (27Bx+28)/5):
+    f_omega y <= U (3j1+12) 0 <= R1                         (Score: fomega_le_U + U monotone, = C7Score.fw_le_U0)
+    f_omega^2 y < U (D3) 0 <= R2,  D3 = 12 R1 + 3j1 + 17 >= f_omega y + 2           (S1_core)
+    f_omega^3 y < U (3j2+12) 0 <= R3, 5 j2 + 19 = 9 R2 + 12 R1 + 3 j1 + 17 => 3j2+12 >= R2 + 2   (S1_core)
+    f_omega^4 y < U (D5) 0 <= R4,  D5 = 12 R3 + ... >= f^3 y + 2                      (S1_core)
+    f_omega^5 y < U (3j3+21) 0 <= R5, 5 j3 + 21 = 9 R4 + ... => 3j3+21 >= R4 + 2      (S1_core)
+  and R5 <= R10 <= N is already proved (R5_le_R10, C7Final's ones count).  Growth after R5 is irrelevant for a lower
+  bound.  So the claim HOLDS: N > f_omega^5 (y) for y = 2 * 2^^13 3 = 4 Bx + 8 (needs 7 Bx >= 12) and, with the cheap
+  lemma f (S k) x <= U k x (same induction as Score.f_le_U, base f 1 x = 2x <= U 0 x), f_omega 11 = f 11 11 <= U 10 11
+  <= U 10 (U 10 0) = Bx, hence also N > f_omega^6 (11).  No monotonicity of f_omega needed (each step only uses
+  "previous value + 2 <= depth").
+  Plan: x/dev/C7Score5.v (fS_le_U, fw11_le_Bx, chain5), x/dev/C7Final5.v (x_goal5 = copy of x_goal's run, new bounds),
+  c7/Lower5.v (Sim transfer + c7_lower5, c7_lower6_11), c7/probe5.v.  Existing files untouched.
+2026-10-22 10:38:39 C7Score5.v compiled (15 s, chain5_arrow Closed). Wrote C7Final5.v (copy of x_goal's run, new bounds); compiling
+2026-10-22 10:42:05 C7Final5 compiled (97 s, Closed) with the f^6(11) corollary; upgraded to f^6(12) via f (k+2) x <= U k x (f_omega 12 = f 12 12 <= U 10 12 <= Bx); rebuilding via sched for c7/probe5.v
+10:52 killed my own coqc 28596 (Lower5.v: 16.7 GB memory after 6 min CPU, a conversion blow-up)
+11:02 killed my own coqc 31068 (Lower5.v again 19 GB; Opaque Defs.f_omega did not help; bisecting in scratch)
+2026-10-22 11:06 TASK A DONE.  Lower5 blow-up (16-19 GB, killed twice): rewrite !fomega_eq / exact on goals whose
+  f_omega argument is a numeral (12) or a sum (4 Bx + 8) let the tactic unifier evaluate the fixpoint f when comparing
+  Defs.f_omega with Score.f_omega.  Fix: transfer lemmas tr5/tr6 with a VARIABLE argument (rewrite there is stuck on the
+  fix), then instantiate.  LESSON: never let Defs.f_omega <-> Score.f_omega be unified at a closed argument.
+  New files (existing ones untouched): x/dev/C7Score5.v (dbl_iter, fSS_le_U: f (k+2) x <= U k x, fw12_le_Bx,
+  chain5, chain5_arrow), x/dev/C7Final5.v (x_goal5: x_goal's run verbatim + f^5 (4Bx+8) < N, f^6 12 < N),
+  c7/Lower5.v (c7_score_x5, arg5, tr5, tr6, c7_lower5 : ... -> f_omega^5 (2 * arrow 13 2 3) < N,
+  c7_lower6_12 : ... -> f_omega^6 12 < N), c7/probe5.v (c7_all5 = c7_halts /\ c7_lower5 /\ c7_lower6_12 with qualified
+  names; Print Assumptions c7_all5_ok and c7_table: both "Closed under the global context", logs/c7_probe5.log).
+  Times (Idle): C7Score5 12 s, C7Final5 107 s, Lower5 7 s, probe5 75 s.  sched: closure of probe5 + probe up to date (46).
+  BUILD COMMAND for lead verification:  cd bb9_c7_coq && python tools/sched.py 2 c7/probe5.v   (log logs/c7_probe5.log;
+  to force the new files: delete x/dev/C7Score5.vo x/dev/C7Final5.vo c7/Lower5.vo c7/probe5.vo first).
+  Note M8's headline is f_w^3(12) < sigma < f_w^3(13): C7 is f_w^6(12) < sigma, three f_omega above.
+2026-10-22 15:10 FINAL: PR #32 (C7 + Lower5: f_omega^5(2*2^^13 3) < sigma, f_omega^6(12) < sigma) merged as 09295ab after CI job bb9-c7 passed in 36m46s (only bb9-c7 ran). Tasks A and B complete; no processes of mine left running.

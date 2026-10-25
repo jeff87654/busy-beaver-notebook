@@ -1,0 +1,2 @@
+machine	halted_step	n_templates	grade	template	w1	params
+#summary	machines=1500	halted=19	W1-HALTER=0	W1-HALT?=0	W1-LOOPER=0	MULTI=0	MULTI?=0	LOOPER=0	REBUILD=0	CHAMPION=0	R4-SOME=0	HALT?=0	HALT-SOME=0	CHECK=0	NOBOUNDARY=0	SAFE=0

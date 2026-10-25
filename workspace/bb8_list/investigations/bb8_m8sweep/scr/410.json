@@ -1,0 +1,1 @@
+{"i": 410, "m": "1RB1LE_1RC1RD_0RD0RB_1LA1RB_---0LF_0LG0LG_1LC1LG", "tmpl": "R,D,P=1,u=1,s=0,d=2d+0,b=2b+1,S=011", "cls": [189], "M": 60, "runs": [{"X": "F0", "s": 0, "c": 9, "v": "g0", "snap": {"step": 18, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "410_F0_c9_g0.txt"}], "time": 0.6}

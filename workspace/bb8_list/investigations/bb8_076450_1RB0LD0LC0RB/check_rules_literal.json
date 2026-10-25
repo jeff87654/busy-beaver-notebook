@@ -1,0 +1,17 @@
+{
+ "R1": {
+  "cases": 6912,
+  "passed": 6912
+ },
+ "R2": {
+  "cases": 1728,
+  "passed": 1728
+ },
+ "R3": {
+  "cases": 1728,
+  "passed": 1728
+ },
+ "total": 10368,
+ "failed": 0,
+ "max_steps_single_instance": 400
+}

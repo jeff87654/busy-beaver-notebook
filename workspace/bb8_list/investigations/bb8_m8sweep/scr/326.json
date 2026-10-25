@@ -1,0 +1,1 @@
+{"i": 326, "m": "1RB0RF_1LC1RA_0LD1RC_0RA0LE_0LG1LD_1RG---_0RB0RA", "tmpl": "L,A,P=1,u=01,s=0,d=1d+0,b=2b+0,S=-", "cls": [96], "M": 60, "runs": [{"X": "F0", "s": 0, "c": 36, "v": "g0", "snap": {"step": 9, "nj": 0, "maxk": 0, "nesc": 0, "R": 0}, "file": "326_F0_c36_g0.txt"}], "time": 0.8}

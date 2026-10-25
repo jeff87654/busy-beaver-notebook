@@ -1,0 +1,90 @@
+C04 deep investigation -- running notes (crash-safe).  Workspace: bb9_c04_deep
+Machine: C04 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_1LH0LC_0RG1LD_0LH1LH_1RI---_0RI0RF
+Undefined slot: H1 (state H reading 1).  H is entered only from E0 (1LH) and G (0LH/1LH).
+Tools copied from bb9_parked: ktr.exe (literal K-moment tracer), pkf3/pkf4.exe (literal + CL/R1 jumps), towermod.py, c04res.py.
+
+2026-10-17 start.  Plan:
+ 1. Re-derive the macro structure myself on small literal instances (ktr/pkf4) in every context.
+ 2. Decide: is the level-B cascade geometric (-> leading digits of B) or a countdown (-> computable)?
+    Key observation from bb9_parked/runs/C04_R2_346.txt: in the post-ESC context the chain stop has the form
+    "(z+5) 7 1^z" (counter mode: near list frozen, counter -= 3 per clear), NOT "X 1^z" (chain mode).
+    Need to know which forms occur in the REAL contexts.
+
+== Findings 1 (worlds, pkf4) ==
+world_A: 0,0,1^1792;1;152;3 (R2=50), Rlist 40,30,2000,3000,...:
+  J1 exh#2 -> 1077 4 645 6 385 6 232 1^590 0 2 z2 136 1^129   (k3=129, X=k3+7, P=12R2-10=590)
+  J2 exh#3 -> ... 6 229 249 2 80 1^583 0 2 z2 46 1^39         (y4-3, insert (6R3+9) 2 y', P-7, X=46 z=39)
+  J3 exh#4 (k=39, size endgame) -> ESC: ... 2 77 189 2 23 6 13 2 5 4 6 7 1^561  (k=561=P-29 cleared, R=2000)
+  J4 post-ESC: ... 4 3 12007 1^561   (counter 6->3, 7 -> 6R+7)
+  J5         : ... 4 0 18007 1^561   (counter 3->0)
+  then HALT H1.   => in this world: HALT shortly after the 2nd escalation, sigma ~ 2*R7 where R7 = clear(digit 2R6+2 at depth 561).
+ctx4 z=33 (agent's invented context): J1 R1 (m=3->0) then HALT H1 at step 2e8.  So the "R1" outcomes of endg_ctx4 are HALTs.
+  L-sequence 94 -> 46 -> 34 -> 10 ; L=10 (stop value < 30) is the HALT path.  Same as top-level n=32 (L0=94).
+e2 n=4917 R2=40: 2952 4 1770 6 1060 6 637 1^470 0 2 z2 379 1^372 : k3 = (243n-32331)/3125 = 372 OK, X = 379 = k3+7.
+Arithmetic: every sub-step value L = (3L'+c)/5 with c in {32,-46,-64,-52} is = 1 mod 3; stops (L = 0 mod 5) are L = 10 mod 15.
+
+== Findings 2 (survey in real-like context "0,0,1077,4,645,6,385,6,229,19749,2,77,1*3000,0,2,z2 | 1^k", R0=300, Rlist 400,500,..) ==
+Entries into an exhaustion always have k = 0 mod 3 (z=(L-25)/5 with L = 10 mod 15).  Fates:
+ (a) B-HALT: chain hits L=10 -> "... 7 1^N 0 2 3 | m=3 r=2" -> R1 (m=0 r=8) -> HALT H1 ~1000 steps later.  k=5 (L0=10), 13 (34), 17 (46), 33 (94,46,34,10),
+     59,61,97,103 (->94), 65,113 (->190 stop -> k=33).  Bad tree: 10 <- 34 <- 46 <- 94 <- {172,178,190} <- ...  (each L=1 mod 3 has 1 preimage if L=1,7 mod 9,
+     3 preimages (r=2,3,stop) if L=4 mod 9).  Among k=0 mod 3 in [0,120): only k=33.  sigma ~ 24 R2 ~ f_w(12B): NOT a record.
+ (b) ESC (parked list activated) with chain tokens ending "... 6 7 |" -> counter mode 6->3->0 -> HALT after 3 clears.  Most common.
+ (b') ESC with "... 2 7 |" and P' = 1 mod 5 -> one post-ESC sub-step P' -> (3P'-33)/5 then counter 3 -> 0 -> HALT (4 clears).  (k=24,56,78,110)
+ (c1) tiny k (0,2,7; and 10 via C0): ESC with "74 [C~0.6P] [6R+7] 1^P'" -> C/3 clears (C -= 3 each) -> HALT (tested: "74 0 8407|" -> HALT, "74 3 8407|" -> 2 clears -> HALT).
+ (c2) ESC with "... 2 7 |" and P' != 1 mod 5 -> post-ESC sub-step with c' = (30,33,21,34,37) for P' mod 5 = (0,1,2,3,4), then forms "2 1 [C] T 1^z",
+     "2 3 T 2 z2 [C] T' 1^z", "2*2 T z2 0 2 z2 [C] T' 1^z", "2 4 T [C] T' 1^z": long countdown C -= 3 per clear; at C=0 the C04_R2_346 data show
+     "2 1 [6R+T+8] 7 1^(z-1)": nested countdown in z.  END UNKNOWN -> to analyse in mini worlds.
+Chain tokens: y_i = (L_{i-1}+d_r)/5 with d = (-21, 3, 7, 11) for r = (1,2,3,4); separators s_r = ("4 5", "2", "6", "4").
+Small-L (< 30) behaviour differs from the formulas: L=25 mid-chain is not a stop (k=12: 31->25 -> ESC "2 7"-type), L=13 -> ESC "6 7", L=16 -> (c1), L=19 -> "4 6 7".
+Real first exhaustions (real_chain.py, B mod 5^120): sub-step counts 4,8,4,6,0,0,2,3,3,4,3,6,0,2,5,3,21,1,1,4,12,0,...  (exh#2 = 4433 matches agent).
+
+== KEY FINDING (parity invariant) ==
+Every chain constant c_r (32,-46,-64,-52,-100) is EVEN, so L' = (3L+c)/5 has L' = L (mod 2): parity is invariant along the whole
+level-B cascade (as long as the sub-step formulas hold, L >= ~60).  L0 = 36B+73 is ODD.  The B-HALT bad tree (10 <- 34 <- 46 <- 94 ...)
+is entirely EVEN.  => class (a) is IMPOSSIBLE for the real run.  The entry key (first chain value < 60) is odd, = 1 mod 3, hence in
+{31, 37, 43, 49, 55}.  Survey: 37 -> 13 -> (b); 43 -> 13 -> (b) [k=732 route, to verify]; 49 -> 19 -> (b); 55 -> stop k=6 -> 13 -> (b);
+31 -> 25 -> ESC through "2 7" context: (b') if P' = 1 mod 5 else (c2).  MC entry weights (uniform prior): 31: .26, 37: .04, 43: .01, 49: .17, 55: .016
+(conditioned on odd: 31: .52, 49: .35, 37: .08, 55: .03, 43: .02).  So: HALT after 2nd escalation certain unless (c2) [key 31, P' != 1 mod 5,
+heuristic weight ~0.42] fails to halt.  (c2) fate = the remaining crux.
+
+== Findings 3: post-ESC (c2) variants all HALT (mini worlds, R=20-30 fixed) ==
+ P' mod 5 at the post-ESC step decides the variant (P' -> (3P'-c')/5, c' = 30,33,21,34,37 for P' mod 5 = 0,1,2,3,4):
+  =1: "... 2 0 T|" after 3 clears -> HALT (b').
+  =0: "... 2 1 [C=6R+~0.6P'] T|": C -= 3 per clear; at C=0 -> HALT.            (t2 mini, C04_R2_346 end)
+  =2: "... 2 4 (6R+1) [C] T|": at C=0 -> HALT.
+  =3: "... 2 3 (6R+6) 2 z2 [C] T|": at C=0 -> "2 3 (6R+4) (T+3) 1^z" -> "2 0 T' 1^(z+1)" -> HALT.
+  =4: "... 2*2 (6R+7) z2 0 2 z2 [C] T|": at C=0 -> "2 1 [6R'+T+8] 7 1^(z-1)" -> countdown -> HALT.  (c2nest: HALT at J~108)
+ All observed counters C are = 0 mod 3.  (b) "6 7|" -> 6,3,0 -> HALT needs no residue.
+ pk.sh caveat: default --R 999999 after the Rlist is exhausted => 36R^2 ~ 4e13-step rebuilds (the "stuck" t2 run).  Give enough Rlist.
+ => In the model, EVERY reachable endgame (odd key) ends in HALT after the 2nd escalation.
+
+== Findings 4: robustness ==
+ exh#1 re-verified myself: b=7 -> 1^108, b=100 -> 1^1224 (= 12b+24), m=1 r=2 t=3.
+ robust1 (P = 3000..3005, k in {3,6,9,12,18,24,42,48,54,60}): b-keys -> HALT 3 clears after ESC for every P; key-31 entries split
+   (b')/(c2) exactly by P' mod 5; all (c2) counters = 0 mod 3 (1761..1779, 4167..4185, 4779/4782, 5382/5385).
+ robust2 (R0 = 5000 > P = 3000, Rlist 6000..10000): identical forms (counter 37788 = 6*6000+1788), k=24 -> HALT (b'), k=42,18 -> HALT (b).
+ e2e worlds from exhaustion #2 (n = 1792+3125j, R2 = 50, later R = 200+10k order-faithful): j=0..4 ALL end HALT H1 three clears after
+   the ESC; the parity-correct ones (n odd: j=1,3) go 372->..., 858->180->102->ESC.  Even-n controls (j=0,2,4) also (b) (key 46 has ~1% weight).
+ Reclassified survey (final form): odd keys 37,49,55,13 -> b only; key 31 -> 43 c2 + 8 b; key 46 -> a (only even).  Stops check: 280/280.
+ Heuristic (uniform odd start): key 31 .52, 49 .35, 37 .08, 55 .03, 43 .02 => P(HALT 3-4 clears after ESC) ~ .58, P(c2 countdown) ~ .42.
+ robust2 rest: bigR k=6 -> b; k=54 -> c2 (counter 1776); y=80/t=25/tok=19752 and y=79/tok=19751 (different residues mod 3):
+   same classes and forms (k=12 c2 counters 4188/4194 = 0 mod 3; k=42, 18 -> HALT 3 clears).  k=732 (key 43 route 2191 -> ... -> 43 -> 13):
+   ESC "6 10 6 7" -> HALT after 3 clears (class b) as predicted.
+ e2e j=5 (n=17417 odd, parity-correct): 1344 -> 282 -> 30 -> 12 (L0=31, key 31) -> ESC "2 6 2 7" -> P'=525 = 0 mod 5 -> "2 1 [33024=6*5450+324] 7 1^309"
+   counter mode (c2 variant P'=0), cut at 14 jumps.  Consistent.
+ c2ends (big context, R=800..1000): "2 1 0 T|" -> HALT; "2 4 (6R+1) 0 T|" -> HALT; "2 3 (6R+6) 2 z2 0 T|" -> "2 3 (6R+4) (T+3)" -> "2 0 T'" -> HALT;
+   "2*2 (6R+7) z2 0 2 z2 0 T|" -> "2 1 [8415=6*800+3607+8] 7 1^1777" (nested form, then halts by the first case).  All as in the minis.
+ REPORT.txt written (sections 0-8).  c2full (full countdowns, fixed R=400) still running at the time of the report.
+
+== Findings 5: lead's airtightness requests ==
+ Refined exhaustion rule (rule_test.py, randomized contexts: random far tokens, triples/6R+12 tokens/separators, A, P, t, R; 62 cases,
+ 117+ exhaustions, 0 mismatches incl. the parked-list length):
+   L0 = 3n-5; sub-step r: s_r y_r written, y = (L+d_r)/5, parked list loses a_r = (11,4,6,6) zeros for r = (1,2,3,4); stop: the LAST token
+   written carries +3 (y_s+3; or 6R+12 = (6R+9)+3 when s=0), the previously adjacent token loses 3, parked list loses 3 more, t += 3(s+1),
+   view "X 1*k'" with k' = (L-25)/5 (incl. m), X = k'+7; next exhaustion on n' = k'.  (My earlier "P-7 per exhaustion" was the r=2 case.)
+ e2e chains #3..#6 (k3 = 129, 372, 615, 858, 1101, 1344) match the formula stop-by-stop (e.g. 1344 -> 282 -> 30 -> 12).
+ pmod15 (P = 3006..3014, with robust1 = all 15 residues): keys 49 (k=18,36), 37 (k=42): HALT for every P; key 31 (k=12,24,60): HALT iff
+   P' = 1 mod 5 (one P in five per route), else the 4 (c2) variants, counters all = 0 mod 3.
+ routes: keys 43 (k=732,1224,1230,2046,3402,3414), 55 (192,324,330,546,912,918), 37 (618,666,672,678,966,1116): all HALT 3-4 clears after ESC.
+ No persistent counter exists in the cascade: the -3 always hits the previous exhaustion's last token (>= 10) or a 6R+12 token.
+ PROOF_SKETCH.txt written (rules R0-R4, A1-A2, induction I, Coq plan).

@@ -1,0 +1,58 @@
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0LI0RE_0RJ0RF_1RI---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0LI0RE_0RJ1LF_0RI---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0LI0RE_1RJ1LE_0RI---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+45)] ones=2*R1+24*b+45
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---0RJ_1LF1LJ	CAND	RESULT HALT stages=3 full_cycles=0 history=[('J', 'block', False), ('J', 'left', False), ('H', 2*R1+24*b+219)] ones=2*R1+24*b+219
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LF_------	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LJ_0RB---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LJ_0RJ1LF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LJ_1RG---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LJ_1RI0RB	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LJ_1RI1RG	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1LJ_1RJ0RF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---1RJ_1RG1LJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_0RJ0LI_1LF---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_1RJ0LI_0RF---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1LI0RE_0RI0RJ_---1LF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1LI0RE_0RI1RJ_---0RF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1LI0RE_1RI0RJ_---1LE	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---0LJ_0RF1RJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---0LJ_1LF0RJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---0RF_------	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---0RJ_0RF1LJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1LJ_---0RB	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1LJ_---1RG	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1LJ_0RB0RI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1LJ_0RF0LJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1LJ_1RE0LJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1LJ_1RG0RI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---1RJ_0RH1LJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+41)] ones=2*R1+24*b+41
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_0RJ---_---1LF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_0RJ1LF_---1LH	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_1LH0RJ_---1LF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_1LH1RJ_---0RF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_1RJ---_---0RF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_1RJ0RB_---1LI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_0RI0RE_1RJ1RG_---1LI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_1RI0RE_0RI1LJ_0LG---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+45)] ones=2*R1+24*b+45
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_1RI0RE_0RJ---_0LG1LJ	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+45)] ones=2*R1+24*b+45
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_1RI0RE_1RJ0LG_---1LI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+45)] ones=2*R1+24*b+45
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RH0RF_1LI0RE_0RJ1LC_---0RI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'a-block', False), ('H', 2*R1+24*b+22)] ones=2*R1+24*b+22
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RI1LJ_0RB---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', '2*R1+24*b+46')] ones=2*R1+24*b+46
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RI1LJ_1RG---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', '2*R1+24*b+46')] ones=2*R1+24*b+46
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RJ---_0RJ1RD	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+48)] ones=2*R1+24*b+48
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RJ0LC_1LI0RI	CAND	RESULT HALT stages=3 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('H', 2*R2+24*b+28)] ones=2*R2+24*b+28
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RJ0RF_1RI---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RJ1LF_0RI---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+43)] ones=2*R1+24*b+43
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0RJ1LH_1LI1RI	CAND	RESULT HALT stages=3 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('H', 2*R2+24*b+54)] ones=2*R2+24*b+54
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_1RJ0LG_0RJ1LI	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+44)] ones=2*R1+24*b+44
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_1RJ1LJ_1RI0LG	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+45)] ones=2*R1+24*b+45
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0LG0RE_1RJ1LH_0RI---	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+45)] ones=2*R1+24*b+45
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0LJ0RE_0LG---_0RJ0LC	CAND	RESULT HALT stages=3 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('H', 2*R2+24*b+46)] ones=2*R2+24*b+46
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0LJ0RE_0LG---_0RJ1LF	CAND	RESULT HALT stages=3 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('H', 2*R2+24*b+46)] ones=2*R2+24*b+46
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0LJ0RE_0LG---_0RJ1RD	CAND	RESULT HALT stages=3 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('H', 2*R2+24*b+46)] ones=2*R2+24*b+46
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0LJ0RE_0RH---_0RJ1LF	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+46)] ones=2*R1+24*b+46
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_0LJ0RE_0RH---_0RJ1RD	CAND	RESULT HALT stages=2 full_cycles=0 history=[('J', 'block', False), ('H', 2*R1+24*b+48)] ones=2*R1+24*b+48
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---0LJ_1RJ1LG	CAND	RESULT UNCLEAR-T stages=4 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('J', 'block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_0RI0RE_---0LJ_1RJ0RA	CAND	RESULT UNCLEAR-T stages=4 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('J', 'block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LG0LC_1RG1LD_0RH0RF_1RI0RE_---0RJ_1LH1LJ	CAND	RESULT UNCLEAR-T stages=4 full_cycles=0 history=[('J', 'block', False), ('J', 'block', False), ('J', 'block', False), ('T',)]
+1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LI0LC_1RG1LD_0RH0RF_---0RE_0LJ---_0RJ1LF	CAND	RESULT FAIL no consistent step: [(1, 'JJ'), (2, 'JJ'), (3, 'JJ'), (4, 'JJ'), (5, 'JJ'), (6, 'JJ'), (7, 'JJ'), (8, 'JJ'), (9, 'JJ'), (10, 'JJ'), (12, 'JJ'), (14, 'JJ'), (15, 'JJ'), (16, 'JJ'), (18, 'JJ'), (20, 'JJ'), (21, 'JJ'), (24, 'JJ'), (28, 'JJ'), (30, 'JJ'), (35, 'JJ'), (36, 'JJ'), (42, 'JJ'), (45, 'JJ'), (48, 'JJ'), (56, 'JJ'), (60, 'JJ'), (70, 'JJ'), (72, 'JJ'), (84, 'JJ'), (90, 'JJ'), (105, 'JJ'), (120, 'JJ'), (126, 'JJ'), (140, 'JJ'), (168, 'JJ'), (180, 'JJ'), (210, 'JJ'), (252, 'JJ'), (280, 'JJ'), (315, 'JJ'), (360, 'JJ'), (420, 'JJ')]

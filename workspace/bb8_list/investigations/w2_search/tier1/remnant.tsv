@@ -1,0 +1,378 @@
+1	g=1	RESTART	c=79	d=0	P=()	st=2
+1	g=2	RESTART	c=81	d=2	P=()	st=1
+1	g=3	RESTART	c=79	d=0	P=()	st=3
+1	g=4	H	('J', 0)	st=1
+1	g=5	MAX		st=30
+1	g=6	RESTART	c=81	d=2	P=()	st=1
+10	g=1	RESTART	c=81	d=2	P=()	st=1
+10	g=2	RESTART	c=79	d=0	P=()	st=3
+10	g=3	H	('J', 0)	st=1
+10	g=4	MAX		st=30
+10	g=5	RESTART	c=81	d=2	P=()	st=1
+10	g=6	MAX		st=30
+11	g=1	RESTART	c=80	d=1	P=()	st=1
+11	g=2	RESTART	c=79	d=0	P=()	st=3
+11	g=3	RESTART	c=79	d=0	P=()	st=4
+11	g=4	H	('J', 0)	st=2
+11	g=5	RESTART	c=80	d=1	P=()	st=1
+11	g=6	MAX		st=30
+100	g=1	RESTART	c=79	d=0	P=()	st=3
+100	g=2	H	('J', 0)	st=1
+100	g=3	MAX		st=30
+100	g=4	RESTART	c=81	d=2	P=()	st=1
+100	g=5	MAX		st=30
+100	g=6	H	('J', 0)	st=1
+101	g=1	RESTART	c=79	d=0	P=()	st=3
+101	g=2	RESTART	c=83	d=4	P=()	st=1
+101	g=3	RESTART	c=79	d=0	P=()	st=3
+101	g=4	H	('J', 0)	st=1
+101	g=5	RESTART	c=79	d=0	P=()	st=2
+101	g=6	RESTART	c=83	d=4	P=()	st=1
+110	g=1	RESTART	c=79	d=0	P=()	st=3
+110	g=2	RESTART	c=79	d=0	P=()	st=4
+110	g=3	H	('J', 0)	st=2
+110	g=4	RESTART	c=80	d=1	P=()	st=1
+110	g=5	MAX		st=30
+110	g=6	H	('J', 0)	st=10
+111	g=1	H	('J', 0)	st=1
+111	g=2	RESTART	c=82	d=3	P=()	st=1
+111	g=3	RESTART	c=79	d=0	P=()	st=3
+111	g=4	H	('J', 0)	st=1
+111	g=5	H	('J', 0)	st=1
+111	g=6	RESTART	c=82	d=3	P=()	st=1
+1000	g=1	H	('J', 0)	st=1
+1000	g=2	MAX		st=30
+1000	g=3	RESTART	c=81	d=2	P=()	st=1
+1000	g=4	MAX		st=30
+1000	g=5	H	('J', 0)	st=1
+1000	g=6	H	('J', 0)	st=23
+1001	g=1	RESTART	c=79	d=0	P=()	st=3
+1001	g=2	RESTART	c=79	d=0	P=()	st=5
+1001	g=3	H	('J', 0)	st=24
+1001	g=4	H	('J', 0)	st=23
+1001	g=5	MAX		st=30
+1001	g=6	RESTART	c=82	d=3	P=()	st=2
+1010	g=1	RESTART	c=83	d=4	P=()	st=1
+1010	g=2	RESTART	c=79	d=0	P=()	st=3
+1010	g=3	H	('J', 0)	st=1
+1010	g=4	RESTART	c=79	d=0	P=()	st=2
+1010	g=5	RESTART	c=83	d=4	P=()	st=1
+1010	g=6	H	('J', 0)	st=1
+1011	g=1	H	('J', 0)	st=23
+1011	g=2	RESTART	c=80	d=1	P=()	st=2
+1011	g=3	RESTART	c=79	d=0	P=()	st=3
+1011	g=4	H	('J', 0)	st=1
+1011	g=5	H	('J', 0)	st=23
+1011	g=6	H	('J', 0)	st=1
+1100	g=1	RESTART	c=79	d=0	P=()	st=4
+1100	g=2	H	('J', 0)	st=2
+1100	g=3	RESTART	c=80	d=1	P=()	st=1
+1100	g=4	MAX		st=30
+1100	g=5	H	('J', 0)	st=10
+1100	g=6	H	('J', 0)	st=2
+1101	g=1	H	('J', 0)	st=2
+1101	g=2	RESTART	c=79	d=0	P=()	st=4
+1101	g=3	MAX		st=30
+1101	g=4	H	('J', 0)	st=1
+1101	g=5	MAX		st=30
+1101	g=6	MAX		st=30
+1110	g=1	RESTART	c=82	d=3	P=()	st=1
+1110	g=2	RESTART	c=79	d=0	P=()	st=3
+1110	g=3	H	('J', 0)	st=1
+1110	g=4	H	('J', 0)	st=1
+1110	g=5	RESTART	c=82	d=3	P=()	st=1
+1110	g=6	MAX		st=30
+1111	g=1	RESTART	c=79	d=0	P=()	st=2
+1111	g=2	H	('J', 0)	st=1
+1111	g=3	H	('J', 0)	st=1
+1111	g=4	H	('J', 0)	st=1
+1111	g=5	RESTART	c=84	d=5	P=(12,)	st=1
+1111	g=6	H	('J', 0)	st=1
+10000	g=1	MAX		st=30
+10000	g=2	RESTART	c=81	d=2	P=()	st=1
+10000	g=3	MAX		st=30
+10000	g=4	H	('J', 0)	st=1
+10000	g=5	H	('J', 0)	st=23
+10000	g=6	RESTART	c=81	d=2	P=()	st=1
+10001	g=1	RESTART	c=81	d=2	P=()	st=2
+10001	g=2	H	('J', 0)	st=1
+10001	g=3	H	('J', 0)	st=3
+10001	g=4	H	('J', 0)	st=1
+10001	g=5	MAX		st=30
+10001	g=6	H	('J', 0)	st=1
+10010	g=1	RESTART	c=79	d=0	P=()	st=5
+10010	g=2	H	('J', 0)	st=24
+10010	g=3	H	('J', 0)	st=23
+10010	g=4	MAX		st=30
+10010	g=5	RESTART	c=82	d=3	P=()	st=2
+10010	g=6	RESTART	c=79	d=0	P=()	st=2
+10011	g=1	RESTART	c=82	d=3	P=()	st=1
+10011	g=2	RESTART	c=79	d=0	P=()	st=4
+10011	g=3	MAX		st=30
+10011	g=4	RESTART	c=79	d=0	P=()	st=3
+10011	g=5	RESTART	c=82	d=3	P=()	st=1
+10011	g=6	MAX		st=30
+10100	g=1	RESTART	c=79	d=0	P=()	st=3
+10100	g=2	H	('J', 0)	st=1
+10100	g=3	RESTART	c=79	d=0	P=()	st=2
+10100	g=4	RESTART	c=83	d=4	P=()	st=1
+10100	g=5	H	('J', 0)	st=1
+10100	g=6	H	('J', 0)	st=1
+10101	g=1	RESTART	c=79	d=0	P=()	st=1
+10101	g=2	RESTART	c=85	d=6	P=()	st=1
+10101	g=3	RESTART	c=79	d=0	P=()	st=3
+10101	g=4	RESTART	c=81	d=2	P=()	st=1
+10101	g=5	RESTART	c=79	d=0	P=()	st=2
+10101	g=6	RESTART	c=85	d=6	P=()	st=1
+10110	g=1	RESTART	c=80	d=1	P=()	st=2
+10110	g=2	RESTART	c=79	d=0	P=()	st=3
+10110	g=3	H	('J', 0)	st=1
+10110	g=4	H	('J', 0)	st=23
+10110	g=5	H	('J', 0)	st=1
+10110	g=6	MAX		st=30
+10111	g=1	H	('J', 0)	st=1
+10111	g=2	MAX		st=30
+10111	g=3	MAX		st=30
+10111	g=4	H	('J', 0)	st=4
+10111	g=5	H	('J', 0)	st=1
+10111	g=6	H	('J', 0)	st=23
+11000	g=1	H	('J', 0)	st=2
+11000	g=2	RESTART	c=80	d=1	P=()	st=1
+11000	g=3	MAX		st=30
+11000	g=4	H	('J', 0)	st=10
+11000	g=5	H	('J', 0)	st=2
+11000	g=6	RESTART	c=80	d=1	P=()	st=1
+11001	g=1	RESTART	c=80	d=1	P=()	st=2
+11001	g=2	MAX		st=30
+11001	g=3	H	('J', 0)	st=1
+11001	g=4	H	('J', 0)	st=1
+11001	g=5	H	('J', 0)	st=1
+11001	g=6	H	('J', 0)	st=2
+11010	g=1	RESTART	c=79	d=0	P=()	st=4
+11010	g=2	MAX		st=30
+11010	g=3	H	('J', 0)	st=1
+11010	g=4	MAX		st=30
+11010	g=5	MAX		st=30
+11010	g=6	H	('J', 0)	st=1
+11011	g=1	RESTART	c=81	d=2	P=()	st=1
+11011	g=2	H	('J', 0)	st=2
+11011	g=3	H	('J', 0)	st=3
+11011	g=4	H	('J', 0)	st=1
+11011	g=5	RESTART	c=81	d=2	P=()	st=1
+11011	g=6	MAX		st=30
+11100	g=1	RESTART	c=79	d=0	P=()	st=3
+11100	g=2	H	('J', 0)	st=1
+11100	g=3	H	('J', 0)	st=1
+11100	g=4	RESTART	c=82	d=3	P=()	st=1
+11100	g=5	MAX		st=30
+11100	g=6	H	('J', 0)	st=23
+11101	g=1	H	('J', 0)	st=14
+11101	g=2	RESTART	c=84	d=5	P=()	st=1
+11101	g=3	RESTART	c=79	d=0	P=()	st=3
+11101	g=4	H	('J', 0)	st=1
+11101	g=5	H	('J', 0)	st=1
+11101	g=6	RESTART	c=84	d=5	P=()	st=1
+11110	g=1	H	('J', 0)	st=1
+11110	g=2	H	('J', 0)	st=1
+11110	g=3	H	('J', 0)	st=1
+11110	g=4	RESTART	c=84	d=5	P=(12,)	st=1
+11110	g=5	H	('J', 0)	st=1
+11110	g=6	H	('J', 0)	st=1
+11111	g=1	H	('J', 0)	st=25
+11111	g=2	H	('J', 0)	st=15
+11111	g=3	H	('J', 0)	st=1
+11111	g=4	H	('J', 0)	st=1
+11111	g=5	MAX		st=30
+11111	g=6	RESTART	c=86	d=7	P=(12,)	st=1
+100000	g=1	RESTART	c=81	d=2	P=()	st=1
+100000	g=2	MAX		st=30
+100000	g=3	H	('J', 0)	st=1
+100000	g=4	H	('J', 0)	st=23
+100000	g=5	RESTART	c=81	d=2	P=()	st=1
+100000	g=6	H	('J', 0)	st=15
+100001	g=1	RESTART	c=79	d=0	P=()	st=4
+100001	g=2	MAX		st=30
+100001	g=3	RESTART	c=80	d=1	P=()	st=2
+100001	g=4	H	('J', 0)	st=1
+100001	g=5	H	('J', 0)	st=1
+100001	g=6	H	('J', 0)	st=23
+100010	g=1	H	('J', 0)	st=1
+100010	g=2	H	('J', 0)	st=3
+100010	g=3	H	('J', 0)	st=1
+100010	g=4	MAX		st=30
+100010	g=5	H	('J', 0)	st=1
+100010	g=6	H	('J', 0)	st=4
+100011	g=1	H	('J', 0)	st=3
+100011	g=2	RESTART	c=79	d=0	P=()	st=4
+100011	g=3	RESTART	c=79	d=0	P=()	st=5
+100011	g=4	H	('J', 0)	st=1
+100011	g=5	H	('J', 0)	st=2
+100011	g=6	RESTART	c=95	d=16	P=()	st=2
+100100	g=1	H	('J', 0)	st=24
+100100	g=2	H	('J', 0)	st=23
+100100	g=3	MAX		st=30
+100100	g=4	RESTART	c=82	d=3	P=()	st=2
+100100	g=5	RESTART	c=79	d=0	P=()	st=2
+100100	g=6	H	('J', 0)	st=23
+100101	g=1	RESTART	c=79	d=0	P=()	st=3
+100101	g=2	RESTART	c=79	d=0	P=()	st=4
+100101	g=3	H	('J', 0)	st=3
+100101	g=4	H	('J', 0)	st=1
+100101	g=5	H	('J', 0)	st=1
+100101	g=6	RESTART	c=79	d=0	P=()	st=3
+100110	g=1	RESTART	c=79	d=0	P=()	st=4
+100110	g=2	MAX		st=30
+100110	g=3	RESTART	c=79	d=0	P=()	st=3
+100110	g=4	RESTART	c=82	d=3	P=()	st=1
+100110	g=5	MAX		st=30
+100110	g=6	H	('J', 0)	st=1
+100111	g=1	H	('J', 0)	st=23
+100111	g=2	RESTART	c=84	d=5	P=()	st=1
+100111	g=3	RESTART	c=79	d=0	P=()	st=3
+100111	g=4	H	('J', 0)	st=3
+100111	g=5	H	('J', 0)	st=23
+100111	g=6	RESTART	c=84	d=5	P=()	st=1
+101000	g=1	H	('J', 0)	st=1
+101000	g=2	RESTART	c=79	d=0	P=()	st=2
+101000	g=3	RESTART	c=83	d=4	P=()	st=1
+101000	g=4	H	('J', 0)	st=1
+101000	g=5	H	('J', 0)	st=1
+101000	g=6	MAX		st=30
+101001	g=1	RESTART	c=79	d=0	P=()	st=4
+101001	g=2	H	('J', 0)	st=2
+101001	g=3	H	('J', 0)	st=2
+101001	g=4	H	('J', 0)	st=28
+101001	g=5	MAX		st=30
+101001	g=6	H	('J', 0)	st=4
+101010	g=1	RESTART	c=85	d=6	P=()	st=1
+101010	g=2	RESTART	c=79	d=0	P=()	st=3
+101010	g=3	RESTART	c=81	d=2	P=()	st=1
+101010	g=4	RESTART	c=79	d=0	P=()	st=2
+101010	g=5	RESTART	c=85	d=6	P=()	st=1
+101010	g=6	H	('J', 0)	st=15
+101011	g=1	RESTART	c=79	d=0	P=()	st=4
+101011	g=2	MAX		st=30
+101011	g=3	RESTART	c=80	d=1	P=()	st=2
+101011	g=4	H	('J', 0)	st=1
+101011	g=5	H	('J', 0)	st=1
+101011	g=6	RESTART	c=95	d=16	P=()	st=2
+101100	g=1	RESTART	c=79	d=0	P=()	st=3
+101100	g=2	H	('J', 0)	st=1
+101100	g=3	H	('J', 0)	st=23
+101100	g=4	H	('J', 0)	st=1
+101100	g=5	MAX		st=30
+101100	g=6	H	('J', 0)	st=2
+101101	g=1	H	('J', 0)	st=2
+101101	g=2	H	('J', 0)	st=3
+101101	g=3	RESTART	c=79	d=0	P=()	st=4
+101101	g=4	MAX		st=30
+101101	g=5	H	('J', 0)	st=14
+101101	g=6	H	('J', 0)	st=1
+101110	g=1	MAX		st=30
+101110	g=2	MAX		st=30
+101110	g=3	H	('J', 0)	st=4
+101110	g=4	H	('J', 0)	st=1
+101110	g=5	H	('J', 0)	st=23
+101110	g=6	H	('J', 0)	st=1
+101111	g=1	H	('J', 0)	st=3
+101111	g=2	H	('J', 0)	st=1
+101111	g=3	H	('J', 0)	st=1
+101111	g=4	H	('J', 0)	st=1
+101111	g=5	H	('J', 0)	st=1
+101111	g=6	H	('J', 0)	st=1
+110000	g=1	RESTART	c=80	d=1	P=()	st=1
+110000	g=2	MAX		st=30
+110000	g=3	H	('J', 0)	st=10
+110000	g=4	H	('J', 0)	st=2
+110000	g=5	RESTART	c=80	d=1	P=()	st=1
+110000	g=6	H	('J', 0)	st=23
+110001	g=1	RESTART	c=79	d=0	P=()	st=4
+110001	g=2	H	('J', 0)	st=10
+110001	g=3	H	('J', 0)	st=1
+110001	g=4	H	('J', 0)	st=1
+110001	g=5	MAX		st=30
+110001	g=6	H	('J', 0)	st=4
+110010	g=1	MAX		st=30
+110010	g=2	H	('J', 0)	st=1
+110010	g=3	H	('J', 0)	st=1
+110010	g=4	H	('J', 0)	st=1
+110010	g=5	H	('J', 0)	st=2
+110010	g=6	H	('J', 0)	st=1
+110011	g=1	MAX		st=30
+110011	g=2	H	('J', 0)	st=3
+110011	g=3	RESTART	c=79	d=0	P=()	st=4
+110011	g=4	H	('J', 0)	st=1
+110011	g=5	H	('J', 0)	st=23
+110011	g=6	H	('J', 0)	st=1
+110100	g=1	MAX		st=30
+110100	g=2	H	('J', 0)	st=1
+110100	g=3	MAX		st=30
+110100	g=4	MAX		st=30
+110100	g=5	H	('J', 0)	st=1
+110100	g=6	H	('J', 0)	st=1
+110101	g=1	RESTART	c=79	d=0	P=()	st=2
+110101	g=2	RESTART	c=79	d=0	P=()	st=2
+110101	g=3	MAX		st=30
+110101	g=4	RESTART	c=86	d=7	P=()	st=1
+110101	g=5	H	('J', 0)	st=15
+110101	g=6	MAX		st=30
+110110	g=1	H	('J', 0)	st=2
+110110	g=2	H	('J', 0)	st=3
+110110	g=3	H	('J', 0)	st=1
+110110	g=4	RESTART	c=81	d=2	P=()	st=1
+110110	g=5	MAX		st=30
+110110	g=6	H	('J', 0)	st=4
+110111	g=1	H	('J', 0)	st=1
+110111	g=2	RESTART	c=83	d=4	P=()	st=1
+110111	g=3	RESTART	c=79	d=0	P=()	st=3
+110111	g=4	H	('J', 0)	st=1
+110111	g=5	H	('J', 0)	st=1
+110111	g=6	RESTART	c=83	d=4	P=()	st=1
+111000	g=1	H	('J', 0)	st=1
+111000	g=2	H	('J', 0)	st=1
+111000	g=3	RESTART	c=82	d=3	P=()	st=1
+111000	g=4	MAX		st=30
+111000	g=5	H	('J', 0)	st=23
+111000	g=6	H	('J', 0)	st=1
+111001	g=1	H	('J', 0)	st=2
+111001	g=2	H	('J', 0)	st=2
+111001	g=3	RESTART	c=82	d=3	P=()	st=2
+111001	g=4	H	('J', 0)	st=1
+111001	g=5	MAX		st=30
+111001	g=6	MAX		st=30
+111010	g=1	RESTART	c=84	d=5	P=()	st=1
+111010	g=2	RESTART	c=79	d=0	P=()	st=3
+111010	g=3	H	('J', 0)	st=1
+111010	g=4	H	('J', 0)	st=1
+111010	g=5	RESTART	c=84	d=5	P=()	st=1
+111010	g=6	H	('J', 0)	st=15
+111011	g=1	H	('J', 0)	st=1
+111011	g=2	RESTART	c=79	d=0	P=()	st=3
+111011	g=3	H	('J', 0)	st=1
+111011	g=4	H	('J', 0)	st=1
+111011	g=5	H	('J', 0)	st=1
+111011	g=6	H	('J', 0)	st=1
+111100	g=1	H	('J', 0)	st=1
+111100	g=2	H	('J', 0)	st=1
+111100	g=3	RESTART	c=84	d=5	P=(12,)	st=1
+111100	g=4	H	('J', 0)	st=1
+111100	g=5	H	('J', 0)	st=1
+111100	g=6	H	('J', 0)	st=1
+111101	g=1	RESTART	c=82	d=3	P=()	st=2
+111101	g=2	H	('J', 0)	st=1
+111101	g=3	H	('J', 0)	st=1
+111101	g=4	H	('J', 0)	st=1
+111101	g=5	MAX		st=30
+111101	g=6	H	('J', 0)	st=1
+111110	g=1	H	('J', 0)	st=15
+111110	g=2	H	('J', 0)	st=1
+111110	g=3	H	('J', 0)	st=1
+111110	g=4	MAX		st=30
+111110	g=5	RESTART	c=86	d=7	P=(12,)	st=1
+111110	g=6	H	('J', 0)	st=1
+111111	g=1	H	('J', 0)	st=1
+111111	g=2	H	('J', 0)	st=16
+111111	g=3	MAX		st=30
+111111	g=4	H	('J', 0)	st=1
+111111	g=5	H	('J', 0)	st=1
+111111	g=6	MAX		st=30

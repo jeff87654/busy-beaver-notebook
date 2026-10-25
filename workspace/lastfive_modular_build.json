@@ -1,0 +1,17 @@
+{
+  "base_source": "candidate_deciders_deep_verified.cpp",
+  "base_sha256": "57015792488ca247058db2f1104a52a54a73ad0e41fffad06e2394575c05a3b6",
+  "source": "lastfive_modular_native.cpp",
+  "source_sha256": "71f0b9c14f4fcc7ea379f980beae7b4fe45d11752397e625b148f5489c5bbeb6",
+  "command": [
+    "C:\\msys64\\ucrt64\\bin\\g++.exe",
+    "-O2",
+    "-std=c++17",
+    "lastfive_modular_native.cpp",
+    "-o",
+    "lastfive_modular_native.exe"
+  ],
+  "returncode": 0,
+  "changes": "Added Modular push summary and CLI dispatch only; verifier unchanged.",
+  "binary_sha256": "585c2d00b83a03292e0ab89e92e17711f44735cf7434209456c139b3b9bb78d1"
+}

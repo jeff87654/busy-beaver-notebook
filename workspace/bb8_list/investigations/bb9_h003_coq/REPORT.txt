@@ -1,0 +1,61 @@
+bb9_h003_coq REPORT (2026-10-22 18:20)
+
+Machine: h003 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LH0LC_1RG1LD_0RG0RF_0LI---_1RI1RC (9 states, H1 = halt; OPEN_CANDIDATES
+"C7-0LI-1RI1RC").
+
+STATUS: PROVED IN COQ, no axioms.  h/probe.v: h003_all_ok and Statement.h003_table both "Closed under the global
+context" (logs/h_probe.log, last two lines).  No Axiom / Admitted / admit anywhere under x/ or h/.  sched.py: the
+65-file closure of h/probe.v built, 0 failed, every .vo newer than its .v (built incrementally at Idle on the shared
+machine over two agent sessions; not yet as one from-scratch build).  All bounds proved as specified; none weakened.
+
+h/Statement.v (h/Defs.v = M8's/f3's/C7's definitions with the table tmh; busycoq bd2e36f over BB92/Individual92):
+  h003_table          : String.length h003_string = 62 /\ forall q s, tmh (q, s) = parse_slot h003_string (st_idx q) (sym_idx s)
+  h003_halts          : halts tmh c0
+  h003_lower          : forall c N, c0 -[tmh]->* c -> halted tmh c -> ones c N ->
+                          f_omega^6 (6 * arrow 13 2 3 + 2) < N                       (6 * 2^^13 3 + 2 = 12 B + 26)
+  h003_lower7_12      : ... f_omega^7 12 < N                                           (via f_omega 12 <= B, HGoal.fw12_le_Bx)
+  h003_beats_m8_bound : ... f_omega^2 (6 * arrow 13 2 3 + 3) < N                       (M8's / C04's upper bound, m8_bracket)
+  (f_omega^k written out as nested applications.)  h003 is thus one omega-level above C7's proved f_omega^4(12B+27)
+  .. and above C7's paper upper bound f_omega^5(5.4B+12).
+
+h/probe.v: Print c0 / Defs.tmh; 18 eq_refl checks of Defs.tmh entry by entry against the string (H1 = None) plus
+parse_slot H1 = None; Check Statement.h003_table; Print ones/count1/sym_val/iter/arrow/f/f_omega; the four theorems
+restated with qualified Defs.* names as one conjunction h003_all, proved from Statement; Print Assumptions on it and on
+h003_table.
+
+THE PROOF (details: PLAN.md, notes.txt)
+  X3 = 1RB0RA_1LC1LF_1RD0LB_1RA1LE_0LJ0LC_0RG1LD_0LH1LH_1RI---_0RI0RF_0LK---_1RK1RC (11 states; C04 with E0 = 0LJ,
+  J = 0LK/---, K = 1RK/1RC) simulates h003 tape-for-tape (h/Sim.v: h003 halts if X3 does; every halted h003 config
+  reached from c0 maps to X3's unique halted config with the same ones count).  x/dev/Base.v's step = one raw step, so
+  C04's ported scripts replay on X3 (resync: C04's E0 H0 I1 F1 D0 A1 = X3's E0 J0 K1 C0 D0 A1).
+  HTop: c0 ->* Tp 11 B 0; T4, T3, T1, T1 (four rebuilding tops, K0..K4 = 4,3,1,1,0 mod 5, residues from Res/HArith),
+    TX exit + XTOP1 (run 5J+24, G_xt1) -> D0f 19 (18hx+14) (12 Ra4+17) 0 (6hx+10) blank.
+  HFinal: reach_topH : reachF PmH L1H; x_halts : halts tm c0 (f3's Endgame.halts_from_reach + C04's K31_End).
+  HScore: x_goal : X3 halts with N > f_omega(f_omega a) for all a <= K4 - 1 (f3's XScore with PmH).
+  HGoal: chain4 (each top's clear Ra_i = iter 2 (U (K_i - 1)) 0 >= f_omega(..) + 2, K_(i+1) - 1 >= Ra_i):
+    f_omega^4 (12B+26) <= K4 - 1 => x_goal6 (f_omega^6 (12B+26), f_omega^7 12, f_omega^2 (12B+27) < N).
+  h/Final: transfer to h003; Defs.f_omega/arrow <-> Score.f_omega/Abs.arrow only at variable arguments (tr2/tr6/tr7,
+    arrow_eq), Opaque elsewhere (C7 19 GB lesson); no memory-guard kill (6 GB) in the whole build.
+
+BUILD / VERIFY (from bb9_h003_coq; needs ../bb9_f3_coq/ext/busycoq/verify (BusyCoq, bd2e36f, compiled) and
+../bb9_f3_coq/ext/tree/lib (BB8 = BB92/Individual92, compiled); x/lib = C7's compiled BB112/Individual112):
+  python tools/sched.py 3 h/probe.v            # rebuilds whatever is stale, cap 3 coqc at Idle; log logs/sched.txt
+  python tools/cq.py h/probe.v                 # the probe alone (~5 min); then:
+  tail -n 2 logs/h_probe.log                   # must print "Closed under the global context" twice
+  (cq.py = coqc.exe with -Q ../bb9_f3_coq/ext/busycoq/verify BusyCoq -Q x/lib XL -Q x/dev XDev -Q x/k31 XK31
+   -Q x/score XScore -Q h H3 -Q ../bb9_f3_coq/ext/tree/lib BB8; Coq 8.20, C:\Coq-Platform~8.20~2025.01.)
+
+FILES
+  x/lib    BB112 Individual112 (11-state context, from C7/f3)
+  x/dev    Base (X3 table)  G_rules Abs Lift Orbit Step Cascade CBtail Endgame Fin G_end G_entry G_stop G_sub2-5
+           G_p14_0-5 G_p20_0-5 (C04 tree ported via f3, recompiled on X3)  KStep Res Ones G_pbab G_pbc (from C7)
+           generated on X3: G_t1_T1a1 G_t1_T1a2a G_t1_YR G_t1_YE G_t1_T1b G_tops_P3 G_tops_P4 G_tops_P4b G_tops_TXa G_xt1
+           hand: HArith (tools/gen_arith.py) HPhB HTop HFinal HScore HGoal
+           G_top1 (C04's TOP1, run 5J+30) is compiled but UNUSED (h003's exit needs XTOP1, run 5J+24).
+  x/k31    K_rf K_x K_e1 K_e2 K31_Abs K31_Mach K31_End (C04 key-31 endgame on X3; halting tapes patched for J1)
+  x/score  Score (f, f_omega, S1_core)
+  h        Defs Sim Final Statement probe
+  gen/ (mexp generators retargeted to X3), tools/ (cq.py, sched.py, x3sim.py, gen_arith.py), logs/ (per-file logs).
+
+COST: 30,263 s = 8.4 CPU-h of coqc at Idle (sum of logs/*.done; largest K_e1 7637 s, G_sub2 4468 s, K_e2 3132 s,
+G_entry 1686 s, G_sub4 1609 s); about 3.5 h wall (14:53-18:11, cap 3).  Plus mexp generation (minutes).
