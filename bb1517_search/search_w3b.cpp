@@ -62,6 +62,29 @@
 // the create (test 4) and dec (test 6) returns.  PART_* tags name the last test
 // a machine passed.
 //
+// Post-filters on the REAL blank-tape orbit (applied to HIT_STOP / HIT_FULL /
+// NB_HIT only; PART_* diagnostics stay unfiltered).  The nine tests are local:
+// they hand the machine a pre-built tape, so a machine can pass them while its
+// actual orbit never visits the gadget at all.  All 39 HIT_STOP machines from
+// the first three production batches were of that kind, so a candidate must now
+// also pass, in this order:
+//   1. blank non-trivial : running from the blank tape (state A, all zeros)
+//                          must not halt within BLANK_CAP steps;
+//   2. core reachability : that orbit must visit D, E, H and M (the M13 engine);
+//   3. branch liveness   : at least BRANCH_MIN times, E0 (state E on 0) must be
+//                          followed by a read of 1, i.e. the "e is present"
+//                          branch of the third counter really fires on the real
+//                          orbit (create-only machines read 0 forever);
+//   4. chained decrement : starting from the dec return (test 6, e = 1), one
+//                          more w+2 round must end in the real 1RZ halt.  This
+//                          is the check the old test 7 missed: it restarted at
+//                          e = 3 instead of continuing from the dec's own tape.
+// A machine that fails any of them is counted in `rejected`, not in `hits`
+// (the DONE line reports `rejected=<n>`).
+// BLANK_CAP = 1,000,000 steps, CHAIN_CAP = 200,000, BRANCH_MIN = 2; all three
+// are compile-time constants.  Their cost is negligible next to the search,
+// because they run only on the few machines that already passed all nine tests.
+//
 // Build: g++ -O2 -o search_w3b search_w3b.cpp
 // Run  : ./search_w3b <n_states> <max_def> <out> [stop] [preset] [gap] [DD]
 //                     [max_nodes] [sweep] [seed] [radius] [shard] [nshard]
@@ -131,7 +154,8 @@
 // turns test 8 into "anything that returns", so reach[6..8] and the PART_*
 // lines count the machines that have a halt / dec / e-independence gadget at
 // all, independently of the create-scaling gate.  Use it only to see how far a
-// space gets, never as a success test.
+// space gets, never as a success test.  Adding -DPF_TRACE to either build makes
+// post_filter write "PF reject @<n>" to stderr, naming the filter that fired.
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -139,6 +163,13 @@
 
 static const int MAXT = 400;      // tape cells
 static const int MAXS = 800;      // steps per test
+
+// Post-filter budgets on the real blank-tape orbit.  They are paid only by the
+// few machines that already passed all nine local tests, so they can be large.
+static const int BLANK_CAP = 1000000;  // steps from the blank tape
+static const int CHAIN_CAP = 200000;   // steps for the chained w+2 round
+static const int BRANCH_MIN = 2;       // E0 entries that must read 1
+static const int ORBIT_PAD = 16;       // arena margin around the centre
 
 static int GAP = 2;   // default layout; see the gap note in the header
 static int DD = 2;
@@ -257,7 +288,7 @@ static void build_tests() {
     tests[8] = {3, 6, 0,      0};   // create e, a=6       (both counters grow with a)
 }
 
-static long long nodes = 0, hits = 0, partial = 0;
+static long long nodes = 0, hits = 0, partial = 0, rejected = 0;
 static long long reach[10] = {0};
 static long long max_nodes = 0;
 static bool aborted = false;
@@ -326,6 +357,103 @@ static bool check(int idx, const Res &r, const std::vector<Res> &prev) {
     return false;
 }
 
+// ---------------------------------------------------------------------------
+// Post-filters on the REAL blank-tape orbit.
+//
+// The nine tests are local: they hand the machine a pre-built tape and only
+// check that the returned tape has the right shape.  A machine can satisfy all
+// nine while its actual orbit never enters the gadget at all (all 39 HIT_STOP
+// machines of the first three production batches did exactly that).  A
+// candidate must therefore also pass, in this order:
+//   1. blank non-trivial (checked first, cheapest discriminator),
+//   2. core reachability, 3. branch liveness, 4. chained decrement.
+// Failures are counted in `rejected`, never in `hits`.
+// ---------------------------------------------------------------------------
+
+struct Orbit {
+    bool halted;                     // reached 1RZ or an undefined slot
+    long long steps;
+    unsigned visited;                // bit s = state s was entered
+    long long e0_entries;            // times state E read 0 (gadget entry)
+    long long e0_read1;              // of those, times the next read was 1
+};
+
+// Ordinary bbchallenge semantics: "---" and "1RZ" both halt.  The head must
+// stay inside the arena; running off it counts as a filter failure, since a
+// machine that moves more than `cap` cells in `cap` steps needs no verdict.
+static bool orbit_run(std::vector<int> &tape, int pos, int cap, Orbit &o) {
+    o = Orbit{false, 0, 0, 0, 0};
+    int st = 0;                                     // canonical start: state A
+    bool pend_e0 = false;
+    for (int step = 1; step <= cap; ++step) {
+        if (pos < 1 || pos >= (int)tape.size() - 1) return false;
+        int sym = tape[pos];
+        o.visited |= 1u << st;
+        if (pend_e0) { if (sym == 1) o.e0_read1++; pend_e0 = false; }
+        if (st == 4 && sym == 0) { o.e0_entries++; pend_e0 = true; }   // E0
+        Trans t = tr[st][sym];
+        if (t.nst == -1 || t.nst == 20) { o.halted = true; o.steps = step; return true; }
+        tape[pos] = t.w; pos += t.mv; st = t.nst;
+    }
+    o.steps = cap;
+    return true;
+}
+
+// Rebuild the canonical return tape of r, with the head on the first 1 of the
+// c-run.  That is exactly where sim() accepts a return, so continuing from it
+// runs the machine from the configuration it was really in.
+static void build_ret_tape(const Res &r, std::vector<int> &tape, int off, int &pos) {
+    int i = off;
+    for (int k = 0; k < r.p; ++k) { tape[i++] = 1; tape[i++] = 0; }
+    for (int k = 0; k < r.a + 2; ++k) tape[i++] = 1;
+    pos = i;                                        // A on the c-run's first 1
+    for (int k = 0; k < r.c; ++k) { tape[i++] = 1; tape[i++] = 0; }
+    tape[i++] = 0;
+    for (int k = 0; k < r.d; ++k) tape[i++] = 1;
+    tape[i++] = 0;
+    for (int k = 1; k < GAP; ++k) tape[i++] = 0;
+    for (int k = 0; k < r.e; ++k) tape[i++] = 1;
+}
+
+static bool post_filter(const std::vector<Res> &prev) {
+#ifdef PF_TRACE                    // diagnostic build only: say which filter failed
+#define PF_FAIL(n) (fprintf(stderr, "PF reject @%d\n", (n)), false)
+#else
+#define PF_FAIL(n) false
+#endif
+    // 1. blank non-trivial.  The search defines slots lazily, and an undefined
+    //    slot halts, so a machine whose gadgets are perfect can still die on
+    //    step 5 from the blank tape.  That is not a record, so it goes first.
+    std::vector<int> tape(2 * BLANK_CAP + 2 * ORBIT_PAD, 0);
+    Orbit o;
+    if (!orbit_run(tape, BLANK_CAP + ORBIT_PAD, BLANK_CAP, o)) return PF_FAIL(1);
+    if (o.halted) return PF_FAIL(1);
+
+    // 2. core reachability: the orbit must run the M13 engine, not just a
+    //    treadmill over the outer states.
+    unsigned need = (1u << 3) | (1u << 4) | (1u << 7) | (1u << 12);   // D E H M
+    if ((o.visited & need) != need) return PF_FAIL(2);
+
+    // 3. branch liveness: E0 must be followed by a read of 1, i.e. the third
+    //    counter must still be present, at least BRANCH_MIN times.  Machines
+    //    that only create e read 0 on every later entry, so e never decreases.
+    if (o.e0_read1 < BRANCH_MIN) return PF_FAIL(3);
+
+    // 4. chained decrement: from the test-6 dec return (e = 1, d reloaded) one
+    //    more w+2 round must end in a real halt.  Test 7 restarted at e = 3
+    //    instead of continuing from that tape, so it never checked this.
+    if (prev.size() > 6 && prev[6].kind == 3) {
+        std::vector<int> ct(2 * CHAIN_CAP + 2 * ORBIT_PAD, 0);
+        int pos = 0;
+        build_ret_tape(prev[6], ct, CHAIN_CAP + ORBIT_PAD, pos);
+        Orbit oc;
+        if (!orbit_run(ct, pos, CHAIN_CAP, oc)) return PF_FAIL(4);
+        if (!oc.halted) return PF_FAIL(4);
+    }
+#undef PF_FAIL
+    return true;
+}
+
 static void preset() {
     auto set = [&](char st, int b, int w, char dir, char nst) {
         tr[st - 'A'][b] = {w, dir == 'L' ? -1 : 1, nst - 'A'};
@@ -354,15 +482,19 @@ static void dfs(int idx, int n_def, int max_def, int used_mask, bool has_z,
     if (nodes > max_nodes && max_nodes) { aborted = true; return; }
     reach[idx]++;
     if ((nodes & 0xFFFFFF) == 0) {
-        printf("  nodes=%lld hits=%lld part=%lld reach=", nodes, hits, partial);
+        printf("  nodes=%lld hits=%lld part=%lld rejected=%lld reach=", nodes, hits, partial, rejected);
         for (int i = 0; i < 10; ++i) printf("%lld ", reach[i]);
         printf("\n"); fflush(stdout);
     }
-    if (idx == stop_after) { hits++; print_machine("HIT_STOP", n_def, prev); return; }
+    if (idx == stop_after) {
+        if (!post_filter(prev)) { rejected++; return; }
+        hits++; print_machine("HIT_STOP", n_def, prev); return;
+    }
     if (idx == 6) { partial++; if (partial <= PART_CAP) print_machine("PART_CREATE_HALT", n_def, prev); }
     if (idx == 7) { partial++; if (partial <= PART_CAP) print_machine("PART_DEC", n_def, prev); }
     if (idx == 8) { partial++; if (partial <= PART_CAP) print_machine("PART_DEC_EINDEP", n_def, prev); }
     if (idx == 9) {
+        if (!post_filter(prev)) { rejected++; return; }
         bool strict = prev[4].p == prev[6].p && prev[4].a == prev[6].a
                    && prev[4].c == prev[6].c && prev[4].d == prev[6].d;
         hits++;
@@ -420,7 +552,7 @@ static void report(int i, const Res &r) {
 }
 
 static void reset_stats() {
-    nodes = hits = partial = 0;
+    nodes = hits = partial = rejected = 0;
     aborted = false;
     for (int i = 0; i < 10; ++i) reach[i] = 0;
 }
@@ -491,6 +623,7 @@ static void nb_assign(int ci, int r, const int *chosen, Trans *saved) {
             printf("  nb tried=%lld hits=%lld\n", nb_tried, nb_hits); fflush(stdout);
         }
         if (run_tests()) {
+            if (!post_filter(g_prev)) { ++rejected; return; }
             ++nb_hits;
             print_machine("NB_HIT", 0, g_prev);
         }
@@ -545,8 +678,8 @@ static void run_one(int ns, int max_def, int stop, int preset_flag, long long ca
     max_nodes = cap;
     std::vector<Res> prev;
     dfs(0, 0, max_def, used0, has_z, prev);
-    printf("DONE n_states=%d DD=%d gap=%d nodes=%lld hits=%lld part=%lld%s reach=",
-           ns, DD, GAP, nodes, hits, partial, aborted ? " ABORTED(cap)" : "");
+    printf("DONE n_states=%d DD=%d gap=%d nodes=%lld hits=%lld part=%lld rejected=%lld%s reach=",
+           ns, DD, GAP, nodes, hits, partial, rejected, aborted ? " ABORTED(cap)" : "");
     for (int i = 0; i < 10; ++i) printf("%lld ", reach[i]);
     printf("\n");
     fflush(stdout);
@@ -595,7 +728,7 @@ int main(int argc, char **argv) {
             printf("-- radius %d\n", r); fflush(stdout);
             nb_choose(0, 0, r, chosen, saved);
         }
-        printf("DONE nb tried=%lld hits=%lld\n", nb_tried, nb_hits);
+        printf("DONE nb tried=%lld hits=%lld rejected=%lld\n", nb_tried, nb_hits, rejected);
         if (out != stdout) fclose(out);
         return 0;
     }
