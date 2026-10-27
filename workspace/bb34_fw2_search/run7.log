@@ -1,0 +1,716 @@
+mode=gadget states=7 seeds=2 cap=300000 budget=15000000000 fixfold=1
+seeds: (1,1,1) (1,1,2)
+  ... steps=16777216 nodes=4
+  ... steps=67108864 nodes=6
+  ... steps=100663296 nodes=8
+  ... steps=134217728 nodes=9
+  ... steps=184549376 nodes=11
+  ... steps=218103808 nodes=13
+  ... steps=268435456 nodes=15
+  ... steps=301989888 nodes=16
+  ... steps=335544320 nodes=18
+  ... steps=369098752 nodes=20
+  ... steps=419430400 nodes=22
+  ... steps=452984832 nodes=24
+  ... steps=486539264 nodes=26
+  ... steps=536870912 nodes=28
+  ... steps=570425344 nodes=31
+
+[gadget] F_(w+1) CANDIDATE  folds=4 spread=2 states_used=7
+         folds per seed: (1,1,1):4/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LZ0RG0LD
+  ... steps=620756992 nodes=33
+  ... steps=654311424 nodes=34
+  ... steps=687865856 nodes=35
+  ... steps=738197504 nodes=37
+
+[gadget] F_(w+1) CANDIDATE  folds=4 spread=2 states_used=7
+         folds per seed: (1,1,1):4/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LZ0RG3LD
+
+[gadget] F_(w+1) CANDIDATE  folds=5 spread=3 states_used=7
+         folds per seed: (1,1,1):5/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3RZ0RG3LD
+
+[gadget] F_(w+1) CANDIDATE  folds=3 spread=1 states_used=7
+         folds per seed: (1,1,1):3/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG0LZ0RG3RD
+
+[gadget] F_(w+1) CANDIDATE  folds=3 spread=1 states_used=7
+         folds per seed: (1,1,1):3/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG0RZ0RG3RD
+  ... steps=771751936 nodes=38
+
+[gadget] F_(w+1) CANDIDATE  folds=6 spread=4 states_used=7
+         folds per seed: (1,1,1):6/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LZ0RG3RD
+
+[gadget] F_(w+1) CANDIDATE  folds=3 spread=1 states_used=7
+         folds per seed: (1,1,1):3/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3LZ0RG3RD
+
+[gadget] F_(w+1) CANDIDATE  folds=992 spread=990 states_used=7
+         folds per seed: (1,1,1):992/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3RZ0RG3RD
+  ... steps=822083584 nodes=39
+  ... steps=855638016 nodes=42
+
+[gadget] F_(w+1) CANDIDATE  folds=4 spread=2 states_used=7
+         folds per seed: (1,1,1):4/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG3LZ0RG1RD
+  ... steps=889192448 nodes=43
+  ... steps=939524096 nodes=45
+  ... steps=973078528 nodes=48
+  ... steps=1023410176 nodes=50
+  ... steps=1056964608 nodes=52
+  ... steps=1090519040 nodes=54
+  ... steps=1140850688 nodes=56
+  ... steps=1174405120 nodes=58
+  ... steps=1224736768 nodes=61
+  ... steps=1258291200 nodes=62
+  ... steps=1291845632 nodes=64
+  ... steps=1342177280 nodes=66
+  ... steps=1375731712 nodes=68
+  ... steps=1409286144 nodes=69
+  ... steps=1459617792 nodes=71
+  ... steps=1493172224 nodes=73
+  ... steps=1543503872 nodes=75
+  ... steps=1577058304 nodes=76
+  ... steps=1627389952 nodes=79
+  ... steps=1660944384 nodes=80
+  ... steps=1694498816 nodes=81
+  ... steps=1744830464 nodes=84
+  ... steps=1778384896 nodes=85
+  ... steps=1828716544 nodes=87
+  ... steps=1862270976 nodes=88
+  ... steps=1912602624 nodes=92
+  ... steps=1946157056 nodes=93
+  ... steps=1979711488 nodes=94
+  ... steps=2030043136 nodes=96
+  ... steps=2063597568 nodes=98
+  ... steps=2113929216 nodes=100
+  ... steps=2147483648 nodes=101
+  ... steps=2181038080 nodes=103
+  ... steps=2231369728 nodes=105
+  ... steps=2264924160 nodes=106
+  ... steps=2315255808 nodes=107
+  ... steps=2348810240 nodes=110
+  ... steps=2382364672 nodes=111
+  ... steps=2432696320 nodes=113
+  ... steps=2466250752 nodes=115
+  ... steps=2516582400 nodes=117
+  ... steps=2550136832 nodes=120
+  ... steps=2600468480 nodes=122
+  ... steps=2634022912 nodes=124
+  ... steps=2667577344 nodes=125
+  ... steps=2717908992 nodes=128
+  ... steps=2751463424 nodes=129
+  ... steps=2785017856 nodes=130
+  ... steps=2835349504 nodes=132
+  ... steps=2868903936 nodes=133
+  ... steps=2919235584 nodes=136
+  ... steps=2952790016 nodes=138
+  ... steps=3003121664 nodes=140
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG3LA1RG2RZ
+  ... steps=3036676096 nodes=142
+  ... steps=3087007744 nodes=145
+  ... steps=3120562176 nodes=147
+  ... steps=3170893824 nodes=149
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2RF3LG1RG2LZ
+
+[gadget] F_(w+1) CANDIDATE  folds=3 spread=2 states_used=7
+         folds per seed: (1,1,1):3/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2RF3LG1RG2RZ
+  ... steps=3204448256 nodes=150
+  ... steps=3254779904 nodes=153
+  ... steps=3288334336 nodes=155
+  ... steps=3321888768 nodes=156
+  ... steps=3372220416 nodes=158
+  ... steps=3405774848 nodes=160
+  ... steps=3456106496 nodes=162
+  ... steps=3489660928 nodes=165
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_0LZ---2LG0RA
+  ... steps=3539992576 nodes=168
+  ... steps=3573547008 nodes=169
+
+[gadget] F_(w+1) CANDIDATE  folds=662 spread=660 states_used=7
+         folds per seed: (1,1,1):662/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LA1LZ2LG0RG
+  ... steps=3623878656 nodes=171
+  ... steps=3657433088 nodes=173
+  ... steps=3690987520 nodes=174
+  ... steps=3741319168 nodes=176
+  ... steps=3774873600 nodes=177
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LZ0RG2LG1RA
+  ... steps=3825205248 nodes=180
+  ... steps=3858759680 nodes=182
+  ... steps=3909091328 nodes=183
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_0LZ0RA2LG1RG
+  ... steps=3942645760 nodes=186
+  ... steps=3992977408 nodes=188
+  ... steps=4026531840 nodes=190
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1RZ3LF2LG1RG
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ3LF2LG1RG
+  ... steps=4076863488 nodes=193
+  ... steps=4110417920 nodes=195
+  ... steps=4160749568 nodes=198
+  ... steps=4194304000 nodes=200
+  ... steps=4227858432 nodes=202
+  ... steps=4278190080 nodes=205
+  ... steps=4311744512 nodes=207
+  ... steps=4362076160 nodes=210
+
+[gadget] F_(w+1) CANDIDATE  folds=1984 spread=1982 states_used=7
+         folds per seed: (1,1,1):1984/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ0RA2LG3LA
+  ... steps=4395630592 nodes=212
+
+[gadget] F_(w+1) CANDIDATE  folds=662 spread=660 states_used=7
+         folds per seed: (1,1,1):662/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ1LG2LG3LA
+  ... steps=4445962240 nodes=214
+  ... steps=4479516672 nodes=216
+
+[gadget] F_(w+1) CANDIDATE  folds=398 spread=396 states_used=7
+         folds per seed: (1,1,1):398/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1RZ3LG2LG3LA
+  ... steps=4513071104 nodes=220
+  ... steps=4563402752 nodes=222
+  ... steps=4596957184 nodes=223
+  ... steps=4630511616 nodes=224
+  ... steps=4680843264 nodes=226
+  ... steps=4714397696 nodes=227
+  ... steps=4764729344 nodes=230
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ2RA2LG3LF
+  ... steps=4798283776 nodes=232
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1RZ3LF2LG3LF
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ3LF2LG3LF
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1RZ3RG2LG3LF
+  ... steps=4831838208 nodes=235
+
+[gadget] F_(w+1) CANDIDATE  folds=284 spread=282 states_used=7
+         folds per seed: (1,1,1):284/halt (1,1,2):2/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ3RG2LG3LF
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_---3RZ2LG3LF
+  ... steps=4882169856 nodes=239
+  ... steps=4915724288 nodes=242
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RF0RZ2LG3LG
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RF2LZ2LG3LG
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RF2RZ2LG3LG
+  ... steps=4966055936 nodes=245
+  ... steps=4999610368 nodes=247
+  ... steps=5033164800 nodes=249
+  ... steps=5083496448 nodes=250
+  ... steps=5117050880 nodes=251
+  ... steps=5150605312 nodes=252
+  ... steps=5200936960 nodes=255
+  ... steps=5234491392 nodes=257
+  ... steps=5284823040 nodes=259
+  ... steps=5318377472 nodes=261
+  ... steps=5351931904 nodes=262
+  ... steps=5402263552 nodes=265
+  ... steps=5435817984 nodes=267
+  ... steps=5469372416 nodes=269
+  ... steps=5519704064 nodes=271
+  ... steps=5553258496 nodes=272
+  ... steps=5603590144 nodes=275
+  ... steps=5637144576 nodes=276
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3LA2RG3RZ
+  ... steps=5670699008 nodes=278
+  ... steps=5721030656 nodes=279
+  ... steps=5754585088 nodes=281
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LA---2RG0RZ
+  ... steps=5788139520 nodes=282
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LA---2RG3RZ
+  ... steps=5838471168 nodes=285
+  ... steps=5872025600 nodes=287
+  ... steps=5922357248 nodes=290
+  ... steps=5955911680 nodes=291
+  ... steps=5989466112 nodes=292
+  ... steps=6039797760 nodes=294
+  ... steps=6073352192 nodes=295
+  ... steps=6123683840 nodes=298
+  ... steps=6157238272 nodes=299
+
+[gadget] F_(w+1) CANDIDATE  folds=3 spread=2 states_used=7
+         folds per seed: (1,1,1):3/halt (1,1,2):1/halt
+         1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2RF2RZ3LG1RG
+  ... steps=6190792704 nodes=301
+  ... steps=6241124352 nodes=303
+  ... steps=6274678784 nodes=305
+  ... steps=6291456000 nodes=306
+  ... steps=6325010432 nodes=309
+  ... steps=6358564864 nodes=310
+  ... steps=6375342080 nodes=311
+  ... steps=6408896512 nodes=313
+  ... steps=6425673728 nodes=313
+  ... steps=6459228160 nodes=316
+  ... steps=6476005376 nodes=316
+  ... steps=6509559808 nodes=318
+  ... steps=6526337024 nodes=319
+  ... steps=6559891456 nodes=320
+  ... steps=6593445888 nodes=321
+  ... steps=6610223104 nodes=323
+  ... steps=6643777536 nodes=324
+  ... steps=6660554752 nodes=325
+  ... steps=6694109184 nodes=326
+  ... steps=6710886400 nodes=327
+  ... steps=6744440832 nodes=330
+  ... steps=6777995264 nodes=332
+  ... steps=6794772480 nodes=333
+  ... steps=6828326912 nodes=335
+  ... steps=6845104128 nodes=335
+  ... steps=6878658560 nodes=337
+  ... steps=6895435776 nodes=338
+  ... steps=6928990208 nodes=339
+  ... steps=6945767424 nodes=340
+  ... steps=6979321856 nodes=341
+  ... steps=7012876288 nodes=342
+  ... steps=7029653504 nodes=344
+  ... steps=7063207936 nodes=346
+  ... steps=7079985152 nodes=346
+  ... steps=7113539584 nodes=348
+  ... steps=7147094016 nodes=349
+  ... steps=7163871232 nodes=350
+  ... steps=7197425664 nodes=352
+  ... steps=7214202880 nodes=353
+  ... steps=7247757312 nodes=354
+  ... steps=7264534528 nodes=355
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_0LG3RZ2LG3LF
+  ... steps=7298088960 nodes=357
+  ... steps=7331643392 nodes=359
+  ... steps=7348420608 nodes=359
+  ... steps=7381975040 nodes=361
+  ... steps=7415529472 nodes=364
+  ... steps=7432306688 nodes=364
+  ... steps=7465861120 nodes=365
+  ... steps=7482638336 nodes=366
+  ... steps=7516192768 nodes=367
+  ... steps=7532969984 nodes=367
+  ... steps=7566524416 nodes=368
+  ... steps=7600078848 nodes=369
+  ... steps=7616856064 nodes=370
+  ... steps=7650410496 nodes=371
+  ... steps=7667187712 nodes=372
+  ... steps=7700742144 nodes=373
+  ... steps=7717519360 nodes=373
+  ... steps=7751073792 nodes=375
+  ... steps=7784628224 nodes=376
+  ... steps=7801405440 nodes=377
+  ... steps=7834959872 nodes=378
+  ... steps=7851737088 nodes=379
+  ... steps=7885291520 nodes=380
+  ... steps=7902068736 nodes=380
+  ... steps=7935623168 nodes=382
+  ... steps=7952400384 nodes=382
+  ... steps=7985954816 nodes=383
+  ... steps=8002732032 nodes=384
+  ... steps=8036286464 nodes=385
+  ... steps=8069840896 nodes=386
+  ... steps=8086618112 nodes=386
+  ... steps=8120172544 nodes=388
+  ... steps=8136949760 nodes=389
+  ... steps=8170504192 nodes=390
+  ... steps=8187281408 nodes=391
+  ... steps=8220835840 nodes=392
+  ... steps=8237613056 nodes=392
+  ... steps=8271167488 nodes=393
+  ... steps=8287944704 nodes=394
+  ... steps=8321499136 nodes=395
+  ... steps=8338276352 nodes=397
+  ... steps=8371830784 nodes=398
+  ... steps=8405385216 nodes=399
+  ... steps=8422162432 nodes=399
+  ... steps=8455716864 nodes=400
+  ... steps=8472494080 nodes=401
+  ... steps=8506048512 nodes=402
+  ... steps=8522825728 nodes=403
+  ... steps=8556380160 nodes=405
+  ... steps=8573157376 nodes=405
+  ... steps=8606711808 nodes=406
+  ... steps=8640266240 nodes=407
+  ... steps=8657043456 nodes=408
+  ... steps=8690597888 nodes=409
+  ... steps=8707375104 nodes=409
+  ... steps=8740929536 nodes=410
+  ... steps=8757706752 nodes=411
+  ... steps=8791261184 nodes=412
+  ... steps=8808038400 nodes=413
+  ... steps=8841592832 nodes=414
+  ... steps=8858370048 nodes=414
+  ... steps=8891924480 nodes=415
+  ... steps=8908701696 nodes=416
+  ... steps=8942256128 nodes=418
+  ... steps=8959033344 nodes=418
+  ... steps=8992587776 nodes=419
+  ... steps=9009364992 nodes=420
+  ... steps=9042919424 nodes=421
+  ... steps=9059696640 nodes=422
+  ... steps=9093251072 nodes=423
+  ... steps=9110028288 nodes=423
+  ... steps=9143582720 nodes=424
+  ... steps=9160359936 nodes=425
+  ... steps=9193914368 nodes=427
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LD2LA1RZ
+  ... steps=9227468800 nodes=428
+  ... steps=9244246016 nodes=429
+  ... steps=9277800448 nodes=430
+  ... steps=9294577664 nodes=430
+  ... steps=9328132096 nodes=431
+  ... steps=9344909312 nodes=432
+  ... steps=9378463744 nodes=433
+  ... steps=9395240960 nodes=433
+  ... steps=9428795392 nodes=434
+  ... steps=9462349824 nodes=436
+  ... steps=9479127040 nodes=437
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LD2LB1RZ
+  ... steps=9512681472 nodes=438
+  ... steps=9529458688 nodes=439
+  ... steps=9563013120 nodes=440
+  ... steps=9579790336 nodes=440
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG2RD2LB1RZ
+  ... steps=9613344768 nodes=441
+  ... steps=9630121984 nodes=442
+  ... steps=9663676416 nodes=443
+  ... steps=9680453632 nodes=443
+  ... steps=9714008064 nodes=445
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3RZ2LG0RA
+  ... steps=9747562496 nodes=446
+  ... steps=9764339712 nodes=447
+  ... steps=9797894144 nodes=448
+  ... steps=9814671360 nodes=449
+  ... steps=9848225792 nodes=450
+  ... steps=9865003008 nodes=450
+  ... steps=9898557440 nodes=451
+  ... steps=9915334656 nodes=452
+  ... steps=9948889088 nodes=453
+  ... steps=9965666304 nodes=454
+  ... steps=9999220736 nodes=455
+  ... steps=10032775168 nodes=456
+  ... steps=10049552384 nodes=458
+  ... steps=10083106816 nodes=458
+  ... steps=10099884032 nodes=459
+  ... steps=10133438464 nodes=460
+  ... steps=10150215680 nodes=461
+  ... steps=10183770112 nodes=462
+  ... steps=10200547328 nodes=462
+  ... steps=10234101760 nodes=463
+  ... steps=10267656192 nodes=464
+  ... steps=10284433408 nodes=465
+  ... steps=10317987840 nodes=466
+  ... steps=10334765056 nodes=466
+  ... steps=10368319488 nodes=469
+  ... steps=10401873920 nodes=470
+  ... steps=10418651136 nodes=470
+  ... steps=10452205568 nodes=471
+  ... steps=10485760000 nodes=472
+  ... steps=10502537216 nodes=473
+  ... steps=10536091648 nodes=474
+  ... steps=10569646080 nodes=475
+  ... steps=10586423296 nodes=475
+  ... steps=10619977728 nodes=477
+  ... steps=10653532160 nodes=478
+  ... steps=10670309376 nodes=478
+  ... steps=10703863808 nodes=480
+  ... steps=10737418240 nodes=481
+  ... steps=10754195456 nodes=482
+  ... steps=10787749888 nodes=483
+  ... steps=10804527104 nodes=483
+  ... steps=10838081536 nodes=484
+  ... steps=10854858752 nodes=485
+  ... steps=10888413184 nodes=486
+  ... steps=10905190400 nodes=486
+  ... steps=10938744832 nodes=488
+  ... steps=10955522048 nodes=488
+  ... steps=10989076480 nodes=489
+  ... steps=11005853696 nodes=491
+  ... steps=11039408128 nodes=492
+  ... steps=11056185344 nodes=492
+  ... steps=11089739776 nodes=493
+  ... steps=11106516992 nodes=494
+  ... steps=11140071424 nodes=495
+  ... steps=11156848640 nodes=496
+  ... steps=11190403072 nodes=497
+  ... steps=11207180288 nodes=497
+  ... steps=11240734720 nodes=499
+  ... steps=11274289152 nodes=500
+  ... steps=11291066368 nodes=501
+  ... steps=11324620800 nodes=501
+  ... steps=11341398016 nodes=502
+  ... steps=11374952448 nodes=503
+  ... steps=11391729664 nodes=505
+  ... steps=11425284096 nodes=506
+  ... steps=11458838528 nodes=507
+  ... steps=11475615744 nodes=507
+  ... steps=11509170176 nodes=508
+  ... steps=11525947392 nodes=509
+
+[gadget] F_(w+1) CANDIDATE  folds=8 spread=6 states_used=7
+         folds per seed: (1,1,1):8/halt (1,1,2):2/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3LD3RG1LZ
+  ... steps=11559501824 nodes=510
+
+[gadget] F_(w+1) CANDIDATE  folds=3 spread=1 states_used=7
+         folds per seed: (1,1,1):3/halt (1,1,2):2/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3LD3RG2RZ
+  ... steps=11593056256 nodes=511
+  ... steps=11609833472 nodes=512
+  ... steps=11643387904 nodes=514
+  ... steps=11660165120 nodes=515
+  ... steps=11693719552 nodes=517
+  ... steps=11710496768 nodes=518
+  ... steps=11744051200 nodes=519
+  ... steps=11760828416 nodes=520
+  ... steps=11794382848 nodes=521
+  ... steps=11811160064 nodes=522
+  ... steps=11844714496 nodes=524
+  ... steps=11878268928 nodes=525
+  ... steps=11895046144 nodes=526
+  ... steps=11928600576 nodes=527
+  ... steps=11945377792 nodes=528
+  ... steps=11978932224 nodes=530
+  ... steps=11995709440 nodes=530
+  ... steps=12029263872 nodes=531
+  ... steps=12046041088 nodes=532
+  ... steps=12079595520 nodes=534
+  ... steps=12096372736 nodes=535
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG0LZ1LG3LA
+  ... steps=12129927168 nodes=537
+  ... steps=12146704384 nodes=537
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG0LZ1LG3LB
+  ... steps=12180258816 nodes=539
+  ... steps=12197036032 nodes=539
+  ... steps=12230590464 nodes=541
+  ... steps=12247367680 nodes=542
+  ... steps=12280922112 nodes=543
+  ... steps=12314476544 nodes=544
+  ... steps=12331253760 nodes=546
+  ... steps=12364808192 nodes=547
+  ... steps=12381585408 nodes=548
+  ... steps=12415139840 nodes=549
+  ... steps=12431917056 nodes=550
+  ... steps=12465471488 nodes=552
+  ... steps=12482248704 nodes=553
+  ... steps=12515803136 nodes=555
+  ... steps=12532580352 nodes=556
+  ... steps=12566134784 nodes=560
+  ... steps=12599689216 nodes=561
+  ... steps=12616466432 nodes=562
+  ... steps=12650020864 nodes=563
+  ... steps=12666798080 nodes=564
+  ... steps=12700352512 nodes=566
+  ... steps=12733906944 nodes=567
+  ... steps=12750684160 nodes=568
+  ... steps=12784238592 nodes=569
+  ... steps=12801015808 nodes=570
+  ... steps=12834570240 nodes=572
+  ... steps=12851347456 nodes=572
+  ... steps=12884901888 nodes=574
+  ... steps=12918456320 nodes=576
+  ... steps=12935233536 nodes=576
+  ... steps=12968787968 nodes=577
+  ... steps=12985565184 nodes=578
+  ... steps=13019119616 nodes=580
+  ... steps=13035896832 nodes=581
+  ... steps=13069451264 nodes=582
+  ... steps=13103005696 nodes=583
+  ... steps=13119782912 nodes=584
+  ... steps=13153337344 nodes=586
+  ... steps=13170114560 nodes=586
+  ... steps=13203668992 nodes=587
+  ... steps=13220446208 nodes=588
+  ... steps=13254000640 nodes=590
+  ... steps=13287555072 nodes=591
+  ... steps=13304332288 nodes=592
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG3LZ3LG0LA
+  ... steps=13337886720 nodes=594
+  ... steps=13354663936 nodes=595
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG3LZ3LG0LB
+  ... steps=13388218368 nodes=596
+  ... steps=13421772800 nodes=597
+  ... steps=13438550016 nodes=598
+
+[gadget] F_(w+1) CANDIDATE  folds=143 spread=142 states_used=7
+         folds per seed: (1,1,1):143/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG1LZ3LG3LF
+  ... steps=13472104448 nodes=600
+  ... steps=13488881664 nodes=601
+  ... steps=13522436096 nodes=602
+  ... steps=13539213312 nodes=604
+  ... steps=13572767744 nodes=605
+  ... steps=13589544960 nodes=607
+  ... steps=13623099392 nodes=608
+  ... steps=13639876608 nodes=608
+  ... steps=13673431040 nodes=610
+  ... steps=13706985472 nodes=612
+  ... steps=13723762688 nodes=613
+  ... steps=13757317120 nodes=614
+  ... steps=13774094336 nodes=614
+  ... steps=13807648768 nodes=615
+  ... steps=13824425984 nodes=616
+  ... steps=13857980416 nodes=617
+  ... steps=13874757632 nodes=618
+  ... steps=13908312064 nodes=619
+  ... steps=13925089280 nodes=619
+  ... steps=13958643712 nodes=620
+  ... steps=13975420928 nodes=621
+  ... steps=14008975360 nodes=623
+  ... steps=14042529792 nodes=624
+  ... steps=14059307008 nodes=625
+  ... steps=14092861440 nodes=626
+  ... steps=14109638656 nodes=627
+  ... steps=14159970304 nodes=629
+  ... steps=14193524736 nodes=630
+  ... steps=14227079168 nodes=633
+  ... steps=14277410816 nodes=635
+  ... steps=14310965248 nodes=636
+  ... steps=14344519680 nodes=637
+  ... steps=14394851328 nodes=640
+  ... steps=14428405760 nodes=641
+  ... steps=14461960192 nodes=642
+
+[gadget] F_(w+1) CANDIDATE  folds=257 spread=255 states_used=7
+         folds per seed: (1,1,1):257/halt (1,1,2):2/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LG1LZ2LG0RF
+  ... steps=14512291840 nodes=645
+
+[gadget] F_(w+1) CANDIDATE  folds=2 spread=1 states_used=7
+         folds per seed: (1,1,1):2/halt (1,1,2):1/halt
+         1RB3LB0RG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LG1LZ2LG1RA
+  ... steps=14545846272 nodes=646
+  ... steps=14579400704 nodes=647
+  ... steps=14629732352 nodes=649
+  ... steps=14663286784 nodes=650
+  ... steps=14696841216 nodes=652
+  ... steps=14730395648 nodes=654
+  ... steps=14780727296 nodes=655
+  ... steps=14814281728 nodes=656
+  ... steps=14847836160 nodes=658
+  ... steps=14898167808 nodes=660
+  ... steps=14931722240 nodes=664
+  ... steps=14965276672 nodes=665
+
+---- done ----
+steps=15015608320 nodes=667 tables=42504 abort=1
+gadget hits: f_(w+1) candidates=48  f_w engines=0
+  [CAT1] folds=4 spread=2 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LZ0RG0LD
+  [CAT1] folds=4 spread=2 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LZ0RG3LD
+  [CAT1] folds=5 spread=3 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3RZ0RG3LD
+  [CAT1] folds=3 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG0LZ0RG3RD
+  [CAT1] folds=3 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG0RZ0RG3RD
+  [CAT1] folds=6 spread=4 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG1LZ0RG3RD
+  [CAT1] folds=3 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3LZ0RG3RD
+  [CAT1] folds=992 spread=990 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1LG3RZ0RG3RD
+  [CAT1] folds=4 spread=2 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG3LZ0RG1RD
+  [CAT1] folds=2 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2LG3LA1RG2RZ
+  [CAT1] folds=2 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2RF3LG1RG2LZ
+  [CAT1] folds=3 spread=2 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_2RF3LG1RG2RZ
+  [CAT1] folds=2 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_0LZ---2LG0RA
+  [CAT1] folds=662 spread=660 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LA1LZ2LG0RG
+  [CAT1] folds=2 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3LZ0RG2LG1RA
+  [CAT1] folds=2 spread=1 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_0LZ0RA2LG1RG
+  [CAT1] folds=284 spread=282 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_1RZ3LF2LG1RG
+  [CAT1] folds=284 spread=282 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ3LF2LG1RG
+  [CAT1] folds=1984 spread=1982 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ0RA2LG3LA
+  [CAT1] folds=662 spread=660 states_used=7
+    1RB3LB0LG2RA_2LC3RB1LC2RA_3RB1LB3LC2RC_3RE0LD1LD2LD_0RE1LF2RE0RE_0LA0LA2RA0LA_3RZ1LG2LG3LA
