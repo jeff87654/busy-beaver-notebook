@@ -79,11 +79,26 @@
 //                          more w+2 round must end in the real 1RZ halt.  This
 //                          is the check the old test 7 missed: it restarted at
 //                          e = 3 instead of continuing from the dec's own tape.
+//   5. chained create   : starting from the create return (test 4, d = 0), the
+//                          machine must run TWO more real rounds that consume
+//                          the counters it just wrote (c or d strictly smaller,
+//                          e unchanged, a even again).  This is the mechanism
+//                          of M12 (the new 12-state f_{w+2} entry): its round 2
+//                          is Kd_step^(a1/6+1)(D_reload pa1), i.e. it eats the
+//                          REAL output of round 1, a1 = 2 mod 6, instead of
+//                          rebuilding a hand-made tape.  M12's D_REL turns the
+//                          even accumulator a into a/2+2 d-tokens, so created
+//                          counters must scale with a; the 39 HIT_STOP fakes all
+//                          create the constant d = 3, which is exactly the
+//                          failure mode M12 rules out.  Hence tests 4, 6 and 8
+//                          also require the accumulator to survive (a even and
+//                          >= 2) and test 8 requires d(6) < d(8).
 // A machine that fails any of them is counted in `rejected`, not in `hits`
 // (the DONE line reports `rejected=<n>`).
-// BLANK_CAP = 1,000,000 steps, CHAIN_CAP = 200,000, BRANCH_MIN = 2; all three
-// are compile-time constants.  Their cost is negligible next to the search,
-// because they run only on the few machines that already passed all nine tests.
+// BLANK_CAP = 1,000,000 steps, CHAIN_CAP = 200,000, CHAIN_LOCAL_CAP = 20,000,
+// BRANCH_MIN = 2; all are compile-time constants.  Their cost is negligible
+// next to the search, because they run only on the few machines that already
+// passed all nine tests.
 //
 // Build: g++ -O2 -o search_w3b search_w3b.cpp
 // Run  : ./search_w3b <n_states> <max_def> <out> [stop] [preset] [gap] [DD]
@@ -150,6 +165,16 @@
 // The 16-state funnel is the same story one state earlier: tens of thousands of
 // machines pass create, none passes the halt test with a working e branch.
 //
+// M12 filters (this revision).  Replayed against the 39 production HIT_STOP
+// machines, the strengthened tests reject every one of them BEFORE the
+// post-filters: 8 at test 4 (create returned a = 0, no accumulator left for the
+// next round) and 31 at test 8 (create wrote the same d = 3 for a = 6 and
+// a = 8, i.e. the counter was hand-written, not derived from a).  Filter 5
+// (chained create) additionally caught a machine whose first post-create round
+// dropped the e block (e = 10 -> 0).  So a hit now needs what M12 has: a create
+// that leaves an even accumulator, counters that scale with a, and rounds that
+// consume the previous round's real output.
+//
 // Diagnostic build: g++ -O2 -DRELAX8 -o search_w3b_diag search_w3b.cpp
 // turns test 8 into "anything that returns", so reach[6..8] and the PART_*
 // lines count the machines that have a halt / dec / e-independence gadget at
@@ -168,8 +193,10 @@ static const int MAXS = 800;      // steps per test
 // few machines that already passed all nine local tests, so they can be large.
 static const int BLANK_CAP = 1000000;  // steps from the blank tape
 static const int CHAIN_CAP = 200000;   // steps for the chained w+2 round
+static const int CHAIN_LOCAL_CAP = 20000; // steps for a chained local round
 static const int BRANCH_MIN = 2;       // E0 entries that must read 1
 static const int ORBIT_PAD = 16;       // arena margin around the centre
+static const int CHAIN_CELLS = 2048;   // tape arena for the chained rounds
 
 static int GAP = 2;   // default layout; see the gap note in the header
 static int DD = 2;
@@ -220,22 +247,14 @@ static void init_base(int ns) {
 struct Res { int kind; int us, ub; int p, a, c, d, e; };
 // kind: 0 BAD, 1 UNDEF, 2 HALT, 3 RET
 
-static Res sim(int p, int a, int d, int e) {
-    static int tape[MAXT];
-    memset(tape, 0, sizeof(tape));
-    int idx = 24;
-    for (int i = 0; i < p; ++i) { tape[idx++] = 1; tape[idx++] = 0; }
-    for (int i = 0; i < a + 2; ++i) tape[idx++] = 1;
-    int pos = idx;                       // head on the separator 0
-    tape[idx++] = 0;
-    for (int i = 0; i < d; ++i) tape[idx++] = 1;
-    tape[idx++] = 0;
-    for (int g = 1; g < GAP; ++g) tape[idx++] = 0;
-    for (int i = 0; i < e; ++i) tape[idx++] = 1;
-
+// Run from an arbitrary tape in state A and report the first accepted return,
+// an undefined slot, or a halt.  `cells` bounds every scan, so the same routine
+// serves both the hand-built tests (MAXT cells, MAXS steps) and the chained
+// rounds that start from a machine's real output (CHAIN_CELLS, a larger cap).
+static Res run_from(int *tape, int cells, int pos, int cap) {
     int st = 0;                          // state A
-    for (int step = 1; step <= MAXS; ++step) {
-        if (pos < 2 || pos >= MAXT - 2) return {0, 0, 0, 0, 0, 0, 0, 0};
+    for (int step = 1; step <= cap; ++step) {
+        if (pos < 2 || pos >= cells - 2) return {0, 0, 0, 0, 0, 0, 0, 0};
         int sym = tape[pos];
         Trans t = tr[st][sym];
         if (t.nst == -1)
@@ -243,7 +262,7 @@ static Res sim(int p, int a, int d, int e) {
         if (t.nst == 20) return {2, 0, 0, 0, 0, 0, 0, 0};
         tape[pos] = t.w; pos += t.mv; st = t.nst;
 
-        if (st == 0 && pos >= 4 && pos < MAXT - 4 && tape[pos] == 1 && tape[pos + 1] == 0) {
+        if (st == 0 && pos >= 4 && pos < cells - 4 && tape[pos] == 1 && tape[pos + 1] == 0) {
             int i = pos - 1, ones_a = 0;
             while (i >= 0 && tape[i] == 1) { ones_a++; i--; }
             if (ones_a < 2 || (ones_a & 1)) continue;
@@ -254,23 +273,40 @@ static Res sim(int p, int a, int d, int e) {
             for (int k = 0; k <= i; ++k) if (tape[k]) { ok = false; break; }
             if (!ok) continue;
             int j = pos, c_out = 0;
-            while (j + 1 < MAXT && tape[j] == 1 && tape[j + 1] == 0) { c_out++; j += 2; }
-            if (c_out < 1 || j >= MAXT || tape[j] != 0) continue;
+            while (j + 1 < cells && tape[j] == 1 && tape[j + 1] == 0) { c_out++; j += 2; }
+            if (c_out < 1 || j >= cells || tape[j] != 0) continue;
             j++;
             int d_out = 0;
-            while (j < MAXT && tape[j] == 1) { d_out++; j++; }
-            if (j >= MAXT || tape[j] != 0) continue;
+            while (j < cells && tape[j] == 1) { d_out++; j++; }
+            if (j >= cells || tape[j] != 0) continue;
             j++;
             for (int g = 1; g < GAP; ++g) { if (tape[j] != 0) { ok = false; break; } j++; }
             if (!ok) continue;
             int e_out = 0;
-            while (j < MAXT && tape[j] == 1) { e_out++; j++; }
-            for (int k = j; k < MAXT; ++k) if (tape[k]) { ok = false; break; }
+            while (j < cells && tape[j] == 1) { e_out++; j++; }
+            for (int k = j; k < cells; ++k) if (tape[k]) { ok = false; break; }
             if (!ok) continue;
             return {3, 0, 0, p_out, ones_a - 2, c_out, d_out, e_out};
         }
     }
     return {0, 0, 0, 0, 0, 0, 0, 0};
+}
+
+static int sim_tape[MAXT];
+
+static Res sim(int p, int a, int d, int e) {
+    int *tape = sim_tape;
+    memset(tape, 0, sizeof(sim_tape));
+    int idx = 24;
+    for (int i = 0; i < p; ++i) { tape[idx++] = 1; tape[idx++] = 0; }
+    for (int i = 0; i < a + 2; ++i) tape[idx++] = 1;
+    int pos = idx;                       // head on the separator 0
+    tape[idx++] = 0;
+    for (int i = 0; i < d; ++i) tape[idx++] = 1;
+    tape[idx++] = 0;
+    for (int g = 1; g < GAP; ++g) tape[idx++] = 0;
+    for (int i = 0; i < e; ++i) tape[idx++] = 1;
+    return run_from(tape, MAXT, pos, MAXS);
 }
 
 struct Test { int p, a, d, e; };
@@ -331,11 +367,14 @@ static bool check(int idx, const Res &r, const std::vector<Res> &prev) {
         return r.kind == 3 && r.d == t.d - DD && r.e == t.e && r.a >= 2 && !(r.a & 1)
             && r.p == prev[0].p && r.a == prev[0].a && r.c < prev[0].c && r.c >= t.a / 2 + 1;
     if (idx == 4)                                       // create e and d from a
+        // a must survive the create as an even accumulator >= 2: M13's D_REL
+        // leaves a = 2, and M12's leaves W_p(0).  The 39 fakes returned a = 0.
         return r.kind == 3 && r.c >= 1
-            && r.d >= 3 && (r.d & 1) && r.e >= 1;
+            && r.d >= 3 && (r.d & 1) && r.e >= 1
+            && r.a >= 2 && !(r.a & 1);
     if (idx == 6)                                       // decrement e, reload d
         return r.kind == 3 && r.e == 1 && r.c >= 1
-            && r.d >= 3 && (r.d & 1);
+            && r.d >= 3 && (r.d & 1) && r.a >= 2 && !(r.a & 1);
     if (idx == 7)                                       // e changes by exactly 1
         return r.kind == 3 && r.e == 2
             && r.p == prev[6].p && r.a == prev[6].a && r.c == prev[6].c && r.d == prev[6].d;
@@ -343,16 +382,21 @@ static bool check(int idx, const Res &r, const std::vector<Res> &prev) {
 #ifdef RELAX8
         return r.kind == 3;
 #else
-        // The load-bearing condition is that the e block created at a=8 is
-        // bigger than the one created at a=6, and is comparable to a itself
-        // (>= a/2); a machine that always writes a fixed e (=1) is only M13
-        // with an unused counter.  d only has to be a valid odd counter: the
-        // reload re-creates it, so requiring d to grow with a as well (as an
-        // earlier version did) was an accident of M13's W_0(b) = b + 3, and it
-        // would reject a machine whose d is constant across rounds.
+        // Two created counters must scale with the accumulator a:
+        //   * e, so that the number of w+2 rounds grows with a;
+        //   * d, so that the number of w+1 sub-rounds inside one round grows
+        //     too.  M12 is the witness for the second point: its D_REL writes
+        //     d = a/2 + 2 tokens from the even accumulator, and its round 2 is
+        //     Kd_step^(a1/6+1), so d is what carries the level of the round.
+        //     M13 also satisfies d(6) = 7 < d(8) = 9.  The 39 fakes all wrote
+        //     the constant d = 3 for a = 6 and a = 8, which is precisely the
+        //     "hand-written counter" failure mode.  An earlier version dropped
+        //     this comparison on the theory that a constant d could be fine;
+        //     the fakes show that in practice it is the cheapest discriminator.
         return r.kind == 3 && r.c >= 1
-            && r.d >= 3 && (r.d & 1) && r.e >= 1
-            && r.e < prev[4].e && prev[4].e >= 4;
+            && r.d >= 3 && (r.d & 1) && r.a >= 2 && !(r.a & 1)
+            && r.e >= 1 && r.e < prev[4].e && prev[4].e >= 4
+            && r.d < prev[4].d;
 #endif
     return false;
 }
@@ -366,7 +410,8 @@ static bool check(int idx, const Res &r, const std::vector<Res> &prev) {
 // machines of the first three production batches did exactly that).  A
 // candidate must therefore also pass, in this order:
 //   1. blank non-trivial (checked first, cheapest discriminator),
-//   2. core reachability, 3. branch liveness, 4. chained decrement.
+//   2. core reachability, 3. branch liveness, 4. chained decrement,
+//   5. chained create (the M12 mechanism: two real rounds after the create).
 // Failures are counted in `rejected`, never in `hits`.
 // ---------------------------------------------------------------------------
 
@@ -401,8 +446,9 @@ static bool orbit_run(std::vector<int> &tape, int pos, int cap, Orbit &o) {
 
 // Rebuild the canonical return tape of r, with the head on the first 1 of the
 // c-run.  That is exactly where sim() accepts a return, so continuing from it
-// runs the machine from the configuration it was really in.
-static void build_ret_tape(const Res &r, std::vector<int> &tape, int off, int &pos) {
+// runs the machine from the configuration it was really in.  Caller zeroes the
+// tape; `off` must leave room for the left-hand (10)^p 1^(a+2) blocks.
+static void build_ret_tape(const Res &r, int *tape, int off, int &pos) {
     int i = off;
     for (int k = 0; k < r.p; ++k) { tape[i++] = 1; tape[i++] = 0; }
     for (int k = 0; k < r.a + 2; ++k) tape[i++] = 1;
@@ -413,6 +459,16 @@ static void build_ret_tape(const Res &r, std::vector<int> &tape, int off, int &p
     tape[i++] = 0;
     for (int k = 1; k < GAP; ++k) tape[i++] = 0;
     for (int k = 0; k < r.e; ++k) tape[i++] = 1;
+}
+
+// One chained round: continue the computation from r's real return tape and
+// report the next accepted return.  Used by filter 5 (create -> two rounds).
+static int chain_tape[CHAIN_CELLS];
+static Res chain_round(const Res &r) {
+    memset(chain_tape, 0, sizeof(chain_tape));
+    int pos = 0;
+    build_ret_tape(r, chain_tape, 32, pos);
+    return run_from(chain_tape, CHAIN_CELLS, pos, CHAIN_LOCAL_CAP);
 }
 
 static bool post_filter(const std::vector<Res> &prev) {
@@ -445,10 +501,32 @@ static bool post_filter(const std::vector<Res> &prev) {
     if (prev.size() > 6 && prev[6].kind == 3) {
         std::vector<int> ct(2 * CHAIN_CAP + 2 * ORBIT_PAD, 0);
         int pos = 0;
-        build_ret_tape(prev[6], ct, CHAIN_CAP + ORBIT_PAD, pos);
+        build_ret_tape(prev[6], ct.data(), CHAIN_CAP + ORBIT_PAD, pos);
         Orbit oc;
         if (!orbit_run(ct, pos, CHAIN_CAP, oc)) return PF_FAIL(4);
         if (!oc.halted) return PF_FAIL(4);
+    }
+
+    // 5. chained create: the create return (test 4, d = 0) must be the INPUT of
+    //    a real round, and that round's own return must be the input of another
+    //    one.  This is M12's round-2 mechanism (Kd_step^(a1/6+1) applied to the
+    //    real pa1) expressed as an orbit check: two successive returns, each
+    //    consuming a counter (c or d strictly smaller), keeping e untouched and
+    //    leaving an even accumulator.  A machine that writes a create gadget
+    //    nobody consumes fails here even if its test-4 return has the right
+    //    shape.  Two rounds rather than one, because a single CE_EVEN only
+    //    consumes a c-token and would not show that d drains.
+    if (prev.size() > 4 && prev[4].kind == 3) {
+        Res r1 = chain_round(prev[4]);
+        bool ok1 = r1.kind == 3 && r1.e == prev[4].e
+                && r1.a >= 2 && !(r1.a & 1)
+                && (r1.c < prev[4].c || r1.d < prev[4].d);
+        if (!ok1) return PF_FAIL(5);
+        Res r2 = chain_round(r1);
+        bool ok2 = r2.kind == 3 && r2.e == prev[4].e
+                && r2.a >= 2 && !(r2.a & 1)
+                && (r2.c < r1.c || r2.d < r1.d);
+        if (!ok2) return PF_FAIL(5);
     }
 #undef PF_FAIL
     return true;
