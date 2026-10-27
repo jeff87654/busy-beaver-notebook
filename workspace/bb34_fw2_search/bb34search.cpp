@@ -1,8 +1,8 @@
 // bb34search.cpp  -- single-file 4-symbol TM search built on the Kropitz BB(3,4) core
 //
 // Core (fixed, from 1RB3LB1RZ2RA_2LC3RB1LC2RA_3RB1LB3LC2RC):
-//   A: 1RB 3LB  ?   2RA        (A2 is the core's halt/redirect transition -> free)
-//   B: 2LC 3RB 1LC 2RA
+//   A: ?   3LB ?   2RA        (A2 is the core's halt/redirect transition -> free) A0 is set to free
+//   B: ?   3RB 1LC 2RA        B0 is set to free.
 //   C: 3RB 1LB 3LC 2RC
 //
 // Seed family (the shape the fold produces; head on the FIRST 1, one 2 at the far right):
@@ -210,11 +210,14 @@ static void setRow(int s, const char *blk) {   // blk = 4 transitions, 3 chars e
 static void setupCore() {
     for (int s = 0; s < MAXST; ++s)
         for (int y = 0; y < NSYM; ++y) trans_[s][y] = {0, 0, UNASSIGNED};
-    trans_[0][0] = {1, 1, 1};                  // A0 = 1RB
+    trans_[0][0] = {0, 0, UNASSIGNED};         // A0 = FREE
     trans_[0][1] = {3, -1, 1};                 // A1 = 3LB
     trans_[0][2] = {0, 0, UNASSIGNED};         // A2 = FREE (the core's halt / redirect)
     trans_[0][3] = {2, 1, 0};                  // A3 = 2RA
-    setRow(1, "2LC3RB1LC2RA");                 // B
+    trans_[1][0] = {0, 0, UNASSIGNED};         // B0 = FREE
+    trans_[1][1] = {3, 1, 1};                  // B1 = 3RB
+    trans_[1][2] = {1, -1, 2};                 // B2 = 1LC
+    trans_[1][3] = {2, 1, 0};                  // B3 = 2RA
     setRow(2, "3RB1LB3LC2RC");                 // C
 }
 
