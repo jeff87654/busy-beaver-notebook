@@ -181,6 +181,58 @@
 // all, independently of the create-scaling gate.  Use it only to see how far a
 // space gets, never as a success test.  Adding -DPF_TRACE to either build makes
 // post_filter write "PF reject @<n>" to stderr, naming the filter that fired.
+//
+// ---------------------------------------------------------------------------
+// -layout m12  (new): search the same f_{w+3} question in the shape of M12,
+// the 12-state f_{w+2} machine
+//     1RB1RA_1RI1RC_0LD1LG_0RE1LD_1LK1RF_1RG0RA_1RA0LH_1LG1LH_1RE0LJ_1LH1LI_1RZ0LL_0LH1LK
+// M12 is not a relabelling of the M13 core (its B0 is 1RI and G0 is 1RA, and
+// its d counter is a (10)^d digit string that halts at d = 0, whereas M13's d
+// is 1^d and its round boundary is d = 1).  So it gets its own core, tape
+// layout, tests and post-filters; -layout m13 (the default) is untouched.
+//
+// Configurations (note the head is in state I, not A):
+//   Ce p a c d e = 0^inf (10)^p 1^(a+2) I> (10)^c 0 (10)^d 0^GAP 1^e 0^inf
+//   Cd p b d e   = 0^inf (10)^p 1^(b+2) I> (10)^d 0^GAP 1^e 0^inf
+// The e block is the third counter that has to turn M12's f_{w+2} into
+// f_{w+3}; it sits GAP zeros beyond the d block, exactly as the m13 layout
+// puts it beyond the 1^d block.  GAP = 2 was measured, not guessed: at
+// GAP <= 1 the plain M12 halt path (I0 -> E0 -> K/L walk) reads the e block
+// and diverges, at GAP >= 2 it halts cleanly, and the e block stays invisible
+// until a mutant deliberately walks out to it.
+//
+// Verified rules (minimal instances, real M12 orbit, gap 2):
+//   CE_EVEN : Ce (p+1) (2k) (c+1) d -> Ce (p+k+1) (W_p(1)) c d
+//   C_REL   : Cd (p+1) (2m+1) (d+1) -> Ce p (W_p(3)) m d
+//   D_STEP  : Ce p a 0 (d+2)       -> Cd p (W_p(a+4)) d
+//   D_REL   : Ce (p+1) (2k) 0 0    -> Cd p (W_p(0)) (k+2)
+//   HALT    : Cd p (2m+1) 0        -> halt
+// For example Cd 2 3 2 -> Ce 1 14 1 1 (146 steps) and Ce 2 8 0 0 -> a reload
+// with 6 counter tokens (D_REL's d = a/2+2), which is what tests 0..4 pin.
+//
+// Fixed core: every M12 transition (22 of 24) except I0 and E0, which are the
+// boundary/branch slots the third counter has to re-route.  K0 = 1RZ stays
+// fixed as the halt.  Free: I0, E0 and the spare states M..Q (indices 12..16).
+// So a 15-state run has 8 free slots, a 17-state run 12.
+//
+// Nine tests mirror the m13 ones but in M12 shapes (cd = 1 marks a Cd input):
+//   0 C_REL  Cd 2 3 d=2 e=2 : Ce 1 14 1 1 2      (d drops by exactly 1)
+//   1 C_REL  d=3            : same (p,a,c,e), d one larger (d independence)
+//   2 C_REL  e=3            : same (p,a,c,d)                    (e independence)
+//   3 C_REL  b=5            : c grows with the accumulator       (c from a)
+//   4 create Ce 2 8 0 0    : a return with e >= 1 and reloaded counters
+//   5 halt   Cd 1 5 d=0 e=1 : machine halts
+//   6 dec    Cd 1 5 d=0 e=2 : a return with e = 1 and a reloaded counter
+//   7 dec    Cd 1 5 d=0 e=3 : e = 2, same (p,a,c,d) as test 6
+//   8 create Ce 2 6 0 0    : counters and e smaller than test 4's (a-scaling)
+// Plain M12 passes 0..3 and 5, and fails 4 and 6: it never creates e and it
+// halts whatever e is.  That is exactly the pressure we want: a hit must
+// create the third counter at the d = 0 boundary, keep the halt for e = 1,
+// and reload a round for e >= 2.
+// Post-filters on the real blank orbit: blank non-trivial, core reachability
+// {D,G,H,I}, driver liveness (I0 entered >= 2 times), chained dec (from the
+// test-6 return at e = 1 one more real round must halt), chained create (from
+// the test-4 return the machine must come back with e unchanged).
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -724,6 +776,447 @@ static void nb_choose(int start, int k, int r, int *chosen, Trans *saved) {
     }
 }
 
+// ===========================================================================
+// layout m12
+//
+// The M12 core (12 states A..L), its own tape layout and its own tests.
+// Everything above is m13 and stays untouched; main() dispatches on -layout.
+//
+//   Ce p a c d e = 0^inf (10)^p 1^(a+2) I> (10)^c 0 (10)^d 0^GAP 1^e 0^inf
+//   Cd p b d e   = 0^inf (10)^p 1^(b+2) I> (10)^d 0^GAP 1^e 0^inf
+//
+// The head is in state I (not A), so returns are parsed at I, not at A.
+// Fixed core: 22 of the 24 M12 transitions.  Free slots: I0, E0 (the two
+// boundary transitions the third counter has to re-route) and every slot of
+// the spare states M..Q (indices 12..16).  K0 = 1RZ is fixed, so no further
+// 1RZ is ever offered and there is no "last slot must be 1RZ" rule here.
+// ===========================================================================
+
+static const int MAXT12 = 256;    // the local tests are tiny; chained rounds use CHAIN_CELLS
+static const int MAXS12 = 3000;
+
+struct Res12 { int kind; int cd; int us, ub; int p, a, c, d, e; };
+// kind: 0 BAD, 1 UNDEF, 2 HALT, 3 RET;  cd: 0 = Ce return, 1 = Cd return
+
+struct Test12 { int cdf, p, n, c, d, e; };  // cdf: 0 = Ce input, 1 = Cd input
+static Test12 tests12[9];
+
+static void init_base_m12(int ns) {
+    n_states = ns;
+    for (int s = 0; s < 17; ++s) for (int b = 0; b < 2; ++b) {
+        tr[s][b] = {-1, 0, -1};
+        fixed_slot[s][b] = false;
+    }
+    auto set = [&](char st, int b, int w, char dir, char nst) {
+        tr[st - 'A'][b] = {w, dir == 'L' ? -1 : 1, nst == 'Z' ? 20 : nst - 'A'};
+        fixed_slot[st - 'A'][b] = true;
+    };
+    set('A', 0, 1, 'R', 'B'); set('A', 1, 1, 'R', 'A');
+    set('B', 0, 1, 'R', 'I'); set('B', 1, 1, 'R', 'C');
+    set('C', 0, 0, 'L', 'D'); set('C', 1, 1, 'L', 'G');
+    set('D', 0, 0, 'R', 'E'); set('D', 1, 1, 'L', 'D');
+                              set('E', 1, 1, 'R', 'F');       // E0 free
+    set('F', 0, 1, 'R', 'G'); set('F', 1, 0, 'R', 'A');
+    set('G', 0, 1, 'R', 'A'); set('G', 1, 0, 'L', 'H');
+    set('H', 0, 1, 'L', 'G'); set('H', 1, 1, 'L', 'H');
+                              set('I', 1, 0, 'L', 'J');       // I0 free
+    set('J', 0, 1, 'L', 'H'); set('J', 1, 1, 'L', 'I');
+    set('K', 0, 1, 'R', 'Z'); set('K', 1, 0, 'L', 'L');       // K0 = the halt
+    set('L', 0, 0, 'L', 'H'); set('L', 1, 1, 'L', 'K');
+
+    n_free = 0;
+    for (int s = 12; s < ns; ++s) free_states[n_free++] = s;
+    n_choices = 0;
+    for (int w = 0; w < 2; ++w)
+        for (int mv : {-1, 1})
+            for (int s = 0; s < ns; ++s) choices[n_choices++] = {w, mv, s};
+}
+
+static void build_tests12() {
+    tests12[0] = {1, 2, 3, 0, 2, 2};   // C_REL base
+    tests12[1] = {1, 2, 3, 0, 3, 2};   // C_REL, d+1        (d independence)
+    tests12[2] = {1, 2, 3, 0, 2, 3};   // C_REL, e+1        (e independence)
+    tests12[3] = {1, 2, 5, 0, 2, 2};   // C_REL, b=5        (c built from b)
+    tests12[4] = {0, 2, 8, 0, 0, 0};   // create, a=8, d=0, e absent
+    tests12[5] = {1, 1, 5, 0, 0, 1};   // halt, e=1
+    tests12[6] = {1, 1, 5, 0, 0, 2};   // dec, e=2
+    tests12[7] = {1, 1, 5, 0, 0, 3};   // dec, e=3          (e changes by 1)
+    tests12[8] = {0, 2, 6, 0, 0, 0};   // create, a=6       (counters scale)
+}
+
+// Left side: 0^inf (10)^p 1^(ones), head at pos.  p = number of (10) pairs,
+// ones = length of the accumulator run (a+2 or b+2).
+static bool left12(const int *t, int cells, int pos, int &p_out, int &ones_out) {
+    int i = pos - 1, ones = 0;
+    while (i >= 0 && t[i] == 1) { ++ones; --i; }
+    int p = 0;
+    while (i >= 1 && t[i] == 0 && t[i - 1] == 1) { ++p; i -= 2; }
+    for (int k = 0; k <= i && k < cells; ++k) if (t[k]) return false;
+    p_out = p; ones_out = ones;
+    return true;
+}
+
+static bool parse_ce12(const int *t, int cells, int pos, Res12 &r) {
+    int p, ones;
+    if (!left12(t, cells, pos, p, ones) || ones < 2) return false;
+    int j = pos, c = 0;
+    if (j < cells && t[j] == 1) {
+        while (j + 1 < cells && t[j] == 1 && t[j + 1] == 0) { ++c; j += 2; }
+        if (j >= cells || t[j] != 0) return false;
+    } else {
+        if (j >= cells || t[j] != 0) return false;
+    }
+    ++j;                                              // Ce separator
+    int d = 0;
+    while (j + 1 < cells && t[j] == 1 && t[j + 1] == 0) { ++d; j += 2; }
+    for (int g = 0; g < GAP; ++g) { if (j >= cells || t[j] != 0) return false; ++j; }
+    int e = 0;
+    while (j < cells && t[j] == 1) { ++e; ++j; }
+    for (int k = j; k < cells; ++k) if (t[k]) return false;
+    r = Res12{3, 0, 0, 0, p, ones - 2, c, d, e};
+    return true;
+}
+
+static bool parse_cd12(const int *t, int cells, int pos, Res12 &r) {
+    int p, ones;
+    if (!left12(t, cells, pos, p, ones) || ones < 2) return false;
+    int j = pos, d = 0;
+    if (j < cells && t[j] == 1)
+        while (j + 1 < cells && t[j] == 1 && t[j + 1] == 0) { ++d; j += 2; }
+    for (int g = 0; g < GAP; ++g) { if (j >= cells || t[j] != 0) return false; ++j; }
+    int e = 0;
+    while (j < cells && t[j] == 1) { ++e; ++j; }
+    for (int k = j; k < cells; ++k) if (t[k]) return false;
+    r = Res12{3, 1, 0, 0, p, ones - 2, 0, d, e};
+    return true;
+}
+
+// Run from an arbitrary tape in state I and report the first accepted Ce/Cd
+// return, an undefined slot, or a halt.
+static Res12 run12(int *tape, int cells, int pos, int cap) {
+    int st = 8;                                       // state I
+    for (int step = 1; step <= cap; ++step) {
+        if (pos < 2 || pos >= cells - 2) return Res12{0, 0, 0, 0, 0, 0, 0, 0, 0};
+        if (step > 1 && st == 8) {
+            Res12 r;
+            if (parse_ce12(tape, cells, pos, r)) return r;
+            if (parse_cd12(tape, cells, pos, r)) return r;
+        }
+        int sym = tape[pos];
+        Trans t = tr[st][sym];
+        if (t.nst == -1)
+            return undef_halt ? Res12{2, 0, 0, 0, 0, 0, 0, 0, 0}
+                              : Res12{1, 0, st, sym, 0, 0, 0, 0, 0};
+        if (t.nst == 20) return Res12{2, 0, 0, 0, 0, 0, 0, 0, 0};
+        tape[pos] = t.w; pos += t.mv; st = t.nst;
+    }
+    return Res12{0, 0, 0, 0, 0, 0, 0, 0, 0};
+}
+
+static int sim12_tape[MAXT12];
+
+static Res12 sim12(const Test12 &t) {
+    int *tape = sim12_tape;
+    memset(tape, 0, sizeof(sim12_tape));
+    int idx = 24;
+    for (int k = 0; k < t.p; ++k) { tape[idx++] = 1; tape[idx++] = 0; }
+    for (int k = 0; k < t.n + 2; ++k) tape[idx++] = 1;
+    int pos = idx;
+    if (t.cdf == 0) {
+        for (int k = 0; k < t.c; ++k) { tape[idx++] = 1; tape[idx++] = 0; }
+        tape[idx++] = 0;                              // Ce separator
+        for (int k = 0; k < t.d; ++k) { tape[idx++] = 1; tape[idx++] = 0; }
+    } else {
+        for (int k = 0; k < t.d; ++k) { tape[idx++] = 1; tape[idx++] = 0; }
+    }
+    for (int k = 0; k < GAP; ++k) tape[idx++] = 0;
+    for (int k = 0; k < t.e; ++k) tape[idx++] = 1;
+    return run12(tape, MAXT12, pos, MAXS12);
+}
+
+static std::vector<Res12> g_prev12;
+
+static bool check12(int idx, const Res12 &r, const std::vector<Res12> &prev) {
+    const Test12 &t = tests12[idx];
+    if (idx == 0)                                     // C_REL base
+        return r.kind == 3 && r.cd == 0 && r.p == t.p - 1 && r.d == t.d - 1 && r.e == t.e
+            && r.a >= 2 && !(r.a & 1) && r.c >= 1;
+    if (idx == 1)                                     // d independence
+        return r.kind == 3 && r.d == t.d - 1 && r.e == t.e
+            && r.p == prev[0].p && r.a == prev[0].a && r.c == prev[0].c && r.e == prev[0].e;
+    if (idx == 2)                                     // e independence
+        return r.kind == 3 && r.e == t.e
+            && r.p == prev[0].p && r.a == prev[0].a && r.c == prev[0].c && r.d == prev[0].d;
+    if (idx == 3)                                     // c is built from b
+        return r.kind == 3 && r.d == t.d - 1 && r.e == t.e && r.a >= 2 && !(r.a & 1)
+            && r.p == prev[0].p && r.a == prev[0].a && r.c > prev[0].c;
+    // A reloaded round may come back as a Ce (even a) or as a Cd (odd a), so
+    // the create / decrement checks only require a real accumulator (a >= 2),
+    // not a particular parity.
+    if (idx == 4)                                     // create at d = 0: e and a counter
+        return r.kind == 3 && (r.c >= 1 || r.d >= 1)
+            && r.e >= 1 && r.a >= 2;
+    if (idx == 6)                                     // decrement e, reload a round
+        return r.kind == 3 && r.e == 1 && (r.c >= 1 || r.d >= 1) && r.a >= 2;
+    if (idx == 7)                                     // e changes by exactly 1
+        return r.kind == 3 && r.e == 2
+            && r.p == prev[6].p && r.a == prev[6].a && r.c == prev[6].c && r.d == prev[6].d;
+    if (idx == 8)                                     // created counters scale with a
+        return r.kind == 3 && (r.c >= 1 || r.d >= 1)
+            && r.e >= 1 && r.a >= 2
+            && prev[4].e >= 2 && r.e < prev[4].e
+            && (r.c + r.d) < (prev[4].c + prev[4].d);
+    return false;
+}
+
+static void report12(int i, const Res12 &r) {
+    if (r.kind == 1) printf(" %d:UNDEF(st%c,%d)", i, 'A' + r.us, r.ub);
+    else if (r.kind == 2) printf(" %d:HALT", i);
+    else printf(" %d:k%d%s(q%d,a%d,c%d,d%d,e%d)", i, r.kind, r.cd ? "D" : "E",
+                r.p, r.a, r.c, r.d, r.e);
+}
+
+static void print_machine12(const char *tag, int n_def, const std::vector<Res12> &res) {
+    fprintf(out, "[%s n_st=%d n_def=%d layout=m12] ", tag, n_states, n_def);
+    for (int s = 0; s < n_states; ++s) {
+        if (s) fputc('_', out);
+        for (int b = 0; b < 2; ++b) {
+            Trans t = tr[s][b];
+            if (t.nst == -1) fputs("---", out);
+            else if (t.nst == 20) fputs("1RZ", out);
+            else fprintf(out, "%d%c%c", t.w, t.mv == -1 ? 'L' : 'R', 'A' + t.nst);
+        }
+    }
+    for (size_t i = 0; i < res.size(); ++i)
+        fprintf(out, " | %zu:k%d%s(q%d,a%d,c%d,d%d,e%d)", i, res[i].kind,
+                res[i].cd ? "D" : "E", res[i].p, res[i].a, res[i].c, res[i].d, res[i].e);
+    fputc('\n', out);
+    fflush(out);
+}
+
+// Rebuild the canonical return tape of r, head in state I on the first c/d
+// token (or on the terminator when there is none).
+static void build_ret_tape12(const Res12 &r, int *tape, int off, int &pos) {
+    int i = off;
+    for (int k = 0; k < r.p; ++k) { tape[i++] = 1; tape[i++] = 0; }
+    for (int k = 0; k < r.a + 2; ++k) tape[i++] = 1;
+    pos = i;
+    if (r.cd == 0) {
+        for (int k = 0; k < r.c; ++k) { tape[i++] = 1; tape[i++] = 0; }
+        tape[i++] = 0;
+        for (int k = 0; k < r.d; ++k) { tape[i++] = 1; tape[i++] = 0; }
+    } else {
+        for (int k = 0; k < r.d; ++k) { tape[i++] = 1; tape[i++] = 0; }
+    }
+    for (int k = 0; k < GAP; ++k) tape[i++] = 0;
+    for (int k = 0; k < r.e; ++k) tape[i++] = 1;
+}
+
+struct Orbit12 {
+    int status;                       // 0 timeout, 1 halted (1RZ), 2 undefined/off-arena
+    long long steps;
+    unsigned visited;
+    long long i0ent, i0r1, e0ent, e0r1;
+};
+
+static Orbit12 orbit12(int *tape, int cells, int pos, int start_st, int cap) {
+    Orbit12 o{0, 0, 0, 0, 0, 0, 0};
+    int st = start_st;
+    bool pend_i0 = false, pend_e0 = false;
+    for (int step = 1; step <= cap; ++step) {
+        if (pos < 1 || pos >= cells - 1) { o.status = 2; o.steps = step; return o; }
+        int sym = tape[pos];
+        o.visited |= 1u << st;
+        if (pend_i0) { if (sym == 1) o.i0r1++; pend_i0 = false; }
+        if (pend_e0) { if (sym == 1) o.e0r1++; pend_e0 = false; }
+        if (st == 8 && sym == 0) { o.i0ent++; pend_i0 = true; }
+        if (st == 4 && sym == 0) { o.e0ent++; pend_e0 = true; }
+        Trans t = tr[st][sym];
+        if (t.nst == -1) { o.status = 2; o.steps = step; return o; }
+        if (t.nst == 20) { o.status = 1; o.steps = step; return o; }
+        tape[pos] = t.w; pos += t.mv; st = t.nst;
+    }
+    o.steps = cap;
+    return o;
+}
+
+static int chain12_tape[CHAIN_CELLS];
+static Res12 chain12(const Res12 &r) {
+    memset(chain12_tape, 0, sizeof(chain12_tape));
+    int pos = 0;
+    build_ret_tape12(r, chain12_tape, 32, pos);
+    return run12(chain12_tape, CHAIN_CELLS, pos, CHAIN_LOCAL_CAP);
+}
+
+static bool post_filter12(const std::vector<Res12> &prev) {
+#ifdef PF_TRACE
+#define PF_FAIL12(n) (fprintf(stderr, "PF12 reject @%d\n", (n)), false)
+#else
+#define PF_FAIL12(n) false
+#endif
+    // 1. blank non-trivial.
+    std::vector<int> tape((size_t)2 * BLANK_CAP + 2 * ORBIT_PAD, 0);
+    Orbit12 o = orbit12(tape.data(), (int)tape.size(), BLANK_CAP + ORBIT_PAD, 0, BLANK_CAP);
+    if (o.status != 0) return PF_FAIL12(1);
+
+    // 2. core reachability: the M12 engine is run by A, D, G, H, driven by I.
+    unsigned need = (1u << 3) | (1u << 6) | (1u << 7) | (1u << 8);   // D G H I
+    if ((o.visited & need) != need) return PF_FAIL12(2);
+
+    // 3. driver liveness: I0 must be entered more than once (plain M12: 3).
+    if (o.i0ent < 2) return PF_FAIL12(3);
+
+    // 4. chained dec: from the test-6 return (e = 1) one more real round must
+    //    end in the fixed 1RZ halt, not in an undefined slot.
+    if (prev.size() > 6 && prev[6].kind == 3) {
+        std::vector<int> ct((size_t)2 * CHAIN_CAP + 2 * ORBIT_PAD, 0);
+        int pos = 0;
+        build_ret_tape12(prev[6], ct.data(), CHAIN_CAP + ORBIT_PAD, pos);
+        Orbit12 oc = orbit12(ct.data(), (int)ct.size(), pos, 8, CHAIN_CAP);
+        if (oc.status != 1) return PF_FAIL12(4);
+    }
+
+    // 5. chained create: from the test-4 return two successive real returns
+    //    must each consume a counter and leave e untouched.
+    if (prev.size() > 4 && prev[4].kind == 3) {
+        Res12 r1 = chain12(prev[4]);
+        bool ok1 = r1.kind == 3 && r1.e == prev[4].e && r1.a >= 2
+                && (r1.c + r1.d) < (prev[4].c + prev[4].d);
+        if (!ok1) return PF_FAIL12(5);
+        Res12 r2 = chain12(r1);
+        bool ok2 = r2.kind == 3 && r2.e == prev[4].e && r2.a >= 2
+                && (r2.c + r2.d) < (r1.c + r1.d);
+        if (!ok2) return PF_FAIL12(5);
+    }
+#undef PF_FAIL12
+    return true;
+}
+
+static void dfs12(int idx, int n_def, int max_def, int used_mask,
+                  std::vector<Res12> &prev) {
+    nodes++;
+    if (nodes > max_nodes && max_nodes) { aborted = true; return; }
+    reach[idx]++;
+    if ((nodes & 0xFFFFFF) == 0) {
+        printf("  nodes=%lld hits=%lld part=%lld rejected=%lld reach=", nodes, hits, partial, rejected);
+        for (int i = 0; i < 10; ++i) printf("%lld ", reach[i]);
+        printf("\n"); fflush(stdout);
+    }
+    if (idx == stop_after) {
+        if (!post_filter12(prev)) { rejected++; return; }
+        hits++; print_machine12("HIT_STOP", n_def, prev); return;
+    }
+    if (idx == 6) { partial++; if (partial <= PART_CAP) print_machine12("PART_CREATE_HALT", n_def, prev); }
+    if (idx == 7) { partial++; if (partial <= PART_CAP) print_machine12("PART_DEC", n_def, prev); }
+    if (idx == 8) { partial++; if (partial <= PART_CAP) print_machine12("PART_DEC_EINDEP", n_def, prev); }
+
+    Res12 r = sim12(tests12[idx]);
+
+    if (r.kind == 1) {                                  // need one more definition
+        if (n_def >= max_def) return;
+        int st = r.us, sym = r.ub;
+        for (int i = 0; i < n_choices; ++i) {
+            if (n_def == 0 && nshard > 1 && (i % nshard) != shard) continue;
+            Trans ch = choices[i];
+            if (ch.nst == 20) continue;                  // K0 is the only halt
+            int nm = used_mask;
+            if (ch.nst >= 12) {                          // spare state M..
+                int fi = ch.nst - 12;
+                if (fi > 0) {
+                    bool ok = true;
+                    for (int k = 0; k < fi; ++k) if (!(used_mask & (1 << k))) ok = false;
+                    if (!ok) continue;
+                }
+                nm |= (1 << fi);
+            }
+            tr[st][sym] = ch;
+            dfs12(idx, n_def + 1, max_def, nm, prev);
+            tr[st][sym] = {-1, 0, -1};
+        }
+        return;
+    }
+    if (idx == 5) {                                     // halt test (e = 1, d = 0)
+        if (r.kind != 2) return;
+        prev.push_back(r);
+        dfs12(6, n_def, max_def, used_mask, prev);
+        prev.pop_back();
+        return;
+    }
+    if (r.kind != 3) return;
+    if (!check12(idx, r, prev)) return;
+    prev.push_back(r);
+    dfs12(idx + 1, n_def, max_def, used_mask, prev);
+    prev.pop_back();
+}
+
+static bool run_tests12() {
+    g_prev12.clear();
+    for (int i = 0; i < 9; ++i) {
+        Res12 r = sim12(tests12[i]);
+        if (i == 5) {
+            if (r.kind != 2) return false;
+            g_prev12.push_back(r);
+            continue;
+        }
+        if (!check12(i, r, g_prev12)) return false;
+        g_prev12.push_back(r);
+    }
+    return true;
+}
+
+static void nb_assign12(int ci, int r, const int *chosen, Trans *saved) {
+    if (ci == r) {
+        ++nb_tried;
+        if ((nb_tried & 0xFFFFF) == 0) {
+            printf("  nb tried=%lld hits=%lld\n", nb_tried, nb_hits); fflush(stdout);
+        }
+        if (run_tests12()) {
+            if (!post_filter12(g_prev12)) { ++rejected; return; }
+            ++nb_hits;
+            print_machine12("NB_HIT_M12", 0, g_prev12);
+        }
+        return;
+    }
+    int s = chosen[ci] / 2, b = chosen[ci] % 2;
+    saved[ci] = tr[s][b];
+    for (int i = 0; i <= n_choices; ++i) {              // i == n_choices: undefined
+        tr[s][b] = (i == n_choices) ? Trans{-1, 0, -1} : choices[i];
+        nb_assign12(ci + 1, r, chosen, saved);
+    }
+    tr[s][b] = saved[ci];
+}
+
+static void nb_choose12(int start, int k, int r, int *chosen, Trans *saved) {
+    if (k == r) { nb_assign12(0, r, chosen, saved); return; }
+    for (int i = start; i < nb_n; ++i) {
+        chosen[k] = nb_slots[i];
+        nb_choose12(i + 1, k + 1, r, chosen, saved);
+    }
+}
+
+static void run_one12(int ns, int max_def, int stop, long long cap) {
+    init_base_m12(ns);
+    build_tests12();
+    reset_stats();
+    stop_after = stop;
+
+    printf("== w3b m12 n_states=%d n_free=%d max_def=%d stop=%d gap=%d cap=%lld shard=%d/%d\n",
+           ns, n_free, max_def, stop, GAP, cap, shard, nshard);
+    printf("sanity:");
+    for (int i = 0; i < 9; ++i) report12(i, sim12(tests12[i]));
+    printf("\n");
+    fflush(stdout);
+
+    max_nodes = cap;
+    std::vector<Res12> prev;
+    dfs12(0, 0, max_def, 0, prev);
+    printf("DONE m12 n_states=%d gap=%d nodes=%lld hits=%lld part=%lld rejected=%lld%s reach=",
+           ns, GAP, nodes, hits, partial, rejected, aborted ? " ABORTED(cap)" : "");
+    for (int i = 0; i < 10; ++i) printf("%lld ", reach[i]);
+    printf("\n");
+    fflush(stdout);
+}
+
 // One complete search for a fixed (n_states, max_def, stop, preset, gap, DD).
 static void run_one(int ns, int max_def, int stop, int preset_flag, long long cap) {
     init_base(ns);
@@ -763,27 +1256,70 @@ static void run_one(int ns, int max_def, int stop, int preset_flag, long long ca
     fflush(stdout);
 }
 
+// `-layout m12` is a keyword argument and is removed before the positional
+// arguments below are read, so every existing m13 command line still works.
 int main(int argc, char **argv) {
-    int ns = argc > 1 ? atoi(argv[1]) : 16;
-    int max_def = argc > 2 ? atoi(argv[2]) : 8;
-    out = (argc > 3 && strcmp(argv[3], "-") != 0) ? fopen(argv[3], "w") : stdout;
-    if (!out) { fprintf(stderr, "cannot open %s\n", argv[3]); return 1; }
-    if (argc > 4) stop_after = atoi(argv[4]);
-    if (argc > 5) fix_crel = atoi(argv[5]);
-    if (argc > 6) GAP = atoi(argv[6]);
-    if (argc > 7) DD = atoi(argv[7]);
+    const char *layout = "m13";
+    std::vector<char *> pa;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-layout") == 0) {
+            if (i + 1 < argc) layout = argv[++i];
+            continue;
+        }
+        pa.push_back(argv[i]);
+    }
+    const bool m12 = (strcmp(layout, "m12") == 0);
+    const int np = (int)pa.size();
+
+    int ns = np > 0 ? atoi(pa[0]) : 16;
+    int max_def = np > 1 ? atoi(pa[1]) : 8;
+    out = (np > 2 && strcmp(pa[2], "-") != 0) ? fopen(pa[2], "w") : stdout;
+    if (!out) { fprintf(stderr, "cannot open %s\n", np > 2 ? pa[2] : "-"); return 1; }
+    if (np > 3) stop_after = atoi(pa[3]);
+    if (np > 4) fix_crel = atoi(pa[4]);
+    if (np > 5) GAP = atoi(pa[5]);
+    if (np > 6) DD = atoi(pa[6]);
     if (GAP < 1) GAP = 1;
     if (DD < 1) DD = 1;
-    long long cap = argc > 8 ? atoll(argv[8]) : 0;
-    int sweep = argc > 9 ? atoi(argv[9]) : 0;   // 1 = DD 1..3 x gap 1..3
-    const char *seed = argc > 10 ? argv[10] : nullptr;
-    int radius = argc > 11 ? atoi(argv[11]) : 2;
-    if (argc > 12) shard = atoi(argv[12]);
-    if (argc > 13) nshard = atoi(argv[13]);
+    long long cap = np > 7 ? atoll(pa[7]) : 0;
+    int sweep = np > 8 ? atoi(pa[8]) : 0;   // 1 = DD 1..3 x gap 1..3
+    const char *seed = np > 9 ? pa[9] : nullptr;
+    int radius = np > 10 ? atoi(pa[10]) : 2;
+    if (np > 11) shard = atoi(pa[11]);
+    if (np > 12) nshard = atoi(pa[12]);
     if (nshard < 1) nshard = 1;
     if (shard < 0 || shard >= nshard) shard = 0;
+    if (m12 && (ns < 12 || ns > 17)) {
+        fprintf(stderr, "-layout m12 needs 12 <= n_states <= 17 (got %d)\n", ns);
+        return 1;
+    }
 
-    if (fix_crel == 2) {                        // neighbourhood mode
+    if (fix_crel == 2 && m12) {                 // m12 neighbourhood mode
+        init_base_m12(ns);
+        undef_halt = true;
+        build_tests12();
+        reset_stats();
+        if (!seed || !load_seed(seed)) return 1;
+        printf("== w3b m12 neighbourhood n_states=%d seed=%s gap=%d radius=%d\n",
+               ns, seed, GAP, radius);
+        printf("seed:");
+        for (int i = 0; i < 9; ++i) report12(i, sim12(tests12[i]));
+        printf("\nseed passes all nine: %s\n", run_tests12() ? "YES" : "no");
+        nb_build_slots();
+        printf("outer (changeable) slots: %d\n", nb_n);
+        fflush(stdout);
+        int chosen[16];
+        Trans saved[16];
+        for (int r = 0; r <= radius; ++r) {
+            printf("-- radius %d\n", r); fflush(stdout);
+            nb_choose12(0, 0, r, chosen, saved);
+        }
+        printf("DONE nb tried=%lld hits=%lld rejected=%lld\n", nb_tried, nb_hits, rejected);
+        if (out != stdout) fclose(out);
+        return 0;
+    }
+
+    if (fix_crel == 2) {                        // m13 neighbourhood mode
         init_base(ns);
         undef_halt = true;
         build_tests();
@@ -811,7 +1347,9 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    if (!sweep) {
+    if (m12) {
+        run_one12(ns, max_def, stop_after, cap);
+    } else if (!sweep) {
         run_one(ns, max_def, stop_after, fix_crel, cap);
     } else {
         for (int dd = 1; dd <= 3; ++dd)
